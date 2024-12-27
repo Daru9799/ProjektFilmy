@@ -9,7 +9,7 @@ namespace MoviesWebApplication.Controllers
     public class CategoriesController : BaseApiController
     {
         //Zwracanie wszystkich kategorii (gatunków)
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<List<Category>>> GetCountries()
         {
             return await Mediator.Send(new CategoriesList.Query());

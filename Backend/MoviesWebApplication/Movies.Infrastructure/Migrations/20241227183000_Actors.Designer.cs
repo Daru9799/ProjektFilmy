@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
@@ -10,9 +11,11 @@ using Movies.Infrastructure;
 namespace Movies.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241227183000_Actors")]
+    partial class Actors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -163,29 +166,6 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("Movies.Domain.Review", b =>
-                {
-                    b.Property<Guid>("ReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("MovieId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<float>("Rating")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("ReviewId");
-
-                    b.HasIndex("MovieId");
-
-                    b.ToTable("Reviews");
-                });
-
             modelBuilder.Entity("ActorMovie", b =>
                 {
                     b.HasOne("Movies.Domain.Actor", null)
@@ -244,22 +224,6 @@ namespace Movies.Infrastructure.Migrations
                         .HasForeignKey("MoviesMovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Movies.Domain.Review", b =>
-                {
-                    b.HasOne("Movies.Domain.Movie", "Movie")
-                        .WithMany("Reviews")
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Movie");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Movie", b =>
-                {
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

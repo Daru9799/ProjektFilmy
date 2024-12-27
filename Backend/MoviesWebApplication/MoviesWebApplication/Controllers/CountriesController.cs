@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Countries;
-using Movies.Application.Movies;
 using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
@@ -8,7 +7,7 @@ namespace MoviesWebApplication.Controllers
     public class CountriesController : BaseApiController
     {
         //Zwracanie wszystkich krajów
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<List<Country>>> GetCountries()
         {
             return await Mediator.Send(new CountriesList.Query());

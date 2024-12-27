@@ -13,7 +13,7 @@ namespace MoviesWebApplication.Controllers
     public class MoviesController : BaseApiController
     {
         //Zwracanie wszystkich filmów
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<List<Movie>>> GetMovies()
         {
             return await Mediator.Send(new MoviesList.Query());

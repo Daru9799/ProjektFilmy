@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
@@ -10,27 +11,14 @@ using Movies.Infrastructure;
 namespace Movies.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241227163949_Directors")]
+    partial class Directors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
-
-            modelBuilder.Entity("ActorMovie", b =>
-                {
-                    b.Property<Guid>("ActorsActorId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("MoviesMovieId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ActorsActorId", "MoviesMovieId");
-
-                    b.HasIndex("MoviesMovieId");
-
-                    b.ToTable("ActorMovie");
-                });
 
             modelBuilder.Entity("CategoryMovie", b =>
                 {
@@ -77,25 +65,6 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("DirectorMovie");
                 });
 
-            modelBuilder.Entity("Movies.Domain.Actor", b =>
-                {
-                    b.Property<Guid>("ActorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ActorLastName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ActorName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ActorId");
-
-                    b.ToTable("Actors");
-                });
-
             modelBuilder.Entity("Movies.Domain.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
@@ -138,7 +107,7 @@ namespace Movies.Infrastructure.Migrations
 
                     b.HasKey("DirectorId");
 
-                    b.ToTable("Directors");
+                    b.ToTable("Director");
                 });
 
             modelBuilder.Entity("Movies.Domain.Movie", b =>
@@ -161,44 +130,6 @@ namespace Movies.Infrastructure.Migrations
                     b.HasKey("MovieId");
 
                     b.ToTable("Movies");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Review", b =>
-                {
-                    b.Property<Guid>("ReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("MovieId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<float>("Rating")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("ReviewId");
-
-                    b.HasIndex("MovieId");
-
-                    b.ToTable("Reviews");
-                });
-
-            modelBuilder.Entity("ActorMovie", b =>
-                {
-                    b.HasOne("Movies.Domain.Actor", null)
-                        .WithMany()
-                        .HasForeignKey("ActorsActorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MoviesMovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CategoryMovie", b =>
@@ -244,22 +175,6 @@ namespace Movies.Infrastructure.Migrations
                         .HasForeignKey("MoviesMovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Movies.Domain.Review", b =>
-                {
-                    b.HasOne("Movies.Domain.Movie", "Movie")
-                        .WithMany("Reviews")
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Movie");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Movie", b =>
-                {
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }
