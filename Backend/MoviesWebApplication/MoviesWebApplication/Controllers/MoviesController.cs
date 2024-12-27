@@ -12,7 +12,6 @@ namespace MoviesWebApplication.Controllers
 {
     public class MoviesController : BaseApiController
     {
-        //ENDPOINTY
         //Zwracanie wszystkich filmów
         [HttpGet]
         public async Task<ActionResult<List<Movie>>> GetMovies()
@@ -49,35 +48,6 @@ namespace MoviesWebApplication.Controllers
             }
             return Ok(movies);
         }
-        //Zwracanie kategorii na podstawie id filmu
-        [HttpGet("{movieId}/categories")]
-        public async Task<ActionResult<List<Category>>> GetCategoriesByMovieId(Guid movieId)
-        {
-            var query = new CategoriesByMovieId.Query { MovieId = movieId };
-            var categories = await Mediator.Send(query);
-
-            if (categories == null || !categories.Any())
-            {
-                return NotFound($"Nie znaleziono kategorii dla filmu o ID '{movieId}'.");
-            }
-
-            return Ok(categories);
-        }
-
-        //Zwracanie krajów na podstawie id filmu
-        [HttpGet("{movieId}/countries")]
-        public async Task<ActionResult<List<Country>>> GetCountriesByMovieId(Guid movieId)
-        {
-            var query = new CountriesByMovieId.Query { MovieId = movieId };
-            var countries = await Mediator.Send(query);
-
-            if (countries == null || !countries.Any())
-            {
-                return NotFound($"Nie znaleziono krajów dla filmu o ID '{movieId}'.");
-            }
-
-            return Ok(countries);
-        }
         //Dodawanie filmu
         [HttpPost]
         public async Task<ActionResult<Movie>> CreateMovie([FromBody] CreateMovie.Command command)
@@ -90,61 +60,5 @@ namespace MoviesWebApplication.Controllers
             var movie = await Mediator.Send(command);
             return Ok(movie);
         }
-
-
-        //STARY KOD PRZED MEDIATOREM (MOZNA TO POTEM USUNAC)
-
-
-        //ZAKOMENTOWANE ZWRACAJĄ BEZ POWIĄZANIA Z INNYMI TABELAMI (WTEDY OBIEKTY LIST COUNTRIES I CATEGORY SĄ NULL) PRAWDOPODOBNIE TAK BEDZIEMY ZWRACAC
-        /*[HttpGet]
-        public async Task<ActionResult<List<Movie>>> GetMovies()
-        {
-            return await _context.Movies
-                             .Include(m => m.Countries)    //Ładuje powiązane kraje
-                             .Include(m => m.Categories)   //Ładuje powiązane kategorie
-                             .ToListAsync();
-            //return await _context.Movies.ToListAsync();
-        }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(Guid id)
-        {
-            return await _context.Movies
-                                  .Include(m => m.Countries) //Ładuje powiązane kraje
-                                  .Include(m => m.Categories) //Ładuje powiązane kategorie
-                                  .FirstOrDefaultAsync(m => m.MovieId == id);
-            //return await _context.Movies.FindAsync(id);
-        }
-
-        //UWAGA WIELKOSC LITER MA ZNACZENIE ("USA" ZNAJDUJE NATOMIAST "usa" NIE BO W BAZIE JEST Z DUZYCH, KATEGORIE TAKZE ZACZYNAJA SIE Z DUZEJ WIEC TYLOK TAK MOZNA JE ZNALEZC)
-        [HttpGet("by-country/{countryName}")]
-        public async Task<IActionResult> GetMoviesByCountry(string countryName)
-        {
-            var movies = await _context.Movies
-                .Where(m => m.Countries.Any(c => c.CountryName == countryName))
-                .ToListAsync();
-
-            if (movies == null || !movies.Any())
-            {
-                return NotFound($"No movies found for the country '{countryName}'.");
-            }
-
-            return Ok(movies);
-        }
-
-        [HttpGet("by-category/{categoryName}")]
-        public async Task<ActionResult<List<Movie>>> GetMoviesByCategory(string categoryName)
-        {
-            var movies = await _context.Movies
-                                       .Where(m => m.Categories.Any(c => c.CategoryName == categoryName))
-                                       .ToListAsync();
-
-            if (!movies.Any())
-            {
-                return NotFound($"No movies found for the category '{categoryName}'.");
-            }
-
-            return Ok(movies);
-        }*/
-
     }
 }
