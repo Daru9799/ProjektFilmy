@@ -14,7 +14,12 @@ namespace Movies.Application.Movies
     public class MoviesList
     {
         //Lista obiektów typu filmy
-        public class Query : IRequest<List<Movie>> { }
+        public class Query : IRequest<List<Movie>> 
+        {
+            public int PageNumber { get; set; }
+            public int PageSize { get; set; }
+            public string OrderBy { get; set; }
+        }
         public class Handler : IRequestHandler<Query, List<Movie>>
         {
             private readonly DataContext _context;
@@ -25,7 +30,22 @@ namespace Movies.Application.Movies
 
             public async Task<List<Movie>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.Movies.ToListAsync();
+                IQueryable<Movie> query = _context.Movies;
+
+                //Obsługa sortowania filmów np. po tytule, roku produkcji id 
+                query = request.OrderBy?.ToLower() switch
+                {
+                    "title" => query.OrderBy(m => m.Title),
+                    "year" => query.OrderBy(m => m.ReleaseDate),
+                    "id" => query.OrderBy(m => m.MovieId),
+                    _ => query.OrderBy(m => m.Title) //Domyślne sortowanie
+                };
+
+                //Obsługa paginacji
+                return await query
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToListAsync(cancellationToken);
             }
         }
     }

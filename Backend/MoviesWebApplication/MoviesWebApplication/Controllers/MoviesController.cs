@@ -14,9 +14,14 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich filmów
         [HttpGet("all")]
-        public async Task<ActionResult<List<Movie>>> GetMovies()
+        public async Task<ActionResult<List<Movie>>> GetMovies([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "title")
         {
-            return await Mediator.Send(new MoviesList.Query());
+            return await Mediator.Send(new MoviesList.Query
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                OrderBy = orderBy
+            });
         }
         //Zwracanie filmu o konkretnym id
         [HttpGet("{id}")]
