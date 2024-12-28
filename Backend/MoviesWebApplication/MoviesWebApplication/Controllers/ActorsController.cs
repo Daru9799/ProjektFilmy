@@ -13,7 +13,7 @@ namespace MoviesWebApplication.Controllers
             return await Mediator.Send(new ActorsList.Query());
         }
         //Zwracanie aktorów na podstawie ID filmu
-        [HttpGet("{movieId}")]
+        [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<Category>>> GetActorsByMovieId(Guid movieId)
         {
             var query = new ActorsByMovieId.Query { MovieId = movieId };

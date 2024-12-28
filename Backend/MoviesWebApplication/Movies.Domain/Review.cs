@@ -16,6 +16,6 @@ namespace Movies.Domain
 
         //Obiekty potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public Movie Movie { get; set; }
-        //public User User { get; set; } -> do odkomentowania jak będzie tabela Users
+        public User User { get; set; }
     }
 }

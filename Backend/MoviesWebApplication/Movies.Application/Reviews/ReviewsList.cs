@@ -13,8 +13,8 @@ namespace Movies.Application.Reviews
     public class ReviewsList
     {
         //Lista obiektów typu recenzje
-        public class Query : IRequest<List<Review>> { }
-        public class Handler : IRequestHandler<Query, List<Review>>
+        public class Query : IRequest<List<ReviewDto>> { }
+        public class Handler : IRequestHandler<Query, List<ReviewDto>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -22,10 +22,20 @@ namespace Movies.Application.Reviews
                 _context = context;
             }
 
-            public async Task<List<Review>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 return await _context.Reviews
-                    .Include(r => r.Movie)
+                    .Select(r => new ReviewDto
+                    {
+                        ReviewId = r.ReviewId,
+                        Comment = r.Comment,
+                        Rating = r.Rating,
+                        Username = r.User.UserName,
+                        UserId = r.User.Id,
+                        MovieTitle = r.Movie.Title,
+                        MovieId = r.Movie.MovieId
+
+                    })
                     .ToListAsync();
             }
         }

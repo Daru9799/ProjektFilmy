@@ -13,7 +13,7 @@ namespace MoviesWebApplication.Controllers
             return await Mediator.Send(new CountriesList.Query());
         }
         // Zwracanie krajów na podstawie ID filmu
-        [HttpGet("{movieId}")]
+        [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<Country>>> GetCountriesByMovieId(Guid movieId)
         {
             var query = new CountriesByMovieId.Query { MovieId = movieId };

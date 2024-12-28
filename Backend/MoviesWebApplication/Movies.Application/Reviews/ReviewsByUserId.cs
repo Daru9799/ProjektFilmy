@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Reviews
 {
-    public class ReviewsByMovieId
+    public class ReviewsByUserId
     {
         public class Query : IRequest<List<ReviewDto>>
         {
-            public Guid MovieId { get; set; }
+            public string UserId { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, List<ReviewDto>>
@@ -28,8 +28,8 @@ namespace Movies.Application.Reviews
 
             public async Task<List<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var reviews = await _context.Movies
-                    .Where(m => m.MovieId == request.MovieId)
+                var reviews = await _context.Users
+                    .Where(m => m.Id == request.UserId)
                     .SelectMany(m => m.Reviews)
                     .Select(r => new ReviewDto
                     {

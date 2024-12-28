@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Movies.Infrastructure;
 using Movies.Application.Movies;
+using MoviesWebApplication;
+using Microsoft.AspNetCore.Identity;
+using Movies.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,9 @@ builder.Services.AddDbContext<DataContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+//Autentykacja, logowanie, rejestracja 
+builder.Services.AddIdentityServices(builder.Configuration);
 
 //Rejestracja mediatora
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MoviesList.Handler).Assembly));
@@ -58,8 +64,10 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
-    context.Database.Migrate();
-    await Seed.SeedData(context);
+    var userManager = services.GetRequiredService<UserManager<User>>();
+
+    await context.Database.MigrateAsync();
+    await Seed.SeedData(context, userManager);
 }
 catch (Exception ex)
 {

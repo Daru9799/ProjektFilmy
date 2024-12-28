@@ -28,11 +28,11 @@ namespace Movies.Application.Actors
 
             public async Task<List<Actor>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var categories = await _context.Movies
+                var actors = await _context.Movies
                     .Where(m => m.MovieId == request.MovieId)
                     .SelectMany(m => m.Actors)
                     .ToListAsync();
-                return categories;
+                return actors;
             }
         }
     }

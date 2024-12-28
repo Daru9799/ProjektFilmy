@@ -28,12 +28,12 @@ namespace Movies.Application.Countries
 
             public async Task<List<Country>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var movie = await _context.Movies
+                var countries = await _context.Movies
                     .Where(m => m.MovieId == request.MovieId) 
                     .SelectMany(m => m.Countries)
                     .ToListAsync();
 
-                return movie;
+                return countries;
             }
         }
     }

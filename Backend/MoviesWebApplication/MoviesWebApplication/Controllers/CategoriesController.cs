@@ -15,7 +15,7 @@ namespace MoviesWebApplication.Controllers
             return await Mediator.Send(new CategoriesList.Query());
         }
         // Zwracanie kategorii na podstawie ID filmu
-        [HttpGet("{movieId}")]
+        [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<Category>>> GetCategoriesByMovieId(Guid movieId)
         {
             var query = new CategoriesByMovieId.Query { MovieId = movieId };

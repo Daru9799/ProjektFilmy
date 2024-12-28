@@ -15,7 +15,7 @@ namespace MoviesWebApplication.Controllers
         }
 
         //Zwracanie reżyserów na podstawie ID filmu
-        [HttpGet("{movieId}")]
+        [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<Country>>> GetDirectorsByMovieId(Guid movieId)
         {
             var query = new DirectorsByMovieId.Query { MovieId = movieId };

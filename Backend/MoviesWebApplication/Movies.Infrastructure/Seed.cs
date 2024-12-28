@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualBasic.FileIO;
 using Movies.Domain;
 
@@ -11,7 +12,7 @@ namespace Movies.Infrastructure
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context)
+        public static async Task SeedData(DataContext context, UserManager<User> userManager)
         {
             //Usuwanie danych w tabelach
             /*context.Movies.RemoveRange(context.Movies);
@@ -22,6 +23,35 @@ namespace Movies.Infrastructure
             context.Reviews.RemoveRange(context.Reviews);
             await context.SaveChangesAsync();*/
 
+            //Tworzenie userów
+            if (userManager.Users.Any()) return;
+
+            var users = new List<User>
+            {
+                new User
+                {
+                    UserName = "user1",
+                    Email = "user1@example.com",
+                    UserRole = User.Role.User
+                },
+                new User
+                {
+                    UserName = "critic1",
+                    Email = "critic1@example.com",
+                    UserRole = User.Role.Critic
+                },
+                new User
+                {
+                    UserName = "mod1",
+                    Email = "mod1@example.com",
+                    UserRole = User.Role.Mod
+                }
+            };
+
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, "Zaq12wsx");
+            }
 
             // jeśli baza ma jakieś rekordy to nic nie rób
             if (context.Movies.Any()) return;
@@ -141,7 +171,8 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 4.5f,
                 Comment = "Niesamowite połączenie akcji i humoru. Znakomita obsada i świetna reżyseria Jossa Whedona. Czekałem na tę produkcję i nie zawiodłem się!",
-                Movie = movies.First(m => m.Title == "The Avengers")
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                User = users.First(u => u.UserName == "user1")
             };
 
             var review2 = new Review
@@ -149,7 +180,8 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 5f,
                 Comment = "Klasyka! Forrest Gump to film, który wzrusza za każdym razem. Tom Hanks w swojej najlepszej roli. Historia pełna emocji i niezapomnianych momentów.",
-                Movie = movies.First(m => m.Title == "Forrest Gump")
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                User = users.First(u => u.UserName == "mod1")
             };
 
             var review3 = new Review
@@ -157,7 +189,8 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 4.5f,
                 Comment = "Jeden z najlepszych filmów o Batmanie! Świetna rola Heath'a Ledgera jako Jokera. Christopher Nolan stworzył naprawdę niezapomnianą produkcję.",
-                Movie = movies.First(m => m.Title == "The Dark Knight")
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "user1")
             };
 
             var reviews = new List<Review>
