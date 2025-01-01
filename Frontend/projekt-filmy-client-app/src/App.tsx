@@ -1,17 +1,14 @@
 import React from 'react';
 import './styles/App.css';
 import NavBar from './components/Navbar_componets/NavBar';
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
     <div className="Container">
       <NavBar />
       <div className="App">
-        <header className="App-header">
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-        </header>
+        <Outlet />
       </div>
       <div className="Footer">
         <p className="text-white fw-light">Copyright © WebFilm 2025;</p>
