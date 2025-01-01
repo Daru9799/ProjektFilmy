@@ -11,7 +11,11 @@ namespace Movies.Domain
     {
         [Key]
         public Guid DirectorId { get; set; }
-        public string DirectorName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Bio { get; set; }
+        public DateTime BirthDate { get; set; }
+        public string PhotoUrl { get; set; }
 
         //Kolekcja potrzebna do wygenerowania klucza obcego
         public ICollection<Movie> Movies { get; set; }

@@ -18,6 +18,8 @@ namespace Movies.Application.Movies
             public string Title { get; set; }
             public DateTime ReleaseDate { get; set; }
             public string PosterUrl { get; set; }
+            public string Description { get; set; }
+            public int Duration { get; set; }
             public List<Guid> CountryIds { get; set; } // Lista CountryId dla relacji
             public List<Guid> CategoryIds { get; set; } // Lista CategoryId dla relacji
         }
@@ -62,6 +64,8 @@ namespace Movies.Application.Movies
                     Title = request.Title,
                     ReleaseDate = request.ReleaseDate,
                     PosterUrl = request.PosterUrl,
+                    Description = request.Description,
+                    Duration = request.Duration,
                     Countries = await _context.Countries.Where(c => request.CountryIds.Contains(c.CountryId)).ToListAsync(cancellationToken),
                     Categories = await _context.Categories.Where(c => request.CategoryIds.Contains(c.CategoryId)).ToListAsync(cancellationToken)
                 };

@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Movies.Domain
 {
-    public class Category
+    public class CategoryDto
     {
         public Guid CategoryId { get; set; }
-        public string Name { get; set; }
-
-        //Kolekcja potrzebna do wygenerowania klucza obcego
-        public ICollection<Movie> Movies { get; set; }
+        public string CategoryName { get; set; }
     }
 }

@@ -14,24 +14,25 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich filmów
         [HttpGet("all")]
-        public async Task<ActionResult<List<Movie>>> GetMovies([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "title")
+        public async Task<ActionResult<PagedResponse<MovieDto>>> GetMovies([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "title", [FromQuery] string sortDirection = "asc")
         {
             return await Mediator.Send(new MoviesList.Query
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                OrderBy = orderBy
+                OrderBy = orderBy,
+                SortDirection = sortDirection
             });
         }
         //Zwracanie filmu o konkretnym id
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(Guid id)
+        public async Task<ActionResult<MovieDto>> GetMovie(Guid id)
         {
             return await Mediator.Send(new MoviesById.Query { Id = id });
         }
         //Zwracanie filmów na podstawie nazwy kraju
         [HttpGet("by-country/{countryName}")]
-        public async Task<ActionResult<List<Movie>>> GetMoviesByCountry(string countryName)
+        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCountry(string countryName)
         {
             var query = new MoviesByCountry.Query { CountryName = countryName };
             var movies = await Mediator.Send(query);
@@ -43,7 +44,7 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie filmów na podstawie kategorii
         [HttpGet("by-category/{categoryName}")]
-        public async Task<ActionResult<List<Movie>>> GetMoviesByCategory(string categoryName)
+        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCategory(string categoryName)
         {
             var query = new MoviesByCategory.Query { CategoryName = categoryName };
             var movies = await Mediator.Send(query);

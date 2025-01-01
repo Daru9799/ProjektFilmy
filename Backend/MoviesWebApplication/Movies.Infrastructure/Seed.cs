@@ -14,13 +14,14 @@ namespace Movies.Infrastructure
     {
         public static async Task SeedData(DataContext context, UserManager<User> userManager)
         {
-            //Usuwanie danych w tabelach
+            //Usuwanie danych w tabelach jak chce sie coś na nowo wygenerowac nizej to nalezy to odkomentować
             /*context.Movies.RemoveRange(context.Movies);
             context.Countries.RemoveRange(context.Countries);
             context.Categories.RemoveRange(context.Categories);
             context.Directors.RemoveRange(context.Directors);
             context.Actors.RemoveRange(context.Actors);
             context.Reviews.RemoveRange(context.Reviews);
+            context.Users.RemoveRange(context.Users);
             await context.SaveChangesAsync();*/
 
             //Tworzenie userów
@@ -59,75 +60,104 @@ namespace Movies.Infrastructure
             //Kraje
             var usa = new Country
             {
-                CountryName = "USA"
+                Name = "USA"
             };
 
             //Gatunki
             var action = new Category
             {
-                CategoryName = "Akcji"
+                Name = "Akcji"
             };
 
             var drama = new Category
             {
-                CategoryName = "Dramat"
+                Name = "Dramat"
             };
 
             var comedy = new Category
             {
-                CategoryName = "Komedia"
+                Name = "Komedia"
             };
 
-            //Reżyserowie
             var director1 = new Director
             {
-                DirectorName = "Joss Whedon" 
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Joss",
+                LastName = "Whedon",
+                Bio = "Joss Whedon to amerykański scenarzysta, reżyser i producent, znany głównie z tworzenia serialu 'Buffy: Postrach Wampirów' oraz reżyserowania 'Avengers'.",
+                BirthDate = new DateTime(1964, 6, 23),
+                PhotoUrl = "https://example.com/photos/joss_whedon.jpg"
             };
 
             var director2 = new Director
             {
-                DirectorName = "Robert Zemeckis" 
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Robert",
+                LastName = "Zemeckis",
+                Bio = "Robert Zemeckis to amerykański reżyser filmowy, znany z takich filmów jak 'Powrót do przyszłości', 'Forrest Gump' czy 'Kto wrobił Królika Rogera'.",
+                BirthDate = new DateTime(1951, 5, 14),
+                PhotoUrl = "https://example.com/photos/robert_zemeckis.jpg"
             };
 
             var director3 = new Director
             {
-                DirectorName = "Christopher Nolan"
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Christopher",
+                LastName = "Nolan",
+                Bio = "Christopher Nolan to brytyjsko-amerykański reżyser i producent, znany z takich filmów jak 'Incepcja', 'Trylogia Mroczny Rycerz' i 'Interstellar'.",
+                BirthDate = new DateTime(1970, 7, 30),
+                PhotoUrl = "https://example.com/photos/christopher_nolan.jpg"
             };
 
-            //Aktorzy
+            // Aktorzy
             var actor1 = new Actor
             {
                 ActorId = Guid.NewGuid(),
-                ActorName = "Robert",
-                ActorLastName = "Downey Jr."
+                FirstName = "Robert",
+                LastName = "Downey Jr.",
+                Bio = "Robert Downey Jr. to amerykański aktor, najlepiej znany z roli Tony'ego Starka/Iron Mana w Marvel Cinematic Universe.",
+                BirthDate = new DateTime(1965, 4, 4),
+                PhotoUrl = "https://example.com/photos/robert_downey_jr.jpg"
             };
 
             var actor2 = new Actor
             {
                 ActorId = Guid.NewGuid(),
-                ActorName = "Tom",
-                ActorLastName = "Hanks"
+                FirstName = "Tom",
+                LastName = "Hanks",
+                Bio = "Tom Hanks to amerykański aktor i producent filmowy, znany z ról w filmach takich jak 'Forrest Gump', 'Cast Away' i 'Szeregowiec Ryan'.",
+                BirthDate = new DateTime(1956, 7, 9),
+                PhotoUrl = "https://example.com/photos/tom_hanks.jpg"
             };
 
             var actor3 = new Actor
             {
                 ActorId = Guid.NewGuid(),
-                ActorName = "Christian",
-                ActorLastName = "Bale"
+                FirstName = "Christian",
+                LastName = "Bale",
+                Bio = "Christian Bale to brytyjsko-amerykański aktor, znany z intensywnych ról w filmach takich jak 'Mroczny Rycerz', 'American Psycho' i 'Mechanik'.",
+                BirthDate = new DateTime(1974, 1, 30),
+                PhotoUrl = "https://example.com/photos/christian_bale.jpg"
             };
 
             var actor4 = new Actor
             {
                 ActorId = Guid.NewGuid(),
-                ActorName = "Scarlett",
-                ActorLastName = "Johansson"
+                FirstName = "Scarlett",
+                LastName = "Johansson",
+                Bio = "Scarlett Johansson to amerykańska aktorka i producentka filmowa, znana z roli Czarnej Wdowy w Marvel Cinematic Universe.",
+                BirthDate = new DateTime(1984, 11, 22),
+                PhotoUrl = "https://example.com/photos/scarlett_johansson.jpg"
             };
 
             var actor5 = new Actor
             {
                 ActorId = Guid.NewGuid(),
-                ActorName = "Morgan",
-                ActorLastName = "Freeman"
+                FirstName = "Gary",
+                LastName = "Sinise",
+                Bio = "Gary Sinise to amerykański aktor, reżyser i producent, znany z roli porucznika Dana Taylora w filmie 'Forrest Gump'. Posiada także bogatą karierę telewizyjną, w tym rolę w serialu 'CSI: NY'.",
+                BirthDate = new DateTime(1955, 3, 17),
+                PhotoUrl = "https://example.com/photos/gary_sinise.jpg"
             };
 
             //Filmy
@@ -137,7 +167,9 @@ namespace Movies.Infrastructure
                 {
                     Title = "The Avengers",
                     ReleaseDate = new DateTime(2012, 4, 26),
-                    PosterUrl = "https://example.com/avengers-poster.jpg",
+                    PosterUrl = "https://xl.movieposterdb.com/20_10/2012/848228/xl_848228_9bc5bc2a.jpg",
+                    Description = "Najpotężniejsi bohaterowie Ziemi muszą połączyć siły, aby powstrzymać inwazję obcych.",
+                    Duration = 143,
                     Countries = new List<Country> { usa },
                     Categories = new List<Category> { action, comedy },
                     Directors = new List<Director> { director1 },
@@ -147,7 +179,9 @@ namespace Movies.Infrastructure
                 {
                     Title = "Forrest Gump",
                     ReleaseDate = new DateTime(1994, 7, 6),
-                    PosterUrl = "https://example.com/forrest-gump-poster.jpg",
+                    PosterUrl = "https://xl.movieposterdb.com/12_04/1994/109830/xl_109830_58524cd6.jpg",
+                    Description = "Prezydentury Kennedy'ego i Johnsona, wojna w Wietnamie, skandal Watergate i inne wydarzenia historyczne z perspektywy mężczyzny z Alabamy o niezwykłej podróży.",
+                    Duration = 142,
                     Countries = new List<Country> { usa },
                     Categories = new List<Category> { drama, comedy },
                     Directors = new List<Director> { director2 },
@@ -157,7 +191,9 @@ namespace Movies.Infrastructure
                 {
                     Title = "The Dark Knight",
                     ReleaseDate = new DateTime(2008, 7, 18),
-                    PosterUrl = "https://example.com/dark-knight-poster.jpg",
+                    PosterUrl = "https://xl.movieposterdb.com/08_06/2008/468569/xl_468569_fe24b125.jpg",
+                    Description = "Batman staje do walki z Jokerem, mistrzem zbrodni, który pragnie wywołać chaos w Gotham City.",
+                    Duration = 152,
                     Countries = new List<Country> { usa },
                     Categories = new List<Category> { action, drama },
                     Directors = new List<Director> { director3 },

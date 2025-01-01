@@ -11,7 +11,7 @@ namespace Movies.Domain
     {
         [Key]
         public Guid CountryId { get; set; }
-        public string CountryName { get; set; }
+        public string Name { get; set; }
 
         //Kolekcja potrzebna do wygenerowania klucza obcego
         public ICollection<Movie> Movies { get; set; }

@@ -14,6 +14,8 @@ namespace Movies.Domain
         public string Title { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string PosterUrl { get; set; }
+        public string Description { get; set; }
+        public int Duration { get; set; } //W minutach
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja wiele:wielu)
         public ICollection<Country> Countries { get; set; }
