@@ -1,9 +1,6 @@
-import {Movie} from "./Movie";
-
 export interface Actor {
-    ActorId: string;
-    ActorName: string;
-    ActorLastName: string;
-
-    Movies: Movie[];
+    actorId: string;
+    firstName: string;
+    lastName: string;
+    bio: string;
 }

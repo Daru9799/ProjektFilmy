@@ -1,10 +1,16 @@
-import {Actor} from "./Actor";
+import { Category } from './Category';
+import { Country } from './Country';
 
-export interface Movie{
-    MovieId: string;
-    Title: string;
-    ReleaseDate: string; // ISO 8601 string
-    PosterUrl: string;
-
-    Actors: Actor[]
+export interface Movie {
+    movieId: string;
+    title: string;
+    releaseDate: string;  // ISO 8601 string
+    posterUrl: string;
+    description: string;
+    duration: number;
+    reviewsNumber: number;
+    scoresNumber: number;
+    averageScore: number;
+    categories: Category[];
+    countries: Country[];
 }
