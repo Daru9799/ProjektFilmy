@@ -1,0 +1,46 @@
+body {
+  background-color: #000000;
+  margin: 0;  /* Usunięcie domyślnych marginesów */
+}
+
+.Container {
+  display: flex;
+  flex-direction: column;  /* Ustawiamy flex-direction na column, aby elementy były ustawione jeden pod drugim */
+  align-items: center;
+  height: 100vh;  /* Pełna wysokość ekranu */
+}
+
+ .NavBar {
+  width: 70%;  /* Zapewni pełną szerokość paska nawigacyjnego */
+  background-color: #02022c;  /* Przykładowy kolor tła (bg-secondary) */
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+} 
+
+.App {
+  text-align: center;
+  background-color: #2e2b57;  
+  width: 70%;  /* Minimalna szerokość */
+}
+
+.Footer{
+  min-height: 5%;
+}
+
+
+.App-header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
