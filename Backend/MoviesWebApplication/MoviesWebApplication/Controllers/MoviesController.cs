@@ -30,27 +30,15 @@ namespace MoviesWebApplication.Controllers
         {
             return await Mediator.Send(new MoviesById.Query { Id = id });
         }
-        //Zwracanie filmów na podstawie nazwy kraju
-        [HttpGet("by-country/{countryName}")]
-        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCountry(string countryName)
+        //Zwracanie filmów na podstawie filtrów
+        [HttpGet("by-filters")]
+        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCountry([FromQuery] List<string> countryNames, [FromQuery] List<string> categoryNames)
         {
-            var query = new MoviesByCountry.Query { CountryName = countryName };
+            var query = new MoviesByFilters.Query { CountryNames = countryNames, CategoryNames = categoryNames };
             var movies = await Mediator.Send(query);
             if (movies == null || !movies.Any())
             {
-                return NotFound($"Nie znaleziono filmów dla podanego kraju '{countryName}'.");
-            }
-            return Ok(movies);
-        }
-        //Zwracanie filmów na podstawie kategorii
-        [HttpGet("by-category/{categoryName}")]
-        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCategory(string categoryName)
-        {
-            var query = new MoviesByCategory.Query { CategoryName = categoryName };
-            var movies = await Mediator.Send(query);
-            if (!movies.Any())
-            {
-                return NotFound($"Nie znaleziono filmów dla podanej kategorii '{categoryName}'.");
+                return NotFound($"Nie znaleziono filmów dla podanych filtrów.");
             }
             return Ok(movies);
         }

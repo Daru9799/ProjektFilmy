@@ -10,11 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Movies
 {
-    public class MoviesByCategory
+    public class MoviesByFilters
     {
         public class Query : IRequest<List<MovieDto>>
         {
-            public string CategoryName { get; set; }
+            public List<string> CategoryNames { get; set; }
+            public List<string> CountryNames { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, List<MovieDto>>
@@ -28,14 +29,28 @@ namespace Movies.Application.Movies
 
             public async Task<List<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                //Pobierz film z bazy na podstawie gatunku
-                var movies = await _context.Movies
-                    .Where(m => m.Categories.Any(c => c.Name == request.CategoryName))
+                var moviesQuery = _context.Movies.AsQueryable();
+
+                //Filtrowanie po kategoriach
+                if (request.CategoryNames != null && request.CategoryNames.Any())
+                {
+                    moviesQuery = moviesQuery.Where(m => m.Categories.Any(c => request.CategoryNames.Contains(c.Name)));
+                }
+
+                //Filtrowanie po krajach
+                if (request.CountryNames != null && request.CountryNames.Any())
+                {
+                    moviesQuery = moviesQuery.Where(m => m.Countries.Any(c => request.CountryNames.Contains(c.Name)));
+                }
+
+                //Pobieranie danych z bazy
+                var movies = await moviesQuery
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .ToListAsync(cancellationToken);
 
+                //Zwrócenie odpowiednich filmów
                 return movies.Select(movie => new MovieDto
                 {
                     MovieId = movie.MovieId,
