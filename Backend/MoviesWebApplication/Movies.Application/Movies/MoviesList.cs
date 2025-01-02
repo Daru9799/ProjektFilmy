@@ -35,7 +35,8 @@ namespace Movies.Application.Movies
                 IQueryable<Movie> query = _context.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
-                    .Include(m => m.Countries);
+                    .Include(m => m.Countries)
+                    .Include(m => m.Directors);
 
                 //Obsługa sortowania
                 query = (request.OrderBy?.ToLower(), request.SortDirection?.ToLower()) switch
@@ -74,13 +75,23 @@ namespace Movies.Application.Movies
                     Categories = m.Categories.Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,
-                        CategoryName = c.Name
+                        Name = c.Name
                     }).ToList(),
                     //Zwracanie krajów (lista)
                     Countries = m.Countries.Select(c => new CountryDto
                     {
                         CountryId = c.CountryId,
-                        CountryName = c.Name
+                        Name = c.Name
+                    }).ToList(),
+                    //Zwracanie reżyserów (lista)
+                    Directors = m.Directors.Select(c => new DirectorDto
+                    {
+                        DirectorId = c.DirectorId,
+                        FirstName = c.FirstName,
+                        LastName = c.LastName,
+                        Bio = c.Bio,    
+                        BirthDate = c.BirthDate,
+                        PhotoUrl = c.PhotoUrl
                     }).ToList()
                 }).ToList();
 

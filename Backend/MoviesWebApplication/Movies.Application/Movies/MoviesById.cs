@@ -32,6 +32,7 @@ namespace Movies.Application.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
+                    .Include(m => m.Directors)
                     .FirstOrDefaultAsync(m => m.MovieId == request.Id, cancellationToken);
 
                 return new MovieDto
@@ -48,12 +49,22 @@ namespace Movies.Application.Movies
                     Categories = movie.Categories.Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,
-                        CategoryName = c.Name
+                        Name = c.Name
                     }).ToList(),
                     Countries = movie.Countries.Select(c => new CountryDto
                     {
                         CountryId = c.CountryId,
-                        CountryName = c.Name
+                        Name = c.Name
+                    }).ToList(),
+                    //Zwracanie reżyserów (lista)
+                    Directors = movie.Directors.Select(c => new DirectorDto
+                    {
+                        DirectorId = c.DirectorId,
+                        FirstName = c.FirstName,
+                        LastName = c.LastName,
+                        Bio = c.Bio,
+                        BirthDate = c.BirthDate,
+                        PhotoUrl = c.PhotoUrl
                     }).ToList()
                 };
             }
