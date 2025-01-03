@@ -5,7 +5,8 @@ import { Movie } from '../../models/Movie';
 import { useNavigate, useParams } from "react-router-dom";
 
 const MoviePage = () => {
-  const { movieId } = useParams<{ movieId: string }>();
+  const movieId="27837222-E98A-4271-9DC7-A26DF20DC163";
+  // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,9 +15,7 @@ const MoviePage = () => {
   useEffect(() => {
     const fetchMovieById = async () => {
       try {
-        // const response = await axios.get(`https://localhost:7053/api/Movies/${movieId}`, {
-
-        const response = await axios.get(`https://localhost:7053/api/Movies/27837222-E98A-4271-9DC7-A26DF20DC163`);
+        const response = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
         setMovie(response.data);
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
@@ -38,7 +37,7 @@ const MoviePage = () => {
   }, [movieId]);
 
   const handleReviewsClick = () => {
-    navigate(`/reviews`); // Przekierowanie do edycji samochodu
+    navigate(`/reviews/${movieId}`); 
   };
 
   return (
@@ -204,11 +203,34 @@ const MoviePage = () => {
     </div>
   </div>
 
-  <button className="edit-btn" onClick={handleReviewsClick}>...</button>
+  <button
+    className="edit-btn"
+    onClick={handleReviewsClick}
+    style={{
+      fontSize: "20px",     // Rozmiar tekstu
+      color: "white",       // Kolor tekstu
+      backgroundColor: "transparent", // Przezroczyste tło
+      border: "none",   // Obramowanie
+      borderRadius: "50%", // Okrogły kształt
+      cursor: "pointer",   // Wskaźnik kursora
+      transition: "all 0.3s ease", // Płynne przejście
+    }}
+    onMouseOver={(e) => {
+      (e.target as HTMLButtonElement).style.backgroundColor = "#2E5077"; // Kolor tła po najechaniu
+      (e.target as HTMLButtonElement).style.color = "white";  // Kolor tekstu po najechaniu
+    }}
+    onMouseOut={(e) => {
+      (e.target as HTMLButtonElement).style.backgroundColor = "transparent"; // Powrót do przezroczystego tła
+      (e.target as HTMLButtonElement).style.color = "white";  // Powrót koloru tekstu
+    }}
+  >
+    ...
+  </button>
+
+
 
 </div>
 </div>
-
   );
 };
 
