@@ -1,6 +1,7 @@
 import React from "react";
 import homeIcon from "../../imgs/home_icon.png";
 import NavTile from "./NavTile";
+import { Link } from "react-router-dom";
 const NavBar = () => {
     return (
       <nav
@@ -17,13 +18,15 @@ const NavBar = () => {
           <div className="d-flex align-items-center">
             {/*Guzik domku:*/}
             <button className="btn btn-light me-2">
-              <img
-                src={homeIcon}
-                alt=""
-                style={{ width: "20px", height: "20px" }}
-              />
+              <Link to="">
+                <img
+                  src={homeIcon}
+                  alt=""
+                  style={{ width: "20px", height: "20px" }}
+                />
+              </Link>
             </button>
-            <NavTile link="">Filmy</NavTile>
+            <NavTile link="search-movies">Filmy</NavTile>
             <NavTile link="">Reżyserzy</NavTile>
             <NavTile link="">Aktorzy</NavTile>
             <NavTile link="/test">TEST BACKENDU</NavTile>
