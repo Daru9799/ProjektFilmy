@@ -3,6 +3,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Movie } from '../../models/Movie';
 import { Actor } from '../../models/Actor';
+import { Review } from '../../models/Review';
 import { useNavigate, useParams } from "react-router-dom";
 import { renderStars } from "../../functions/starFunction";
 
@@ -12,6 +13,7 @@ const MoviePage = () => {
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
@@ -19,10 +21,17 @@ const MoviePage = () => {
   useEffect(() => {
     const fetchMovieById = async () => {
       try {
-        const response = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
-        setMovie(response.data);
-        const response2 = await axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`)
-        setActors(response2.data.$values);
+        const [movieResponse, reviewsResponse, actorsResponse] = await Promise.all([
+          axios.get(`https://localhost:7053/api/Movies/${movieId}`),
+          axios.get(`https://localhost:7053/api/Reviews/by-movie-id/${movieId}`),
+          axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`)
+        ]);
+
+        setMovie(movieResponse.data);
+        setReviews(reviewsResponse.data.$values); 
+        setActors(actorsResponse.data.$values);
+
+
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           if (!err.response) {
@@ -45,6 +54,9 @@ const MoviePage = () => {
   const handleReviewsClick = () => {
     navigate(`/reviews/${movieId}`); 
   };
+
+  if (loading) return <p>Ładowanie danych...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="vh-100 container-fluid text-white" style={{left:'200px'}}>
@@ -234,28 +246,37 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
 
 
 
-    
-<div className="pt-3">
+      <div className="pt-3">
   <h3>Recenzje:</h3>
-  <div
-    className="d-flex justify-content-between align-items-start p-3 my-2"
-    style={{
-      backgroundColor: "white",
-      borderRadius: "15px",  // Zaokrąglenie krawędzi
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
-      padding: "20px",
-      color:"black"
-    }}
-  >
-    <div style={{ flex: 1,textAlign: "left"}}>
-      <p style={{  fontWeight: "bold"}}>Jacek Ryba</p>
-      <p>film nawet fajny, ale pies mi naszczał do buta więc 2/10</p>
-    </div>
-    <div style={{ textAlign: "center" , color:"black"}}>
-      <h4 className="mb-0">2/10</h4>
-      <small>20.12.2024</small>
-    </div>
-  </div>
+  {reviews.length > 0 ? (
+    reviews.map((review) => (
+      <div
+        key={review.reviewId} // Zakładamy, że każda recenzja ma unikalne reviewId
+        className="d-flex justify-content-between align-items-start p-3 my-2"
+        style={{
+          backgroundColor: "white",
+          borderRadius: "15px",  // Zaokrąglenie krawędzi
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
+          padding: "20px",
+          color: "black",
+        }}
+      >
+        <div style={{ flex: 1, textAlign: "left" }}>
+          <p style={{ fontWeight: "bold" }}>{review.username}</p>
+          <p>{review.comment}</p>
+        </div>
+            <div style={{ textAlign: "center", color: "black" }}>
+              {renderStars(review.rating)}
+              <h4>{review.rating}/5</h4>
+              <small>20.12.2024{/* review.date */}</small>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p>Brak recenzji dla tego filmu.</p>
+  )}
+</div>
+
 
   <button
     className="edit-btn"
@@ -284,7 +305,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
 
 
 </div>
-</div>
+
   );
 };
 
