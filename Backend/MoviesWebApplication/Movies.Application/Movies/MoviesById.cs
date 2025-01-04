@@ -35,6 +35,11 @@ namespace Movies.Application.Movies
                     .Include(m => m.Directors)
                     .FirstOrDefaultAsync(m => m.MovieId == request.Id, cancellationToken);
 
+                if (movie == null)
+                {
+                    return null;
+                }
+
                 return new MovieDto
                 {
                     MovieId = movie.MovieId,

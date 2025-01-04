@@ -9,7 +9,7 @@ import { renderStars } from "../../functions/starFunction";
 
 
 const MoviePage = () => {
-  const movieId="6b27aed7-2b95-40ff-8bfa-98c4931b235e";
+  const movieId="eb607d9d-8733-4ad8-a385-f534ba77750b";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
@@ -23,12 +23,21 @@ const MoviePage = () => {
       try {
         const [movieResponse, reviewsResponse, actorsResponse] = await Promise.all([
           axios.get(`https://localhost:7053/api/Movies/${movieId}`),
-          axios.get(`https://localhost:7053/api/Reviews/by-movie-id/${movieId}`),
+          axios.get(`https://localhost:7053/api/Reviews/by-movie-id/${movieId}`, {
+            //Argumenty do backendu dotyczące numeru strony i rozmiaru strony (potem trzeba to połączyć z panelem stron)
+            params: {
+              pageNumber: 1,
+              pageSize: 2, //Biorę 2 recenzje z 1 strony
+            },
+          }),
           axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`)
         ]);
+        console.log(reviewsResponse.data);
+        //Tutaj zapisywane są kolejno do zmiennych reviewsData czyli lista recenzji i parametry dotyczące paginacji do uzycia potem przy tworzeniu stron
+        const { data, totalItems, pageNumber, pageSize, totalPages } = reviewsResponse.data; 
 
+        setReviews(data.$values); //Tutaj trzeba te dane przekazać do mapowania na obiekt
         setMovie(movieResponse.data);
-        setReviews(reviewsResponse.data.$values); 
         setActors(actorsResponse.data.$values);
 
 
@@ -268,7 +277,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
             <div style={{ textAlign: "center", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
-              <small>20.12.2024{/* review.date */}</small>
+              <small>{review.date}</small>
         </div>
       </div>
     ))

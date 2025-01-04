@@ -32,7 +32,7 @@ const TestPage = () => {
             });
             const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
 
-            const response2 = await axios.get("https://localhost:7053/api/Actors/by-movie-id/4fa1de8a-04b4-44d8-935a-6f5b814b1064")
+            const response2 = await axios.get("https://localhost:7053/api/Actors/by-movie-id/ced56220-10f6-465d-9630-8c2c9db6a651")
             setActors(response2.data.$values);
 
             setMovies(data.$values); //data zawiera dane filmów

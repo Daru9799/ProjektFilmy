@@ -13,6 +13,7 @@ namespace Movies.Domain
         public Guid ReviewId { get; set; }
         public float Rating { get; set; }
         public string Comment { get; set; }
+        public DateTime Date { get; set; }
 
         //Obiekty potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public Movie Movie { get; set; }

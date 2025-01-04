@@ -70,6 +70,8 @@ namespace Movies.Application.Movies
                     ("id", "asc") => query.OrderBy(m => m.MovieId),
                     ("rating", "desc") => query.OrderByDescending(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),  
                     ("rating", "asc") => query.OrderBy(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),
+                    ("reviews", "desc") => query.OrderByDescending(m => m.Reviews.Count),
+                    ("reviews", "asc") => query.OrderBy(m => m.Reviews.Count),
                     _ => query.OrderBy(m => m.Title) //Domyślne sortowanie po tytule
                 };
 

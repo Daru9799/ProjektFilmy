@@ -28,7 +28,14 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovie(Guid id)
         {
-            return await Mediator.Send(new MoviesById.Query { Id = id });
+            var movie = await Mediator.Send(new MoviesById.Query { Id = id });
+
+            if (movie == null)
+            {
+                return NotFound($"Nie odnaleziono filmu o id {id}.");
+            }
+
+            return Ok(movie);
         }
         //Zwracanie filmów na podstawie filtrów
         [HttpGet("by-filters")]

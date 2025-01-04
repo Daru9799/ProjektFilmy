@@ -8,18 +8,31 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich recenzji (przy uzyciu ReviewDto aby pozwracać dodatkowo UserId, UserName, MovieId i MovieTitle)
         [HttpGet("all")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviews()
+        public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
-            return await Mediator.Send(new ReviewsList.Query());
+            var query = new ReviewsList.Query
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var pagedReviews = await Mediator.Send(query);
+
+            return Ok(pagedReviews);
         }
         //Zwracanie recenzji na podstawie ID filmu
         [HttpGet("by-movie-id/{movieId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId)
+        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
-            var query = new ReviewsByMovieId.Query { MovieId = movieId };
+            var query = new ReviewsByMovieId.Query 
+            { 
+                MovieId = movieId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
             var reviews = await Mediator.Send(query);
 
-            if (reviews == null || !reviews.Any())
+            if (reviews.Data == null || !reviews.Data.Any())
             {
                 return NotFound($"Nie znaleziono recenzji dla filmu o ID '{movieId}'.");
             }
@@ -28,12 +41,17 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie recenzji na podstawie ID usera
         [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId)
+        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
-            var query = new ReviewsByUserId.Query { UserId = userId };
+            var query = new ReviewsByUserId.Query 
+            { 
+                UserId = userId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
             var reviews = await Mediator.Send(query);
 
-            if (reviews == null || !reviews.Any())
+            if (reviews.Data == null || !reviews.Data.Any())
             {
                 return NotFound($"Nie znaleziono recenzji dla filmu o ID '{userId}'.");
             }

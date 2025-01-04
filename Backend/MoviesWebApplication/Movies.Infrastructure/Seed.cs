@@ -15,16 +15,16 @@ namespace Movies.Infrastructure
         public static async Task SeedData(DataContext context, UserManager<User> userManager)
         {
             //Usuwanie danych w tabelach jak chce sie coś na nowo wygenerowac nizej to nalezy to odkomentować
-            /*
-            context.Movies.RemoveRange(context.Movies);
+
+            /*context.Movies.RemoveRange(context.Movies);
             context.Countries.RemoveRange(context.Countries);
             context.Categories.RemoveRange(context.Categories);
             context.Directors.RemoveRange(context.Directors);
             context.Actors.RemoveRange(context.Actors);
             context.Reviews.RemoveRange(context.Reviews);
             context.Users.RemoveRange(context.Users);
-            await context.SaveChangesAsync();
-            */
+            await context.SaveChangesAsync();*/
+
 
             //Tworzenie userów
             if (userManager.Users.Any()) return;
@@ -224,6 +224,7 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 4.5f,
                 Comment = "Niesamowite połączenie akcji i humoru. Znakomita obsada i świetna reżyseria Jossa Whedona. Czekałem na tę produkcję i nie zawiodłem się!",
+                Date = new DateTime(2023, 2, 1), 
                 Movie = movies.First(m => m.Title == "The Avengers"),
                 User = users.First(u => u.UserName == "user1")
             };
@@ -233,8 +234,9 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 5f,
                 Comment = "Klasyka! Forrest Gump to film, który wzrusza za każdym razem. Tom Hanks w swojej najlepszej roli. Historia pełna emocji i niezapomnianych momentów.",
+                Date = new DateTime(2024, 12, 11),
                 Movie = movies.First(m => m.Title == "Forrest Gump"),
-                User = users.First(u => u.UserName == "mod1")
+                User = users.First(u => u.UserName == "critic1")
             };
 
             var review3 = new Review
@@ -242,7 +244,138 @@ namespace Movies.Infrastructure
                 ReviewId = Guid.NewGuid(),
                 Rating = 4.5f,
                 Comment = "Jeden z najlepszych filmów o Batmanie! Świetna rola Heath'a Ledgera jako Jokera. Christopher Nolan stworzył naprawdę niezapomnianą produkcję.",
+                Date = new DateTime(2024, 3, 6),
                 Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review4 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 3.0f,
+                Comment = "Film był OK, ale spodziewałem się czegoś lepszego. Chociaż efekty specjalne były niesamowite, fabuła mogła być bardziej rozwinięta.",
+                Date = new DateTime(2023, 6, 15),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review5 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 2.5f,
+                Comment = "Za dużo zamieszania i akcji, mało serca. Wydaje mi się, że film mógłby być krótszy i bardziej skondensowany.",
+                Date = new DateTime(2023, 7, 20),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review6 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 5.0f,
+                Comment = "Forrest Gump to film, który ma wszystko: emocje, humor, a także wiele lekcji życiowych. Tom Hanks w swojej życiowej roli!",
+                Date = new DateTime(2023, 8, 5),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review7 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.0f,
+                Comment = "Bardzo solidna produkcja, chociaż nieco przewidywalna. Warto jednak obejrzeć, zwłaszcza dla fanów filmów akcji.",
+                Date = new DateTime(2023, 9, 13),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review8 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.0f,
+                Comment = "Znakomita produkcja, ale kilka momentów mogłoby być lepiej dopracowanych. Jednak ogólnie warto obejrzeć.",
+                Date = new DateTime(2023, 10, 18),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review9 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.5f,
+                Comment = "Film jest niesamowity! Wspaniałe efekty specjalne i fantastyczna obsada. Na pewno wrócę do tego filmu nie raz.",
+                Date = new DateTime(2024, 1, 2),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review10 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 2.5f,
+                Comment = "Nie jestem przekonany, mimo że film ma swoje momenty. Choć akcja jest intensywna, fabuła i postacie nie były dla mnie wystarczająco interesujące.",
+                Date = new DateTime(2024, 2, 15),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review11 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.5f,
+                Comment = "Zdecydowanie jeden z najlepszych filmów o Batmanie! Reżyseria Nolana robi swoje, a Ledger zagrał Jokera jak nikt inny.",
+                Date = new DateTime(2024, 3, 1),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "critic1")
+            };
+
+            var review12 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 5.0f,
+                Comment = "Absolutny klasyk, który nigdy się nie zestarzeje! Tom Hanks gra rolę, którą pamięta się przez całe życie. Wzrusza za każdym razem.",
+                Date = new DateTime(2024, 4, 11),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                User = users.First(u => u.UserName == "critic1")
+            };
+
+            var review13 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 2.0f,
+                Comment = "Szczerze mówiąc, film mnie zawiódł. Za dużo akcji, a za mało emocji i rozwoju postaci. Słaba fabuła.",
+                Date = new DateTime(2024, 5, 22),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review14 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.5f,
+                Comment = "Jeden z najlepszych filmów w swoim gatunku. Klimat, napięcie i genialna rola Ledgera! Szkoda, że nie ma więcej takich produkcji.",
+                Date = new DateTime(2024, 6, 8),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review15 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4f,
+                Comment = "Wzruszający film, który ukazuje życie w całej jego okazałości. Bardzo poruszająca historia, a Tom Hanks w roli głównej to majstersztyk!",
+                Date = new DateTime(2024, 7, 3),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review16 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 1.5f,
+                Comment = "Dobra produkcja, ale trochę przereklamowana. Głównie dla fanów superhero, reszta może poczuć się zawiedziona.",
+                Date = new DateTime(2024, 8, 10),
+                Movie = movies.First(m => m.Title == "The Avengers"),
                 User = users.First(u => u.UserName == "user1")
             };
 
@@ -250,7 +383,20 @@ namespace Movies.Infrastructure
             {
                 review1,
                 review2,
-                review3
+                review3,
+                review4,
+                review5,
+                review6,
+                review7,
+                review8,
+                review9,
+                review10,
+                review11,
+                review12,
+                review13,
+                review14,
+                review15,
+                review16
             };
 
             // załadowanie danych do pamięci

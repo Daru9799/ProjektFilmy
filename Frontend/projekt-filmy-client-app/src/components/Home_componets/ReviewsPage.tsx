@@ -5,7 +5,7 @@ import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction"; // Import funkcji
 
 const ReviewsPage = () => {
-  const movieId = "6b27aed7-2b95-40ff-8bfa-98c4931b235e"; // Stałe ID dla testów
+  const movieId = "eb607d9d-8733-4ad8-a385-f534ba77750b"; // Stałe ID dla testów
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,10 +14,18 @@ const ReviewsPage = () => {
     const fetchReviewsByMovieId = async () => {
       try {
         const response = await axios.get(
-          `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`
-        );
+          `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`, {
+            //Argumenty do backendu dotyczące numeru strony i rozmiaru strony (potem trzeba to połączyć z panelem stron)
+            params: {
+              pageNumber: 1,
+              pageSize: 5, //Biorę 5 recenzji z 1 strony
+            }
+          });
         console.log("Dane z serwera:", response.data);
-        setReviews(response.data.$values);
+        //Tutaj zapisywane są kolejno do zmiennych reviewsData czyli lista recenzji i parametry dotyczące paginacji do uzycia potem przy tworzeniu stron
+        const { data, totalItems, pageNumber, pageSize, totalPages } = response.data; 
+        setReviews(data.$values); //Tutaj trzeba te dane przekazać do mapowania na obiekt
+
       } catch (err: any) {
         console.error("Błąd podczas pobierania danych: ", err);
         if (axios.isAxiosError(err)) {
@@ -66,7 +74,7 @@ const ReviewsPage = () => {
             <div style={{ textAlign: "center", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
-              <small>20.12.2024{/* review.date */}</small>
+              <small>{review.date}</small>
             </div>
           </div>
         ))
