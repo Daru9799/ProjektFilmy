@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
 
 const ReviewsPage = () => {
-  const movieId = "27837222-E98A-4271-9DC7-A26DF20DC163";  // Stałe ID dla testów
+  const movieId = "6b27aed7-2b95-40ff-8bfa-98c4931b235e";  // Stałe ID dla testów
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -90,7 +90,7 @@ const ReviewsPage = () => {
             }}
           >
             <div style={{ flex: 1, textAlign: "left" }}>
-              <p style={{ fontWeight: "bold" }}>Jacek Gula{/* review.username */}</p>
+              <p style={{ fontWeight: "bold" }}>{review.username}</p>
               <p>{review.comment}</p>
             </div>
             <div style={{ textAlign: "center", color: "black" }}>

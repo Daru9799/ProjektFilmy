@@ -15,5 +15,7 @@ namespace Movies.Domain
         public string MovieTitle { get; set; }
         public string UserId { get; set; }
         public Guid MovieId { get; set; }
+        //public string UserRole { get; set; }
+        //public string Date { get; set; }
     }
 }

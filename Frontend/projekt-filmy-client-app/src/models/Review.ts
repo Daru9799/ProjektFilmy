@@ -1,11 +1,16 @@
+//NIEGOTOWE 
 export interface Review{
-reviewId:number;
-rating:number;
-comment:string;
-userId:string;
-movieId:string
+    reviewId: string;
+    rating: number;
+    comment: string;
+    username: string;
+    movieTitle: string;
+    userId: string;
+    movieId: string
+    userRole: string;
+    date: string;
 }
 
-export interface ReviewResponse {
-    $values: Review[];
-}
+//export interface ReviewResponse {
+//    $values: Review[];
+//}

@@ -12,13 +12,18 @@ namespace Movies.Application.Movies
 {
     public class MoviesByFilters
     {
-        public class Query : IRequest<List<MovieDto>>
+        public class Query : IRequest<PagedResponse<MovieDto>>
         {
-            public List<string> CategoryNames { get; set; }
-            public List<string> CountryNames { get; set; }
+            public List<string> CategoryNames { get; set; } //Szukanie po gatunkach
+            public List<string> CountryNames { get; set; } //Szukanie po krajach
+            public string TitleSearch { get; set; } //Szukanie po tytule
+            public int PageNumber { get; set; }
+            public int PageSize { get; set; }
+            public string OrderBy { get; set; }
+            public string SortDirection { get; set; } //Kierunek sortowania: "asc" lub "desc"
         }
 
-        public class Handler : IRequestHandler<Query, List<MovieDto>>
+        public class Handler : IRequestHandler<Query, PagedResponse<MovieDto>>
         {
             private readonly DataContext _context;
 
@@ -27,54 +32,81 @@ namespace Movies.Application.Movies
                 _context = context;
             }
 
-            public async Task<List<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<PagedResponse<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var moviesQuery = _context.Movies.AsQueryable();
-
-                //Filtrowanie po kategoriach
-                if (request.CategoryNames != null && request.CategoryNames.Any())
-                {
-                    moviesQuery = moviesQuery.Where(m => m.Categories.Any(c => request.CategoryNames.Contains(c.Name)));
-                }
-
-                //Filtrowanie po krajach
-                if (request.CountryNames != null && request.CountryNames.Any())
-                {
-                    moviesQuery = moviesQuery.Where(m => m.Countries.Any(c => request.CountryNames.Contains(c.Name)));
-                }
-
-                //Pobieranie danych z bazy
-                var movies = await moviesQuery
+                IQueryable<Movie> query = _context.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
-                    .Include(m => m.Directors)
+                    .Include(m => m.Directors);
+
+                //Filtracja po tytule
+                if (!string.IsNullOrEmpty(request.TitleSearch))
+                {
+                    var searchTerm = request.TitleSearch.ToLower();
+                    query = query.Where(m => m.Title.ToLower().Contains(searchTerm));
+                }
+
+                //Filtracja po kategoriach
+                if (request.CategoryNames != null && request.CategoryNames.Any())
+                {
+                    query = query.Where(m => m.Categories.Any(c => request.CategoryNames.Contains(c.Name)));
+                }
+
+                //Filtracja po krajach
+                if (request.CountryNames != null && request.CountryNames.Any())
+                {
+                    query = query.Where(m => m.Countries.Any(c => request.CountryNames.Contains(c.Name)));
+                }
+
+                //Obsługa sortowania
+                query = (request.OrderBy?.ToLower(), request.SortDirection?.ToLower()) switch
+                {
+                    ("title", "desc") => query.OrderByDescending(m => m.Title),
+                    ("title", "asc") => query.OrderBy(m => m.Title),
+                    ("year", "desc") => query.OrderByDescending(m => m.ReleaseDate),
+                    ("year", "asc") => query.OrderBy(m => m.ReleaseDate),
+                    ("id", "desc") => query.OrderByDescending(m => m.MovieId),
+                    ("id", "asc") => query.OrderBy(m => m.MovieId),
+                    ("rating", "desc") => query.OrderByDescending(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),  
+                    ("rating", "asc") => query.OrderBy(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),
+                    _ => query.OrderBy(m => m.Title) //Domyślne sortowanie po tytule
+                };
+
+                //Paginacja
+                var movies = await query
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
 
+                //Obliczenie całkowitej liczby elementów
+                int totalItems = await query.CountAsync(cancellationToken);
+
                 //Zwrócenie odpowiednich filmów
-                return movies.Select(movie => new MovieDto
+                var movieDtos = movies.Select(m => new MovieDto
                 {
-                    MovieId = movie.MovieId,
-                    Title = movie.Title,
-                    ReleaseDate = movie.ReleaseDate,
-                    PosterUrl = movie.PosterUrl,
-                    Description = movie.Description,
-                    Duration = movie.Duration,
-                    ReviewsNumber = movie.Reviews.Count,
-                    ScoresNumber = movie.Reviews.Count(r => r.Rating > 0),
-                    AverageScore = movie.Reviews.Any(r => r.Rating > 0) ? movie.Reviews.Where(r => r.Rating > 0).Average(r => r.Rating) : 0,
-                    Categories = movie.Categories.Select(c => new CategoryDto
+                    MovieId = m.MovieId,
+                    Title = m.Title,
+                    ReleaseDate = m.ReleaseDate,
+                    PosterUrl = m.PosterUrl,
+                    Description = m.Description,
+                    Duration = m.Duration,
+                    ReviewsNumber = m.Reviews.Count,
+                    ScoresNumber = m.Reviews.Count(r => r.Rating > 0),
+                    AverageScore = m.Reviews.Any(r => r.Rating > 0)
+                        ? m.Reviews.Where(r => r.Rating > 0).Average(r => r.Rating)
+                        : 0,
+                    Categories = m.Categories.Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,
                         Name = c.Name
                     }).ToList(),
-                    Countries = movie.Countries.Select(c => new CountryDto
+                    Countries = m.Countries.Select(c => new CountryDto
                     {
                         CountryId = c.CountryId,
                         Name = c.Name
                     }).ToList(),
-                    //Zwracanie reżyserów (lista)
-                    Directors = movie.Directors.Select(c => new DirectorDto
+                    Directors = m.Directors.Select(c => new DirectorDto
                     {
                         DirectorId = c.DirectorId,
                         FirstName = c.FirstName,
@@ -84,6 +116,15 @@ namespace Movies.Application.Movies
                         PhotoUrl = c.PhotoUrl
                     }).ToList()
                 }).ToList();
+
+                // Zwrócenie odpowiedzi paginowanej
+                return new PagedResponse<MovieDto>
+                {
+                    Data = movieDtos,       
+                    TotalItems = totalItems, 
+                    PageNumber = request.PageNumber, 
+                    PageSize = request.PageSize 
+                };
             }
         }
     }

@@ -32,15 +32,27 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie filmów na podstawie filtrów
         [HttpGet("by-filters")]
-        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCountry([FromQuery] List<string> countryNames, [FromQuery] List<string> categoryNames)
+        public async Task<ActionResult<PagedResponse<MovieDto>>> GetMoviesByCountry([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "title", [FromQuery] string sortDirection = "asc", [FromQuery] string titleSearch = "", [FromQuery] List<string> countryNames = null, [FromQuery] List<string> categoryNames = null)
         {
-            var query = new MoviesByFilters.Query { CountryNames = countryNames, CategoryNames = categoryNames };
-            var movies = await Mediator.Send(query);
-            if (movies == null || !movies.Any())
+            var query = new MoviesByFilters.Query
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                OrderBy = orderBy,
+                SortDirection = sortDirection,
+                CountryNames = countryNames,
+                CategoryNames = categoryNames,
+                TitleSearch = titleSearch
+            };
+
+            var pagedMovies = await Mediator.Send(query);
+
+            if (pagedMovies == null || !pagedMovies.Data.Any())
             {
                 return NotFound($"Nie znaleziono filmów dla podanych filtrów.");
             }
-            return Ok(movies);
+
+            return Ok(pagedMovies);
         }
         //Dodawanie filmu
         [HttpPost]

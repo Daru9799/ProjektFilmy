@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Movie } from '../../models/Movie';
+import { Actor } from '../../models/Actor';
 import { useNavigate, useParams } from "react-router-dom";
 
 const MoviePage = () => {
-  const movieId="27837222-E98A-4271-9DC7-A26DF20DC163";
+  const movieId="6b27aed7-2b95-40ff-8bfa-98c4931b235e";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
+  const [actors, setActors] = useState<Actor[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const MoviePage = () => {
       try {
         const response = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
         setMovie(response.data);
+        const response2 = await axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`)
+        setActors(response2.data.$values);
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           if (!err.response) {
@@ -142,9 +146,28 @@ const MoviePage = () => {
 
               {/* Aktorzy */}
               <div className="tab-pane fade" id="aktorzy">
-                <p className="text-dark">Aktorzy w filmie (do zaimplementowania)</p>
+                <div className="d-flex flex-wrap ">
+                  {actors.length > 0 ? (
+                  <ul>
+                    {actors.map((actor) => (
+                      <li key={actor.actorId} style={{ marginBottom: "20px" }}>
+                        <div key={actor.actorId} className="badge  me-2 mb-2"
+                            style={{
+                              backgroundColor:"#2E5077",
+                              minWidth:"60px",
+                              minHeight:"40px",
+                              textAlign:"center",
+                            }}>
+                              {actor.firstName} {actor.lastName}
+                            </div>
+                      </li>
+                    ))}
+                  </ul>
+                )  : (
+                  <p>Brak aktorów powiązanych z tym filmem.</p>
+                )}
+                </div>
               </div>
-
               {/* Kraje */}
               <div className="tab-pane fade" id="kraje">
                 <div className="d-flex flex-wrap ">
@@ -155,7 +178,7 @@ const MoviePage = () => {
                         backgroundColor:"#2E5077",
                         minWidth:"60px",
                         minHeight:"40px",
-                        textAlign:"center",
+                        textAlign:"center"
                       }}>
                         {country.name}
                       </div>
