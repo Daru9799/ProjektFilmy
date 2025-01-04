@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
+import { renderStars } from "../../functions/starFunction"; // Import funkcji
 
 const ReviewsPage = () => {
-  const movieId = "6b27aed7-2b95-40ff-8bfa-98c4931b235e";  // Stałe ID dla testów
+  const movieId = "6b27aed7-2b95-40ff-8bfa-98c4931b235e"; // Stałe ID dla testów
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -15,7 +16,7 @@ const ReviewsPage = () => {
         const response = await axios.get(
           `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`
         );
-        console.log("Dane z serwera:", response.data);  // Logowanie danych
+        console.log("Dane z serwera:", response.data);
         setReviews(response.data.$values);
       } catch (err: any) {
         console.error("Błąd podczas pobierania danych: ", err);
@@ -31,37 +32,6 @@ const ReviewsPage = () => {
 
     fetchReviewsByMovieId();
   }, [movieId]);
-
-  // Funkcja do generowania gwiazdek
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);  // Całkowite gwiazdki
-    const halfStars = rating % 1 >= 0.5 ? 1 : 0;  // Pół gwiazdki
-    const emptyStars = 5 - fullStars - halfStars;  // Puste gwiazdki
-
-    let stars = [];
-
-    // Dodaj pełne gwiazdki
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<i key={`full-${i}`} className="fas fa-star" style={{ color: "#FFD700" }}></i>);
-    }
-
-    // Dodaj pół gwiazdki
-    if (halfStars) {
-      stars.push(<i key="half" className="fas fa-star-half-alt" style={{ color: "#FFD700" }}></i>);
-    }
-
-    // Dodaj puste gwiazdki
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<i key={`empty-${i}`} className="far fa-star" style={{ color: "#FFD700" }}></i>);
-    }
-
-    return (
-      <div>
-        {stars}
-        <p>{rating.toFixed(1)} / 5</p> {/* Showing rating text */}
-      </div>
-    );
-  };
 
   if (loading) {
     return <div className="text-center">Ładowanie recenzji...</div>;
@@ -95,6 +65,7 @@ const ReviewsPage = () => {
             </div>
             <div style={{ textAlign: "center", color: "black" }}>
               {renderStars(review.rating)}
+              <h4>{review.rating}/5</h4>
               <small>20.12.2024{/* review.date */}</small>
             </div>
           </div>

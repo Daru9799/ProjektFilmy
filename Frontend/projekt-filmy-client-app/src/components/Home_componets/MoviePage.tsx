@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Movie } from '../../models/Movie';
 import { Actor } from '../../models/Actor';
 import { useNavigate, useParams } from "react-router-dom";
+import { renderStars } from "../../functions/starFunction";
+
 
 const MoviePage = () => {
   const movieId="6b27aed7-2b95-40ff-8bfa-98c4931b235e";
@@ -48,27 +50,30 @@ const MoviePage = () => {
     <div className="vh-100 container-fluid text-white" style={{left:'200px'}}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
-
-
       <div className="col-3"> {/* Zmieniłem col-2 na col-3, aby dać więcej przestrzeni */}
         <div className="p-2 text-center">
           <img
             src={movie?.posterUrl || "/path/to/defaultPoster.jpg"}
             alt="Poster"
             className="img-fluid"
-            style={{ width: "100%", height: "auto", objectFit: "cover" }}  
+            style={{ width: "100%", height: "auto",
+               objectFit: "cover", 
+              marginTop:"20px",
+              marginLeft:"20px",
+            }}  
           />
         </div>
       </div>
 
         {/* Middle Column (Details) */}
-        <div className="col-7" style={{textAlign:"left"}}>
+        <div className="col-8" style={{textAlign:"left", marginLeft:"50px", marginTop:"20px"}}>
           {/* Title */}
           <h2 className="mb-3" style={{fontSize:"4rem"}}>{movie?.title || "Tytuł niedostępny"}</h2>
 
           {/* Reżyserzy */}
           <p>
-            <span className="fw-bold" >{movie?.directors?.$values.length === 1 ? "Reżyser" : "Reżyserzy"}:</span>{" "}
+            <span className="fw-bold">
+            {movie?.directors?.$values.length === 1 ? "Reżyser" : "Reżyserzy"}:</span>{" "}
             {movie?.directors?.$values?.length
               ? movie.directors.$values.map((d) => `${d.firstName} ${d.lastName}`).join(", ")
               : "Brak danych o reżyserach"}
@@ -86,37 +91,43 @@ const MoviePage = () => {
             {movie?.duration ? `${movie.duration} min` : "Brak danych"}
           </p>
 
-          {/* Navigation Tabs */}
-          <ul className="nav nav-pills my-3">
-            <li className="nav-item">
-              <button className="nav-link active" id="opis-tab" data-bs-toggle="pill" data-bs-target="#opis" type="button">
-                Opis
-              </button>
-            </li>
-            <li className="nav-item">
-              <button className="nav-link" id="gatunki-tab" data-bs-toggle="pill" data-bs-target="#gatunki" type="button">
-                Gatunki
-              </button>
-            </li>
-            <li className="nav-item">
-              <button className="nav-link" id="aktorzy-tab" data-bs-toggle="pill" data-bs-target="#aktorzy" type="button">
-                Aktorzy
-              </button>
-            </li>
-            <li className="nav-item">
-              <button className="nav-link" id="kraje-tab" data-bs-toggle="pill" data-bs-target="#kraje" type="button">
-                Kraje
-              </button>
-            </li>
-          </ul>
+{/* Navigation Tabs */}
+<ul className="nav nav-pills" 
+style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}> 
+  <li className="nav-item">
+    <button className="nav-link active" id="opis-tab" data-bs-toggle="pill" data-bs-target="#opis" type="button">
+      Opis
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" id="gatunki-tab" data-bs-toggle="pill" data-bs-target="#gatunki" type="button">
+      Gatunki
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" id="aktorzy-tab" data-bs-toggle="pill" data-bs-target="#aktorzy" type="button">
+      Aktorzy
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" id="kraje-tab" data-bs-toggle="pill" data-bs-target="#kraje" type="button">
+      Kraje
+    </button>
+  </li>
+</ul>
 
-          {/* Stały prostokąt */}
-          <div className="bg-white p-3 shadow-sm" style={{fontSize:'1.1rem',
-           minHeight:'200px',
-           minWidth:'700px',
-           borderRadius:"30px",
-           textAlign:"left"}}>
-  
+{/* Prostokąt z wyświetlanymi danymi */}
+<div
+  className="bg-white p-3 shadow-sm"
+  style={{
+    fontSize: "1.1rem",
+    minHeight: "140px",
+    borderRadius: "20px",
+    textAlign: "left",
+    marginTop: "-10px", // Dodanie ujemnego marginesu, aby zmniejszyć odstęp od guzików
+    marginRight:"50px"
+  }}
+>
             <div className="tab-content">
               {/* Opis */}
               <div className="tab-pane fade show active" id="opis">
@@ -130,10 +141,15 @@ const MoviePage = () => {
                     movie.categories.$values.map((cat) => (
                       <div key={cat.name} className="badge  me-2 mb-2"
                       style={{
-                        backgroundColor:"#2E5077",
-                        minWidth:"60px",
-                        minHeight:"40px",
-                        textAlign:"center",
+                        backgroundColor: "#2E5077",
+                        minWidth: "60px",
+                        minHeight: "40px",
+                        textAlign: "center",
+                        display: "flex", // Ustawia Flexbox
+                        alignItems: "center", // Centrowanie w pionie
+                        justifyContent: "center", // Centrowanie w poziomie
+                        margin: "5px", // Odstęp między kafelkami
+                        color: "white",
                       }}>
                         {cat.name}
                       </div>
@@ -144,29 +160,34 @@ const MoviePage = () => {
                 </div>
               </div>
 
-              {/* Aktorzy */}
-              <div className="tab-pane fade" id="aktorzy">
-                <div className="d-flex flex-wrap ">
-                  {actors.length > 0 ? (
-                  <ul>
-                    {actors.map((actor) => (
-                      <li key={actor.actorId} style={{ marginBottom: "20px" }}>
-                        <div key={actor.actorId} className="badge  me-2 mb-2"
-                            style={{
-                              backgroundColor:"#2E5077",
-                              minWidth:"60px",
-                              minHeight:"40px",
-                              textAlign:"center",
-                            }}>
-                              {actor.firstName} {actor.lastName}
-                            </div>
-                      </li>
-                    ))}
-                  </ul>
-                )  : (
-                  <p>Brak aktorów powiązanych z tym filmem.</p>
-                )}
-                </div>
+{/* Aktorzy */}
+<div className="tab-pane fade" id="aktorzy">
+  <div className="d-flex flex-wrap gap-2"> {/* gap-2 dodaje odstępy między kafelkami */}
+    {actors.length > 0 ? (
+      actors.map((actor) => (
+        <div
+          key={actor.actorId}
+          className="badge"
+          style={{
+            backgroundColor: "#2E5077",
+            minWidth: "60px",
+            minHeight: "40px",
+            textAlign: "center",
+            display: "flex", // Ustawia Flexbox
+            alignItems: "center", // Centrowanie w pionie
+            justifyContent: "center", // Centrowanie w poziomie
+            margin: "5px", // Odstęp między kafelkami
+            color: "white",
+          }}
+        >
+          {actor.firstName} {actor.lastName}
+        </div>
+      ))
+    ) : (
+      <p>Brak aktorów powiązanych z tym filmem.</p>
+    )}
+</div>
+
               </div>
               {/* Kraje */}
               <div className="tab-pane fade" id="kraje">
@@ -175,10 +196,15 @@ const MoviePage = () => {
                     movie.countries.$values.map((country) => (
                       <div key={country.name} className="badge  me-2 mb-2"
                       style={{
-                        backgroundColor:"#2E5077",
-                        minWidth:"60px",
-                        minHeight:"40px",
-                        textAlign:"center"
+                        backgroundColor: "#2E5077",
+                        minWidth: "60px",
+                        minHeight: "40px",
+                        textAlign: "center",
+                        display: "flex", // Ustawia Flexbox
+                        alignItems: "center", // Centrowanie w pionie
+                        justifyContent: "center", // Centrowanie w poziomie
+                        margin: "5px", // Odstęp między kafelkami
+                        color: "white",
                       }}>
                         {country.name}
                       </div>
@@ -192,18 +218,23 @@ const MoviePage = () => {
           </div>
         </div>
 
-        {/* Right Column (Ratings) */}
-        <div className="col-2" style={{width:"20px", textAlign:"right"}}>
-          <div className="text-center p-3">
-            <h4>{movie?.averageScore}</h4>
-            <p className="mb-0">{movie?.reviewsNumber}</p>
-          </div>
-        </div>
+
+      {/* Right Column (Ratings) */}
+      <div className="col-3" style={{ width: "50px", textAlign: "right" }}>
+  <div className="p-3" style={{ textAlign: "center", marginLeft: "-100px", marginTop: "20px" }}>
+    {/* Renderowanie gwiazdek */}
+    <div>{renderStars(movie?.averageScore || 0)}</div>
+    <h4 style={{fontSize:"1.6rm"}}>{movie?.averageScore}/5</h4>
+    <p className="mb-0">{movie?.reviewsNumber}</p>
+  </div>
+</div>
+
       </div>
 
- 
-    
 
+
+
+    
 <div className="pt-3">
   <h3>Recenzje:</h3>
   <div
