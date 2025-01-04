@@ -17,13 +17,12 @@ const SearchModule = ({ placeHolderText }: Props) => {
   return (
     <div
       className="container d-flex justify-content-center align-items-top p-0"
-      style={{ height: "100vh"}}
-    >
-      <div className="card p-3" style={{ width: "100%", maxHeight:"70px" }}>
-        <div className="d-flex">
+      >
+      <div className="card p-3" style={{ width: "100%", maxHeight: "70px" }}>
+        <div className="d-flex justify-content-center">
           <input
             type="text"
-            className="form-control me-2" // 'me-2' adds margin-right to space the input from the button
+            className="form-control me-2 w-50" // 'me-2' adds margin-right to space the input from the button
             id="search"
             placeholder={placeHolderText}
             value={searchText}

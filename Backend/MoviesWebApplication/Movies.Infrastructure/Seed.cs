@@ -15,14 +15,16 @@ namespace Movies.Infrastructure
         public static async Task SeedData(DataContext context, UserManager<User> userManager)
         {
             //Usuwanie danych w tabelach jak chce sie coś na nowo wygenerowac nizej to nalezy to odkomentować
-            /*context.Movies.RemoveRange(context.Movies);
+            /*
+            context.Movies.RemoveRange(context.Movies);
             context.Countries.RemoveRange(context.Countries);
             context.Categories.RemoveRange(context.Categories);
             context.Directors.RemoveRange(context.Directors);
             context.Actors.RemoveRange(context.Actors);
             context.Reviews.RemoveRange(context.Reviews);
             context.Users.RemoveRange(context.Users);
-            await context.SaveChangesAsync();*/
+            await context.SaveChangesAsync();
+            */
 
             //Tworzenie userów
             if (userManager.Users.Any()) return;
@@ -77,6 +79,21 @@ namespace Movies.Infrastructure
             var comedy = new Category
             {
                 Name = "Komedia"
+            };
+
+            var document = new Category
+            {
+                Name = "Dokumentalny"
+            };
+
+            var musical = new Category
+            {
+                Name = "Musical"
+            };
+
+            var horror = new Category
+            {
+                Name = "Horror"
             };
 
             var director1 = new Director
@@ -238,7 +255,7 @@ namespace Movies.Infrastructure
 
             // załadowanie danych do pamięci
             context.Countries.Add(usa);
-            context.Categories.AddRange(action, drama, comedy);
+            context.Categories.AddRange(action, drama, comedy, document, musical, horror);
             context.Actors.AddRange(actor1, actor2, actor3, actor4, actor5);
             context.Directors.AddRange(director1, director2, director3);
             await context.Movies.AddRangeAsync(movies);
