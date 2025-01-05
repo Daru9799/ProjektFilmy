@@ -75,8 +75,6 @@ const ReviewsPage = () => {
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
               <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
-              
-              
             </div>
           </div>
         ))
@@ -86,5 +84,4 @@ const ReviewsPage = () => {
     </div>
   );
 };
-
 export default ReviewsPage;

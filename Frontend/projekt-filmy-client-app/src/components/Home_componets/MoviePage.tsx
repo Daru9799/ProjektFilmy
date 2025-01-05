@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Modal } from "react-bootstrap";
 import { Movie } from '../../models/Movie';
 import { Actor } from '../../models/Actor';
 import { Review } from '../../models/Review';
@@ -16,6 +17,7 @@ const MoviePage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,8 +41,7 @@ const MoviePage = () => {
         setReviews(data.$values); //Tutaj trzeba te dane przekazać do mapowania na obiekt
         setMovie(movieResponse.data);
         setActors(actorsResponse.data.$values);
-
-
+        
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           if (!err.response) {
@@ -59,32 +60,67 @@ const MoviePage = () => {
 
     fetchMovieById();
   }, [movieId]);
+  
 
   const handleReviewsClick = () => {
     navigate(`/reviews/${movieId}`); 
   };
 
+    const handleImageClick = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+  
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{left:'200px'}}>
-      <div className="row my-4">
-        {/* Left Column (Poster) */}
-      <div className="col-3"> {/* Zmieniłem col-2 na col-3, aby dać więcej przestrzeni */}
+    <div className="vh-100 container-fluid text-white" style={{ left: "200px" }}>
+    <div className="row my-4">
+      {/* Left Column (Poster) */}
+      <div className="col-3">
         <div className="p-2 text-center">
           <img
             src={movie?.posterUrl || "/path/to/defaultPoster.jpg"}
             alt="Poster"
             className="img-fluid"
-            style={{ width: "100%", height: "auto",
-               objectFit: "cover", 
-              marginTop:"20px",
-              marginLeft:"20px",
-            }}  
+            style={{
+              width: "100%",
+              height: "auto",
+              objectFit: "cover",
+              marginTop: "20px",
+              marginLeft: "20px",
+              cursor: "pointer", // Cursor pointer for click indication
+            }}
+            onClick={handleImageClick}
           />
         </div>
       </div>
+
+
+{/* Modal for enlarged image */}
+<Modal show={showModal} onHide={closeModal} centered>
+        <Modal.Body className="p-0">
+          <img
+            src={movie?.posterUrl || "/path/to/defaultPoster.jpg"}
+            alt="Enlarged Poster"
+            className="img-fluid"
+            style={{
+              width: "100%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center">
+        <button className="btn btn-secondary" onClick={closeModal}>
+            Zamknij
+        </button>
+        </Modal.Footer>
+      </Modal>
 
         {/* Middle Column (Details) */}
         <div className="col-8" style={{textAlign:"left", marginLeft:"50px", marginTop:"20px"}}>
@@ -255,14 +291,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
     </div>
   )}
 </div>
-
       </div>
-
-
-
-
-
-
 
       <div className="pt-3">
   <h3>Recenzje:</h3>
@@ -321,10 +350,6 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
     ...
   </button>
 )}
-
-
-
-
 </div>
   );
 };
