@@ -6,7 +6,12 @@ import { Country } from "../../models/Country";
 import { Actor } from "../../models/Actor";
 import { Director } from "../../models/Director";
 
-const FilterMovieModule = () => {
+interface Props {
+  // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako Actor[], Reżyserów jako Director[] 
+  getFilters: (list:[string[],string[],Actor[],Director[]]) => void;
+}
+
+const FilterMovieModule = ({ getFilters }: Props) => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [countryData, setCountryData] = useState<Country[]>([]);
@@ -14,7 +19,7 @@ const FilterMovieModule = () => {
   const [directorData, setDirectorData] = useState<Director[]>([]);
 
   const [dataToShow, setDataToShow] = useState<Country[] | Category[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const [actorName, setActorName] = useState<string>("");
@@ -22,6 +27,17 @@ const FilterMovieModule = () => {
 
   const [directorName, setDirectorName] = useState<string>("");
   const [selectedDirectors, setSelectedDirectors] = useState<Director[]>([]);
+
+
+  useEffect(() => {
+    getFilters([
+      selectedCategories,
+      selectedCountries,
+      selectedActors,
+      selectedDirectors,
+    ]);
+    console.log("getFilter się wykonał");
+  }, [selectedCategories, selectedCountries, selectedActors, selectedDirectors]);
 
   const tabs = [
     { key: "gatunki", label: "Gatunki" },
@@ -80,6 +96,8 @@ const FilterMovieModule = () => {
       .catch((error) => console.error("Error fetching directors:", error));
   }, []);
 
+  
+
   const handleTabClick = (tabKey: string) => {
     if (activeTab === tabKey) {
       setActiveTab(null);
@@ -96,7 +114,7 @@ const FilterMovieModule = () => {
     type: string
   ) => {
     if (type === "gatunki") {
-      setSelectedGenres((prev) =>
+      setSelectedCategories((prev) =>
         isChecked ? [...prev, id] : prev.filter((genreId) => genreId !== id)
       );
     } else if (type === "kraje") {
@@ -123,7 +141,10 @@ const FilterMovieModule = () => {
         `${d.firstName} ${d.lastName}`.toLowerCase() ===
         directorName.toLowerCase()
     );
-    if (director && !selectedDirectors.some((d) => d.directorId === director.directorId)) {
+    if (
+      director &&
+      !selectedDirectors.some((d) => d.directorId === director.directorId)
+    ) {
       setSelectedDirectors((prev) => [...prev, director]);
     }
     setDirectorName("");
@@ -140,7 +161,7 @@ const FilterMovieModule = () => {
   return (
     <div className="container justify-content-center align-items-top p-2">
       {/* Przyciski */}
-      <div className="d-flex mb-3 justify-content-center">
+      <div className="d-flex mb-2 justify-content-center">
         {tabs.map((tab) => (
           <Button
             key={tab.key}
@@ -176,7 +197,7 @@ const FilterMovieModule = () => {
                   label={item.name}
                   checked={
                     activeTab === "gatunki"
-                      ? selectedGenres.includes(item.name)
+                      ? selectedCategories.includes(item.name)
                       : activeTab === "kraje"
                       ? selectedCountries.includes(item.name)
                       : false

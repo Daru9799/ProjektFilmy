@@ -20,7 +20,7 @@ const SortMovieModule: React.FC<{ onSort: (category: string) => void }> = ({onSo
                  value={selectedOption}
                  onChange={(e) => setSelectedOption(e.target.value)}
                  className="form-control-sm" // Mniejsza szerokość selecta
-                 style={{marginTop:"2px"}}
+                 style={{ marginTop: "2px" }}
                >
                  <option value="Ocena: Najwyższa">Ocena: Najwyższa</option>
                  <option value="Ocena: Najniższa">Ocena: Najniższa</option>
@@ -30,14 +30,10 @@ const SortMovieModule: React.FC<{ onSort: (category: string) => void }> = ({onSo
                  <option value="Ilość recenzji: Najmniej">
                    Ilość recenzji: Najmniej
                  </option>
-                 <option value="Data premiery: Najnowsze">
-                   Data premiery: Najnowsze
-                 </option>
-                 <option value="Data premiery: Najstarsze">
-                   Data premiery: Najstarsze
-                 </option>
-                 <option value="Alfabetycznie: A-Z">Alfabetycznie: A-Z</option>
-                 <option value="Alfabetycznie: Z-A">Alfabetycznie: Z-A</option>
+                 <option value="year desc">Data premiery: Najnowsze</option>
+                 <option value="year asc">Data premiery: Najstarsze</option>
+                 <option value="title asc">Alfabetycznie: A-Z</option>
+                 <option value="title desc">Alfabetycznie: Z-A</option>
                </Form.Control>
              </Form.Group>
              <Button
