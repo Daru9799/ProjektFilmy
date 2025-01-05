@@ -17,6 +17,8 @@ namespace Movies.Application.Reviews
             public string UserId { get; set; }
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
+            public string OrderBy { get; set; }
+            public string SortDirection { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, PagedResponse<ReviewDto>>
@@ -35,6 +37,16 @@ namespace Movies.Application.Reviews
                     .SelectMany(m => m.Reviews)
                     .Include(r => r.User)
                     .Include(r => r.Movie);
+
+                //Obsługa sortowania
+                query = (request.OrderBy?.ToLower(), request.SortDirection?.ToLower()) switch
+                {
+                    ("year", "desc") => query.OrderByDescending(m => m.Date),
+                    ("year", "asc") => query.OrderBy(m => m.Date),
+                    ("rating", "asc") => query.OrderBy(m => m.Rating),
+                    ("rating", "desc") => query.OrderBy(m => m.Rating),
+                    _ => query.OrderBy(m => m.ReviewId) //Domyślne sortowanie po id
+                };
 
                 // Paginacja
                 var reviews = await query

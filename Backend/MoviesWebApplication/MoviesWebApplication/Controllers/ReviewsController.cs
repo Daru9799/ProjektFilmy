@@ -8,12 +8,14 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich recenzji (przy uzyciu ReviewDto aby pozwracać dodatkowo UserId, UserName, MovieId i MovieTitle)
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
             var query = new ReviewsList.Query
             {
                 PageNumber = pageNumber,
-                PageSize = pageSize
+                PageSize = pageSize,
+                SortDirection = sortDirection,
+                OrderBy = orderBy
             };
 
             var pagedReviews = await Mediator.Send(query);
@@ -22,13 +24,15 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie recenzji na podstawie ID filmu
         [HttpGet("by-movie-id/{movieId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
             var query = new ReviewsByMovieId.Query 
             { 
                 MovieId = movieId,
                 PageNumber = pageNumber,
-                PageSize = pageSize
+                PageSize = pageSize,
+                SortDirection = sortDirection,
+                OrderBy = orderBy
             };
             var reviews = await Mediator.Send(query);
 
@@ -41,13 +45,15 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie recenzji na podstawie ID usera
         [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
             var query = new ReviewsByUserId.Query 
             { 
                 UserId = userId,
                 PageNumber = pageNumber,
-                PageSize = pageSize
+                PageSize = pageSize,
+                SortDirection = sortDirection,
+                OrderBy = orderBy
             };
             var reviews = await Mediator.Send(query);
 
