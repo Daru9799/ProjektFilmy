@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Movies.Application.Actors;
 using Movies.Application.Countries;
 using Movies.Application.Directors;
 using Movies.Domain;
@@ -27,6 +28,19 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(directors);
+        }
+        //Zwracanie reżysera o konkretnym id
+        [HttpGet("{id}")]
+        public async Task<ActionResult<DirectorDto>> GetActor(Guid id)
+        {
+            var director = await Mediator.Send(new DirectorById.Query { Id = id });
+
+            if (director == null)
+            {
+                return NotFound($"Nie odnaleziono reżysera o id {id}.");
+            }
+
+            return Ok(director);
         }
     }
 }

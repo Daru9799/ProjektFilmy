@@ -5,6 +5,9 @@ export interface Director {
     bio: string;
     birthDate: string;
     photoUrl: string;
+    //Dodatkowe pola
+    TotalMovies: number;
+    FavoriteGenre: string;
 }
 
 export interface DirectorResponse {

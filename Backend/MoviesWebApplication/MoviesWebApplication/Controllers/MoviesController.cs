@@ -28,7 +28,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovie(Guid id)
         {
-            var movie = await Mediator.Send(new MoviesById.Query { Id = id });
+            var movie = await Mediator.Send(new MovieById.Query { Id = id });
 
             if (movie == null)
             {

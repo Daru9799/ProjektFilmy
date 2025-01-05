@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Actors;
+using Movies.Application.Movies;
 using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
@@ -14,7 +15,7 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwracanie aktorów na podstawie ID filmu
         [HttpGet("by-movie-id/{movieId}")]
-        public async Task<ActionResult<List<Category>>> GetActorsByMovieId(Guid movieId)
+        public async Task<ActionResult<List<Actor>>> GetActorsByMovieId(Guid movieId)
         {
             var query = new ActorsByMovieId.Query { MovieId = movieId };
             var actors = await Mediator.Send(query);
@@ -25,6 +26,20 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(actors);
+        }
+
+        //Zwracanie aktora o konkretnym id
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ActorDto>> GetActor(Guid id)
+        {
+            var actor = await Mediator.Send(new ActorById.Query { Id = id });
+
+            if (actor == null)
+            {
+                return NotFound($"Nie odnaleziono aktora o id {id}.");
+            }
+
+            return Ok(actor);
         }
     }
 }

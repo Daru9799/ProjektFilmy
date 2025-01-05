@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Movies
 {
-    public class MoviesById
+    public class MovieById
     {
         //Zapytanie przyjmuje ID filmu
         public class Query : IRequest<MovieDto>

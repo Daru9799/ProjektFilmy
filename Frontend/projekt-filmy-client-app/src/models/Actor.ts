@@ -5,4 +5,7 @@ export interface Actor {
     bio: string;
     birthDate: string;
     photoUrl: string;
+    //Dodatkowe pola
+    TotalMovies: number;
+    FavoriteGenre: string;
 }

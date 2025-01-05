@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Movies.Domain
 {
-    public class DirectorDto
+    public class ActorDto
     {
-        public Guid DirectorId { get; set; }
+        public Guid ActorId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Bio { get; set; }
@@ -17,6 +17,5 @@ namespace Movies.Domain
         //Dodatkowe pola
         public int TotalMovies { get; set; }
         public string FavoriteGenre { get; set; }
-
     }
 }
