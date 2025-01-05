@@ -9,6 +9,10 @@ interface Props {
 
 const PaginationModule = ({currentPage,totalPages,onPageChange,}:Props) => {
   // Funkcja generująca elementy paginacji
+  if (totalPages === 1) {
+    return null; // Zwróci nic (brak przycisków)
+  }
+
   const generatePaginationItems = () => {
     const items = [];
     const maxVisiblePages = 5; // Liczba stron widocznych na raz

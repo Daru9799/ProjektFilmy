@@ -3,28 +3,36 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction"; // Import funkcji
+import PaginationModule from "../PaginationModule";
 
 const ReviewsPage = () => {
-  const movieId = "eb607d9d-8733-4ad8-a385-f534ba77750b"; // Stałe ID dla testów
+  const movieId = "073BBF7F-A276-46A9-A221-D77C592EC39D"; // Stałe ID dla testów
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [pagination, setPagination] = useState({
+    totalItems:1,
+    pageNumber: 1,
+    pageSize:5,
+    totalPages: 1,
+  });
 
   useEffect(() => {
-    const fetchReviewsByMovieId = async () => {
+    const fetchReviewsByMovieId = async (page: number,pageS:number) => {
       try {
         const response = await axios.get(
           `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`, {
             //Argumenty do backendu dotyczące numeru strony i rozmiaru strony (potem trzeba to połączyć z panelem stron)
             params: {
-              pageNumber: 1,
-              pageSize: 5, //Biorę 5 recenzji z 1 strony
+              pageNumber: page,
+              pageSize: pageS, 
             }
           });
         console.log("Dane z serwera:", response.data);
         //Tutaj zapisywane są kolejno do zmiennych reviewsData czyli lista recenzji i parametry dotyczące paginacji do uzycia potem przy tworzeniu stron
         const { data, totalItems, pageNumber, pageSize, totalPages } = response.data; 
         setReviews(data.$values); //Tutaj trzeba te dane przekazać do mapowania na obiekt
+        setPagination({totalItems,pageNumber,pageSize,totalPages})
 
       } catch (err: any) {
         console.error("Błąd podczas pobierania danych: ", err);
@@ -38,8 +46,8 @@ const ReviewsPage = () => {
       }
     };
 
-    fetchReviewsByMovieId();
-  }, [movieId]);
+    fetchReviewsByMovieId(pagination.pageNumber,pagination.pageSize);
+  }, [pagination.pageNumber,pagination.pageSize]);
 
   if (loading) {
     return <div className="text-center">Ładowanie recenzji...</div>;
@@ -81,7 +89,15 @@ const ReviewsPage = () => {
       ) : (
         <p>Brak recenzji dla tego filmu.</p>
       )}
-    </div>
+       {/* Komponent paginacji */}
+       <PaginationModule
+  currentPage={pagination.pageNumber}
+  totalPages={pagination.totalPages}
+  onPageChange={(page) =>
+    setPagination((prev) => ({ ...prev, pageNumber: page }))
+  }
+/>
+</div>
   );
 };
 export default ReviewsPage;

@@ -10,7 +10,7 @@ import { renderStars } from "../../functions/starFunction";
 
 
 const MoviePage = () => {
-  const movieId="eb607d9d-8733-4ad8-a385-f534ba77750b";
+  const movieId="073BBF7F-A276-46A9-A221-D77C592EC39D";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
@@ -286,7 +286,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
     >
       {/* Renderowanie gwiazdek */}
       <div>{renderStars(movie?.averageScore || 0)}</div>
-      <h4 style={{ fontSize: "1.6rem" }}>{movie?.averageScore}/5</h4>
+      <h4 style={{ fontSize: "1.6rem" }}>{Number(movie?.averageScore).toFixed(1)}/5</h4>
       <p className="mb-0">{movie.reviewsNumber}</p>
     </div>
   )}
