@@ -52,7 +52,7 @@ const ReviewsPage = () => {
   return (
     <div className="container my-4">
       <h2 className="mb-4" style={{ color: "white" }}>
-        Recenzje filmu
+        Recenzje filmu: {reviews[0].movieTitle}
       </h2>
       {reviews.length > 0 ? (
         reviews.map((review) => (
@@ -74,7 +74,9 @@ const ReviewsPage = () => {
             <div style={{ textAlign: "center", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
-              <small>{review.date}</small>
+              <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
+              
+              
             </div>
           </div>
         ))

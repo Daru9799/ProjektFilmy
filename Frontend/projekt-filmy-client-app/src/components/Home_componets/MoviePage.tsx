@@ -240,17 +240,26 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
         </div>
 
 
+
       {/* Right Column (Ratings) */}
       <div className="col-3" style={{ width: "50px", textAlign: "right" }}>
-  <div className="p-3" style={{ textAlign: "center", marginLeft: "-100px", marginTop: "20px" }}>
-    {/* Renderowanie gwiazdek */}
-    <div>{renderStars(movie?.averageScore || 0)}</div>
-    <h4 style={{fontSize:"1.6rm"}}>{movie?.averageScore}/5</h4>
-    <p className="mb-0">{movie?.reviewsNumber}</p>
-  </div>
+  {movie?.reviewsNumber && movie.reviewsNumber > 0 && (
+    <div
+      className="p-3"
+      style={{ textAlign: "center", marginLeft: "-100px", marginTop: "20px" }}
+    >
+      {/* Renderowanie gwiazdek */}
+      <div>{renderStars(movie?.averageScore || 0)}</div>
+      <h4 style={{ fontSize: "1.6rem" }}>{movie?.averageScore}/5</h4>
+      <p className="mb-0">{movie.reviewsNumber}</p>
+    </div>
+  )}
 </div>
 
       </div>
+
+
+
 
 
 
@@ -277,7 +286,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
             <div style={{ textAlign: "center", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
-              <small>{review.date}</small>
+              <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
         </div>
       </div>
     ))
@@ -287,34 +296,36 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
 </div>
 
 
+{movie?.reviewsNumber && movie?.reviewsNumber >2  && (
   <button
     className="edit-btn"
     onClick={handleReviewsClick}
     style={{
-      fontSize: "20px",     // Rozmiar tekstu
-      color: "white",       // Kolor tekstu
+      fontSize: "20px", // Rozmiar tekstu
+      color: "white", // Kolor tekstu
       backgroundColor: "transparent", // Przezroczyste tło
-      border: "none",   // Obramowanie
-      borderRadius: "50%", // Okrogły kształt
-      cursor: "pointer",   // Wskaźnik kursora
+      border: "none", // Obramowanie
+      borderRadius: "50%", // Okrągły kształt
+      cursor: "pointer", // Wskaźnik kursora
       transition: "all 0.3s ease", // Płynne przejście
     }}
     onMouseOver={(e) => {
       (e.target as HTMLButtonElement).style.backgroundColor = "#2E5077"; // Kolor tła po najechaniu
-      (e.target as HTMLButtonElement).style.color = "white";  // Kolor tekstu po najechaniu
+      (e.target as HTMLButtonElement).style.color = "white"; // Kolor tekstu po najechaniu
     }}
     onMouseOut={(e) => {
       (e.target as HTMLButtonElement).style.backgroundColor = "transparent"; // Powrót do przezroczystego tła
-      (e.target as HTMLButtonElement).style.color = "white";  // Powrót koloru tekstu
+      (e.target as HTMLButtonElement).style.color = "white"; // Powrót koloru tekstu
     }}
   >
     ...
   </button>
+)}
+
 
 
 
 </div>
-
   );
 };
 
