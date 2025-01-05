@@ -16,6 +16,8 @@ namespace Movies.Application.Movies
         {
             public List<string> CategoryNames { get; set; } //Szukanie po gatunkach
             public List<string> CountryNames { get; set; } //Szukanie po krajach
+            public List<string> Actors { get; set; } //Szukanie po aktorach (lista stringów firstname + lastname)
+            public List<string> Directors { get; set; } //Szukanie po reżyserach (lista stringów firstname + lastname)
             public string TitleSearch { get; set; } //Szukanie po tytule
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
@@ -38,7 +40,8 @@ namespace Movies.Application.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
-                    .Include(m => m.Directors);
+                    .Include(m => m.Directors)
+                    .Include(m => m.Actors);
 
                 //Filtracja po tytule
                 if (!string.IsNullOrEmpty(request.TitleSearch))
@@ -57,6 +60,18 @@ namespace Movies.Application.Movies
                 if (request.CountryNames != null && request.CountryNames.Any())
                 {
                     query = query.Where(m => m.Countries.Any(c => request.CountryNames.Contains(c.Name)));
+                }
+
+                //Filtracja po reżyserach
+                if (request.Directors != null && request.Directors.Any())
+                {
+                    query = query.Where(movie => movie.Directors.Any(director => request.Directors.Contains(director.FirstName + " " + director.LastName)));
+                }
+
+                //Filtracja po aktorach
+                if (request.Actors != null && request.Actors.Any())
+                {
+                    query = query.Where(movie => movie.Actors.Any(actor => request.Actors.Contains(actor.FirstName + " " + actor.LastName)));
                 }
 
                 //Obsługa sortowania
