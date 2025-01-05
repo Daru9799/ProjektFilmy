@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 
 const SortMovieModule: React.FC<{ onSort: (category: string) => void }> = ({onSort}) => {
-  const [selectedOption, setSelectedOption] =
-    useState<string>("Ocena: Najwyższa");
+
+  const [selectedOption, setSelectedOption] = useState<string>("title asc");
 
   const handleSort = () => {
     onSort(selectedOption);
@@ -22,14 +22,10 @@ const SortMovieModule: React.FC<{ onSort: (category: string) => void }> = ({onSo
                  className="form-control-sm" // Mniejsza szerokość selecta
                  style={{ marginTop: "2px" }}
                >
-                 <option value="Ocena: Najwyższa">Ocena: Najwyższa</option>
-                 <option value="Ocena: Najniższa">Ocena: Najniższa</option>
-                 <option value="Ilość recenzji: Najwięcej">
-                   Ilość recenzji: Najwięcej
-                 </option>
-                 <option value="Ilość recenzji: Najmniej">
-                   Ilość recenzji: Najmniej
-                 </option>
+                 <option value="rating desc">Ocena: Najwyższa</option>
+                 <option value="rating asc">Ocena: Najniższa</option>
+                 <option value="reviews desc">Ilość recenzji: Najwięcej</option>
+                 <option value="reviews asc">Ilość recenzji: Najmniej</option>
                  <option value="year desc">Data premiery: Najnowsze</option>
                  <option value="year asc">Data premiery: Najstarsze</option>
                  <option value="title asc">Alfabetycznie: A-Z</option>

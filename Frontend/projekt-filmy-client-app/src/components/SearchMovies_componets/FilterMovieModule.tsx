@@ -1,4 +1,6 @@
 import axios from "axios";
+import stringSimilarity from "string-similarity";
+
 import React, { useState, useEffect } from "react";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import { Category } from "../../models/Category";
@@ -8,7 +10,7 @@ import { Director } from "../../models/Director";
 
 interface Props {
   // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako Actor[], Reżyserów jako Director[] 
-  getFilters: (list:[string[],string[],Actor[],Director[]]) => void;
+  getFilters: (list:[string[],string[],string[],string[]]) => void;
 }
 
 const FilterMovieModule = ({ getFilters }: Props) => {
@@ -28,13 +30,22 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [directorName, setDirectorName] = useState<string>("");
   const [selectedDirectors, setSelectedDirectors] = useState<Director[]>([]);
 
+  // Do ustawiania stopnia pasowania przy dodawaniu Aktorów i Reżyserów(0.0 - 1.0)
+  const rateThreShold = 0.6;
 
   useEffect(() => {
+    const selectedActorsStrings = selectedActors.map(
+      (actor) => `${actor.firstName} ${actor.lastName}`
+    );
+    const selectedDirectorsStrings = selectedDirectors.map(
+      (director) => `${director.firstName} ${director.lastName}`
+    );
+
     getFilters([
       selectedCategories,
       selectedCountries,
-      selectedActors,
-      selectedDirectors,
+      selectedActorsStrings,
+      selectedDirectorsStrings,
     ]);
     console.log("getFilter się wykonał");
   }, [selectedCategories, selectedCountries, selectedActors, selectedDirectors]);
@@ -125,28 +136,59 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   };
 
   const handleActorSearch = () => {
-    const actor = actorData.find(
-      (a) =>
-        `${a.firstName} ${a.lastName}`.toLowerCase() === actorName.toLowerCase()
+    // Połącz imiona i nazwiska aktorów w jeden ciąg, aby dopasować do actorName
+    const actorNames = actorData.map((a) => `${a.firstName} ${a.lastName}`);
+
+    // Znajdź najlepsze dopasowanie
+    const { bestMatch } = stringSimilarity.findBestMatch(
+      actorName.toLowerCase(),
+      actorNames.map((name) => name.toLowerCase())
     );
-    if (actor && !selectedActors.some((a) => a.actorId === actor.actorId)) {
-      setSelectedActors((prev) => [...prev, actor]);
+
+    // Sprawdź, czy wynik jest wystarczająco podobny (ustaw próg, np. 0.7)
+    if (bestMatch.rating >= rateThreShold) {
+      const actor = actorData.find(
+        (a) => `${a.firstName} ${a.lastName}`.toLowerCase() === bestMatch.target
+      );
+
+      // Jeśli aktor istnieje i nie jest jeszcze dodany, dodaj go
+      if (actor && !selectedActors.some((a) => a.actorId === actor.actorId)) {
+        setSelectedActors((prev) => [...prev, actor]);
+      }
     }
+
+    // Zresetuj pole wyszukiwania
     setActorName("");
   };
 
   const handleDirectorSearch = () => {
-    const director = directorData.find(
-      (d) =>
-        `${d.firstName} ${d.lastName}`.toLowerCase() ===
-        directorName.toLowerCase()
+    // Połącz imiona i nazwiska reżyserów w jeden ciąg, aby dopasować do directorName
+    const directorNames = directorData.map(
+      (d) => `${d.firstName} ${d.lastName}`
     );
-    if (
-      director &&
-      !selectedDirectors.some((d) => d.directorId === director.directorId)
-    ) {
-      setSelectedDirectors((prev) => [...prev, director]);
+
+    // Znajdź najlepsze dopasowanie
+    const { bestMatch } = stringSimilarity.findBestMatch(
+      directorName.toLowerCase(),
+      directorNames.map((name) => name.toLowerCase())
+    );
+
+    // Sprawdź, czy wynik jest wystarczająco podobny (ustaw próg, np. 0.7)
+    if (bestMatch.rating >= rateThreShold) {
+      const director = directorData.find(
+        (d) => `${d.firstName} ${d.lastName}`.toLowerCase() === bestMatch.target
+      );
+
+      // Jeśli reżyser istnieje i nie jest jeszcze dodany, dodaj go
+      if (
+        director &&
+        !selectedDirectors.some((d) => d.directorId === director.directorId)
+      ) {
+        setSelectedDirectors((prev) => [...prev, director]);
+      }
     }
+
+    // Zresetuj pole wyszukiwania
     setDirectorName("");
   };
 

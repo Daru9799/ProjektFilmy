@@ -15,15 +15,16 @@ namespace Movies.Infrastructure
         public static async Task SeedData(DataContext context, UserManager<User> userManager)
         {
             //Usuwanie danych w tabelach jak chce sie coś na nowo wygenerowac nizej to nalezy to odkomentować
-
-            /*context.Movies.RemoveRange(context.Movies);
+            /*
+            context.Movies.RemoveRange(context.Movies);
             context.Countries.RemoveRange(context.Countries);
             context.Categories.RemoveRange(context.Categories);
             context.Directors.RemoveRange(context.Directors);
             context.Actors.RemoveRange(context.Actors);
             context.Reviews.RemoveRange(context.Reviews);
             context.Users.RemoveRange(context.Users);
-            await context.SaveChangesAsync();*/
+            await context.SaveChangesAsync();
+            */
 
 
             //Tworzenie userów
@@ -65,6 +66,11 @@ namespace Movies.Infrastructure
                 Name = "USA"
             };
 
+            var uk = new Country { Name = "UK" };
+            var canada = new Country { Name = "Canada" };
+            var germany = new Country { Name = "Germany" };
+            var japan = new Country { Name = "Japan" };
+
             //Gatunki
             var action = new Category
             {
@@ -96,6 +102,11 @@ namespace Movies.Infrastructure
                 Name = "Horror"
             };
 
+            var thriller = new Category { Name = "Thriller" };
+            var sciFi = new Category { Name = "Science Fiction" };
+            var romance = new Category { Name = "Romantyczny" };
+            var adventure = new Category { Name = "Przygodowy" };
+
             var director1 = new Director
             {
                 DirectorId = Guid.NewGuid(),
@@ -124,6 +135,43 @@ namespace Movies.Infrastructure
                 Bio = "Christopher Nolan to brytyjsko-amerykański reżyser i producent, znany z takich filmów jak 'Incepcja', 'Trylogia Mroczny Rycerz' i 'Interstellar'.",
                 BirthDate = new DateTime(1970, 7, 30),
                 PhotoUrl = "https://example.com/photos/christopher_nolan.jpg"
+            };
+
+            var director4 = new Director
+            {
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Quentin",
+                LastName = "Tarantino",
+                Bio = "Quentin Tarantino to amerykański reżyser, znany z filmów takich jak 'Pulp Fiction', 'Kill Bill' i 'Django'.",
+                BirthDate = new DateTime(1963, 3, 27),
+                PhotoUrl = "https://example.com/photos/quentin_tarantino.jpg"
+            };
+            var director5 = new Director
+            {
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Steven",
+                LastName = "Spielberg",
+                Bio = "Steven Spielberg to jeden z najbardziej znanych reżyserów, twórca 'Jurassic Park', 'E.T.' i 'Szeregowiec Ryan'.",
+                BirthDate = new DateTime(1946, 12, 18),
+                PhotoUrl = "https://example.com/photos/steven_spielberg.jpg"
+            };
+            var director6 = new Director
+            {
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Peter",
+                LastName = "Jackson",
+                Bio = "Peter Jackson to nowozelandzki reżyser, znany z trylogii 'Władca Pierścieni' i 'Hobbit'.",
+                BirthDate = new DateTime(1961, 10, 31),
+                PhotoUrl = "https://example.com/photos/peter_jackson.jpg"
+            };
+            var director7 = new Director
+            {
+                DirectorId = Guid.NewGuid(),
+                FirstName = "Greta",
+                LastName = "Gerwig",
+                Bio = "Greta Gerwig to reżyserka i aktorka, znana z 'Lady Bird' i 'Małych kobietek'.",
+                BirthDate = new DateTime(1983, 8, 4),
+                PhotoUrl = "https://example.com/photos/greta_gerwig.jpg"
             };
 
             // Aktorzy
@@ -177,6 +225,43 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://example.com/photos/gary_sinise.jpg"
             };
 
+            var actor6 = new Actor
+            {
+                ActorId = Guid.NewGuid(),
+                FirstName = "Leonardo",
+                LastName = "DiCaprio",
+                Bio = "Leonardo DiCaprio to amerykański aktor, znany z ról w 'Titanicu', 'Incepcji' i 'Wilku z Wall Street'.",
+                BirthDate = new DateTime(1974, 11, 11),
+                PhotoUrl = "https://example.com/photos/leonardo_dicaprio.jpg"
+            };
+            var actor7 = new Actor
+            {
+                ActorId = Guid.NewGuid(),
+                FirstName = "Natalie",
+                LastName = "Portman",
+                Bio = "Natalie Portman to aktorka, znana z ról w 'Czarnym Łabędziu', 'Leon: Zawodowiec' i 'Thor'.",
+                BirthDate = new DateTime(1981, 6, 9),
+                PhotoUrl = "https://example.com/photos/natalie_portman.jpg"
+            };
+            var actor8 = new Actor
+            {
+                ActorId = Guid.NewGuid(),
+                FirstName = "Denzel",
+                LastName = "Washington",
+                Bio = "Denzel Washington to amerykański aktor i reżyser, znany z ról w 'Treningu', 'Malcolmie X' i 'American Gangster'.",
+                BirthDate = new DateTime(1954, 12, 28),
+                PhotoUrl = "https://example.com/photos/denzel_washington.jpg"
+            };
+            var actor9 = new Actor
+            {
+                ActorId = Guid.NewGuid(),
+                FirstName = "Emma",
+                LastName = "Stone",
+                Bio = "Emma Stone to aktorka, znana z ról w 'La La Land', 'Łatwo być mną' i 'Cruelli'.",
+                BirthDate = new DateTime(1988, 11, 6),
+                PhotoUrl = "https://example.com/photos/emma_stone.jpg"
+            };
+
             //Filmy
             var movies = new List<Movie>
             {
@@ -215,7 +300,42 @@ namespace Movies.Infrastructure
                     Categories = new List<Category> { action, drama },
                     Directors = new List<Director> { director3 },
                     Actors = new List<Actor> { actor3 }
-                }
+                },
+                new Movie{
+                    Title = "Inception",
+                    ReleaseDate = new DateTime(2010, 7, 16),
+                    PosterUrl = "https://xl.movieposterdb.com/10_05/2010/1375666/xl_1375666_4ccc5247.jpg",
+                    Description = "Film o złodziejach snów, którzy wchodzą do podświadomości swoich ofiar.",
+                    Duration = 148,
+                    Countries = new List<Country> { usa, uk },
+                    Categories = new List<Category> { action, sciFi },
+                    Directors = new List<Director> { director3 },
+                    Actors = new List<Actor> { actor6 }
+                },
+                new Movie
+                {
+                    Title = "Jurassic Park",
+                    ReleaseDate = new DateTime(1993, 6, 11),
+                    PosterUrl = "https://xl.movieposterdb.com/12_10/1993/107290/xl_107290_6ddba2a8.jpg",
+                    Description = "Naukowcy odtwarzają dinozaury, co prowadzi do katastrofalnych wydarzeń.",
+                    Duration = 127,
+                    Countries = new List<Country> { usa },
+                    Categories = new List<Category> { adventure, sciFi },
+                    Directors = new List<Director> { director5 },
+                    Actors = new List<Actor> { actor6, actor7 }
+                },
+                new Movie
+                {
+                    Title = "La La Land",
+                    ReleaseDate = new DateTime(2016, 12, 25),
+                    PosterUrl = "https://xl.movieposterdb.com/21_07/2016/3783958/xl_3783958_c239e260.jpg",
+                    Description = "Historia miłości muzyka jazzowego i początkującej aktorki w Los Angeles.",
+                    Duration = 128,
+                    Countries = new List<Country> { usa },
+                    Categories = new List<Category> { musical, romance },
+                    Directors = new List<Director> { director7 },
+                    Actors = new List<Actor> { actor9, actor7 }
+                },
             };
 
             //Recenzje
@@ -379,6 +499,37 @@ namespace Movies.Infrastructure
                 User = users.First(u => u.UserName == "user1")
             };
 
+            var review17 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 5.0f,
+                Comment = "Fantastyczny i złożony film o podróżach w snach.",
+                Date = new DateTime(2024, 9, 1),
+                Movie = movies.First(m => m.Title == "Inception"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+            var review18 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 4.5f,
+                Comment = "Dinozaury powracają do życia! Ekscytujące od początku do końca.",
+                Date = new DateTime(2024, 10, 1),
+                Movie = movies.First(m => m.Title == "Jurassic Park"),
+                User = users.First(u => u.UserName == "critic1")
+            };
+
+            var review19 = new Review
+            {
+                ReviewId = Guid.NewGuid(),
+                Rating = 5.0f,
+                Comment = "Piękna muzyka, wspaniała chemia między bohaterami. Cudowny film!",
+                Date = new DateTime(2024, 11, 15),
+                Movie = movies.First(m => m.Title == "La La Land"),
+                User = users.First(u => u.UserName == "user1")
+            };
+
+
             var reviews = new List<Review>
             {
                 review1,
@@ -396,14 +547,17 @@ namespace Movies.Infrastructure
                 review13,
                 review14,
                 review15,
-                review16
+                review16,
+                review17,
+                review18,
+                review19,
             };
 
             // załadowanie danych do pamięci
-            context.Countries.Add(usa);
-            context.Categories.AddRange(action, drama, comedy, document, musical, horror);
-            context.Actors.AddRange(actor1, actor2, actor3, actor4, actor5);
-            context.Directors.AddRange(director1, director2, director3);
+            context.Countries.AddRange(usa, uk, canada, germany, japan);
+            context.Categories.AddRange(action, drama, comedy, document, musical, horror, thriller, sciFi, romance ,adventure);
+            context.Actors.AddRange(actor1, actor2, actor3, actor4, actor5, actor6, actor7, actor8, actor9);
+            context.Directors.AddRange(director1, director2, director3, director4, director5, director6, director7);
             await context.Movies.AddRangeAsync(movies);
             await context.Reviews.AddRangeAsync(reviews);
             // dodanie rekordów do bazy danych

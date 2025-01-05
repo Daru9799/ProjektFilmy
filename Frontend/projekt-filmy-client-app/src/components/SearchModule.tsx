@@ -34,7 +34,7 @@ const SearchModule = ({ placeHolderText, getText, submit }: Props) => {
           <button
             className="btn btn-primary"
             onClick={handleSearch}
-            disabled={!searchText} // Przycisk jest wyłączony, jeśli pole jest puste
+            //disabled={!searchText} // Przycisk jest wyłączony, jeśli pole jest puste
           >
             Szukaj
           </button>

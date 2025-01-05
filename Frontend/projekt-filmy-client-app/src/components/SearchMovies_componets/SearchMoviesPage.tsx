@@ -1,4 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
+import qs from "qs";
+import axios from "axios";
+
 import SearchModule from "../SearchModule";
 import FilterMovieModule from "./FilterMovieModule";
 import PaginationModule from "../PaginationModule";
@@ -7,34 +10,46 @@ import { Category } from "../../models/Category";
 import { Country } from "../../models/Country";
 import { Actor } from "../../models/Actor";
 import { Director } from "../../models/Director";
-import axios from "axios";
 import { Movie } from "../../models/Movie";
 import MovieListModule from "./MovieListModule";
 
 const SearchMoviesPage = () => {
-  const [searchText, setSearchText] = useState<string>("")
-  const [filterList, setFilterList] = useState<[string[],string[],Actor[],Director[]]>([[],[],[],[]])
-  const [movies, setMovies] = useState<Movie[]>([])
+  const [searchText, setSearchText] = useState<string>("");
+  const [filterList, setFilterList] = useState<[string[], string[], string[], string[]]>([[], [], [], []]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [pageInfo, setPageInfo] = useState({
     totalItems: 0,
     pageNumber: 1,
     pageSize: 2,
     totalPages: 0,
   });
-
+  const [sortCategory, setSortCategory] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 20;
+  // Do Testów
+  const staticPageSize = 2;
+  //const totalPages = pageInfo.totalPages;
+  const totalPages = 12;
 
-  // Załadowanie listy wszystkich filmów
+  // Załadowanie listy wszystkich filmów na sam start, oraz przy zmianie page'a 
   useEffect(() => {
     axios
-      .get("https://localhost:7053/api/Movies/all", {
+      .get("https://localhost:7053/api/Movies/by-filters", {
         params: {
           pageNumber: currentPage,
-          pageSize: 3, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
-          orderBy: "year",
-          sortDirection: "asc",
+          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
+          titleSearch: searchText,
+          orderBy: sortCategory ? sortCategory : "title",
+          sortDirection: sortDirection ? sortDirection : "asc",
+
+          categoryNames: filterList[0],
+          countryNames: filterList[1],
+          actorsList: filterList[2],
+          directorsList: filterList[3],
         },
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
+        }
       })
       .then((response) => {
         if (response.data) {
@@ -56,36 +71,103 @@ const SearchMoviesPage = () => {
       .catch((error) => console.error("Error fetching movies:", error));
   }, [currentPage]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleSearchSubmit = () =>{
+  //                       PO KLIKNIĘCIU SZUKAJ:
+  const handleSearchSubmit = () => {
+    setCurrentPage(1);
     console.log("handleSearchSubmit");
-    console.log("searchText:",searchText);
-    console.log("searchText:", filterList);
-
-  }
-
-  const handleSort = (type: string) => {
-    console.log(`Wybrano kategorię do sortowania: ${type}`);
-    const typeArray = type.split(" ");
-    const category = typeArray[0]
-    const direction = typeArray[1];
-    console.log(category,direction);
+    console.log("searchText:", searchText);
+    console.log("sortCategory:", sortCategory);
+    console.log("sortDirection:", sortDirection);
+    console.log("filterList-gatunki:", filterList[0]);
+    // console.log(
+    //   axios.getUri({
+    //     url: "https://localhost:7053/api/Movies/by-filters",
+    //     params: {
+    //       pageNumber: currentPage,
+    //       pageSize: 3,
+    //       orderBy: "title",
+    //       sortDirection: "asc",
+    //       //categoryNames: filterList[0].join(", "),
+    //       categoryNames: ["Akcji", "Dramat"],
+    //     },
+    //     paramsSerializer: (params) => {
+    //       return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
+    //     },
+    //   })
+    // );
 
     axios
-      .get("https://localhost:7053/api/Movies/all", {
+      .get("https://localhost:7053/api/Movies/by-filters", {
         params: {
           pageNumber: currentPage,
-          pageSize: 3, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
-          orderBy: { category},
-          sortDirection: { direction },
+          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
+          titleSearch: searchText,
+          orderBy: sortCategory ? sortCategory : "title",
+          sortDirection: sortDirection ? sortDirection : "asc",
+          categoryNames: filterList[0],
+          countryNames: filterList[1],
+          actorsList: filterList[2],
+          directorsList: filterList[3],
+        },
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
         },
       })
       .then((response) => {
         if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
+          const { data, totalItems, pageNumber, pageSize, totalPages } =
+            response.data;
+          setPageInfo({
+            totalItems,
+            pageNumber,
+            pageSize,
+            totalPages,
+          });
+          setMovies(data.$values);
+          console.log("Załadowano filmy.", data);
+          console.log(pageInfo);
+        } else {
+          setMovies([]);
+        }
+      })
+      .catch((error) => console.error("Error fetching movies:", error));
+  };
+
+  //                       PO KLIKNIĘCIU SORTUJ:
+  const handleSort = (type: string) => {
+    setCurrentPage(1);
+    console.log(`Wybrano kategorię do sortowania: ${type}`);
+    const typeArray = type.split(" ");
+    const srtCategory = typeArray[0];
+    const srtDirection = typeArray[1];
+    setSortCategory(typeArray[0]);
+    setSortDirection(typeArray[1]);
+    axios
+      .get("https://localhost:7053/api/Movies/by-filters", {
+        params: {
+          pageNumber: currentPage,
+          pageSize: staticPageSize,
+
+          titleSearch: searchText,
+
+          // Nie można korzystać z zmiennych useState, które się nadpisuje w tej samej funkci,
+          // dlatego korzystam z lokalnej zmiennej dla tej funkcji
+          orderBy: srtCategory ? srtCategory : "title",
+          sortDirection: srtDirection ? srtDirection : "asc",
+
+          categoryNames: filterList[0],
+          countryNames: filterList[1],
+          actorsList: filterList[2],
+          directorsList: filterList[3],
+        },
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
+        }
+      })
+      .then((response) => {
+        if (response.data) {
+          const { data, totalItems, pageNumber, pageSize, totalPages } =
+            response.data;
           setPageInfo({
             totalItems,
             pageNumber,
@@ -103,8 +185,12 @@ const SearchMoviesPage = () => {
     // Tutaj można dodać logikę sortowania.
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div style={{minHeight:"100vh"}}>
+    <div style={{ minHeight: "100vh" }}>
       <SearchModule
         placeHolderText="Podaj tytuł filmu"
         getText={setSearchText}
@@ -121,7 +207,6 @@ const SearchMoviesPage = () => {
       />
 
       <MovieListModule movieList={movies} />
-
     </div>
   );
 };
