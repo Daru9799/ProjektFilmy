@@ -10,7 +10,7 @@ import { renderStars } from "../../functions/starFunction";
 
 
 const MoviePage = () => {
-  const movieId="073BBF7F-A276-46A9-A221-D77C592EC39D";
+  const movieId="2c5a8270-9cc9-4ed0-9aa5-40dcec6a7ab1";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);

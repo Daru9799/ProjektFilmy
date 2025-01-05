@@ -44,7 +44,7 @@ namespace Movies.Application.Reviews
                     ("year", "desc") => query.OrderByDescending(m => m.Date),
                     ("year", "asc") => query.OrderBy(m => m.Date),
                     ("rating", "asc") => query.OrderBy(m => m.Rating),
-                    ("rating", "desc") => query.OrderBy(m => m.Rating),
+                    ("rating", "desc") => query.OrderByDescending(m => m.Rating),
                     _ => query.OrderBy(m => m.ReviewId) //Domyślne sortowanie po id
                 };
 
