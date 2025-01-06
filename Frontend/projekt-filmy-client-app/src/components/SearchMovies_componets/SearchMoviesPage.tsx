@@ -26,7 +26,7 @@ const SearchMoviesPage = () => {
   const [isNoMovieModalVisible, setIsNoMovieModalVisible] = useState(false);
 
   // Do Testów
-  const staticPageSize = 2;
+  const staticPageSize = 4;
   const totalPages = pageInfo.totalPages;
 
   // Załadowanie listy wszystkich filmów na sam start, oraz przy zmianie page'a 
