@@ -10,7 +10,6 @@ import { renderStars } from "../../functions/starFunction";
 
 
 const MoviePage = () => {
-  //const movieId="2c5a8270-9cc9-4ed0-9aa5-40dcec6a7ab1";
   const movieId = "a39e7ecc-12ac-4d2b-bc0b-6b12148aff1f";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
@@ -278,12 +277,22 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
 
 
 
-      {/* Right Column (Ratings) */}
-      <div className="col-3" style={{ width: "50px", textAlign: "right" }}>
+{/* Right Column (Ratings) */}
+<div
+  className="col-3 d-flex align-items-center justify-content-end"
+  style={{
+    textAlign: "right",
+    position: "absolute",
+    right: "15%",
+    top: "15%", // Zapewnia, że ocena pozostaje obok zdjęcia
+  }}
+>
   {movie?.reviewsNumber && movie.reviewsNumber > 0 && (
     <div
       className="p-3"
-      style={{ textAlign: "center", marginLeft: "-100px", marginTop: "20px" }}
+      style={{
+        textAlign: "center",
+      }}
     >
       {/* Renderowanie gwiazdek */}
       <div>{renderStars(movie?.averageScore || 0)}</div>
@@ -291,6 +300,9 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
       <p className="mb-0">{movie.reviewsNumber}</p>
     </div>
   )}
+
+
+
 </div>
       </div>
 
@@ -300,20 +312,21 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
     reviews.map((review) => (
       <div
         key={review.reviewId} // Zakładamy, że każda recenzja ma unikalne reviewId
-        className="d-flex justify-content-between align-items-start p-3 my-2"
+        className="d-flex justify-content-between align-items-start p-3 my-2 mx-auto"
         style={{
           backgroundColor: "white",
           borderRadius: "15px",  // Zaokrąglenie krawędzi
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
           padding: "20px",
           color: "black",
+          width:"95%"
         }}
       >
         <div style={{ flex: 1, textAlign: "left" }}>
           <p style={{ fontWeight: "bold" }}>{review.username}</p>
           <p>{review.comment}</p>
         </div>
-            <div style={{ textAlign: "center", color: "black" }}>
+            <div style={{ textAlign: "right", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
               <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>

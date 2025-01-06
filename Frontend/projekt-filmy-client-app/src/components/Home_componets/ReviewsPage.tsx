@@ -7,7 +7,7 @@ import PaginationModule from "../PaginationModule";
 import SortReviewModule from "../../functions/SortReviewsModle"; // Import nowego komponentu
 
 const ReviewsPage = () => {
-  const movieId = "2c5a8270-9cc9-4ed0-9aa5-40dcec6a7ab1"; // Stałe ID dla testów
+  const movieId = "a39e7ecc-12ac-4d2b-bc0b-6b12148aff1f"; // Stałe ID dla testów
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -108,13 +108,14 @@ const ReviewsPage = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               padding: "20px",
               color: "black",
+              
             }}
           >
             <div style={{ flex: 1, textAlign: "left" }}>
               <p style={{ fontWeight: "bold" }}>{review.username}</p>
               <p>{review.comment}</p>
             </div>
-            <div style={{ textAlign: "center", color: "black" }}>
+            <div style={{ textAlign: "right", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
               <small>{review?.date ? new Date(review.date).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" }) : "Brak danych"}</small>
