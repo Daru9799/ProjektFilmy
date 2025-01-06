@@ -226,7 +226,7 @@ const SearchMoviesPage = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
       <SearchModule
         placeHolderText="Podaj tytuł filmu"
         getText={setSearchText}
@@ -244,7 +244,18 @@ const SearchMoviesPage = () => {
 
       <MovieListModule movieList={movies} />
 
-      <NoMoviesModal show={isNoMovieModalVisible} onClose={() => setIsNoMovieModalVisible(false)}/>
+      <div className="mt-auto">
+        <PaginationModule
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
+
+      <NoMoviesModal
+        show={isNoMovieModalVisible}
+        onClose={() => setIsNoMovieModalVisible(false)}
+      />
     </div>
   );
 };
