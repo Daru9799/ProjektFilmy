@@ -18,6 +18,7 @@ namespace Movies.Application.Actors
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public string ActorSearch { get; set; } //Do wyszukiwania po nazwie
+            public bool NoPagination { get; set; } //Wylączanie, włączanie paginacji
         }
         public class Handler : IRequestHandler<Query, PagedResponse<Actor>>
         {
@@ -38,22 +39,37 @@ namespace Movies.Application.Actors
                     query = query.Where(actor => (actor.FirstName.ToLower() + " " + actor.LastName.ToLower()).Contains(searchTerm));
                 }
 
-                //Paginacja
-                var actors = await query
-                    .Skip((request.PageNumber - 1) * request.PageSize)  
-                    .Take(request.PageSize)                            
-                    .ToListAsync(cancellationToken);
-
-                //Obliczenie całkowitej liczby aktorów
-                int totalItems = await query.CountAsync(cancellationToken);
-
-                return new PagedResponse<Actor>
+                //Jeśli paginacja jest wyłączona zwróci wszystkich aktorów
+                if (request.NoPagination)
                 {
-                    Data = actors,
-                    TotalItems = totalItems,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
-                };
+                    var actors = await query.ToListAsync(cancellationToken);
+                    return new PagedResponse<Actor>
+                    {
+                        Data = actors,
+                        TotalItems = actors.Count,
+                        PageNumber = 1,
+                        PageSize = actors.Count
+                    };
+                }
+                else
+                {
+                    //Paginacja
+                    var actors = await query
+                        .Skip((request.PageNumber - 1) * request.PageSize)
+                        .Take(request.PageSize)
+                        .ToListAsync(cancellationToken);
+
+                    //Obliczenie całkowitej liczby aktorów
+                    int totalItems = await query.CountAsync(cancellationToken);
+
+                    return new PagedResponse<Actor>
+                    {
+                        Data = actors,
+                        TotalItems = totalItems,
+                        PageNumber = request.PageNumber,
+                        PageSize = request.PageSize
+                    };
+                }
             }
         }
     }

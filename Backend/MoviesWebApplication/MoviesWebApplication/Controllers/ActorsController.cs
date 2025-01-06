@@ -9,13 +9,14 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich aktorów
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<Actor>>> GetActors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string actorSearch = "")
+        public async Task<ActionResult<PagedResponse<Actor>>> GetActors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string actorSearch = "", [FromQuery] bool noPagination = false)
         {
             return await Mediator.Send(new ActorsList.Query
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                ActorSearch = actorSearch                   
+                ActorSearch = actorSearch,
+                NoPagination = noPagination
             });
         }
         //Zwracanie aktorów na podstawie ID filmu

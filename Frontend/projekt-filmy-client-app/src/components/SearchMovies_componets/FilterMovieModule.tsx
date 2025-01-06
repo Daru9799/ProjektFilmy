@@ -83,11 +83,17 @@ const FilterMovieModule = ({ getFilters }: Props) => {
       .catch((error) => console.error("Error fetching countries:", error));
 
     axios
-      .get("https://localhost:7053/api/Actors/all")
+      .get("https://localhost:7053/api/Actors/all", {
+        params: {
+          NoPagination: true, //Pobieranie bez paginacji (wszystko na raz)
+        },
+      })
       .then((response) => {
-        if (response.data && response.data.$values) {
-          setActorData(response.data.$values);
-          console.log(response.data.$values);
+        if (response) {
+          const { data, totalItems, pageNumber, pageSize, totalPages } =
+            response.data;
+          setActorData(data.$values);
+          console.log(data.$values);
         } else {
           setActorData([]);
         }
@@ -95,11 +101,16 @@ const FilterMovieModule = ({ getFilters }: Props) => {
       .catch((error) => console.error("Error fetching actors:", error));
 
     axios
-      .get("https://localhost:7053/api/Directors/all")
+      .get("https://localhost:7053/api/Directors/all", {
+        params: {
+          NoPagination: true, //Pobieranie bez paginacji (wszystko na raz)
+        },
+      })
       .then((response) => {
-        if (response.data && response.data.$values) {
-          setDirectorData(response.data.$values);
-          console.log(response.data.$values);
+        if (response) {
+          const { data, totalItems, pageNumber, pageSize, totalPages } =
+            response.data;
+          setDirectorData(data.$values);
         } else {
           setDirectorData([]);
         }
@@ -166,6 +177,8 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     const directorNames = directorData.map(
       (d) => `${d.firstName} ${d.lastName}`
     );
+
+    console.log("Reżyserowie tutaj:", directorNames);
 
     // Znajdź najlepsze dopasowanie
     const { bestMatch } = stringSimilarity.findBestMatch(
