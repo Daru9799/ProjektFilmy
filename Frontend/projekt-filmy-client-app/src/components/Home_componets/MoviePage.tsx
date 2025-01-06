@@ -78,7 +78,7 @@ const MoviePage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px" }}>
+    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom:"155px" }}>
     <div className="row my-4">
       {/* Left Column (Poster) */}
       <div className="col-3">
@@ -91,8 +91,8 @@ const MoviePage = () => {
               width: "100%",
               height: "auto",
               objectFit: "cover",
-              marginTop: "20px",
-              marginLeft: "20px",
+              marginTop: "10%",
+              marginLeft: "10%",
               cursor: "pointer", // Cursor pointer for click indication
             }}
             onClick={handleImageClick}
@@ -198,7 +198,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
                     movie.categories.$values.map((cat) => (
                       <div key={cat.name} className="badge  me-2 mb-2"
                       style={{
-                        backgroundColor: "#2E5077",
+                        backgroundColor: "#A294F9",
                         minWidth: "60px",
                         minHeight: "40px",
                         textAlign: "center",
@@ -226,7 +226,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
           key={actor.actorId}
           className="badge"
           style={{
-            backgroundColor: "#2E5077",
+            backgroundColor: "#A294F9",
             minWidth: "60px",
             minHeight: "40px",
             textAlign: "center",
@@ -253,7 +253,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
                     movie.countries.$values.map((country) => (
                       <div key={country.name} className="badge  me-2 mb-2"
                       style={{
-                        backgroundColor: "#2E5077",
+                        backgroundColor: "#A294F9",
                         minWidth: "60px",
                         minHeight: "40px",
                         textAlign: "center",
@@ -300,10 +300,20 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
       <p className="mb-0">{movie.reviewsNumber}</p>
     </div>
   )}
-
-
-
 </div>
+
+<div className="pt-3" style={{ marginTop: "20px" }}>
+  <button
+    className="btn btn-primary"
+    style={{
+
+    }}
+  >
+    Dodaj recenzję
+  </button>
+</div>
+
+
       </div>
 
       <div className="pt-3">
@@ -319,7 +329,8 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
           padding: "20px",
           color: "black",
-          width:"95%"
+          width:"95%",
+          marginTop:"-10px"
         }}
       >
         <div style={{ flex: 1, textAlign: "left" }}>
@@ -353,7 +364,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
       transition: "all 0.3s ease", // Płynne przejście
     }}
     onMouseOver={(e) => {
-      (e.target as HTMLButtonElement).style.backgroundColor = "#2E5077"; // Kolor tła po najechaniu
+      (e.target as HTMLButtonElement).style.backgroundColor = "#6C48C5"; // Kolor tła po najechaniu
       (e.target as HTMLButtonElement).style.color = "white"; // Kolor tekstu po najechaniu
     }}
     onMouseOut={(e) => {

@@ -103,22 +103,37 @@ const ReviewsPage = () => {
             key={review.reviewId}
             className="d-flex justify-content-between align-items-start p-3 my-2"
             style={{
-              backgroundColor: "white",
               borderRadius: "15px",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               padding: "20px",
               color: "black",
-              
+              backgroundColor: review.isCritic ? "#CDC1FF" : "white",
             }}
           >
             <div style={{ flex: 1, textAlign: "left" }}>
-              <p style={{ fontWeight: "bold" }}>{review.username}</p>
+              <p style={{ fontWeight: "bold" }}>
+                            {review.isCritic && (
+                  <span style={{ color: "green", marginLeft: "-5px" }} title="Recenzent krytyk">
+                    ✔️
+                  </span>
+                )}
+                {review.username}{" "}
+    
+              </p>
               <p>{review.comment}</p>
             </div>
             <div style={{ textAlign: "right", color: "black" }}>
               {renderStars(review.rating)}
               <h4>{review.rating}/5</h4>
-              <small>{review?.date ? new Date(review.date).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" }) : "Brak danych"}</small>
+              <small>
+                {review?.date
+                  ? new Date(review.date).toLocaleDateString("pl-PL", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : "Brak danych"}
+              </small>
             </div>
           </div>
         ))
@@ -130,11 +145,12 @@ const ReviewsPage = () => {
       <PaginationModule
         currentPage={pagination.pageNumber}
         totalPages={pagination.totalPages}
-        onPageChange={(page) => setPagination((prev) => ({ ...prev, pageNumber: page }))}
+        onPageChange={(page) =>
+          setPagination((prev) => ({ ...prev, pageNumber: page }))
+        }
       />
     </div>
   );
 };
 
 export default ReviewsPage;
-
