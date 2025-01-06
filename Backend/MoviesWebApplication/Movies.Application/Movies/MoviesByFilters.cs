@@ -53,25 +53,25 @@ namespace Movies.Application.Movies
                 //Filtracja po kategoriach
                 if (request.CategoryNames != null && request.CategoryNames.Any())
                 {
-                    query = query.Where(m => m.Categories.Any(c => request.CategoryNames.Contains(c.Name)));
+                    query = query.Where(m => request.CategoryNames.All(category => m.Categories.Any(c => c.Name == category)));
                 }
 
                 //Filtracja po krajach
                 if (request.CountryNames != null && request.CountryNames.Any())
                 {
-                    query = query.Where(m => m.Countries.Any(c => request.CountryNames.Contains(c.Name)));
+                    query = query.Where(m => request.CountryNames.All(country => m.Countries.Any(c => c.Name == country)));
                 }
 
                 //Filtracja po reżyserach
                 if (request.Directors != null && request.Directors.Any())
                 {
-                    query = query.Where(movie => movie.Directors.Any(director => request.Directors.Contains(director.FirstName + " " + director.LastName)));
+                    query = query.Where(movie => request.Directors.All(director => movie.Directors.Any(d => (d.FirstName + " " + d.LastName).ToLower() == director.ToLower())));
                 }
 
                 //Filtracja po aktorach
                 if (request.Actors != null && request.Actors.Any())
                 {
-                    query = query.Where(movie => movie.Actors.Any(actor => request.Actors.Contains(actor.FirstName + " " + actor.LastName)));
+                    query = query.Where(movie => request.Actors.All(actor => movie.Actors.Any(a => (a.FirstName + " " + a.LastName).ToLower() == actor.ToLower())));
                 }
 
                 //Obsługa sortowania

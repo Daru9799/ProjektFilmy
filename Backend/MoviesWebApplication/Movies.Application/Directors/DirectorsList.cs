@@ -17,6 +17,7 @@ namespace Movies.Application.Directors
         {
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
+            public string DirectorSearch { get; set; } //Do wyszukiwania po nazwie
         }
         public class Handler : IRequestHandler<Query, PagedResponse<Director>>
         {
@@ -29,6 +30,13 @@ namespace Movies.Application.Directors
             public async Task<PagedResponse<Director>> Handle(Query request, CancellationToken cancellationToken)
             {
                 IQueryable<Director> query = _context.Directors;
+
+                //Filtracja po imieniu i nazwisku
+                if (!string.IsNullOrEmpty(request.DirectorSearch))
+                {
+                    var searchTerm = request.DirectorSearch.ToLower();
+                    query = query.Where(director => (director.FirstName.ToLower() + " " + director.LastName.ToLower()).Contains(searchTerm));
+                }
 
                 //Paginacja
                 var directors = await query

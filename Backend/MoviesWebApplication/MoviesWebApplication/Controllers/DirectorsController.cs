@@ -11,12 +11,13 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich reżyserów
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<Director>>> GetDirectors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<PagedResponse<Director>>> GetDirectors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string directorSearch = "")
         {
             return await Mediator.Send(new DirectorsList.Query
             {
                 PageNumber = pageNumber,
-                PageSize = pageSize
+                PageSize = pageSize,
+                DirectorSearch = directorSearch
             });
         }
 
