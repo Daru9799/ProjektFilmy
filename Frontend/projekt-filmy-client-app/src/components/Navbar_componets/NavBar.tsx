@@ -27,9 +27,11 @@ const NavBar = () => {
               </Link>
             </button>
             <NavTile link="search-movies">Filmy</NavTile>
-            <NavTile link="">Reżyserzy</NavTile>
-            <NavTile link="/id:">Aktorzy</NavTile>
+            <NavTile link="search-directors">Reżyserzy</NavTile>
+            <NavTile link="search-actors">Aktorzy</NavTile>
             <NavTile link="/test">TEST BACKENDU</NavTile>
+            <NavTile link="/user/:id">karta user</NavTile>
+            <NavTile link="/:id">karta film</NavTile>
           </div>
 
           {/* Prawa część: Logowanie/Rejestracja/Użytkownik */}

@@ -77,22 +77,6 @@ const SearchMoviesPage = () => {
     console.log("sortCategory:", sortCategory);
     console.log("sortDirection:", sortDirection);
     console.log("filterList-gatunki:", filterList[0]);
-    // console.log(
-    //   axios.getUri({
-    //     url: "https://localhost:7053/api/Movies/by-filters",
-    //     params: {
-    //       pageNumber: currentPage,
-    //       pageSize: 3,
-    //       orderBy: "title",
-    //       sortDirection: "asc",
-    //       //categoryNames: filterList[0].join(", "),
-    //       categoryNames: ["Akcji", "Dramat"],
-    //     },
-    //     paramsSerializer: (params) => {
-    //       return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
-    //     },
-    //   })
-    // );
 
     axios
       .get("https://localhost:7053/api/Movies/by-filters", {
