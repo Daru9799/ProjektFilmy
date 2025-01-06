@@ -14,10 +14,14 @@ const SearchModule = ({ placeHolderText, getText, submit }: Props) => {
   const handleSearch = () => {
     // Funkcja do wyszukiwania filmu
     console.log("Searching for: ", searchText);
-    // Możesz tu dodać kod do wykonania zapytania do API, np. do wyszukiwania filmów
     getText(searchText);
     submit();
   };
+
+  const handleSearchTextChange = (e: { target: { value: string; }; }) =>{
+    setSearchText(e.target.value);
+    getText(e.target.value);
+  }
 
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
@@ -29,7 +33,7 @@ const SearchModule = ({ placeHolderText, getText, submit }: Props) => {
             id="search"
             placeholder={placeHolderText}
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e)=>handleSearchTextChange(e)}
           />
           <button
             className="btn btn-primary"

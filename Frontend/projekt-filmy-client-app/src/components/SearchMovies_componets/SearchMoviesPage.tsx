@@ -6,12 +6,9 @@ import SearchModule from "../SearchModule";
 import FilterMovieModule from "./FilterMovieModule";
 import PaginationModule from "../PaginationModule";
 import SortMovieModule from "./SortMovieModule";
-import { Category } from "../../models/Category";
-import { Country } from "../../models/Country";
-import { Actor } from "../../models/Actor";
-import { Director } from "../../models/Director";
 import { Movie } from "../../models/Movie";
 import MovieListModule from "./MovieListModule";
+import NoMoviesModal from "./NoMoviesModal";
 
 const SearchMoviesPage = () => {
   const [searchText, setSearchText] = useState<string>("");
@@ -21,15 +18,16 @@ const SearchMoviesPage = () => {
     totalItems: 0,
     pageNumber: 1,
     pageSize: 2,
-    totalPages: 0,
+    totalPages: 1,
   });
   const [sortCategory, setSortCategory] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNoMovieModalVisible, setIsNoMovieModalVisible] = useState(false);
+
   // Do Testów
   const staticPageSize = 2;
-  //const totalPages = pageInfo.totalPages;
-  const totalPages = 12;
+  const totalPages = pageInfo.totalPages;
 
   // Załadowanie listy wszystkich filmów na sam start, oraz przy zmianie page'a 
   useEffect(() => {
@@ -130,7 +128,34 @@ const SearchMoviesPage = () => {
           setMovies([]);
         }
       })
-      .catch((error) => console.error("Error fetching movies:", error));
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          // Obsługa AxiosError
+          if (error.response) {
+            // Serwer zwrócił odpowiedź z kodem błędu
+            console.error(
+              `Error ${error.response.status}: ${
+                error.response.data?.message || "Wystąpił błąd"
+              }`
+            );
+            if (error.response.status === 404) {
+              // Obsługa błędu 404
+              console.error("Nie znaleziono zasobu.");
+              setMovies([]);
+              setPageInfo({
+                totalItems: 0,
+                pageNumber: 1,
+                pageSize: 2,
+                totalPages: 1,
+              });
+              setIsNoMovieModalVisible(true);
+            }
+          }
+        } else {
+          // Inny rodzaj błędu (nie związany z Axios)
+          console.error("Nieznany błąd:", error);
+        }
+      });
   };
 
   //                       PO KLIKNIĘCIU SORTUJ:
@@ -162,7 +187,7 @@ const SearchMoviesPage = () => {
         },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
-        }
+        },
       })
       .then((response) => {
         if (response.data) {
@@ -181,7 +206,34 @@ const SearchMoviesPage = () => {
           setMovies([]);
         }
       })
-      .catch((error) => console.error("Error fetching movies:", error));
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          // Obsługa AxiosError
+          if (error.response) {
+            // Serwer zwrócił odpowiedź z kodem błędu
+            console.error(
+              `Error ${error.response.status}: ${
+                error.response.data?.message || "Wystąpił błąd"
+              }`
+            );
+            if (error.response.status === 404) {
+              // Obsługa błędu 404
+              console.error("Nie znaleziono zasobu.");
+              setMovies([]);
+              setPageInfo({
+                totalItems: 0,
+                pageNumber: 1,
+                pageSize: 2,
+                totalPages: 1,
+              });
+              setIsNoMovieModalVisible(true);
+            }
+          }
+        } else {
+          // Inny rodzaj błędu (nie związany z Axios)
+          console.error("Nieznany błąd:", error);
+        }
+      });
     // Tutaj można dodać logikę sortowania.
   };
 
@@ -207,6 +259,8 @@ const SearchMoviesPage = () => {
       />
 
       <MovieListModule movieList={movies} />
+
+      <NoMoviesModal show={isNoMovieModalVisible} onClose={() => setIsNoMovieModalVisible(false)}/>
     </div>
   );
 };
