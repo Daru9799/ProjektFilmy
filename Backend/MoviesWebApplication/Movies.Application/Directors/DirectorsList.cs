@@ -13,8 +13,12 @@ namespace Movies.Application.Directors
     public class DirectorsList
     {
         //Lista obiektów typu reżyserowie
-        public class Query : IRequest<List<Director>> { }
-        public class Handler : IRequestHandler<Query, List<Director>>
+        public class Query : IRequest<PagedResponse<Director>>
+        {
+            public int PageNumber { get; set; }
+            public int PageSize { get; set; }
+        }
+        public class Handler : IRequestHandler<Query, PagedResponse<Director>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -22,9 +26,26 @@ namespace Movies.Application.Directors
                 _context = context;
             }
 
-            public async Task<List<Director>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<PagedResponse<Director>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.Directors.ToListAsync();
+                IQueryable<Director> query = _context.Directors;
+
+                //Paginacja
+                var directors = await query
+                    .Skip((request.PageNumber - 1) * request.PageSize) 
+                    .Take(request.PageSize)
+                    .ToListAsync(cancellationToken);
+
+                //Obliczenie całkowitej liczby reżyserów
+                int totalItems = await query.CountAsync(cancellationToken);
+
+                return new PagedResponse<Director>
+                {
+                    Data = directors,
+                    TotalItems = totalItems,
+                    PageNumber = request.PageNumber,
+                    PageSize = request.PageSize
+                };
             }
         }
     }

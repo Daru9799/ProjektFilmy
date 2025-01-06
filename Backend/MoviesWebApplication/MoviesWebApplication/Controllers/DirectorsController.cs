@@ -2,6 +2,7 @@
 using Movies.Application.Actors;
 using Movies.Application.Countries;
 using Movies.Application.Directors;
+using Movies.Application.Movies;
 using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
@@ -10,9 +11,13 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie wszystkich reżyserów
         [HttpGet("all")]
-        public async Task<ActionResult<List<Director>>> GetDirectors()
+        public async Task<ActionResult<PagedResponse<Director>>> GetDirectors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
-            return await Mediator.Send(new DirectorsList.Query());
+            return await Mediator.Send(new DirectorsList.Query
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         //Zwracanie reżyserów na podstawie ID filmu
