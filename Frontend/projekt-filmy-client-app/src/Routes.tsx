@@ -9,7 +9,9 @@ import SearchMoviesPage from "./components/SearchMovies_componets/SearchMoviesPa
 import SearchDirectorsPage from "./components/SearchDirectors_componets/SearchDirectorsPage";
 import SearchActorsPage from "./components/SearchActors_componets/SearchActorsPage";
 import ReviewsPage from './components/Home_componets/ReviewsPage';
-import UserPage from './components/User_compnets/UserPage';
+import UserPage from './components/User_componets/UserPage';
+import DirectorPage from './components/Home_componets/DirectorPage';
+import ActorPage from './components/Home_componets/ActorPage';
 
 
 
@@ -26,6 +28,8 @@ export const routes: RouteObject[] = [
       { path: "/test", element: <TestPage /> },
       { path: "/reviews/:id", element: <ReviewsPage /> },
       { path: "/user/:id", element: <UserPage /> },
+      { path: "/actor/:id", element: <ActorPage /> },
+      { path: "/director/:id", element: <DirectorPage /> },
     ],
   },
 ];

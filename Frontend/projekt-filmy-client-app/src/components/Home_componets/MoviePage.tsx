@@ -330,7 +330,6 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
           padding: "20px",
           color: "black",
           width:"95%",
-          marginTop:"-10px"
         }}
       >
         <div style={{ flex: 1, textAlign: "left" }}>
