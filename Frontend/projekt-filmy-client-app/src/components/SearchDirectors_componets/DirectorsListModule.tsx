@@ -49,7 +49,7 @@ const DirectorsListModule = ({ directorsList }: Props) => {
                 justifyContent: "flex-start",
               }}
             >
-              <strong>Ulubiony gatunek: </strong>
+              <strong>Najczęściej kręci: </strong>
               {director.favoriteGenre ? (
                 <div
                   className="badge me-2 mb-2"
@@ -68,7 +68,7 @@ const DirectorsListModule = ({ directorsList }: Props) => {
                   {director.favoriteGenre}
                 </div>
               ) : (
-                <p className="text-dark" style={{ paddingLeft: "5px" }}> Brak danych o ulubionym gatunku.</p>
+                <p className="text-dark" style={{ paddingLeft: "5px" }}> Brak danych.</p>
               )}
             </div>
           </div>

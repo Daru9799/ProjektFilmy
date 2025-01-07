@@ -22,8 +22,8 @@ const MovieListModule = ({ movieList }: Props) => {
               height: "180px",
               borderRadius: "15px",
               marginBottom: "5px",
-              display: "flex", // Kontener z flexboxem
-              flexDirection: "row", // Elementy wewnątrz są ustawione obok siebie
+              display: "flex",
+              flexDirection: "row",
             }}
           >
             <img
@@ -44,9 +44,10 @@ const MovieListModule = ({ movieList }: Props) => {
                 <h5
                   className="mb-2"
                   style={{
-                    marginRight: "20px",
                     whiteSpace: "normal",
                     wordWrap: "break-word",
+                    textAlign: "left",
+                    maxWidth: "300px"
                   }}
                 >
                   {movie.title} (
@@ -61,14 +62,14 @@ const MovieListModule = ({ movieList }: Props) => {
                 {/* Gwiazdki i ilość ocen */}
                 <div
                   className="d-flex flex-column align-items-end"
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: "40px" }}
                 >
                   <div>{renderStars(movie.averageScore || 0)}</div>
                   <span style={{ fontSize: "1rem" }}>
                     {Number(movie.averageScore).toFixed(1)}/5
                   </span>
-                  <p className="mb-0 mt-2" style={{ fontSize: "0.9rem" }}>
-                    Ilość ocen: {movie.scoresNumber || "Brak danych"}
+                  <p className="mb-0 mt-2" style={{ fontSize: "0.9rem", textAlign: "left" }}>
+                    Ilość ocen: {movie.scoresNumber || "0"}
                   </p>
                 </div>
               </div>

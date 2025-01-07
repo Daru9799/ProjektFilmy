@@ -49,7 +49,7 @@ const ActorsListModule = ({ actorsList }: Props) => {
                 justifyContent: "flex-start",
               }}
             >
-              <strong>Ulubiony gatunek: </strong>
+              <strong>Najczęściej gra w: </strong>
               {actor.favoriteGenre ? (
                 <div
                   className="badge me-2 mb-2"
@@ -68,7 +68,7 @@ const ActorsListModule = ({ actorsList }: Props) => {
                   {actor.favoriteGenre}
                 </div>
               ) : (
-                <p className="text-dark" style={{ paddingLeft: "5px" }}> Brak danych o ulubionym gatunku.</p>
+                <p className="text-dark" style={{ paddingLeft: "5px" }}> Brak danych.</p>
               )}
             </div>
           </div>
