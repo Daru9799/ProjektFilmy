@@ -7,6 +7,7 @@ import { Actor } from '../../models/Actor';
 import { Review } from '../../models/Review';
 import { useNavigate, useParams } from "react-router-dom";
 import { renderStars } from "../../functions/starFunction";
+import ReviewCard from "../review_components/ReviewCard";
 
 
 const MoviePage = () => {
@@ -88,7 +89,7 @@ const MoviePage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom:"100px" }}>
+    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom:"240px" }}>
     <div className="row my-4">
       {/* Left Column (Poster) */}
       <div className="col-3">
@@ -111,7 +112,7 @@ const MoviePage = () => {
       </div>
 
 
-{/* Modal for enlarged image */}
+{/* powiekszony obraz */}
 <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Body className="p-0">
           <img
@@ -132,7 +133,7 @@ const MoviePage = () => {
         </Modal.Footer>
       </Modal>
 
-        {/* Middle Column (Details) */}
+        {/* szczegoly */}
         <div className="col-8" style={{textAlign:"left", marginLeft:"50px", marginTop:"20px"}}>
           {/* Title */}
           <h2 className="mb-3" style={{fontSize:"4rem"}}>{movie?.title || "Tytuł niedostępny"}</h2>
@@ -287,7 +288,7 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
 
 
 
-{/* Right Column (Ratings) */}
+{/* srednia ocen */}
 <div
   className="col-3 d-flex align-items-center justify-content-end"
   style={{
@@ -361,9 +362,8 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
           }
         }}
         onKeyDown={(e) => {
-          // Zezwól na strzałki w górę i w dół
           if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-            return; // Pozwól na te klawisze
+            return; 
           }
           e.preventDefault();
         }}
@@ -376,6 +376,8 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
         }}
       />
     </div>
+
+
   </Modal.Body>
   <Modal.Footer>
     <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>
@@ -392,35 +394,17 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
   <h3>Recenzje:</h3>
   {reviews.length > 0 ? (
     reviews.map((review) => (
-      <div
-        key={review.reviewId} 
-        className="d-flex justify-content-between align-items-start p-3 my-2 mx-auto"
-        style={{
-          backgroundColor: "white",
-          borderRadius: "15px",  // Zaokrąglenie krawędzi
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
-          padding: "20px",
-          color: "black",
-          width: "95%",
-        }}
-      >
-        <div style={{ flex: 1, textAlign: "left" }}>
-          <p style={{ fontWeight: "bold" }}>{review.username}</p>
-          <p>{review.comment}</p>
-        </div>
-        <div style={{ textAlign: "right", color: "black" }}>
-          {renderStars(review.rating)}
-          <h4>{review.rating}/5</h4>
-          <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
-        </div>
-      </div>
+      <ReviewCard
+        key={review.reviewId}
+        review={review}
+      />
     ))
   ) : (
     <p>Brak recenzji dla tego filmu.</p>
   )}
 </div>
-</div>
 
+</div>
 
 {movie?.reviewsNumber && movie?.reviewsNumber >2  && (
   <button

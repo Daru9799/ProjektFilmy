@@ -8,7 +8,7 @@ import TestPage from './components/Home_componets/TestPage';
 import SearchMoviesPage from "./components/SearchMovies_componets/SearchMoviesPage"
 import SearchDirectorsPage from "./components/SearchDirectors_componets/SearchDirectorsPage";
 import SearchActorsPage from "./components/SearchActors_componets/SearchActorsPage";
-import ReviewsPage from './components/Home_componets/ReviewsPage';
+import ReviewsPage from './components/review_components/ReviewsPage';
 import UserPage from './components/User_componets/UserPage';
 import DirectorPage from './components/Home_componets/DirectorPage';
 import ActorPage from './components/Home_componets/ActorPage';

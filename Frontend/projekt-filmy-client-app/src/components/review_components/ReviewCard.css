@@ -1,0 +1,26 @@
+.review-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    padding: 20px;
+    margin: 10px auto;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 95%;
+  }
+  
+  .review-details {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .review-username {
+    font-weight: bold;
+  }
+  
+  .review-rating {
+    text-align: right;
+    color: black;
+  }
+  
