@@ -3,7 +3,7 @@ import { Navigate, RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from './App'
 import "./styles/App.css"
 import HomePage from './components/Home_componets/HomePage';
-import MoviePage from './components/Home_componets/MoviePage';
+import MoviePage from './components/Movie_componets/MoviePage';
 import TestPage from './components/Home_componets/TestPage';
 import SearchMoviesPage from "./components/SearchMovies_componets/SearchMoviesPage"
 import SearchDirectorsPage from "./components/SearchDirectors_componets/SearchDirectorsPage";

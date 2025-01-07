@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
-import { renderStars } from "../../functions/starFunction"; 
 import PaginationModule from "../PaginationModule";
 import SortReviewModule from "./SortReviewsModle"; // Import nowego komponentu
 import ReviewCard from "./ReviewCard"; // Import ReviewCard

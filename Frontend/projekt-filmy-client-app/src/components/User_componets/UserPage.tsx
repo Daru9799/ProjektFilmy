@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { User } from "../../models/User";
 import { Review } from "../../models/Review";
-import "./UserPage.css"; // Import pliku CSS
-import { renderStars } from "../../functions/starFunction";
+import "./UserPage.css"; 
+import ReviewCard from "../review_components/ReviewCard";
 
 const UserPage = () => {
   const userId = "";
@@ -79,40 +79,20 @@ const UserPage = () => {
         </div>
       </div>
 
-
 {/* Sekcja recenzji */}
 <div className="pt-3">
-  <h3>Twoje recenzje:</h3>
+  <h3>Recenzje:</h3>
   {reviews.length > 0 ? (
     reviews.map((review) => (
-      <div
-        key={review.reviewId} 
-        className="d-flex justify-content-between align-items-start p-3 my-2 mx-auto"
-        style={{
-          backgroundColor: "white",
-          borderRadius: "15px",  // Zaokrąglenie krawędzi
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
-          padding: "20px",
-          color: "black",
-          width: "95%",
-        }}
-      >
-        <div style={{ flex: 1, textAlign: "left" }}>
-          <p style={{ fontWeight: "bold" }}>{review.username}</p>
-          <p>{review.comment}</p>
-        </div>
-        <div style={{ textAlign: "right", color: "black" }}>
-          {renderStars(review.rating)}
-          <h4>{review.rating}/5</h4>
-          <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
-        </div>
-      </div>
+      <ReviewCard
+        key={review.reviewId}
+        review={review}
+      />
     ))
   ) : (
-    <p>Nie masz jescze recenzji</p>
+    <p>Nie dodałeś jeszcze recenzji</p>
   )}
 </div>
-
     </>
   );
 };

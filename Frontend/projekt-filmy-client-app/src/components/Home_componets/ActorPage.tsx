@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import { Actor } from '../../models/Actor';
-import { Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Actor } from "../../models/Actor";
+import ImageModal from "../../functions/ImageModal"; // Zmień ścieżkę na właściwą dla Twojego projektu
 
 const ActorPage = () => {
-
-  const actorId = "ede7a084-389b-4732-98de-56df3e97f5c1";
-  // const { actorId } = useParams<{ movieId: string }>();
+  const actorId = "2a0be9b1-36d6-4411-923c-21f7f0ab7c9d";
   const [actor, setActor] = useState<Actor | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [showModal, setShowModal] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,72 +35,45 @@ const ActorPage = () => {
     fetchActorById();
   }, [actorId]);
 
-  const handleImageClick = () => {
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px", }}>
+    <div className="vh-100 container-fluid text-white" style={{ left: "200px" }}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
         <div className="col-3">
           <div className="p-2 text-center">
-            <img
-              src={actor?.photoUrl || "/path/to/defaultPoster.jpg"}
-              alt="Poster"
-              className="img-fluid"
-              style={{
-                width: "100%",
-                height: "auto",
-                objectFit: "cover",
-                marginTop: "10%",
-                marginLeft: "10%",
-                cursor: "pointer", // Cursor pointer for click indication
-              }}
-              onClick={handleImageClick}
+            {/* Użycie ImageModal */}
+            <ImageModal
+              imageUrl={actor?.photoUrl}
+              altText={`${actor?.firstName} ${actor?.lastName} Poster`}
+              defaultImageUrl="/path/to/defaultPoster.jpg"
             />
           </div>
         </div>
 
-        {/* Modal for enlarged image */}
-        <Modal show={showModal} onHide={closeModal} centered>
-          <Modal.Body className="p-0">
-            <img
-              src={actor?.photoUrl || "/path/to/defaultPoster.jpg"}
-              alt="Enlarged Poster"
-              className="img-fluid"
-              style={{
-                width: "100%",
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
-          </Modal.Body>
-          <Modal.Footer className="d-flex justify-content-center">
-            <button className="btn btn-secondary" onClick={closeModal}>
-              Zamknij
-            </button>
-          </Modal.Footer>
-        </Modal>
-
         {/* Middle Column (Details) */}
         <div className="col-8" style={{ textAlign: "left", marginLeft: "50px", marginTop: "20px" }}>
           {/* Title (Actor's Name) */}
-          <h2 className="mb-3" style={{ fontSize: "4rem"}}>
+          <h2 className="mb-3" style={{ fontSize: "4rem" }}>
             {actor?.firstName && actor?.lastName ? `${actor.firstName} ${actor.lastName}` : "Imię i nazwisko niedostępne"}
           </h2>
 
           {/* Data urodzenia */}
-          <p style={{marginTop:"50px"}}>
+          <p style={{ marginTop: "50px" }}>
             <span className="fw-bold">Data urodzenia: </span>
-            {actor?.birthDate ? new Date(actor.birthDate).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}
+            {actor?.birthDate
+              ? new Date(actor.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" })
+              : "Brak danych"}
+          </p>
+          <p style={{ marginTop: "10px" }}>
+            <span className="fw-bold">Liczba wszystkich filmów: </span>
+              {actor?.totalMovies ? `${actor.totalMovies}` : "Niedostępna"}
+          </p>
+          <p style={{ marginTop: "10px" }}>
+            <span className="fw-bold">Najczęściej gra w: </span>
+              {actor?.favoriteGenre ? `${actor.favoriteGenre}` : "Niedostępny"}
           </p>
 
           {/* Biografia */}
@@ -115,7 +85,7 @@ const ActorPage = () => {
               borderRadius: "20px",
               textAlign: "left",
               marginTop: "20px",
-              marginRight: "50px"
+              marginRight: "50px",
             }}
           >
             <p className="text-dark">{actor?.bio || "Brak danych o biografii."}</p>

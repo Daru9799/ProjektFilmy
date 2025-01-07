@@ -1,7 +1,7 @@
 import React from "react";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction";
-import "./ReviewCard.css"; // Dodatkowy plik CSS dla recenzji
+import "./ReviewCard.css"; // Plik CSS dla recenzji
 
 interface ReviewCardProps {
   review: Review;
@@ -10,7 +10,7 @@ interface ReviewCardProps {
 const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
   return (
     <div
-      className="d-flex justify-content-between align-items-start p-3 my-2"
+      className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
       style={{
         borderRadius: "15px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -20,11 +20,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
-        <p style={{ fontWeight: "bold" }}>
+        <p style={{ fontWeight: "bold", display: "flex", alignItems: "center" }}>
+          
           {review.isCritic && (
-            <span style={{ color: "green", marginRight: "5px" }} title="Recenzent krytyk">
+            <span className="critic-badge">
               ✔️
+              <span className="tooltip">Krytyk filmowy</span>
             </span>
+            
           )}
           {review.username}
         </p>
@@ -48,4 +51,5 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 };
 
 export default ReviewCard;
+
 
