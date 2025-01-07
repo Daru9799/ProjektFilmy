@@ -31,6 +31,7 @@ const ImageModal: React.FC<ImageModalProps> = ({ imageUrl, altText = "Image", de
           height: "auto",
           objectFit: "cover",
           cursor: "pointer",
+          borderRadius:"10px"
         }}
         onClick={handleImageClick}
       />
@@ -46,6 +47,8 @@ const ImageModal: React.FC<ImageModalProps> = ({ imageUrl, altText = "Image", de
               width: "100%",
               height: "auto",
               objectFit: "contain",
+              borderTopLeftRadius:"10px",
+              borderTopRightRadius:"10px"
             }}
           />
         </Modal.Body>

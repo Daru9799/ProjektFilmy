@@ -11,7 +11,8 @@ import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 
 const MoviePage = () => {
-  const movieId = "46fce41b-b864-4d99-a34b-c32856cf8b12"; 
+  // const movieId = "26915ae1-1adb-4f8c-bd9c-6a1d8199c25b"; 
+    const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -88,8 +89,6 @@ const MoviePage = () => {
     fetchMovieById();
   }, [movieId]);
   
-
-
   const handleReviewsClick = () => {
     navigate(`/reviews/${movieId}`); 
   };
@@ -359,32 +358,36 @@ const MoviePage = () => {
 
           {/* Aktorzy */}
           <div className="tab-pane fade" id="aktorzy">
-            <div className="d-flex flex-wrap gap-2">
-              {actors.length > 0 ? (
-                actors.map((actor) => (
-                  <div
-                    key={actor.actorId}
-                    className="badge"
-                    style={{
-                      backgroundColor: "#A294F9",
-                      minWidth: "60px",
-                      minHeight: "40px",
-                      textAlign: "center",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "5px",
-                      color: "white",
-                    }}
-                  >
-                    {actor.firstName} {actor.lastName}
-                  </div>
-                ))
-              ) : (
-                <p>Brak aktorów powiązanych z tym filmem.</p>
-              )}
-            </div>
-          </div>
+      <div className="d-flex flex-wrap gap-2">
+        {actors.length > 0 ? (
+          actors.map((actor) => (
+            <button
+              key={actor.actorId}
+              className="badge"
+              onClick={() => navigate(`/actor/${actor.actorId}`)}
+              style={{
+                backgroundColor: "#A294F9",
+                minWidth: "60px",
+                minHeight: "40px",
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "5px",
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: "10px",
+              }}
+            >
+              {actor.firstName} {actor.lastName}
+            </button>
+          ))
+        ) : (
+          <p>Brak danych o aktorach</p>
+        )}
+      </div>
+    </div>
 
           {/* Kraje */}
           <div className="tab-pane fade" id="kraje">
