@@ -11,7 +11,7 @@ import ReviewCard from "../review_components/ReviewCard";
 
 
 const MoviePage = () => {
-  const movieId = "a39e7ecc-12ac-4d2b-bc0b-6b12148aff1f";
+  const movieId = "a8f3e0ba-3f1b-467f-b38f-f912f04111c4";
   // const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);

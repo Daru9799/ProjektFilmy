@@ -13,21 +13,33 @@ const MovieListModule = ({ movieList }: Props) => {
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
         {movieList.map((movie) => (
-          <li className="list-group-item d-flex align-items-start p-3" style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px"}}>
-            <img 
-              src={movie.posterUrl} 
-              alt={`${movie.title} Poster`} 
-              style={{ 
-                width: "100px", 
-                height: "150px", 
-                objectFit: "cover", 
-                marginRight: "15px", 
-                borderRadius: "5px"
+          <li
+            key={movie.title}
+            className="list-group-item d-flex p-3"
+            style={{
+              borderBottom: "1px solid #ddd",
+              width: "600px",
+              height: "180px",
+              borderRadius: "15px",
+              marginBottom: "5px",
+              display: "flex", // Kontener z flexboxem
+              flexDirection: "row", // Elementy wewnątrz są ustawione obok siebie
+            }}
+          >
+            <img
+              src={movie.posterUrl}
+              alt={`${movie.title} Poster`}
+              style={{
+                width: "100px",
+                height: "150px",
+                objectFit: "cover",
+                marginRight: "15px",
+                borderRadius: "5px",
               }}
             />
-             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
               {/* Tytuł filmu i oceny */}
-              <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex justify-content-between align-items-start" style={{ flexGrow: 1 }}>
                 {/* Tytuł filmu */}
                 <h5
                   className="mb-2"
@@ -68,6 +80,7 @@ const MovieListModule = ({ movieList }: Props) => {
                   fontSize: "0.9rem",
                   color: "#555",
                   justifyContent: "flex-start",
+                  marginTop: "auto", // Gatunki będą zawsze na dole
                 }}
               >
                 {movie?.categories?.$values?.length ? (
@@ -82,16 +95,17 @@ const MovieListModule = ({ movieList }: Props) => {
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        marginTop: "40px",
                         color: "white",
-                        borderRadius: "15px"
+                        borderRadius: "15px",
                       }}
                     >
                       {cat.name}
                     </div>
                   ))
                 ) : (
-                  <p className="text-dark">Brak danych o gatunkach.</p>
+                  <p className="text-dark" style={{ marginTop: "10px" }}>
+                    Brak danych o gatunkach.
+                  </p>
                 )}
               </div>
             </div>

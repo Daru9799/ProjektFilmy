@@ -6,7 +6,7 @@ import { Modal } from "react-bootstrap";
 
 const ActorPage = () => {
 
-  const actorId = "4522039a-2e36-431e-a6ed-5fdfd041cccc";
+  const actorId = "ede7a084-389b-4732-98de-56df3e97f5c1";
   // const { actorId } = useParams<{ movieId: string }>();
   const [actor, setActor] = useState<Actor | null>(null);
   const [error, setError] = useState<string | null>(null);

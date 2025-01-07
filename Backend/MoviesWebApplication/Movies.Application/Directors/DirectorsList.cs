@@ -13,14 +13,14 @@ namespace Movies.Application.Directors
     public class DirectorsList
     {
         //Lista obiektów typu reżyserowie
-        public class Query : IRequest<PagedResponse<Director>>
+        public class Query : IRequest<PagedResponse<DirectorDto>>
         {
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public string DirectorSearch { get; set; } //Do wyszukiwania po nazwie
             public bool NoPagination { get; set; } //Wylączanie, włączanie paginacji
         }
-        public class Handler : IRequestHandler<Query, PagedResponse<Director>>
+        public class Handler : IRequestHandler<Query, PagedResponse<DirectorDto>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -28,9 +28,11 @@ namespace Movies.Application.Directors
                 _context = context;
             }
 
-            public async Task<PagedResponse<Director>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<PagedResponse<DirectorDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                IQueryable<Director> query = _context.Directors;
+                IQueryable<Director> query = _context.Directors
+                    .Include(d => d.Movies)
+                        .ThenInclude(m => m.Categories);
 
                 //Filtracja po imieniu i nazwisku
                 if (!string.IsNullOrEmpty(request.DirectorSearch))
@@ -43,12 +45,30 @@ namespace Movies.Application.Directors
                 if (request.NoPagination)
                 {
                     var directors = await query.ToListAsync(cancellationToken);
-                    return new PagedResponse<Director>
+
+                    var directorDtos = directors.Select(d => new DirectorDto
                     {
-                        Data = directors,
-                        TotalItems = directors.Count,
+                        DirectorId = d.DirectorId,
+                        FirstName = d.FirstName,
+                        LastName = d.LastName,
+                        Bio = d.Bio,
+                        BirthDate = d.BirthDate,
+                        PhotoUrl = d.PhotoUrl,
+                        TotalMovies = d.Movies.Count, 
+                        FavoriteGenre = d.Movies
+                            .SelectMany(m => m.Categories)
+                            .GroupBy(c => c.Name)
+                            .OrderByDescending(g => g.Count())
+                            .Select(g => g.Key)
+                            .FirstOrDefault() 
+                    }).ToList();
+
+                    return new PagedResponse<DirectorDto>
+                    {
+                        Data = directorDtos,
+                        TotalItems = directorDtos.Count,
                         PageNumber = 1,
-                        PageSize = directors.Count 
+                        PageSize = directorDtos.Count
                     };
                 }
                 else
@@ -59,12 +79,29 @@ namespace Movies.Application.Directors
                         .Take(request.PageSize)
                         .ToListAsync(cancellationToken);
 
+                    var directorDtos = directors.Select(d => new DirectorDto
+                    {
+                        DirectorId = d.DirectorId,
+                        FirstName = d.FirstName,
+                        LastName = d.LastName,
+                        Bio = d.Bio,
+                        BirthDate = d.BirthDate,
+                        PhotoUrl = d.PhotoUrl,
+                        TotalMovies = d.Movies.Count,
+                        FavoriteGenre = d.Movies
+                            .SelectMany(m => m.Categories)
+                            .GroupBy(c => c.Name)
+                            .OrderByDescending(g => g.Count())
+                            .Select(g => g.Key)
+                            .FirstOrDefault() 
+                    }).ToList();
+
                     //Obliczenie całkowitej liczby reżyserów
                     int totalItems = await query.CountAsync(cancellationToken);
 
-                    return new PagedResponse<Director>
+                    return new PagedResponse<DirectorDto>
                     {
-                        Data = directors,
+                        Data = directorDtos,
                         TotalItems = totalItems,
                         PageNumber = request.PageNumber,
                         PageSize = request.PageSize

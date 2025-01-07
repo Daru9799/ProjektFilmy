@@ -13,14 +13,14 @@ namespace Movies.Application.Actors
     public class ActorsList
     {
         //Lista obiektów typu aktorów
-        public class Query : IRequest<PagedResponse<Actor>>
+        public class Query : IRequest<PagedResponse<ActorDto>>
         {
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public string ActorSearch { get; set; } //Do wyszukiwania po nazwie
             public bool NoPagination { get; set; } //Wylączanie, włączanie paginacji
         }
-        public class Handler : IRequestHandler<Query, PagedResponse<Actor>>
+        public class Handler : IRequestHandler<Query, PagedResponse<ActorDto>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -28,7 +28,7 @@ namespace Movies.Application.Actors
                 _context = context;
             }
 
-            public async Task<PagedResponse<Actor>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<PagedResponse<ActorDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 IQueryable<Actor> query = _context.Actors;
 
@@ -39,11 +39,28 @@ namespace Movies.Application.Actors
                     query = query.Where(actor => (actor.FirstName.ToLower() + " " + actor.LastName.ToLower()).Contains(searchTerm));
                 }
 
-                //Jeśli paginacja jest wyłączona zwróci wszystkich aktorów
+                var actorDtosQuery = query.Select(actor => new ActorDto
+                {
+                    ActorId = actor.ActorId,
+                    FirstName = actor.FirstName,
+                    LastName = actor.LastName,
+                    Bio = actor.Bio,
+                    BirthDate = actor.BirthDate,
+                    PhotoUrl = actor.PhotoUrl,
+                    TotalMovies = actor.Movies.Count,
+                    FavoriteGenre = actor.Movies
+                        .SelectMany(m => m.Categories)
+                        .GroupBy(c => c.Name)
+                        .OrderByDescending(g => g.Count())
+                        .Select(g => g.Key)
+                        .FirstOrDefault()
+                });
+
+                //Jeśli paginacja jest wyłączona
                 if (request.NoPagination)
                 {
-                    var actors = await query.ToListAsync(cancellationToken);
-                    return new PagedResponse<Actor>
+                    var actors = await actorDtosQuery.ToListAsync(cancellationToken);
+                    return new PagedResponse<ActorDto>
                     {
                         Data = actors,
                         TotalItems = actors.Count,
@@ -51,25 +68,22 @@ namespace Movies.Application.Actors
                         PageSize = actors.Count
                     };
                 }
-                else
+
+                //Paginacja
+                var actorsPaged = await actorDtosQuery
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToListAsync(cancellationToken);
+
+                var totalItems = await query.CountAsync(cancellationToken);
+
+                return new PagedResponse<ActorDto>
                 {
-                    //Paginacja
-                    var actors = await query
-                        .Skip((request.PageNumber - 1) * request.PageSize)
-                        .Take(request.PageSize)
-                        .ToListAsync(cancellationToken);
-
-                    //Obliczenie całkowitej liczby aktorów
-                    int totalItems = await query.CountAsync(cancellationToken);
-
-                    return new PagedResponse<Actor>
-                    {
-                        Data = actors,
-                        TotalItems = totalItems,
-                        PageNumber = request.PageNumber,
-                        PageSize = request.PageSize
-                    };
-                }
+                    Data = actorsPaged,
+                    TotalItems = totalItems,
+                    PageNumber = request.PageNumber,
+                    PageSize = request.PageSize
+                };
             }
         }
     }

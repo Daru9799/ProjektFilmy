@@ -6,6 +6,6 @@ export interface Actor {
     birthDate: string;
     photoUrl: string;
     //Dodatkowe pola
-    TotalMovies: number;
-    FavoriteGenre: string;
+    totalMovies: number;
+    favoriteGenre: string;
 }
