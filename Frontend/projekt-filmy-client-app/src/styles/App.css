@@ -44,3 +44,20 @@ body {
 .App-link {
   color: #61dafb;
 }
+
+.edit-button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #943ce7;
+  color: white;
+  margin-right: 50px;
+  cursor: pointer;
+}
+
+/* Kolor przycisku po najechaniu */
+.edit-button:hover {
+  background-color: #7a2fd8; /* Zmieniony kolor tła po najechaniu */
+  transform: scale(1.1); /* Powiększenie przycisku przy najechaniu */
+}

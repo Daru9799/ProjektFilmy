@@ -18,6 +18,9 @@ const MoviePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
+  const [newReview, setNewReview] = useState<string>("");
+  const [newRating, setNewRating] = useState<number>(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,12 +76,19 @@ const MoviePage = () => {
   const closeModal = () => {
     setShowModal(false);
   };
+
+  const handleAddReview = () => {
+    console.log("Dodano recenzję:", { review: newReview, rating: newRating });
+    setShowReviewModal(false);
+    setNewReview("");
+    setNewRating(0);
+  };
   
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom:"155px" }}>
+    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom:"100px" }}>
     <div className="row my-4">
       {/* Left Column (Poster) */}
       <div className="col-3">
@@ -301,27 +311,89 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
     </div>
   )}
 </div>
-
+{/* Przycisk do dodania recenzji */}
 <div className="pt-3" style={{ marginTop: "20px" }}>
   <button
-    className="btn btn-primary"
+    className="btn btn-primary "
     style={{
 
     }}
+    onClick={() => setShowReviewModal(true)}
   >
     Dodaj recenzję
   </button>
 </div>
 
+{/* Modal do dodawania recenzji */}
+<Modal show={showReviewModal} onHide={() => setShowReviewModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Dodaj recenzję</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <div className="mb-3">
+      <label htmlFor="reviewText" className="form-label">
+        Twoja recenzja:
+      </label>
+      <textarea
+        id="reviewText"
+        className="form-control"
+        rows={4}
+        value={newReview}
+        onChange={(e) => setNewReview(e.target.value)}
+        placeholder="Napisz swoją recenzję tutaj..."
+      />
+    </div>
+    <div className="mb-3">
+      <label htmlFor="reviewRating" className="form-label">
+        Ocena (0-5):
+      </label>
+      <input
+        type="number"
+        id="reviewRating"
+        className="form-control"
+        step={0.1}
+        min={0}
+        max={5}
+        value={newRating}
+        onFocus={() => {
+          if (newRating === 0) {
+            setNewRating(0,);  
+          }
+        }}
+        onKeyDown={(e) => {
+          // Zezwól na strzałki w górę i w dół
+          if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            return; // Pozwól na te klawisze
+          }
+          e.preventDefault();
+        }}
+        onChange={(e) => {
+          // Walidacja, aby nie dopuścić wartości poza zakresem 0-5
+          let value = parseFloat(e.target.value);
+          if (value >= 0 && value <= 5) {
+            setNewRating(value);
+          }
+        }}
+      />
+    </div>
+  </Modal.Body>
+  <Modal.Footer>
+    <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>
+      Anuluj
+    </button>
+    <button className="btn btn-primary" onClick={handleAddReview}>
+      Zapisz
+    </button>
+  </Modal.Footer>
+</Modal>
 
-      </div>
-
-      <div className="pt-3">
+{/* Sekcja recenzji */}
+<div className="pt-3">
   <h3>Recenzje:</h3>
   {reviews.length > 0 ? (
     reviews.map((review) => (
       <div
-        key={review.reviewId} // Zakładamy, że każda recenzja ma unikalne reviewId
+        key={review.reviewId} 
         className="d-flex justify-content-between align-items-start p-3 my-2 mx-auto"
         style={{
           backgroundColor: "white",
@@ -329,23 +401,24 @@ style={{marginBottom:"10px", marginLeft:"20px", marginTop:"50px"}}>
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Delikatny cień
           padding: "20px",
           color: "black",
-          width:"95%",
+          width: "95%",
         }}
       >
         <div style={{ flex: 1, textAlign: "left" }}>
           <p style={{ fontWeight: "bold" }}>{review.username}</p>
           <p>{review.comment}</p>
         </div>
-            <div style={{ textAlign: "right", color: "black" }}>
-              {renderStars(review.rating)}
-              <h4>{review.rating}/5</h4>
-              <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
+        <div style={{ textAlign: "right", color: "black" }}>
+          {renderStars(review.rating)}
+          <h4>{review.rating}/5</h4>
+          <small>{review?.date ? new Date(review.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) : "Brak danych"}</small>
         </div>
       </div>
     ))
   ) : (
     <p>Brak recenzji dla tego filmu.</p>
   )}
+</div>
 </div>
 
 
