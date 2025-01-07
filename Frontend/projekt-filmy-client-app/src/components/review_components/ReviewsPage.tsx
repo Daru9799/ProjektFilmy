@@ -4,7 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction"; 
 import PaginationModule from "../PaginationModule";
-import SortReviewModule from "../../functions/SortReviewsModle"; // Import nowego komponentu
+import SortReviewModule from "./SortReviewsModle"; // Import nowego komponentu
+import ReviewCard from "./ReviewCard"; // Import ReviewCard
 
 const ReviewsPage = () => {
   const movieId = "a39e7ecc-12ac-4d2b-bc0b-6b12148aff1f"; // Stałe ID dla testów
@@ -99,43 +100,10 @@ const ReviewsPage = () => {
 
       {reviews.length > 0 ? (
         reviews.map((review) => (
-          <div
+          <ReviewCard
             key={review.reviewId}
-            className="d-flex justify-content-between align-items-start p-3 my-2"
-            style={{
-              borderRadius: "15px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              padding: "20px",
-              color: "black",
-              backgroundColor: review.isCritic ? "#CDC1FF" : "white",
-            }}
-          >
-            <div style={{ flex: 1, textAlign: "left" }}>
-              <p style={{ fontWeight: "bold" }}>
-                            {review.isCritic && (
-                  <span style={{ color: "green", marginLeft: "-5px" }} title="Recenzent krytyk">
-                    ✔️
-                  </span>
-                )}
-                {review.username}{" "}
-    
-              </p>
-              <p>{review.comment}</p>
-            </div>
-            <div style={{ textAlign: "right", color: "black" }}>
-              {renderStars(review.rating)}
-              <h4>{review.rating}/5</h4>
-              <small>
-                {review?.date
-                  ? new Date(review.date).toLocaleDateString("pl-PL", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
-                  : "Brak danych"}
-              </small>
-            </div>
-          </div>
+            review={review}
+          />
         ))
       ) : (
         <p>Brak recenzji dla tego filmu.</p>
