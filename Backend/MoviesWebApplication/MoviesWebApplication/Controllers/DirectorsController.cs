@@ -13,13 +13,20 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("all")]
         public async Task<ActionResult<PagedResponse<DirectorDto>>> GetDirectors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string directorSearch = "", [FromQuery] bool noPagination = false)
         {
-            return await Mediator.Send(new DirectorsList.Query
+            var result = await Mediator.Send(new DirectorsList.Query
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 DirectorSearch = directorSearch,
                 NoPagination = noPagination
             });
+
+            if (result == null)
+            {
+                return NotFound("Nie znaleziono żadnych reżyserów.");
+            }
+
+            return Ok(result);
         }
 
         //Zwracanie reżyserów na podstawie ID filmu

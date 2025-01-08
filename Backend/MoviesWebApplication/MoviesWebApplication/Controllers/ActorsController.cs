@@ -11,13 +11,20 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("all")]
         public async Task<ActionResult<PagedResponse<ActorDto>>> GetActors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string actorSearch = "", [FromQuery] bool noPagination = false)
         {
-            return await Mediator.Send(new ActorsList.Query
+            var result = await Mediator.Send(new ActorsList.Query
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 ActorSearch = actorSearch,
                 NoPagination = noPagination
             });
+
+            if (result == null)
+            {
+                return NotFound("Nie znaleziono żadnych aktorów.");
+            }
+
+            return Ok(result);
         }
         //Zwracanie aktorów na podstawie ID filmu
         [HttpGet("by-movie-id/{movieId}")]
