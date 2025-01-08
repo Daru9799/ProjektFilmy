@@ -1,11 +1,12 @@
 import React, { act, useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Actor } from "../../models/Actor";
 import ImageModal from "../../functions/ImageModal"; // Zmień ścieżkę na właściwą dla Twojego projektu
 
 const ActorPage = () => {
-  const actorId = "2a0be9b1-36d6-4411-923c-21f7f0ab7c9d";
+
+  const { actorId } = useParams();
   const [actor, setActor] = useState<Actor | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

@@ -8,7 +8,6 @@ import ReviewCard from "./ReviewCard"; // Import ReviewCard
 import { useParams } from "react-router-dom";
 
 const ReviewsPage = () => {
-  // const movieId = "a39e7ecc-12ac-4d2b-bc0b-6b12148aff1f"; // Stałe ID dla testów
   const { movieId } = useParams<{ movieId: string }>();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);

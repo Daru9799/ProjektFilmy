@@ -11,8 +11,8 @@ import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 
 const MoviePage = () => {
-  // const movieId = "26915ae1-1adb-4f8c-bd9c-6a1d8199c25b"; 
-    const { movieId } = useParams<{ movieId: string }>();
+  const movieId = "a8f3e0ba-3f1b-467f-b38f-f912f04111c4"; 
+    // const { movieId } = useParams();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -127,17 +127,27 @@ const MoviePage = () => {
             {movie?.title || "Tytuł niedostępny"}
           </h2>
 
-          {/* Directors */}
-          <p style={{marginTop:"50px"}}>
-            <span className="fw-bold">
-              {movie?.directors?.$values?.length === 1 ? "Reżyser" : "Reżyserzy"}:
-            </span>{" "}
-            {movie?.directors?.$values?.length
-              ? movie.directors.$values
-                  .map((d) => `${d.firstName} ${d.lastName}`)
-                  .join(", ")
-              : "Brak danych o reżyserach"}
-          </p>
+{/* Directors */}
+<p style={{ marginTop: "50px" }}>
+      <span className="fw-bold">
+        {(movie?.directors?.$values?.length ??0) >= 1 ? "Reżyser" : "Reżyserzy"}:
+      </span>{" "}
+      {movie?.directors?.$values?.length
+        ? movie.directors.$values.map((d, index) => (
+            <React.Fragment key={d.directorId}>
+              <span
+                onClick={() => navigate(`/director/${d.directorId}`)}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                {`${d.firstName} ${d.lastName}`}
+              </span>
+              {/* {index < movie.directors.$values.length - 1 && ", "} */}
+            </React.Fragment>
+          ))
+        : "Brak danych o reżyserach"}
+    </p>
 
           {/* Release Date */}
           <p>
@@ -356,38 +366,28 @@ const MoviePage = () => {
             </div>
           </div>
 
-          {/* Aktorzy */}
-          <div className="tab-pane fade" id="aktorzy">
-      <div className="d-flex flex-wrap gap-2">
-        {actors.length > 0 ? (
-          actors.map((actor) => (
-            <button
-              key={actor.actorId}
-              className="badge"
-              onClick={() => navigate(`/actor/${actor.actorId}`)}
-              style={{
-                backgroundColor: "#A294F9",
-                minWidth: "60px",
-                minHeight: "40px",
-                textAlign: "center",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "5px",
-                color: "white",
-                border: "none",
-                cursor: "pointer",
-                borderRadius: "10px",
-              }}
-            >
-              {actor.firstName} {actor.lastName}
-            </button>
-          ))
-        ) : (
-          <p>Brak danych o aktorach</p>
-        )}
-      </div>
-    </div>
+
+
+{/* aktorzy */}
+    <div className="tab-pane fade" id="aktorzy">
+  <div className="d-flex flex-wrap gap-2">
+    {actors.length > 0 ? (
+      actors.map((actor) => (
+        <button
+          key={actor.actorId}
+          className="list-button"
+          onClick={() => navigate(`/actor/${actor.actorId}`)}
+        >
+          {actor.firstName} {actor.lastName}
+        </button>
+      ))
+    ) : (
+      <p>Brak danych o aktorach</p>
+    )}
+  </div>
+</div>
+
+
 
           {/* Kraje */}
           <div className="tab-pane fade" id="kraje">

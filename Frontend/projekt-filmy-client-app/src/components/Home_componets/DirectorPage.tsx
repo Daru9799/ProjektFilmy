@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Director } from "../../models/Director";
 import ImageModal from "../../functions/ImageModal"; 
 
 const DirectorPage = () => {
-  const directorId = "16541e99-fc3d-4880-b9e4-caed00902fa0";
+  const { directorId } = useParams();
   const [director, setActor] = useState<Director | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

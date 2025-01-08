@@ -61,3 +61,24 @@ body {
   background-color: #7a2fd8; /* Zmieniony kolor tła po najechaniu */
   transform: scale(1.1); /* Powiększenie przycisku przy najechaniu */
 }
+
+.list-button {
+  background-color: #a294f9;
+  min-width: 60px;
+  min-height: 40px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.list-button:hover {
+  background-color: #8e80f5;
+  transform: scale(1.05);
+}
