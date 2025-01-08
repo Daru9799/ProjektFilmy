@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { renderStars } from "../../functions/starFunction";
 import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
+import AddReviewModal from "../review_components/AddReviewPanel";
 
 const MoviePage = () => {
   const movieId = "a8f3e0ba-3f1b-467f-b38f-f912f04111c4"; 
@@ -21,6 +22,7 @@ const MoviePage = () => {
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
   const [newReview, setNewReview] = useState<string>("");
   const [newRating, setNewRating] = useState<number>(0);
+  const [isReviewAdded, setIsReviewAdded] = useState<boolean>(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,11 +95,15 @@ const MoviePage = () => {
     navigate(`/reviews/${movieId}`); 
   };
 
+
+
   const handleAddReview = () => {
+ 
     console.log("Dodano recenzję:", { review: newReview, rating: newRating });
     setShowReviewModal(false);
     setNewReview("");
     setNewRating(0);
+    setIsReviewAdded(true);   //do zmiany potem!!!!
   };
   
   if (loading) return <p>Ładowanie danych...</p>;
@@ -168,105 +174,46 @@ const MoviePage = () => {
           </p>
         </div>
 
-        {/* Reviews Section */}
-        <div
-          className="d-flex flex-column align-items-center"
-          style={{
-            textAlign: "center",
-            minWidth: "200px",
-            marginLeft: "20px",
-          }}
+{/* Reviews Section */}
+<div
+  className="d-flex flex-column align-items-center"
+  style={{
+    textAlign: "center",
+    minWidth: "200px",
+    marginLeft: "20px",
+  }}
+>
+  {movie?.reviewsNumber && movie.reviewsNumber > 0 ? (
+    <>
+      {/* Stars */}
+      <div>{renderStars(movie?.averageScore || 0)}</div>
+      <h4 style={{ fontSize: "1.6rem" }}>
+        {Number(movie?.averageScore).toFixed(1)}/5
+      </h4>
+      <p className="mb-0">{movie.reviewsNumber} recenzji</p>
+    </>
+  ) : (
+    <p>Brak ocen</p>
+  )}
+
+  {/* Add Review Button */}
+  {!isReviewAdded && (
+        <button
+          className="btn btn-primary mt-3"
+          onClick={() => setShowReviewModal(true)}
         >
-          {movie?.reviewsNumber && movie.reviewsNumber > 0 ? (
-            <>
-              {/* Stars */}
-              <div>{renderStars(movie?.averageScore || 0)}</div>
-              <h4 style={{ fontSize: "1.6rem" }}>
-                {Number(movie?.averageScore).toFixed(1)}/5
-              </h4>
-              <p className="mb-0">{movie.reviewsNumber} recenzji</p>
-            </>
-          ) : (
-            <p>Brak ocen</p>
-          )}
+          Dodaj recenzję
+        </button>
+      )}
 
-          {/* Add Review Button */}
-          <button
-            className="btn btn-primary mt-3"
-            onClick={() => setShowReviewModal(true)}
-          >
-            Dodaj recenzję
-          </button>
-
-
-
-{/* Modal do dodawania recenzji */}
-<Modal show={showReviewModal} onHide={() => setShowReviewModal(false)} centered>
-  <Modal.Header closeButton>
-    <Modal.Title>Dodaj recenzję</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <div className="mb-3">
-      <label htmlFor="reviewText" className="form-label">
-        Twoja recenzja:
-      </label>
-      <textarea
-        id="reviewText"
-        className="form-control"
-        rows={4}
-        value={newReview}
-        onChange={(e) => setNewReview(e.target.value)}
-        placeholder="Napisz swoją recenzję tutaj..."
-      />
-    </div>
-    <div className="mb-3">
-      <label htmlFor="reviewRating" className="form-label">
-        Ocena (0-5):
-      </label>
-      <input
-        type="number"
-        id="reviewRating"
-        className="form-control"
-        step={0.1}
-        min={0}
-        max={5}
-        value={newRating}
-        onFocus={() => {
-          if (newRating === 0) {
-            setNewRating(0,);  
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-            return; 
-          }
-          e.preventDefault();
-        }}
-        onChange={(e) => {
-          // Walidacja, aby nie dopuścić wartości poza zakresem 0-5
-          let value = parseFloat(e.target.value);
-          if (value >= 0 && value <= 5) {
-            setNewRating(value);
-          }
-        }}
-      />
-    </div>
-
-
-  </Modal.Body>
-  <Modal.Footer>
-    <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>
-      Anuluj
-    </button>
-    <button className="btn btn-primary" onClick={handleAddReview}>
-      Zapisz
-    </button>
-  </Modal.Footer>
-</Modal>
-
-
-        </div>
-      </div>
+  {/* Add Review Modal */}
+  <AddReviewModal
+    show={showReviewModal}
+    onClose={() => setShowReviewModal(false)}
+    onAddReview={handleAddReview}
+  />
+</div>
+</div>
 
       {/* Navigation Tabs */}
       <ul
