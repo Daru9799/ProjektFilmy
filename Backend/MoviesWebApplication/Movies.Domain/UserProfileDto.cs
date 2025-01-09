@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Movies.Domain
 {
+    //Model do zwracania profilów użytkowników
     public class UserProfileDto
     {
         public string Id { get; set; }

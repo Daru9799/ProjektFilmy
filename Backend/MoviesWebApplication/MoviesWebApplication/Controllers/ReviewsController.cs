@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Movies.Application.Movies;
 using Movies.Application.Reviews;
 using Movies.Domain;
 
@@ -26,8 +28,8 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
-            var query = new ReviewsByMovieId.Query 
-            { 
+            var query = new ReviewsByMovieId.Query
+            {
                 MovieId = movieId,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
@@ -47,8 +49,8 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("by-user-id/{userId}")]
         public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
-            var query = new ReviewsByUserId.Query 
-            { 
+            var query = new ReviewsByUserId.Query
+            {
                 UserId = userId,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
@@ -63,6 +65,34 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(reviews);
+        }
+        //Dodawanie recenzji
+        [HttpPost("add-review")]
+        public async Task<IActionResult> CreateReview([FromBody] CreateReviewCommand.Command command)
+        {
+            try
+            {
+                var review = await Mediator.Send(command);
+                return Ok(review); 
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        //Usuwanie recenzji
+        [HttpDelete("delete-review/{id}")]
+        public async Task<IActionResult> DeleteReview(Guid id)
+        {
+            //Wysyłanie komendy usunięcia recenzji do mediatora
+            var result = await Mediator.Send(new DeleteReviewCommand(id));
+
+            if (result == null)
+            {
+                return NotFound($"Nie znaleziono recenzji o ID: {id}");
+            }
+
+            return Ok(result);
         }
     }
 }

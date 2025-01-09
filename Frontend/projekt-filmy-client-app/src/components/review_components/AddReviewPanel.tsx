@@ -50,7 +50,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
     }}
   >
     <div style={{ flex: 1, textAlign: "left" , color:"white"}}>
-      <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}>user1</p>
+      <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}>critic1</p>
       <textarea
       style={{width:"100%"}}
         id="reviewText"

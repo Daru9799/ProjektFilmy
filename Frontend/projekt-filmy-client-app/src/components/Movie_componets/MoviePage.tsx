@@ -12,7 +12,7 @@ import AddReviewModal from "../review_components/AddReviewPanel";
 
 const MoviePage = () => {
   // const movieId = "d3a43d4f-9668-42d2-85c0-9e786befb0af"; 
-    const { movieId } = useParams();
+  const { movieId } = useParams();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -22,6 +22,7 @@ const MoviePage = () => {
   const [newReview, setNewReview] = useState<string>("");
   const [newRating, setNewRating] = useState<number>(0);
   const [isReviewAdded, setIsReviewAdded] = useState<boolean>(false); 
+  const [newDate, setNewDate] = useState(new Date().toISOString());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,13 +97,34 @@ const MoviePage = () => {
 
 
 
-  const handleAddReview = () => {
- 
-    console.log("Dodano recenzję:", { review: newReview, rating: newRating });
-    setShowReviewModal(false);
-    setNewReview("");
-    setNewRating(0);
-    setIsReviewAdded(true);   //do zmiany potem!!!!
+  const handleAddReview = async (review: string, rating: number) => {
+    try {
+      const newReviewData = {
+        Rating: rating,
+        Comment: review,
+        Date: new Date().toISOString(), 
+        MovieId: movieId,
+        UserId: "7d248152-f4fb-4c46-991d-847352577743", //Tutaj potem wrzuci sie id z sesji po zalogowaniu, teraz jest na szywno critic1
+      };
+  
+      const response = await axios.post(
+        "https://localhost:7053/api/Reviews/add-review",
+        newReviewData
+      );
+  
+      if (response.status === 200) {
+        setIsReviewAdded(true); 
+        setShowReviewModal(false); 
+        setNewReview(""); 
+        setNewRating(0);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Błąd 500:', error.response?.data);  // To wyświetli szczegóły błędu, jeśli są dostępne
+      } else {
+        console.error('Błąd:', error);
+      }
+    }
   };
   
   if (loading) return <p>Ładowanie danych...</p>;

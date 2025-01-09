@@ -89,17 +89,5 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(pagedMovies);
         }
-        //Dodawanie filmu
-        [HttpPost]
-        public async Task<ActionResult<Movie>> CreateMovie([FromBody] CreateMovie.Command command)
-        {
-            if (command == null)
-            {
-                return BadRequest("Nieprawidłowe dane wejściowe.");
-            }
-            // Wysłanie komendy do Mediatora
-            var movie = await Mediator.Send(command);
-            return Ok(movie);
-        }
     }
 }
