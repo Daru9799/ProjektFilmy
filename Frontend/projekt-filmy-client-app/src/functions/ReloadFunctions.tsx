@@ -1,5 +1,3 @@
-// ReloadFunctions.ts
-
 import axios from "axios";
 
 // Fetch movie data
@@ -10,12 +8,12 @@ export const fetchMovieData = async (movieId: string, setMovie: React.Dispatch<R
   } catch (movieError) {
     if (axios.isAxiosError(movieError)) {
       if (movieError.response?.status === 404) {
-        setError("Movie data not found.");
+        setError("Nie znaleziono filmu");
       } else {
-        setError("An error occurred while fetching movie data.");
+        setError("Błąd podczas wczytywaina danych");
       }
     } else {
-      setError("Unknown error occurred while fetching movie.");
+      setError("Nieoczekiwany błąd");
     }
     console.error(movieError);
   }
@@ -28,19 +26,19 @@ export const fetchActorsData = async (movieId: string, setActors: React.Dispatch
     if (actorsResponse.data?.$values) {
       setActors(actorsResponse.data.$values);
     } else {
-      setActors([]); // If no actors, set an empty array
-      console.log("No actors found for this movie.");
+      setActors([]); 
+      console.log("Nie znaleziono aktorów dla tego filmu");
     }
   } catch (actorsError) {
     if (axios.isAxiosError(actorsError)) {
       if (actorsError.response?.status === 404) {
-        setActors([]); // No actors found
+        setActors([]); // Jak nie pobrało to lista pusta
         console.log("No actors found for this movie.");
       } else {
-        setError("An error occurred while fetching actors.");
+        setError("Błąd podczas wczytywaina danych");
       }
     } else {
-      setError("Unknown error occurred while fetching actors.");
+      setError("Nieoczekiwany błąd");
     }
     console.error(actorsError);
   }
@@ -65,13 +63,97 @@ export const fetchMovieReviews = async (movieId: string, setReviews: React.Dispa
     }
   } catch (reviewsError) {
     if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-      setReviews([]); // No reviews found for this movie
-      console.log("No reviews found for this movie.");
+      setReviews([]); 
+      console.log("Nie znaleznio recenzji dla tego filmu");
     } else {
-      setError("Error fetching reviews.");
+      setError("Błąd podczas wczytywania danych");
       console.error(reviewsError);
     }
   } finally {
-    setLoading(false); // Ensure loading state is updated after the request
+    setLoading(false); 
+  }
+};
+
+export const fetchUserData = async (
+  userName: string,
+  setUser: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    setLoading(true);
+    setError(null);
+    const response = await axios.get(
+      `https://localhost:7053/api/Users/by-username/${userName}`
+    );
+    setUser(response.data);
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (!err.response) {
+        setError("Błąd sieci: nie można połączyć się z serwerem.");
+      } else if (err.response.status === 404) {
+        setError(`Użytkownik o nazwie '${userName}' nie został znaleziony.`);
+      } else {
+        setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
+      }
+    } else {
+      setError("Wystąpił nieoczekiwany błąd.");
+    }
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Fetch user reviews
+export const fetchUserReviews = async (
+  userName: string,
+  pageSize: number,
+  setReviews: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    const reviewsResponse = await axios.get(
+      `https://localhost:7053/api/Reviews/by-username/${userName}`,
+      {
+        params: {
+          pageNumber: 1,
+          pageSize, // Ustawienie rozmiaru strony z parametru
+          orderBy: "desc",
+          sortDirection: "year",
+        },
+      }
+    );
+    const { data } = reviewsResponse.data;
+    if (data && data.$values) {
+      setReviews(data.$values);
+    } else {
+      setReviews([]);
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 404) {
+        setReviews([]);
+      } else {
+        setError("Wystąpił błąd podczas pobierania recenzji.");
+      }
+    }
+    console.error(err);
+  }
+};
+
+// Delete user review
+export const deleteReview = async (
+  reviewId: string,
+  setReviews: React.Dispatch<React.SetStateAction<any[]>>
+) => {
+  try {
+    await axios.delete(
+      `https://localhost:7053/api/Reviews/delete-review/${reviewId}`
+    );
+    setReviews((prevReviews) => prevReviews.filter((review) => review.reviewId !== reviewId));
+  } catch (err) {
+    console.error("Błąd podczas usuwania recenzji:", err);
+    alert("Nie udało się usunąć recenzji. Spróbuj ponownie.");
   }
 };

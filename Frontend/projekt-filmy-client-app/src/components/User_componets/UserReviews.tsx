@@ -7,7 +7,7 @@ import SortReviewModule from "../review_components/SortReviewsModle"; // Import 
 import ReviewCard from "../review_components/ReviewCard"; // Import ReviewCard
 import { useParams, useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-
+import { deleteReview } from "../../functions/ReloadFunctions";
 
 const ReviewsPage = () => {
   const { userName } = useParams(); //username z URL
@@ -24,42 +24,48 @@ const ReviewsPage = () => {
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
-      try {
-        const response: AxiosResponse<{
-          data: { $values: Review[] };
-          totalItems: number;
-          pageNumber: number;
-          pageSize: number;
-          totalPages: number;
-        }> = await axios.get(
-          `https://localhost:7053/api/Reviews/by-username/${userName}`,
-          {
-            params: {
-              pageNumber: page,
-              pageSize: pageS,
-              orderBy: sortOrder,
-              sortDirection: sortDirection,
-            },
-          }
-        );
-        const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
-        setReviews(data.$values);
-        setPagination({ totalItems, pageNumber, pageSize, totalPages });
-      } catch (err: any) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
-        } else {
-          setError("Nieoczekiwany błąd.");
+  const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
+    try {
+      const response: AxiosResponse<{
+        data: { $values: Review[] };
+        totalItems: number;
+        pageNumber: number;
+        pageSize: number;
+        totalPages: number;
+      }> = await axios.get(
+        `https://localhost:7053/api/Reviews/by-username/${userName}`,
+        {
+          params: {
+            pageNumber: page,
+            pageSize: pageS,
+            orderBy: sortOrder,
+            sortDirection: sortDirection,
+          },
         }
-      } finally {
-        setLoading(false);
+      );
+      const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
+      setReviews(data.$values);
+      setPagination({ totalItems, pageNumber, pageSize, totalPages });
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
+      } else {
+        setError("Nieoczekiwany błąd.");
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection]);
+
+
+  const handleDeleteReview = (reviewId: string) => {
+    deleteReview(reviewId, setReviews);
+    fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
+  };
 
   const handleSortChange = (category: string) => {
     switch (category) {
@@ -116,18 +122,17 @@ const ReviewsPage = () => {
         </button>
       </OverlayTrigger>
 
-
-
       {reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard
             key={review.reviewId}
             review={review}
             showMovieTitle={true}
+            onDelete={() => handleDeleteReview(review.reviewId)}
           />
         ))
       ) : (
-        <p>Brak recenzji dla tego filmu.</p>
+        <p style={{color:"white"}}>Brak recenzji</p>
       )}
 
       {/* Komponent paginacji */}
@@ -141,5 +146,4 @@ const ReviewsPage = () => {
     </div>
   );
 };
-
 export default ReviewsPage;

@@ -1,15 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link z react-router-dom
+import { Link } from "react-router-dom";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction";
-import "./ReviewCard.css"; // Plik CSS dla recenzji
+import "./ReviewCard.css";
 
 interface ReviewCardProps {
   review: Review;
-  showMovieTitle?: boolean; // Nowy opcjonalny prop
+  showMovieTitle?: boolean;
+  onDelete?: () => void; 
+  onEdit?: () => void; 
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle }) => {
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelete, onEdit }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
@@ -18,15 +20,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle }) => {
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         padding: "20px",
         color: "black",
-        backgroundColor: review.isCritic ? "#CDC1FF" : "white", // Specjalne tło dla krytyków
+        backgroundColor: review.isCritic ? "#CDC1FF" : "white",
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
-        <div 
+        <div
           className="d-flex align-items-center justify-content-between mb-2"
           style={{ display: "flex" }}
         >
-          {/* Nick użytkownika */}
           <p style={{ fontWeight: "bold", margin: 0 }}>
             {review.isCritic && (
               <span className="critic-badge">
@@ -36,16 +37,15 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle }) => {
             )}
             {review.username}
           </p>
-          {/* Tytuł filmu z linkiem */}
           {showMovieTitle && (
             <Link
-              to={`/movie/${review.movieId}`} // Link do strony filmu
+              to={`/${review.movieId}`}
               style={{
                 fontWeight: "bold",
                 fontStyle: "italic",
                 marginInline: "30%",
                 textAlign: "center",
-                flex: 1, // Pozwala na wyrównanie w wierszu
+                flex: 1,
                 textDecoration: "none",
                 color: "inherit",
               }}
@@ -55,6 +55,41 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle }) => {
           )}
         </div>
         <p>{review.comment}</p>
+        {showMovieTitle && (
+          <div className="d-flex justify-content-end">
+            {/* Przycisk edycji */}
+            <button
+              className="btn btn-secondary me-2"
+              style={{
+                background: "none",
+                border: "none",
+                color: "#16C47F",
+                cursor: "pointer",
+               
+              }}
+              onClick={onEdit}
+              aria-label="Edytuj recenzję"
+            >
+              <i className="fas fa-edit"></i> {/* Ikona ołówka */}
+            </button>
+            {/* Przycisk usuwania */}
+            <button
+              className="btn btn-danger"
+              style={{
+                background: "none",
+                border: "none",
+                color: "red",
+                cursor: "pointer",
+                marginLeft:"2%",
+                marginRight:"41%"
+              }}
+              onClick={onDelete}
+              aria-label="Usuń recenzję"
+            >
+              <i className="fas fa-trash"></i> {/* Ikona kosza */}
+            </button>
+          </div>
+        )}
       </div>
       <div style={{ textAlign: "right", color: "black" }}>
         {renderStars(review.rating)}
@@ -74,5 +109,3 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle }) => {
 };
 
 export default ReviewCard;
-
-

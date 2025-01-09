@@ -9,8 +9,6 @@ import { renderStars } from "../../functions/starFunction";
 import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 import AddReviewModal from "../review_components/AddReviewPanel";
-
-// Importing the functions from ReloadFunctions
 import { fetchMovieData, fetchActorsData, fetchMovieReviews } from "../../functions/ReloadFunctions";
 
 const MoviePage = () => {
@@ -60,15 +58,18 @@ const MoviePage = () => {
           setError("Nieoczekiwany błąd")
       }
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Błąd 500:', error.response?.data);  // To wyświetli szczegóły błędu, jeśli są dostępne
+      } else {
+        console.error('Błąd:', error);
+      }
       setError("Błąd podczas dodawania recenzji");
       console.error(error);
     }
   };
   
-
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
-
 
   return (
     <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom: "240px" }}>
@@ -135,7 +136,7 @@ const MoviePage = () => {
           </p>
         </div>
 
-{/* Reviews Section */}
+{/* średnia ocen */}
 <div
   className="d-flex flex-column align-items-center"
   style={{
@@ -146,7 +147,6 @@ const MoviePage = () => {
 >
   {movie?.reviewsNumber && movie.reviewsNumber > 0 ? (
     <>
-      {/* Stars */}
       <div>{renderStars(movie?.averageScore || 0)}</div>
       <h4 style={{ fontSize: "1.6rem" }}>
         {Number(movie?.averageScore).toFixed(1)}/5
@@ -157,7 +157,7 @@ const MoviePage = () => {
     <p>Brak ocen</p>
   )}
 
-  {/* Add Review Button */}
+  {/* Dodaj */}
   {(
         <button
           className="btn btn-primary mt-3"
