@@ -30,7 +30,6 @@ body {
   min-height: 5%;
 }
 
-
 .App-header {
   min-height: 100vh;
   display: flex;
@@ -58,12 +57,12 @@ body {
 
 /* Kolor przycisku po najechaniu */
 .edit-button:hover {
-  background-color: #7a2fd8; /* Zmieniony kolor tła po najechaniu */
-  transform: scale(1.1); /* Powiększenie przycisku przy najechaniu */
+  background-color: #7a2fd8; 
+  transform: scale(1.1); 
 }
 
 .list-button {
-  background-color: #a294f9;
+  background-color: #a294f9; 
   min-width: 60px;
   min-height: 40px;
   text-align: center;
@@ -71,14 +70,32 @@ body {
   align-items: center;
   justify-content: center;
   margin: 5px;
-  color: white;
+  color: white;  
   border: none;
   cursor: pointer;
   border-radius: 10px;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 1rem;  
+  font-weight: normal;  
 }
 
 .list-button:hover {
   background-color: #8e80f5;
   transform: scale(1.05);
+}
+
+
+.review-btn {
+  font-size: 20px;
+  color: white;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.review-btn:hover {
+  background-color: #6C48C5;
+  color: white;
 }
