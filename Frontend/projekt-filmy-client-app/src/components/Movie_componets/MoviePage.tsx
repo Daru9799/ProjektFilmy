@@ -292,7 +292,9 @@ const MoviePage = () => {
         className="bg-white p-3 shadow-sm"
         style={{
           fontSize: "1.1rem",
-          minHeight: "140px",
+          height: "140px",
+          overflow:"auto",
+          paddingRight:"10px",
           borderRadius: "20px",
           textAlign: "left",
           marginTop: "-10px",
@@ -305,35 +307,24 @@ const MoviePage = () => {
             <p className="text-dark">{movie?.description || "Brak opisu filmu."}</p>
           </div>
 
-          {/* Gatunki */}
-          <div className="tab-pane fade" id="gatunki">
-            <div className="d-flex flex-wrap">
-              {movie?.categories?.$values?.length ? (
-                movie.categories.$values.map((cat) => (
-                  <div
-                    key={cat.name}
-                    className="badge me-2 mb-2"
-                    style={{
-                      backgroundColor: "#A294F9",
-                      minWidth: "60px",
-                      minHeight: "40px",
-                      textAlign: "center",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "5px",
-                      color: "white",
-                    }}
-                  >
-                    {cat.name}
-                  </div>
-                ))
-              ) : (
-                <p className="text-dark">Brak danych o gatunkach.</p>
-              )}
-            </div>
-          </div>
-
+{/* Gatunki */}
+<div className="tab-pane fade" id="gatunki">
+  <div className="d-flex flex-wrap">
+    {movie?.categories?.$values?.length ? (
+      movie.categories.$values.map((cat) => (
+        <button
+          key={cat.name}
+          className="list-button"
+          onClick={() => {}}
+        >
+          {cat.name}
+        </button>
+      ))
+    ) : (
+      <p className="text-dark">Brak danych o gatunkach.</p>
+    )}
+  </div>
+</div>
 
 
 {/* aktorzy */}
@@ -359,38 +350,29 @@ const MoviePage = () => {
 
           {/* Kraje */}
           <div className="tab-pane fade" id="kraje">
-            <div className="d-flex flex-wrap">
-              {movie?.countries?.$values?.length ? (
-                movie.countries.$values.map((country) => (
-                  <div
-                    key={country.name}
-                    className="badge me-2 mb-2"
-                    style={{
-                      backgroundColor: "#A294F9",
-                      minWidth: "60px",
-                      minHeight: "40px",
-                      textAlign: "center",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "5px",
-                      color: "white",
-                    }}
-                  >
-                    {country.name}
-                  </div>
-                ))
-              ) : (
-                <p>Brak danych o krajach</p>
-              )}
-            </div>
-          </div>
+  <div className="d-flex flex-wrap">
+    {movie?.countries?.$values?.length ? (
+      movie.countries.$values.map((country) => (
+        <button
+          key={country.name}
+          className="list-button" 
+          onClick={() => {}}
+        >
+          {country.name}
+        </button>
+      ))
+    ) : (
+      <p>Brak danych o krajach</p>
+    )}
+  </div>
+</div>
+
         </div>
       </div>
     </div>
   </div>
 
-  {/* Review Section */}
+  {/* Recenzje */}
 <div
   className="container pt-3 text-center"
   style={{ marginTop: "40px", marginBottom: "40px" }}
@@ -402,32 +384,16 @@ const MoviePage = () => {
     <p>Brak recenzji dla tego filmu.</p>
   )}
 
-  {/* Only show review count and "..." button if there are more than 2 reviews */}
-  {(movie?.reviewsNumber ?? 0) > 2  && (
-    <button
-      className="edit-btn"
-      onClick={handleReviewsClick}
-      style={{
-        fontSize: "20px", 
-        color: "white", 
-        backgroundColor: "transparent", 
-        border: "none", 
-        borderRadius: "50%", 
-        cursor: "pointer", 
-        transition: "all 0.3s ease", 
-      }}
-      onMouseOver={(e) => {
-        (e.target as HTMLButtonElement).style.backgroundColor = "#6C48C5"; 
-        (e.target as HTMLButtonElement).style.color = "white"; 
-      }}
-      onMouseOut={(e) => {
-        (e.target as HTMLButtonElement).style.backgroundColor = "transparent"; 
-        (e.target as HTMLButtonElement).style.color = "white"; 
-      }}
-    >
-      ...
-    </button>
-  )}
+{/* Więcej recenzji */}
+  {(movie?.reviewsNumber ?? 0) > 2 && (
+  <button
+    className="review-btn"
+    onClick={handleReviewsClick}
+  >
+    ...
+  </button>
+)}
+
 </div>
 </div>
   );

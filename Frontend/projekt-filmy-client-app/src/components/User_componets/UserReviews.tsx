@@ -5,11 +5,13 @@ import { Review } from "../../models/Review";
 import PaginationModule from "../PaginationModule";
 import SortReviewModule from "../review_components/SortReviewsModle"; // Import nowego komponentu
 import ReviewCard from "../review_components/ReviewCard"; // Import ReviewCard
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
+
 
 const ReviewsPage = () => {
     const id="7d248152-f4fb-4c46-991d-847352577743";
-  //const { id } = useParams<{ id: string }>();
+  //const { id } = useParams<{ id: string }>(); //userId
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,6 +23,7 @@ const ReviewsPage = () => {
   });
   const [sortOrder, setSortOrder] = useState<string>("rating"); // Domyślnie sortowanie po ocenie
   const [sortDirection, setSortDirection] = useState<string>("desc");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
@@ -89,6 +92,9 @@ const ReviewsPage = () => {
   if (error) {
     return <div className="text-danger text-center">{error}</div>;
   }
+  const renderTooltip = (props: any) => (
+    <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
+  );
 
   return (
     <div className="container my-4">
@@ -98,6 +104,20 @@ const ReviewsPage = () => {
 
       {/* Komponent sortowania */}
       <SortReviewModule onSort={handleSortChange} />
+
+      <OverlayTrigger
+        placement="top" // Pozycja dymka (można zmienić na "bottom", "right", "left")
+        overlay={renderTooltip}
+      >
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate(`/user/${id}`)}
+        >
+          <i className="fas fa-arrow-left"></i>
+        </button>
+      </OverlayTrigger>
+
+
 
       {reviews.length > 0 ? (
         reviews.map((review) => (

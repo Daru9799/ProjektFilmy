@@ -12,6 +12,7 @@ import ReviewsPage from './components/review_components/ReviewsPage';
 import UserPage from './components/User_componets/UserPage';
 import DirectorPage from './components/Home_componets/DirectorPage';
 import ActorPage from './components/Home_componets/ActorPage';
+import UserReviews from './components/User_componets/UserReviews';
 
 
 
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
       { path: "/user/:userId", element: <UserPage /> },
       { path: "/actor/:actorId", element: <ActorPage /> },
       { path: "/director/:directorId", element: <DirectorPage /> },
+      {path:"/userReviews/:id", element:<UserReviews/>},
     ],
   },
 ];

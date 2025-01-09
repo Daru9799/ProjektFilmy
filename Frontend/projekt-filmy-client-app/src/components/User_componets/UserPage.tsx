@@ -3,10 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserProfile, userRole } from "../../models/UserProfile";
 import { Review } from "../../models/Review";
+import "./UserPage.css"; 
 import ReviewCard from "../review_components/ReviewCard";
-import SortReviewModule from "../review_components/SortReviewsModle"; // Zakładając, że komponent SortReviewModule jest w tym folderze
 
-// Potrzeba do zamiany enuma na normalną postać
+// Zamiana enuma na nazwę roli użytkownika
 function getUserRoleName(role: userRole): string {
   switch (role) {
     case userRole.user:
@@ -21,14 +21,13 @@ function getUserRoleName(role: userRole): string {
 }
 
 const UserPage = () => {
-  const userName = "critic1"; // Na sztywno nazwa użytkownika
-  const id = "7d248152-f4fb-4c46-991d-847352577743"; // Na sztywno ID użytkownika
+  const userName = "critic1"; // Sztywna nazwa użytkownika
+  const id = "7d248152-f4fb-4c46-991d-847352577743"; // Sztywne ID użytkownika
+
   const [user, setUser] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [sortedReviews, setSortedReviews] = useState<Review[]>([]); // Zmienna do posortowanych recenzji
-  const [sortOption, setSortOption] = useState<string>("highRaiting"); // Domyślna opcja sortowania
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,13 +36,13 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
 
-        // Pobranie usera z bazy i zapisanie go do obiektu UserProfile
+        // Pobranie danych użytkownika
         const response = await axios.get(
           `https://localhost:7053/api/Users/by-username/${userName}`
         );
         setUser(response.data);
 
-        // Pobranie jego recenzji
+        // Pobranie recenzji użytkownika
         try {
           const reviewsResponse = await axios.get(
             `https://localhost:7053/api/Reviews/by-user-id/${response.data.id}`,
@@ -56,17 +55,17 @@ const UserPage = () => {
               },
             }
           );
+
           const { data } = reviewsResponse.data;
           if (data && data.$values) {
             setReviews(data.$values);
-            setSortedReviews(data.$values); // Set the initial sortedReviews
           } else {
             setReviews([]);
           }
         } catch (err: any) {
           if (axios.isAxiosError(err)) {
             if (err.response && err.response.status === 404) {
-              setReviews([]); // Brak recenzji przy 404
+              setReviews([]); // Brak recenzji
             } else {
               setError("Wystąpił błąd podczas pobierania recenzji.");
             }
@@ -93,23 +92,6 @@ const UserPage = () => {
     fetchUser();
   }, [userName]);
 
-  const handleSort = (category: string) => {
-    setSortOption(category);
-
-    let sorted: Review[] = [];
-    if (category === "highRaiting") {
-      sorted = [...reviews].sort((a, b) => b.rating - a.rating); // Sortowanie po najwyższej ocenie
-    } else if (category === "lowRaiting") {
-      sorted = [...reviews].sort((a, b) => a.rating - b.rating); // Sortowanie po najniższej ocenie
-    } else if (category === "new") {
-      sorted = [...reviews].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sortowanie po dacie (najnowsze)
-    } else if (category === "old") {
-      sorted = [...reviews].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sortowanie po dacie (najstarsze)
-    }
-
-    setSortedReviews(sorted); // Ustawienie posortowanych recenzji
-  };
-
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p className="error">{error}</p>;
 
@@ -117,6 +99,7 @@ const UserPage = () => {
     <>
       <div className="header">
         <p className="user-name">{user?.userName}</p>
+        {/* Przycisk edycji, jeśli zalogowany użytkownik to właściciel konta */}
         <button className="edit-button">Edytuj</button>
       </div>
 
@@ -143,19 +126,24 @@ const UserPage = () => {
 
       <div className="pt-3">
         <h3 style={{ color: "white" }}>Ostatnie recenzje:</h3>
-
-        <SortReviewModule onSort={handleSort} />
-
-        {sortedReviews.length > 0 ? (
-          sortedReviews.map((review) => (
-            <ReviewCard key={review.reviewId} review={review} showMovieTitle={true} />
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <ReviewCard
+              key={review.reviewId}
+              review={review}
+              showMovieTitle={true}
+            />
           ))
         ) : (
           <p>Użytkownik nie dodał jeszcze żadnych recenzji</p>
         )}
 
+        {/* Przycisk do wyświetlenia większej liczby recenzji */}
         {(user?.reviewsCount ?? 0) > 3 && (
-          <button className="review-btn" onClick={() => navigate(`/userReviews/${id}`)}>
+          <button
+            className="review-btn"
+            onClick={() => navigate(`/userReviews/${id}`)}
+          >
             ...
           </button>
         )}
