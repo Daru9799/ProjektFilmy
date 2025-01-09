@@ -10,8 +10,10 @@ import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 import AddReviewModal from "../review_components/AddReviewPanel";
 
+// Importing the functions from ReloadFunctions
+import { fetchMovieData, fetchActorsData, fetchMovieReviews } from "../../functions/ReloadFunctions";
+
 const MoviePage = () => {
-  // const movieId = "d3a43d4f-9668-42d2-85c0-9e786befb0af"; 
   const { movieId } = useParams();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
@@ -19,116 +21,54 @@ const MoviePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
-  const [newReview, setNewReview] = useState<string>("");
-  const [newRating, setNewRating] = useState<number>(0);
-  const [isReviewAdded, setIsReviewAdded] = useState<boolean>(false); 
-  const [newDate, setNewDate] = useState(new Date().toISOString());
   const navigate = useNavigate();
 
+  // Using the imported functions
   useEffect(() => {
-    const fetchMovieById = async () => {
-      try {
-        // Fetch movie and actors data
-        const [movieResponse, actorsResponse] = await Promise.all([
-          axios.get(`https://localhost:7053/api/Movies/${movieId}`),
-          axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`),
-        ]);
-  
-        setMovie(movieResponse.data);
-  
-    
-        try {
-          setActors(actorsResponse.data.$values);
-        } catch (actorsError) {
-          if (axios.isAxiosError(actorsError) && actorsError.response?.status === 404) {
-            setActors([]); 
-            console.log("No actors found for this movie.");
-          } else {
-            setError("Error fetching actors.");
-            console.error(actorsError);
-          }
-        }
-  
-        try {
-          const reviewsResponse = await axios.get(
-            `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`,
-            {
-              params: {
-                pageNumber: 1,
-                pageSize: 2, 
-              },
-            }
-          );
-          if (reviewsResponse.status === 200) {
-            const reviewsData = reviewsResponse.data.data.$values;
-            setReviews(reviewsData); 
-          }
-        } catch (reviewsError) {
-          if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-            setReviews([]); 
-            console.log("No reviews found for this movie.");
-          } else {
-            setError("Error fetching reviews.");
-            console.error(reviewsError);
-          }
-        }
-      } catch (err: any) {
-        if (axios.isAxiosError(err)) {
-          if (!err.response) {
-            setError("Network error: Unable to connect to the server.");
-          } else {
-            setError(`Error: ${err.response.status} - ${err.response.statusText}`);
-          }
-        } else {
-          setError("An unexpected error occurred.");
-        }
-        console.error(err);
-      } finally {
-        setLoading(false); 
-      }
-    };
-  
-    fetchMovieById();
+    if (movieId) {
+      fetchMovieData(movieId, setMovie, setError);
+      fetchActorsData(movieId, setActors, setError);
+      fetchMovieReviews(movieId, setReviews, setError, setLoading);
+    } else {
+      setError("Nieoczekiwany błąd");
+    }
   }, [movieId]);
   
-  const handleReviewsClick = () => {
-    navigate(`/reviews/${movieId}`); 
-  };
-
-
 
   const handleAddReview = async (review: string, rating: number) => {
     try {
       const newReviewData = {
         Rating: rating,
         Comment: review,
-        Date: new Date().toISOString(), 
+        Date: new Date().toISOString(),
         MovieId: movieId,
-        UserId: "7d248152-f4fb-4c46-991d-847352577743", //Tutaj potem wrzuci sie id z sesji po zalogowaniu, teraz jest na szywno critic1
+        UserId: "7d248152-f4fb-4c46-991d-847352577743", 
       };
-  
+
       const response = await axios.post(
         "https://localhost:7053/api/Reviews/add-review",
         newReviewData
       );
-  
+
       if (response.status === 200) {
-        setIsReviewAdded(true); 
-        setShowReviewModal(false); 
-        setNewReview(""); 
-        setNewRating(0);
+        if(movieId){
+        fetchMovieReviews(movieId, setReviews, setError, setLoading);
+        fetchMovieData(movieId, setMovie, setError);
+        setShowReviewModal(false);
+        }
+        else 
+          setError("Nieoczekiwany błąd")
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Błąd 500:', error.response?.data);  // To wyświetli szczegóły błędu, jeśli są dostępne
-      } else {
-        console.error('Błąd:', error);
-      }
+      setError("Błąd podczas dodawania recenzji");
+      console.error(error);
     }
   };
   
+
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
+
 
   return (
     <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom: "240px" }}>
@@ -218,7 +158,7 @@ const MoviePage = () => {
   )}
 
   {/* Add Review Button */}
-  {!isReviewAdded && (
+  {(
         <button
           className="btn btn-primary mt-3"
           onClick={() => setShowReviewModal(true)}
@@ -388,7 +328,7 @@ const MoviePage = () => {
   {(movie?.reviewsNumber ?? 0) > 2 && (
   <button
     className="review-btn"
-    onClick={handleReviewsClick}
+    onClick={()=>navigate(`/reviews/${movieId}`)}
   >
     ...
   </button>

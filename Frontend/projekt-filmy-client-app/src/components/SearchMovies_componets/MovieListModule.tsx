@@ -11,7 +11,7 @@ const MovieListModule = ({ movieList }: Props) => {
   const navigate = useNavigate(); // Inicjalizuj nawigację
 
   const handleCardClick = (movieId: string) => {
-    navigate(`/movie/${movieId}`); 
+    navigate(`/${movieId}`); 
   };
 
   return (

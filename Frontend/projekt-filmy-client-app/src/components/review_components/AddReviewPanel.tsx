@@ -18,7 +18,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
   const [reviewRating, setReviewRating] = useState<number>(0);
 
   const handleSave = () => {
-    if (reviewText.trim()&& reviewRating >= 0 && reviewRating <= 5) {
+    if (reviewText.trim()&& reviewRating > 0 && reviewRating <= 5) {
       onAddReview(reviewText, reviewRating);
       setReviewText("");
       setReviewRating(0);
