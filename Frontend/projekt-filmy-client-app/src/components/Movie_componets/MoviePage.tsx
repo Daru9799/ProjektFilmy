@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal } from "react-bootstrap";
 import { Movie } from '../../models/Movie';
 import { Actor } from '../../models/Actor';
 import { Review } from '../../models/Review';
@@ -12,8 +11,8 @@ import ImageModal from "../../functions/ImageModal";
 import AddReviewModal from "../review_components/AddReviewPanel";
 
 const MoviePage = () => {
-  const movieId = "a8f3e0ba-3f1b-467f-b38f-f912f04111c4"; 
-    // const { movieId } = useParams();
+  // const movieId = "d3a43d4f-9668-42d2-85c0-9e786befb0af"; 
+    const { movieId } = useParams();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -190,7 +189,7 @@ const MoviePage = () => {
       <h4 style={{ fontSize: "1.6rem" }}>
         {Number(movie?.averageScore).toFixed(1)}/5
       </h4>
-      <p className="mb-0">{movie.reviewsNumber} recenzji</p>
+      <p className="mb-0">Ilość ocen: {movie.reviewsNumber}</p>
     </>
   ) : (
     <p>Brak ocen</p>

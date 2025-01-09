@@ -110,26 +110,27 @@ const UserPage = () => {
       </div>
 
       <div className="info-row">
-        <p className="info-label" >Wystawiłeś:</p>
+        <p className="info-label" >Ilość recenzji:</p>
         <div className="info-value">
-          <span>{user?.reviewsCount} recenzji</span>
+          <span>{user?.reviewsCount}</span>
         </div>
       </div>
 
-{/* Sekcja recenzji */}
-<div className="pt-3">
-  <h3>Ostatnie recenzje:</h3>
+      <div className="pt-3">
+  <h3 style={{color:"white"}}>Ostatnie recenzje:</h3>
   {reviews.length > 0 ? (
     reviews.map((review) => (
       <ReviewCard
         key={review.reviewId}
         review={review}
+        showMovieTitle={true}
       />
     ))
   ) : (
     <p>Użytkownik nie dodał jeszcze żadnych recenzji</p>
   )}
 </div>
+
     </>
   );
 };

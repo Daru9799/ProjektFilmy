@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Director } from '../../models/Director';
+import { useNavigate } from 'react-router-dom';
 
 
 interface Props {
@@ -8,11 +9,17 @@ interface Props {
 }
 
 const DirectorsListModule = ({ directorsList }: Props) => {
+  const navigate = useNavigate(); 
+
+  const handleCardClick = (directorId: string) => {
+    navigate(`/director/${directorId}`)}; 
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
         {directorsList.map((director) => (
-          <li className="list-group-item d-flex align-items-start p-3" style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px" }}>
+          <li className="list-group-item d-flex align-items-start p-3" 
+          onClick={() => handleCardClick(director.directorId)}
+          style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px", cursor:"pointer" }}>
           <img 
             src={director.photoUrl} 
             alt={`${director.firstName} ${director.lastName}`} 

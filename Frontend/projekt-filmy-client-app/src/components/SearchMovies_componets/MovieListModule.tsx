@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom'; // Importuj useNavigate
 import { Movie } from '../../models/Movie';
 import { renderStars } from "../../functions/starFunction";
 
-
 interface Props {
-  movieList:Movie[]
+  movieList: Movie[];
 }
 
 const MovieListModule = ({ movieList }: Props) => {
+  const navigate = useNavigate(); // Inicjalizuj nawigację
+
+  const handleCardClick = (movieId: string) => {
+    navigate(`/movie/${movieId}`); 
+  };
+
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
@@ -16,6 +21,7 @@ const MovieListModule = ({ movieList }: Props) => {
           <li
             key={movie.title}
             className="list-group-item d-flex p-3"
+            onClick={() => handleCardClick(movie.movieId)} // Obsługa kliknięcia
             style={{
               borderBottom: "1px solid #ddd",
               width: "600px",
@@ -24,6 +30,7 @@ const MovieListModule = ({ movieList }: Props) => {
               marginBottom: "5px",
               display: "flex",
               flexDirection: "row",
+              cursor: "pointer", // Wskaźnik kursora zmienia się na "rękę"
             }}
           >
             <img

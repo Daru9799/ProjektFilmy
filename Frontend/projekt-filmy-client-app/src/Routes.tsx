@@ -24,7 +24,7 @@ export const routes: RouteObject[] = [
       { path: "search-movies", element: <SearchMoviesPage /> },
       { path: "search-directors", element: <SearchDirectorsPage /> },
       { path: "search-actors", element: <SearchActorsPage /> },
-      { path: "/:movieId", element: <MoviePage /> },
+      { path: "movie/:movieId", element: <MoviePage /> },
       { path: "/test", element: <TestPage /> },
       { path: "/reviews/:movieId", element: <ReviewsPage /> },
       { path: "/user/:userId", element: <UserPage /> },

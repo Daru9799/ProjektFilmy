@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Actor } from '../../models/Actor';
-
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   actorsList:Actor[]
 }
 
 const ActorsListModule = ({ actorsList }: Props) => {
+  const navigate = useNavigate(); 
+
+  const handleCardClick = (actorId: string) => {
+    navigate(`/actor/${actorId}`); 
+  };
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
         {actorsList.map((actor) => (
-          <li className="list-group-item d-flex align-items-start p-3" style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px" }}>
+          <li className="list-group-item d-flex align-items-start p-3" 
+          onClick={() => handleCardClick(actor.actorId)}
+          style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px", cursor:"pointer" }}>
           <img 
             src={actor.photoUrl} 
             alt={`${actor.firstName} ${actor.lastName}`} 
@@ -21,7 +27,7 @@ const ActorsListModule = ({ actorsList }: Props) => {
               height: "150px", 
               objectFit: "cover", 
               marginRight: "15px", 
-              borderRadius: "5px"
+              borderRadius: "5px",
             }}
           />
           
