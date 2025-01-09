@@ -12,7 +12,7 @@ import ReviewsPage from './components/review_components/ReviewsPage';
 import UserPage from './components/User_componets/UserPage';
 import DirectorPage from './components/Home_componets/DirectorPage';
 import ActorPage from './components/Home_componets/ActorPage';
-import UserReviews from './components/User_componets/UserReviews';
+import UserReviewsPage from './components/User_componets/UserReviews';
 
 
 
@@ -25,13 +25,13 @@ export const routes: RouteObject[] = [
       { path: "search-movies", element: <SearchMoviesPage /> },
       { path: "search-directors", element: <SearchDirectorsPage /> },
       { path: "search-actors", element: <SearchActorsPage /> },
-      { path: "movie/:movieId", element: <MoviePage /> },
+      { path: "/:movieId", element: <MoviePage /> },
       { path: "/test", element: <TestPage /> },
       { path: "/reviews/:movieId", element: <ReviewsPage /> },
-      { path: "/user/:userId", element: <UserPage /> },
+      { path: "/user/:userName", element: <UserPage /> },
       { path: "/actor/:actorId", element: <ActorPage /> },
       { path: "/director/:directorId", element: <DirectorPage /> },
-      {path:"/userReviews/:id", element:<UserReviews/>},
+      { path: "/user/:userName/reviews", element: <UserReviewsPage /> }
     ],
   },
 ];

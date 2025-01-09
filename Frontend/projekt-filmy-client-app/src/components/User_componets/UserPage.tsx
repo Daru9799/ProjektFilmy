@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { UserProfile, userRole } from "../../models/UserProfile";
 import { Review } from "../../models/Review";
 import "./UserPage.css"; 
@@ -21,9 +21,8 @@ function getUserRoleName(role: userRole): string {
 }
 
 const UserPage = () => {
-  const userName = "critic1"; // Sztywna nazwa użytkownika
-  const id = "7d248152-f4fb-4c46-991d-847352577743"; // Sztywne ID użytkownika
-
+  //const userName = "critic1"; // Sztywna nazwa użytkownika
+  const { userName } = useParams();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -45,7 +44,7 @@ const UserPage = () => {
         // Pobranie recenzji użytkownika
         try {
           const reviewsResponse = await axios.get(
-            `https://localhost:7053/api/Reviews/by-user-id/${response.data.id}`,
+            `https://localhost:7053/api/Reviews/by-username/${userName}`,
             {
               params: {
                 pageNumber: 1,
@@ -142,7 +141,7 @@ const UserPage = () => {
         {(user?.reviewsCount ?? 0) > 3 && (
           <button
             className="review-btn"
-            onClick={() => navigate(`/userReviews/${id}`)}
+            onClick={() => navigate(`/user/${userName}/reviews`)}
           >
             ...
           </button>

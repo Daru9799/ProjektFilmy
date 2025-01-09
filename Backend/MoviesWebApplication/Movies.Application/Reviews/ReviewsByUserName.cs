@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Reviews
 {
-    public class ReviewsByUserId
+    public class ReviewsByUserName
     {
         public class Query : IRequest<PagedResponse<ReviewDto>>
         {
-            public string UserId { get; set; }
+            public string UserName { get; set; }
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public string OrderBy { get; set; }
@@ -33,7 +33,7 @@ namespace Movies.Application.Reviews
             public async Task<PagedResponse<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 IQueryable<Review> query = _context.Users
-                    .Where(m => m.Id == request.UserId)
+                    .Where(m => m.UserName == request.UserName)
                     .SelectMany(m => m.Reviews)
                     .Include(r => r.User)
                     .Include(r => r.Movie);

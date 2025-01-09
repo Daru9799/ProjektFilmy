@@ -45,13 +45,13 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(reviews);
         }
-        //Zwracanie recenzji na podstawie ID usera
-        [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
+        //Zwracanie recenzji na podstawie nazwy usera
+        [HttpGet("by-username/{userName}")]
+        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
-            var query = new ReviewsByUserId.Query
+            var query = new ReviewsByUserName.Query
             {
-                UserId = userId,
+                UserName = userName,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 SortDirection = sortDirection,
@@ -61,7 +61,7 @@ namespace MoviesWebApplication.Controllers
 
             if (reviews.Data == null || !reviews.Data.Any())
             {
-                return NotFound($"Nie znaleziono recenzji dla filmu o ID '{userId}'.");
+                return NotFound($"Nie znaleziono recenzji dla użytkownika o podanej nazwie '{userName}'.");
             }
 
             return Ok(reviews);

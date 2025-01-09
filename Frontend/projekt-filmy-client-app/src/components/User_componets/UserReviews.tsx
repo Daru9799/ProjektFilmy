@@ -10,8 +10,7 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 
 const ReviewsPage = () => {
-    const id="7d248152-f4fb-4c46-991d-847352577743";
-  //const { id } = useParams<{ id: string }>(); //userId
+  const { userName } = useParams(); //username z URL
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,7 +34,7 @@ const ReviewsPage = () => {
           pageSize: number;
           totalPages: number;
         }> = await axios.get(
-          `https://localhost:7053/api/Reviews/by-user-id/${id}`,
+          `https://localhost:7053/api/Reviews/by-username/${userName}`,
           {
             params: {
               pageNumber: page,
@@ -99,7 +98,7 @@ const ReviewsPage = () => {
   return (
     <div className="container my-4">
       <h2 className="mb-4" style={{ color: "white" }}>
-        Twoje recenzje:
+        Wszystkie recenzje użytkownika {userName}:
       </h2>
 
       {/* Komponent sortowania */}
@@ -111,7 +110,7 @@ const ReviewsPage = () => {
       >
         <button
           className="btn btn-secondary mb-3"
-          onClick={() => navigate(`/user/${id}`)}
+          onClick={() => navigate(`/user/${userName}`)}
         >
           <i className="fas fa-arrow-left"></i>
         </button>
