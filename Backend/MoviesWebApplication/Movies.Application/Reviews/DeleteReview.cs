@@ -11,17 +11,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Reviews
 {
-    public class DeleteReviewCommand : IRequest<Review>
+    public class DeleteReview : IRequest<Review>
     {
         public Guid ReviewId { get; set; }
 
-        public DeleteReviewCommand(Guid reviewId)
+        public DeleteReview(Guid reviewId)
         {
             ReviewId = reviewId;
         }
     }
 
-    public class DeleteReviewCommandHandler : IRequestHandler<DeleteReviewCommand, Review>
+    public class DeleteReviewCommandHandler : IRequestHandler<DeleteReview, Review>
     {
         private readonly DataContext _context;
 
@@ -30,7 +30,7 @@ namespace Movies.Application.Reviews
             _context = context;
         }
 
-        public async Task<Review> Handle(DeleteReviewCommand request, CancellationToken cancellationToken)
+        public async Task<Review> Handle(DeleteReview request, CancellationToken cancellationToken)
         {
             // Pobranie recenzji z bazy
             var review = await _context.Reviews

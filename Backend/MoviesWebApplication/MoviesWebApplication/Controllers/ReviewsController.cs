@@ -68,7 +68,7 @@ namespace MoviesWebApplication.Controllers
         }
         //Dodawanie recenzji
         [HttpPost("add-review")]
-        public async Task<IActionResult> CreateReview([FromBody] CreateReviewCommand.Command command)
+        public async Task<IActionResult> CreateReview([FromBody] CreateReview.CreateReviewCommand command)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MoviesWebApplication.Controllers
         public async Task<IActionResult> DeleteReview(Guid id)
         {
             //Wysyłanie komendy usunięcia recenzji do mediatora
-            var result = await Mediator.Send(new DeleteReviewCommand(id));
+            var result = await Mediator.Send(new DeleteReview(id));
 
             if (result == null)
             {
@@ -93,6 +93,31 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPut("edit-review/{id}")]
+        public async Task<IActionResult> EditReview(Guid id, [FromBody] EditReview.EditReviewCommand command)
+        {
+            try
+            {
+                command.ReviewId = id;
+
+                var review = await Mediator.Send(command);
+                if (review == null)
+                {
+                    return NotFound($"Nie znaleziono recenzji o ID: {id}");
+                }
+
+                return Ok(review);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
+            }
         }
     }
 }

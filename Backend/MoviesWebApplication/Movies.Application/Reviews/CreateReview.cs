@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Reviews
 {
-    public class CreateReviewCommand
+    public class CreateReview 
     {
-        public class Command : IRequest<Review>
+        public class CreateReviewCommand : IRequest<Review>
         {
             public float Rating { get; set; }
             public string Comment { get; set; }
@@ -22,7 +22,7 @@ namespace Movies.Application.Reviews
             public string UserId { get; set; }  // Id użytkownika jako string
         }
 
-        public class Handler : IRequestHandler<Command, Review>
+        public class Handler : IRequestHandler<CreateReviewCommand, Review>
         {
             private readonly DataContext _context;
 
@@ -31,7 +31,7 @@ namespace Movies.Application.Reviews
                 _context = context;
             }
 
-            public async Task<Review> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Review> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
             {
                 //Sprawdzanie istnienia filmu
                 var movie = await _context.Movies
