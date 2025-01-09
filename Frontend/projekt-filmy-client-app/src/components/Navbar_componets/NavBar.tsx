@@ -30,7 +30,7 @@ const NavBar = () => {
             <NavTile link="search-directors">Reżyserzy</NavTile>
             <NavTile link="search-actors">Aktorzy</NavTile>
             <NavTile link="/test">TEST BACKENDU</NavTile>
-            <NavTile link="/director/:userId">karta user</NavTile>
+            <NavTile link="/user/:userName">karta user</NavTile>
             <NavTile link="/:movieId">karta film</NavTile>
           </div>
 
