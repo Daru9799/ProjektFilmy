@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../functions/starFunction";
 import "./ReviewCard.css";
@@ -12,6 +13,23 @@ interface ReviewCardProps {
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelete, onEdit }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (onDelete) {
+      onDelete();
+    }
+    setShowModal(false);
+  };
+
+  const handleCancelDelete = () => {
+    setShowModal(false);
+  };
+
   return (
     <div
       className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
@@ -24,9 +42,9 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
+        {/* Header with Username */}
         <div
           className="d-flex align-items-center justify-content-between mb-2"
-          style={{ display: "flex" }}
         >
           <p style={{ fontWeight: "bold", margin: 0 }}>
             {review.isCritic && (
@@ -43,7 +61,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
               style={{
                 fontWeight: "bold",
                 fontStyle: "italic",
-                marginInline: "30%",
                 textAlign: "center",
                 flex: 1,
                 textDecoration: "none",
@@ -54,43 +71,44 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
             </Link>
           )}
         </div>
+
+        {/* Comment */}
         <p>{review.comment}</p>
+
+        {/* Buttons Below Comment */}
+        
         {showMovieTitle && (
-          <div className="d-flex justify-content-end">
-            {/* Przycisk edycji */}
-            <button
-              className="btn btn-secondary me-2"
-              style={{
-                background: "none",
-                border: "none",
-                color: "#16C47F",
-                cursor: "pointer",
-               
-              }}
-              onClick={onEdit}
-              aria-label="Edytuj recenzję"
-            >
-              <i className="fas fa-edit"></i> {/* Ikona ołówka */}
-            </button>
-            {/* Przycisk usuwania */}
-            <button
-              className="btn btn-danger"
-              style={{
-                background: "none",
-                border: "none",
-                color: "red",
-                cursor: "pointer",
-                marginLeft:"2%",
-                marginRight:"41%"
-              }}
-              onClick={onDelete}
-              aria-label="Usuń recenzję"
-            >
-              <i className="fas fa-trash"></i> {/* Ikona kosza */}
-            </button>
-          </div>
-        )}
+        <div className="d-flex" style={{ marginTop: "-10px" }}>
+          <button
+            className="btn btn-secondary me-2"
+            style={{
+              background: "none",
+              border: "none",
+              color: "black",
+              cursor: "pointer",
+            }}
+            onClick={onEdit}
+            aria-label="Edytuj recenzję"
+          >
+            <i className="fas fa-edit"></i> {/* Ikona ołówka */}
+          </button>
+          <button
+            className="btn btn-danger"
+            style={{
+              background: "none",
+              border: "none",
+              color: "black",
+              cursor: "pointer",
+            }}
+            onClick={handleDeleteClick}
+            aria-label="Usuń recenzję"
+          >
+            <i className="fas fa-trash"></i> {/* Ikona kosza */}
+          </button>
+        </div>)}
       </div>
+
+      {/* Rating and Date */}
       <div style={{ textAlign: "right", color: "black" }}>
         {renderStars(review.rating)}
         <h4>{review.rating}/5</h4>
@@ -104,6 +122,24 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
             : "Brak danych"}
         </small>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal show={showModal} onHide={handleCancelDelete} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Czy na pewno chcesz usunąć tę recenzję?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelDelete}>
+            Anuluj
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Usuń
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

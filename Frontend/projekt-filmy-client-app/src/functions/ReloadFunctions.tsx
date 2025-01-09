@@ -157,3 +157,33 @@ export const deleteReview = async (
     alert("Nie udało się usunąć recenzji. Spróbuj ponownie.");
   }
 };
+
+export const editReview = async (
+  reviewId: string,
+  updatedReview: { comment: string; rating: number },
+  setReviews: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    const response = await axios.put(
+      `https://localhost:7053/api/Reviews/edit-review/${reviewId}`,
+      updatedReview
+    );
+    if (response.status === 200) {
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.reviewId === reviewId ? { ...review, ...updatedReview } : review
+        )
+      );
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 404) {
+        setError("Nie udało się dodać modyfikacji");
+      } else {
+        setError("Wystąpił błąd podczas modyfikacji recenzji.");
+      }
+    }
+    console.error(err);
+  }
+};
