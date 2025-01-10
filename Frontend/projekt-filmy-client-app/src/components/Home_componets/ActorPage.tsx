@@ -1,8 +1,11 @@
-import React, { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Actor } from "../../models/Actor";
-import ImageModal from "../../functions/ImageModal"; // Zmień ścieżkę na właściwą dla Twojego projektu
+import ImageModal from "../../functions/ImageModal"; 
+import { fetchActorMovies } from "../../functions/ReloadFunctions";
+import MovieListModule from "../SearchMovies_componets/MovieListModule";
+import { Movie } from "../../models/Movie";
 
 const ActorPage = () => {
 
@@ -10,7 +13,7 @@ const ActorPage = () => {
   const [actor, setActor] = useState<Actor | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
     const fetchActorById = async () => {
@@ -34,13 +37,15 @@ const ActorPage = () => {
     };
 
     fetchActorById();
+        if(actorId)
+        fetchActorMovies(actorId, setMovies, setError, setLoading);
   }, [actorId]);
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px" }}>
+    <div className="container-fluid text-white" style={{marginBottom:"2%"}}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
         <div className="col-3">
@@ -92,6 +97,14 @@ const ActorPage = () => {
             <p className="text-dark">{actor?.bio || "Brak danych o biografii."}</p>
           </div>
         </div>
+
+        {movies.length > 0 && (
+          <p style={{ fontSize: "1.6rem", marginTop: "5%" }}>
+            {movies.length === 1 ? "Powiązany film:" : "Powiązane filmy:"}
+          </p>
+        )}
+        <MovieListModule movieList={movies} />
+
       </div>
     </div>
   );

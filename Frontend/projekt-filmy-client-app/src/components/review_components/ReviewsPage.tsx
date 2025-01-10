@@ -148,11 +148,10 @@ const ReviewsPage = () => {
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [movie, setMovie] = useState<Movie | null>(null); // State for movie details
 
-  // Fetch movie details along with reviews
+
   useEffect(() => {
     const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
       try {
-        // Fetching reviews
         const reviewResponse: AxiosResponse<{
           data: { $values: Review[] };
           totalItems: number;
@@ -174,9 +173,9 @@ const ReviewsPage = () => {
         setReviews(data.$values);
         setPagination({ totalItems, pageNumber, pageSize, totalPages });
 
-        // Fetching movie details
+      
         const movieResponse = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
-        setMovie(movieResponse.data); // Assuming this API returns the movie details
+        setMovie(movieResponse.data); 
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
@@ -235,7 +234,6 @@ const ReviewsPage = () => {
 
 
 <div style={{marginTop:"5%"}}>
-  {/* Display the movie card */}
   {movie && <MovieListModule movieList={movie ? [movie] : []} />}
 </div>
 

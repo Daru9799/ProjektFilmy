@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Director } from "../../models/Director";
 import ImageModal from "../../functions/ImageModal"; 
+import MovieListModule from "../SearchMovies_componets/MovieListModule";
+import { fetchDirectorMovies } from "../../functions/ReloadFunctions";
+import { Movie } from "../../models/Movie";
 
 const DirectorPage = () => {
   const { directorId } = useParams();
   const [director, setActor] = useState<Director | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  const [movies, setMovies] = useState<Movie[]>([]);
+
 
   useEffect(() => {
     const fetchDirectorById = async () => {
@@ -33,13 +37,16 @@ const DirectorPage = () => {
     };
 
     fetchDirectorById();
+    if(directorId)
+    fetchDirectorMovies(directorId, setMovies, setError, setLoading);
+
   }, [directorId]);
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px" }}>
+    <div className=" container-fluid text-white" style={{marginBottom:"2%"}}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
         <div className="col-3">
@@ -93,6 +100,15 @@ const DirectorPage = () => {
           </div>
         </div>
       </div>
+
+      {movies.length > 0 && (
+          <p style={{ fontSize: "1.6rem", marginTop: "5%" }}>
+            {movies.length === 1 ? "Powiązany film:" : "Powiązane filmy:"}
+          </p>
+        )}
+
+        <MovieListModule movieList={movies}/>
+
     </div>
   );
 };

@@ -42,7 +42,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
-        {/* Header with Username */}
+        {/* Username */}
         <div
           className="d-flex align-items-center justify-content-between mb-2"
         >
@@ -75,7 +75,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
         {/* Comment */}
         <p>{review.comment}</p>
 
-        {/* Buttons Below Comment */}
         
         {showMovieTitle && (
         <div className="d-flex" style={{ marginTop: "-10px" }}>
@@ -108,7 +107,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
         </div>)}
       </div>
 
-      {/* Rating and Date */}
+      {/* Rating  Date */}
       <div style={{ textAlign: "right", color: "black" }}>
         {renderStars(review.rating)}
         <h4>{review.rating}/5</h4>
@@ -123,7 +122,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
         </small>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Potwierdzenie */}
       <Modal show={showModal} onHide={handleCancelDelete} centered>
         <Modal.Header closeButton>
           <Modal.Title>Potwierdzenie usunięcia</Modal.Title>

@@ -72,7 +72,7 @@ const MoviePage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="vh-100 container-fluid text-white" style={{ left: "200px", marginBottom: "240px" }}>
+    <div className="container-fluid text-white" style={{ left: "200px"}}>
   <div className="row my-4">
     {/* Left Column (Poster) */}
     <div className="col-3">
