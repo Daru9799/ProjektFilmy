@@ -15,7 +15,7 @@ namespace Movies.Domain
             Critic, //Krytyk
             Mod     //Moderator
         }
-        public Role UserRole { get; set; }
+        public Role UserRole { get; set; } = Role.User; //Ustawienie domyślnie roli user
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public ICollection<Review> Reviews { get; set; }

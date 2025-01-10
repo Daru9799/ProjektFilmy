@@ -31,7 +31,6 @@ namespace MoviesWebApplication.Controllers
             {
                 return new UserSessionDto
                 {
-                    Id = user.Id,
                     UserName = user.UserName,
                     Token = "bedzie pozniej"
                     //Token = _tokenService.CreateToken(user) //Generowanie tokenu
@@ -39,6 +38,39 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<ActionResult<UserSessionDto>> Register(UserRegisterDto registerDto)
+        {
+            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
+            {
+                return BadRequest("Nazwa jest zajęta!");
+            }
+
+            var user = new User
+            {
+                UserName = registerDto.UserName,
+                Email = registerDto.Email
+            };
+
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+            if (result.Succeeded)
+            {
+                return new UserSessionDto
+                {
+                    UserName = user.UserName,
+                    Token = "Tu bedzie token"
+                    //Token = _tokenService.CreateToken(user)
+                };
+            }
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine(error.Description);
+            }
+            return BadRequest("Problem z zarejestrowaniem użytkownika");
         }
     }
 }
