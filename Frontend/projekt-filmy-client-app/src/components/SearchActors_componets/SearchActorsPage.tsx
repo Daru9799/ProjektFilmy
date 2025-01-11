@@ -18,7 +18,7 @@ const SearchActorsPage = () => {
         totalPages: 1,
       });
     const [currentPage, setCurrentPage] = useState(1);
-    const staticPageSize = 2;
+    const staticPageSize = 4;
     const totalPages = pageInfo.totalPages;
 
     useEffect(() => {
@@ -123,7 +123,7 @@ const SearchActorsPage = () => {
 
 
     return (
-      <div style={{ minHeight: "100vh" }}>
+      <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
         <SearchModule
           placeHolderText="Podaj imię i nazwisko aktora"
           getText={setSearchText}
@@ -139,6 +139,14 @@ const SearchActorsPage = () => {
         />
 
         <ActorsListModule actorsList={actors} />
+
+        <div className="mt-auto">
+          <PaginationModule
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
 
         <NoPeopleFoundModal
           show={isNoPeopleFoundVisable}

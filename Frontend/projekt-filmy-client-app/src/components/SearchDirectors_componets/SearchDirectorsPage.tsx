@@ -17,7 +17,7 @@ const SearchDirectorsPage = () => {
     totalPages: 1,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const staticPageSize = 2;
+  const staticPageSize = 4;
   const totalPages = pageInfo.totalPages;
 
   useEffect(() => {
@@ -120,7 +120,7 @@ const SearchDirectorsPage = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
       <SearchModule
         placeHolderText="Podaj imię i nazwisko reżysera"
         getText={setSearchText}
@@ -136,6 +136,14 @@ const SearchDirectorsPage = () => {
       />
 
       <DirectorsListModule directorsList={directors} />
+
+      <div className="mt-auto">
+        <PaginationModule
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
 
       <NoPeopleFoundModal
         show={isNoPeopleFoundVisable}

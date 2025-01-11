@@ -5,6 +5,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./styles/index.css";
 import "./styles/App.css";
+import "./styles/Fonts.css"
 import { RouterProvider } from "react-router-dom";
 import { router } from "./Routes";
 

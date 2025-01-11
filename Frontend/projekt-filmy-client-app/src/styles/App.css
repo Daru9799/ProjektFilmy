@@ -12,7 +12,7 @@ body {
 
  .NavBar {
   width: 70%;  /* Zapewni pełną szerokość paska nawigacyjnego */
-  background-color: #02022c;  /* Przykładowy kolor tła (bg-secondary) */
+  background-color: #150021;  /* Przykładowy kolor tła (bg-secondary) */
   text-align: center;
   display: flex;
   justify-content: center;
@@ -22,7 +22,7 @@ body {
 
 .App {
   text-align: center;
-  background-color: #2e2b57;  
+  background-color: #390357;  
   width: 70%;  /* Minimalna szerokość */
 }
 

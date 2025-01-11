@@ -25,7 +25,10 @@ const SearchModule = ({ placeHolderText, getText, submit }: Props) => {
 
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
-      <div className="card p-3" style={{ width: "100%", maxHeight: "70px" }}>
+      <div
+        className="card p-3"
+        style={{ width: "100%", maxHeight: "70px", backgroundColor: "#1A075A" }}
+      >
         <div className="d-flex justify-content-center">
           <input
             type="text"
@@ -33,7 +36,7 @@ const SearchModule = ({ placeHolderText, getText, submit }: Props) => {
             id="search"
             placeholder={placeHolderText}
             value={searchText}
-            onChange={(e)=>handleSearchTextChange(e)}
+            onChange={(e) => handleSearchTextChange(e)}
           />
           <button
             className="btn btn-primary"
