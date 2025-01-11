@@ -119,5 +119,24 @@ namespace MoviesWebApplication.Controllers
                 return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
             }
         }
+        //Zwracanie jednej recenzji na podstawie UserName i MovieId
+        [HttpGet("by-username-and-movie-id")]
+        public async Task<ActionResult<ReviewDto>> GetReviewByUserNameAndMovieId([FromQuery] string userName, [FromQuery] Guid movieId)
+        {
+            var query = new ReviewByUserNameAndMovieId.Query
+            {
+                UserName = userName,
+                MovieId = movieId
+            };
+
+            var review = await Mediator.Send(query);
+
+            if (review == null)
+            {
+                return NotFound($"Nie znaleziono recenzji dla użytkownika '{userName}' i filmu o ID '{movieId}'.");
+            }
+
+            return Ok(review);
+        }
     }
 }
