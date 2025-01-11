@@ -49,6 +49,11 @@ namespace MoviesWebApplication.Controllers
                 return BadRequest("Nazwa jest zajęta!");
             }
 
+            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+            {
+                return BadRequest("Email jest już przypisany do innego konta!");
+            }
+
             var user = new User
             {
                 UserName = registerDto.UserName,
