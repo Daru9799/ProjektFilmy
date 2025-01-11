@@ -7,12 +7,13 @@ import "./ReviewCard.css";
 
 interface ReviewCardProps {
   review: Review;
-  showMovieTitle?: boolean;
+  userPage?: boolean;
+  userRevieForMovie?:boolean;
   onDelete?: () => void; 
   onEdit?: () => void; 
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelete, onEdit }) => {
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMovie, onDelete, onEdit }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleDeleteClick = () => {
@@ -55,7 +56,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
             )}
             {review.username}
           </p>
-          {showMovieTitle && (
+          {userPage && (
             <Link
               to={`/${review.movieId}`}
               style={{
@@ -76,7 +77,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, showMovieTitle, onDelet
         <p>{review.comment}</p>
 
         
-        {showMovieTitle && (
+        {(userPage || userRevieForMovie) && (
         <div className="d-flex" style={{ marginTop: "-10px" }}>
           <button
             className="btn btn-secondary me-2"

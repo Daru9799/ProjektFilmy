@@ -234,3 +234,36 @@ export const fetchActorMovies = async (actorId: string, setMovies: React.Dispatc
     setLoading(false); 
   }
 };
+
+
+export const fetchUserReviewForMovie = async (
+  userN: string,
+  Id: string,
+  setReview: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/Reviews/by-username-and-movie-id`,
+      {
+        params: {
+          userName: userN,
+          movieId: Id,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      const reviewsData = response.data;
+      setReview(reviewsData); 
+    }
+  } catch (reviewsError) {
+    if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
+      setReview(null); 
+      console.log("Nie znaleznio recenzji dla tego filmu");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(reviewsError);
+    }
+  }
+};

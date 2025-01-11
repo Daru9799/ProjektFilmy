@@ -46,7 +46,7 @@ const DirectorPage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className=" container-fluid text-white" style={{marginBottom:"2%"}}>
+    <div className=" container-fluid text-white" style={{marginBottom:"2%", minHeight:"100vh"}}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
         <div className="col-3">

@@ -160,7 +160,7 @@ const ReviewsPage = () => {
           <ReviewCard
             key={review.reviewId}
             review={review}
-            showMovieTitle={true}
+            userPage={true}
             onDelete={() => handleDeleteReview(review.reviewId)}
             onEdit={() => handleEditReview(review)} 
           />

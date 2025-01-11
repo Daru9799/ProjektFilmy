@@ -89,7 +89,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
           <input
             type="number"
             className="form-control"
-            step={0.1}
+            step={0.5}
             min={0}
             max={5}
             value={reviewRating}

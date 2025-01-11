@@ -9,16 +9,21 @@ import { renderStars } from "../../functions/starFunction";
 import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 import AddReviewModal from "../review_components/AddReviewPanel";
-import { fetchMovieData, fetchActorsData, fetchMovieReviews } from "../../functions/ReloadFunctions";
+import { fetchMovieData, fetchActorsData, fetchMovieReviews, fetchUserReviewForMovie, editReview, deleteReview } from "../../functions/ReloadFunctions";
 
 const MoviePage = () => {
   const { movieId } = useParams();
+  const userName="critic1";
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
+  const [userReview, setUserReview] = useState<Review | null>(null);
+  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   // Using the imported functions
@@ -27,10 +32,51 @@ const MoviePage = () => {
       fetchMovieData(movieId, setMovie, setError);
       fetchActorsData(movieId, setActors, setError);
       fetchMovieReviews(movieId, setReviews, setError, setLoading);
+      fetchUserReviewForMovie(userName,movieId,setUserReview,setError)
+
     } else {
       setError("Nieoczekiwany błąd");
     }
   }, [movieId]);
+  
+  const handleEditReview = (review: Review) => {
+    setReviewToEdit(review);
+    setShowEditModal(true);
+  };
+  
+  const handleDeleteReview = (reviewId: string) => {
+    deleteReview(reviewId, setReviews);
+    if(movieId && userName)
+    {
+        fetchMovieReviews(movieId, setReviews, setError, setLoading);
+        fetchMovieData(movieId, setMovie, setError);
+        fetchUserReviewForMovie(userName,movieId,setUserReview,setError); // odswieza dopiero po recznym przeładkowaniu (nie wiem czm)
+    }
+  };
+
+  const handleSaveEditedReview = async (reviewText: string, rating: number) => {
+    if (reviewToEdit) {
+      try {
+        await editReview(
+          reviewToEdit.reviewId,
+          { comment: reviewText, rating },
+          setReviews,
+          setError
+        );
+        if (movieId) {
+          fetchMovieReviews(movieId, setReviews, setError, setLoading);
+          fetchMovieData(movieId, setMovie, setError);
+          fetchUserReviewForMovie(userName, movieId, setUserReview, setError); // tu odświeża od razu
+        }
+      } catch (err) {
+        console.error("Błąd podczas edycji recenzji:", err);
+        setError("Nie udało się edytować recenzji.");
+      } finally {
+        setShowEditModal(false);
+        setReviewToEdit(null);
+      }
+    }
+  };
   
 
   const handleAddReview = async (review: string, rating: number) => {
@@ -52,6 +98,7 @@ const MoviePage = () => {
         if(movieId){
         fetchMovieReviews(movieId, setReviews, setError, setLoading);
         fetchMovieData(movieId, setMovie, setError);
+        fetchUserReviewForMovie(userName,movieId,setUserReview,setError);
         setShowReviewModal(false);
         }
         else 
@@ -72,7 +119,7 @@ const MoviePage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="container-fluid text-white" style={{ left: "200px"}}>
+    <div className="container-fluid text-white" style={{ left: "200px", minHeight:"100vh"}}>
   <div className="row my-4">
     {/* Left Column (Poster) */}
     <div className="col-3">
@@ -158,7 +205,7 @@ const MoviePage = () => {
   )}
 
   {/* Dodaj */}
-  {(
+  {( !userReview &&
         <button
           className="btn btn-primary mt-3"
           onClick={() => setShowReviewModal(true)}
@@ -312,10 +359,38 @@ const MoviePage = () => {
     </div>
   </div>
 
+
+  {userReview ? (
+  <div>
+    <h3>Twoja recenzja:</h3>
+    <ReviewCard
+      key={userReview.reviewId}
+      review={userReview}
+      userRevieForMovie={true}
+      onEdit={() => handleEditReview(userReview)} 
+      onDelete={() => handleDeleteReview(userReview.reviewId)}
+    />
+  </div>
+) : (
+  <p></p>
+)}
+
+{/* Modal edycji */}
+{reviewToEdit && (
+  <AddReviewModal
+    show={showEditModal}
+    onClose={() => setShowEditModal(false)}
+    onAddReview={handleSaveEditedReview}
+    initialReviewText={reviewToEdit.comment}
+    initialReviewRating={reviewToEdit.rating}
+  />
+)}
+
+
   {/* Recenzje */}
 <div
   className="container pt-3 text-center"
-  style={{ marginTop: "40px", marginBottom: "40px" }}
+  style={{ marginTop: "10px", marginBottom: "40px" }}
 >
   <h3>Recenzje:</h3>
   {reviews.length > 0 ? (
