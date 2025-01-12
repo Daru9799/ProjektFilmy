@@ -3,15 +3,15 @@ import { Navigate, RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from './App'
 import "./styles/App.css"
 import HomePage from './components/Home_componets/HomePage';
-import MoviePage from './components/Movie_componets/MoviePage';
+import MoviePage from './components/SearchMovies_componets/MoviePage';
 import TestPage from './components/Home_componets/TestPage';
 import SearchMoviesPage from "./components/SearchMovies_componets/SearchMoviesPage"
 import SearchDirectorsPage from "./components/SearchDirectors_componets/SearchDirectorsPage";
 import SearchActorsPage from "./components/SearchActors_componets/SearchActorsPage";
 import ReviewsPage from './components/review_components/ReviewsPage';
 import UserPage from './components/User_componets/UserPage';
-import DirectorPage from './components/Home_componets/DirectorPage';
-import ActorPage from './components/Home_componets/ActorPage';
+import DirectorPage from './components/SearchDirectors_componets/DirectorPage';
+import ActorPage from './components/SearchActors_componets/ActorPage';
 import UserReviewsPage from './components/User_componets/UserReviews';
 
 

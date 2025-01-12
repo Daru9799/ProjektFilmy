@@ -6,6 +6,7 @@ import { fetchUserData, fetchUserReviews, deleteReview, editReview } from "../..
 import "./UserPage.css";
 import ReviewCard from "../review_components/ReviewCard";
 import AddReviewModal from "../review_components/AddReviewPanel";
+import EditUserModal from "./EditUserModal";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -28,6 +29,7 @@ const UserPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const UserPage = () => {
     }
   };
 
-  const handleEdit = (review?: Review, reviewText?: string, rating?: number) => {
+  const handleEditReview = (review?: Review, reviewText?: string, rating?: number) => {
     if (review) {
       // Otwórz modal i ustaw recenzję do edycji
       setReviewToEdit(review);
@@ -70,7 +72,9 @@ const UserPage = () => {
     <>
       <div className="header">
         <p className="user-name">{user?.userName}</p>
-        <button className="edit-button">Edytuj</button>
+        <button className="edit-button" onClick={() => setShowEditUserModal(true)}>
+          Edytuj
+        </button>
       </div>
 
       <div className="info-row">
@@ -97,7 +101,7 @@ const UserPage = () => {
               review={review}
               userPage={true}
               onDelete={() => handleDeleteReview(review.reviewId)}
-              onEdit={() => handleEdit(review)} // Wywołanie otwarcia modala
+              onEdit={() => handleEditReview(review)}
             />
           ))
         ) : (
@@ -115,18 +119,32 @@ const UserPage = () => {
         )}
       </div>
 
-      {/* Modal edycji */}
+      {/* Modal edycji recenzji */}
       {reviewToEdit && (
         <AddReviewModal
           show={showModal}
           onClose={() => setShowModal(false)}
           onAddReview={(reviewText, rating) =>
-            handleEdit(undefined, reviewText, rating)
+            handleEditReview(undefined, reviewText, rating)
           } // Wywołanie zapisu edycji
           initialReviewText={reviewToEdit.comment}
           initialReviewRating={reviewToEdit.rating}
         />
       )}
+
+      {/* modal edycji uzytkownika */}
+      {user && (
+        <EditUserModal
+          show={showEditUserModal}
+          onClose={() => setShowEditUserModal(false)}
+          userData={user}
+          onSave={(updatedUser) => {
+            setUser(updatedUser); 
+            setShowEditUserModal(false);
+          }}
+        />
+      )}
+
     </>
   );
 };
