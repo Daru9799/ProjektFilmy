@@ -1,5 +1,6 @@
+import axios from "axios";
 import React, { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 
 interface Props {
   show: boolean; // Czy modal jest widoczny
@@ -9,14 +10,47 @@ interface Props {
 const LoginModal = ({ show, onClose }:Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Email:", email);
     console.log("Password:", password);
-    // Tutaj możesz dodać logikę logowania użytkownika, np. wysłanie danych do API.
-    onClose(); // Zamknięcie modalu po zalogowaniu
+    
+    const dataToSend = {
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await axios.post(
+        "https://localhost:7053/api/Account/login",
+        dataToSend
+      );
+
+      console.log("Login successful:", response.data);
+      localStorage.setItem("token", response.data.token);
+
+      onClose();
+
+      setEmail("");
+      setPassword("");
+
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      if (error.response?.status === 401){
+        setErrorMessage("Podałeś błędny e-mail lub hasło");
+      }
+      else{
+        setErrorMessage(
+          error.response?.data?.message || "Wystąpił problem podczas logowania."
+        );
+      }
+      
+    }
+
+    
   };
 
   return (
@@ -25,6 +59,11 @@ const LoginModal = ({ show, onClose }:Props) => {
         <Modal.Title>Logowanie</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {errorMessage && (
+          <Alert variant="danger" className="mb-3">
+            {errorMessage}
+          </Alert>
+        )}
         <Form onSubmit={handleLogin}>
           <Form.Group className="mb-3" controlId="email">
             <Form.Label>Adres e-mail</Form.Label>
