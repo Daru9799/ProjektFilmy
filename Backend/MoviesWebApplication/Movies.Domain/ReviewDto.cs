@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +18,6 @@ namespace Movies.Domain
         public string UserId { get; set; }
         public Guid MovieId { get; set; }
         public bool IsCritic { get; set; }
+        public bool IsOwner { get; set; } = false; //Domyślnie
     }
 }

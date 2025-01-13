@@ -54,7 +54,16 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
                 <span className="tooltip">Krytyk filmowy</span>
               </span>
             )}
+            <Link
+            to={`/user/${review.username}`}  // Zmiana: dynamiczny link do profilu użytkownika
+            style={{
+              fontWeight: "bold",
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
             {review.username}
+          </Link>
           </p>
           {userPage && (
             <Link
@@ -77,35 +86,36 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
         <p>{review.comment}</p>
 
         
-        {(userPage || userRevieForMovie) && (
-        <div className="d-flex" style={{ marginTop: "-10px" }}>
-          <button
-            className="btn btn-secondary me-2"
-            style={{
-              background: "none",
-              border: "none",
-              color: "black",
-              cursor: "pointer",
-            }}
-            onClick={onEdit}
-            aria-label="Edytuj recenzję"
-          >
-            <i className="fas fa-edit"></i> {/* Ikona ołówka */}
-          </button>
-          <button
-            className="btn btn-danger"
-            style={{
-              background: "none",
-              border: "none",
-              color: "black",
-              cursor: "pointer",
-            }}
-            onClick={handleDeleteClick}
-            aria-label="Usuń recenzję"
-          >
-            <i className="fas fa-trash"></i> {/* Ikona kosza */}
-          </button>
-        </div>)}
+        {(review.isOwner && (userPage || userRevieForMovie)) && (
+          <div className="d-flex" style={{ marginTop: "-10px" }}>
+            <button
+              className="btn btn-secondary me-2"
+              style={{
+                background: "none",
+                border: "none",
+                color: "black",
+                cursor: "pointer",
+              }}
+              onClick={onEdit}
+              aria-label="Edytuj recenzję"
+            >
+              <i className="fas fa-edit"></i> {/* Ikona ołówka */}
+            </button>
+            <button
+              className="btn btn-danger"
+              style={{
+                background: "none",
+                border: "none",
+                color: "black",
+                cursor: "pointer",
+              }}
+              onClick={handleDeleteClick}
+              aria-label="Usuń recenzję"
+            >
+              <i className="fas fa-trash"></i> {/* Ikona kosza */}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Rating  Date */}

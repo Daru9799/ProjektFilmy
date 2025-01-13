@@ -6,4 +6,3 @@ export interface Category {
 export interface CategoryResponse {
     $values: Category[];
 }
-

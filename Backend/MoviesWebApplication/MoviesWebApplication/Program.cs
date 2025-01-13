@@ -5,6 +5,8 @@ using Movies.Application.Movies;
 using MoviesWebApplication;
 using Microsoft.AspNetCore.Identity;
 using Movies.Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Dodaj HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
 
 //Kontekst bazy danych
 builder.Services.AddDbContext<DataContext>(opt =>
@@ -27,12 +32,19 @@ builder.Services.AddIdentityServices(builder.Configuration);
 //Rejestracja mediatora
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MoviesList.Handler).Assembly));
 
+
+builder.Services.AddControllers(opt =>
+{
+    // Dodanie globalnej polityki autoryzacji
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+})
 //Naprawienie bledu z poprawnym wyswietlaniem obiektów z innych tabel
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-    });
+.AddJsonOptions(options =>
+{
+    // Konfiguracja serializacji JSON
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -55,6 +67,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

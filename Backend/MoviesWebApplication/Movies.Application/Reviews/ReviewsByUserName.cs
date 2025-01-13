@@ -7,6 +7,9 @@ using MediatR;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.Reviews
 {
@@ -24,10 +27,12 @@ namespace Movies.Application.Reviews
         public class Handler : IRequestHandler<Query, PagedResponse<ReviewDto>>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<PagedResponse<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
@@ -57,17 +62,32 @@ namespace Movies.Application.Reviews
                 // Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);
 
-                var reviewDtos = reviews.Select(r => new ReviewDto
+                //Pobieranie tokena JWT z nagłówka
+                var userClaims = _httpContextAccessor.HttpContext.User;
+                var tokenUserId = userClaims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (tokenUserId == null)
                 {
-                    ReviewId = r.ReviewId,
-                    Comment = r.Comment,
-                    Rating = r.Rating,
-                    Date = r.Date,
-                    Username = r.User.UserName,
-                    UserId = r.User.Id,
-                    MovieTitle = r.Movie.Title,
-                    MovieId = r.Movie.MovieId,
-                    IsCritic = r.User.UserRole == User.Role.Critic
+                    tokenUserId = string.Empty;
+                }
+
+                var reviewDtos = reviews.Select(r =>
+                {
+                    bool isOwner = r.User.Id.ToString() == tokenUserId;
+
+                    return new ReviewDto
+                    {
+                        ReviewId = r.ReviewId,
+                        Comment = r.Comment,
+                        Rating = r.Rating,
+                        Date = r.Date,
+                        Username = r.User.UserName,
+                        UserId = r.User.Id,
+                        MovieTitle = r.Movie.Title,
+                        MovieId = r.Movie.MovieId,
+                        IsCritic = r.User.UserRole == User.Role.Critic,
+                        IsOwner = isOwner //Sprawdzenie właściciela
+                    };
                 }).ToList();
 
                 return new PagedResponse<ReviewDto>

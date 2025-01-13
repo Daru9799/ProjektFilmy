@@ -11,11 +11,11 @@ namespace MoviesWebApplication.Controllers
     public class AccountController : BaseApiController
     {
         private readonly UserManager<User> _userManager;
-        //private readonly TokenService _tokenService;
-        public AccountController(UserManager<User> userManager)
+        private readonly TokenService _tokenService;
+        public AccountController(UserManager<User> userManager, TokenService tokenService)
         {
             _userManager = userManager;
-            //_tokenService = tokenService;
+            _tokenService = tokenService;
         }
         [AllowAnonymous]
         [HttpPost("login")]
@@ -32,8 +32,7 @@ namespace MoviesWebApplication.Controllers
                 return new UserSessionDto
                 {
                     UserName = user.UserName,
-                    Token = "bedzie pozniej"
-                    //Token = _tokenService.CreateToken(user) //Generowanie tokenu
+                    Token = _tokenService.CreateToken(user) //Generowanie tokenu
                 };
             }
 
@@ -67,8 +66,7 @@ namespace MoviesWebApplication.Controllers
                 return new UserSessionDto
                 {
                     UserName = user.UserName,
-                    Token = "Tu bedzie token"
-                    //Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user)
                 };
             }
             foreach (var error in result.Errors)

@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MoviesWebApplication.Controllers
 {
+    [AllowAnonymous]
     public class MoviesController : BaseApiController
     {
         //Zwracanie wszystkich filmów

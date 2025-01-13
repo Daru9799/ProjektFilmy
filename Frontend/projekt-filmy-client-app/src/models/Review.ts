@@ -8,6 +8,7 @@ export interface Review{
     userId: string;
     movieId: string;
     isCritic: boolean; //Jeśli krytyk to true
+    isOwner: boolean; //Sprawdza czy user jest wlascicielem recenzji
 }
 
 //export interface ReviewResponse {

@@ -37,6 +37,7 @@ const UserPage = () => {
       fetchUserData(userName, setUser, setError, setLoading);
       fetchUserReviews(userName, 3, setReviews, setError);
     }
+    console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
   }, [userName]);
 
   const handleDeleteReview = (reviewId: string) => {
@@ -72,9 +73,12 @@ const UserPage = () => {
     <>
       <div className="header">
         <p className="user-name">{user?.userName}</p>
-        <button className="edit-button" onClick={() => setShowEditUserModal(true)}>
-          Edytuj
-        </button>
+        {/* Przycisk edytuj widoczny tylko jeśli isOwner jest true */}
+        {user?.isOwner && (
+          <button className="edit-button" onClick={() => setShowEditUserModal(true)}>
+            Edytuj
+          </button>
+        )}
       </div>
 
       <div className="info-row">
@@ -105,7 +109,7 @@ const UserPage = () => {
             />
           ))
         ) : (
-          <p style={{ color: "white" }}>Nie dodałeś jeszcze żadnych recenzji</p>
+          <p style={{ color: "white" }}>Brak recenzji</p>
         )}
 
         {(user?.reviewsCount ?? 0) > 3 && (

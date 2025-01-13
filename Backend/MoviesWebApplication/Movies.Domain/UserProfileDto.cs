@@ -15,5 +15,6 @@ namespace Movies.Domain
         public User.Role UserRole { get; set; } 
         //Nowe pola
         public int ReviewsCount { get; set; } //Liczba dodanych recenzji
+        public bool IsOwner { get; set; } //Pole czy user jest wlascicielem tego profilu
     }
 }

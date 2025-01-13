@@ -13,7 +13,7 @@ import { fetchMovieData, fetchActorsData, fetchMovieReviews, fetchUserReviewForM
 
 const MoviePage = () => {
   const { movieId } = useParams();
-  const userName="critic1";
+  const userName = localStorage.getItem("logged_username") || "";
   const [movie, setMovie] = useState<Movie | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -86,12 +86,17 @@ const MoviePage = () => {
         Comment: review,
         Date: new Date().toISOString(),
         MovieId: movieId,
-        UserId: "7d248152-f4fb-4c46-991d-847352577743", 
+        UserName: userName,
       };
 
       const response = await axios.post(
         "https://localhost:7053/api/Reviews/add-review",
-        newReviewData
+        newReviewData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
 
       if (response.status === 200) {
@@ -114,7 +119,7 @@ const MoviePage = () => {
       console.error(error);
     }
   };
-  
+  const isLoggedIn = !!localStorage.getItem("token");
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
@@ -205,14 +210,20 @@ const MoviePage = () => {
   )}
 
   {/* Dodaj */}
-  {( !userReview &&
-        <button
-          className="btn btn-primary mt-3"
-          onClick={() => setShowReviewModal(true)}
-        >
-          Dodaj recenzję
-        </button>
-      )}
+  {!userReview ? (
+  localStorage.getItem("token") ? (
+    <button
+      className="btn btn-primary mt-3"
+      onClick={() => setShowReviewModal(true)}
+    >
+      Dodaj recenzję
+    </button>
+  ) : (
+    <p>Aby dodać recenzję musisz być zalogowany</p>
+  )
+) : (
+  <p></p>
+)}
 
   {/* Add Review Modal */}
   <AddReviewModal
@@ -403,7 +414,7 @@ const MoviePage = () => {
   {(movie?.reviewsNumber ?? 0) > 2 && (
   <button
     className="review-btn"
-    onClick={()=>navigate(`/reviews/${movieId}`)}
+    onClick={()=>navigate(`/${movieId}/reviews`)}
   >
     ...
   </button>

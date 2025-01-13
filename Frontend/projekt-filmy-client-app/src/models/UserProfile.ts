@@ -3,7 +3,8 @@ export interface UserProfile{
     userName: string,
     email: string,
     userRole: userRole,
-    reviewsCount: number
+    reviewsCount: number,
+    isOwner: boolean //Czy uzytkownik ktory to przeglada jest wlasicicielem profilu
 }
 
 export enum userRole {

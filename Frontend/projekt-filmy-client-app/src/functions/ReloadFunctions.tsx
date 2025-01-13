@@ -54,6 +54,9 @@ export const fetchMovieReviews = async (movieId: string, setReviews: React.Dispa
           pageNumber: 1,
           pageSize: 2,
         },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
+        },
       }
     );
 
@@ -84,7 +87,12 @@ export const fetchUserData = async (
     setLoading(true);
     setError(null);
     const response = await axios.get(
-      `https://localhost:7053/api/Users/by-username/${userName}`
+      `https://localhost:7053/api/Users/by-username/${userName}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     setUser(response.data);
   } catch (err) {
@@ -122,6 +130,9 @@ export const fetchUserReviews = async (
           orderBy: "desc",
           sortDirection: "year",
         },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
     );
     const { data } = reviewsResponse.data;
@@ -149,8 +160,12 @@ export const deleteReview = async (
 ) => {
   try {
     await axios.delete(
-      `https://localhost:7053/api/Reviews/delete-review/${reviewId}`
-    );
+      `https://localhost:7053/api/Reviews/delete-review/${reviewId}`,
+      {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    });
     setReviews((prevReviews) => prevReviews.filter((review) => review.reviewId !== reviewId));
   } catch (err) {
     console.error("Błąd podczas usuwania recenzji:", err);
@@ -167,7 +182,12 @@ export const editReview = async (
   try {
     const response = await axios.put(
       `https://localhost:7053/api/Reviews/edit-review/${reviewId}`,
-      updatedReview
+      updatedReview,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     if (response.status === 200) {
       setReviews((prevReviews) =>
@@ -242,6 +262,13 @@ export const fetchUserReviewForMovie = async (
   setReview: React.Dispatch<React.SetStateAction<any>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
+    return; //Jeśli brak tokenu nie zaciąga danych z API
+  }
+
   try {
     const response = await axios.get(
       `https://localhost:7053/api/Reviews/by-username-and-movie-id`,
@@ -249,6 +276,9 @@ export const fetchUserReviewForMovie = async (
         params: {
           userName: userN,
           movieId: Id,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );

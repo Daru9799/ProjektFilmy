@@ -7,6 +7,9 @@ using MediatR;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.Reviews
 {
@@ -21,10 +24,12 @@ namespace Movies.Application.Reviews
         public class Handler : IRequestHandler<Query, ReviewDto>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<ReviewDto> Handle(Query request, CancellationToken cancellationToken)
@@ -42,6 +47,16 @@ namespace Movies.Application.Reviews
                     return null;
                 }
 
+                //Pobieranie tokena JWT z nagłówka
+                var userClaims = _httpContextAccessor.HttpContext.User;
+                var tokenUserId = userClaims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                bool isOwner = false;
+                if (tokenUserId != null && tokenUserId == review.User.Id.ToString())
+                {
+                    isOwner = true;
+                }
+
                 // Mapowanie na ReviewDto
                 return new ReviewDto
                 {
@@ -53,7 +68,8 @@ namespace Movies.Application.Reviews
                     UserId = review.User.Id,
                     MovieTitle = review.Movie.Title,
                     MovieId = review.Movie.MovieId,
-                    IsCritic = review.User.UserRole == User.Role.Critic
+                    IsCritic = review.User.UserRole == User.Role.Critic,
+                    IsOwner = isOwner //Sprawdzenie właściciela
                 };
             }
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Categories;
 using Movies.Application.Countries;
 using Movies.Application.Movies;
@@ -6,6 +7,7 @@ using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
 {
+    [AllowAnonymous]
     public class CategoriesController : BaseApiController
     {
         //Zwracanie wszystkich kategorii (gatunków)

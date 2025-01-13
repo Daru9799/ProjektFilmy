@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Actors;
 using Movies.Application.Movies;
 using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
 {
+    [AllowAnonymous]
     public class ActorsController : BaseApiController
     {
         //Zwracanie wszystkich aktorów

@@ -4,7 +4,6 @@ import App from './App'
 import "./styles/App.css"
 import HomePage from './components/Home_componets/HomePage';
 import MoviePage from './components/SearchMovies_componets/MoviePage';
-import TestPage from './components/Home_componets/TestPage';
 import SearchMoviesPage from "./components/SearchMovies_componets/SearchMoviesPage"
 import SearchDirectorsPage from "./components/SearchDirectors_componets/SearchDirectorsPage";
 import SearchActorsPage from "./components/SearchActors_componets/SearchActorsPage";
@@ -26,8 +25,7 @@ export const routes: RouteObject[] = [
       { path: "search-directors", element: <SearchDirectorsPage /> },
       { path: "search-actors", element: <SearchActorsPage /> },
       { path: "/:movieId", element: <MoviePage /> },
-      { path: "/test", element: <TestPage /> },
-      { path: "/reviews/:movieId", element: <ReviewsPage /> },
+      { path: "/:movieId/reviews", element: <ReviewsPage /> },
       { path: "/user/:userName", element: <UserPage /> },
       { path: "/actor/:actorId", element: <ActorPage /> },
       { path: "/director/:directorId", element: <DirectorPage /> },

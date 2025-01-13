@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Movies.Application.Reviews
 {
-    public class CreateReview 
+    public class CreateReview
     {
         public class CreateReviewCommand : IRequest<Review>
         {
@@ -19,54 +19,54 @@ namespace Movies.Application.Reviews
             public string Comment { get; set; }
             public DateTime Date { get; set; }
             public Guid MovieId { get; set; }
-            public string UserId { get; set; }  // Id użytkownika jako string
-        }
+            public string UserName { get; set; }  // Nazwa użytkownika
 
-        public class Handler : IRequestHandler<CreateReviewCommand, Review>
-        {
-            private readonly DataContext _context;
-
-            public Handler(DataContext context)
+            public class Handler : IRequestHandler<CreateReviewCommand, Review>
             {
-                _context = context;
-            }
+                private readonly DataContext _context;
 
-            public async Task<Review> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
-            {
-                //Sprawdzanie istnienia filmu
-                var movie = await _context.Movies
-                    .FirstOrDefaultAsync(m => m.MovieId == request.MovieId, cancellationToken);
-
-                if (movie == null)
+                public Handler(DataContext context)
                 {
-                    throw new ValidationException($"Nie znaleziono filmu o ID: {request.MovieId}");
+                    _context = context;
                 }
 
-                //Sprawdzanie istnienia użytkownika
-                var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
-
-                if (user == null)
+                public async Task<Review> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
                 {
-                    throw new ValidationException($"Nie znaleziono użytkownika o ID: {request.UserId}");
+                    //Sprawdzanie istnienia filmu
+                    var movie = await _context.Movies
+                        .FirstOrDefaultAsync(m => m.MovieId == request.MovieId, cancellationToken);
+
+                    if (movie == null)
+                    {
+                        throw new ValidationException($"Nie znaleziono filmu o ID: {request.MovieId}");
+                    }
+
+                    //Sprawdzanie istnienia użytkownika
+                    var user = await _context.Users
+                        .FirstOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken);
+
+                    if (user == null)
+                    {
+                        throw new ValidationException($"Nie znaleziono użytkownika o ID: {request.UserName}");
+                    }
+
+                    //Tworzenie nowej recenzji
+                    var review = new Review
+                    {
+                        ReviewId = Guid.NewGuid(),
+                        Rating = request.Rating,
+                        Comment = request.Comment,
+                        Date = request.Date,
+                        Movie = movie,
+                        User = user
+                    };
+
+                    //Dodanie recenzji do bazy danych
+                    _context.Reviews.Add(review);
+                    await _context.SaveChangesAsync(cancellationToken);
+
+                    return review;
                 }
-
-                //Tworzenie nowej recenzji
-                var review = new Review
-                {
-                    ReviewId = Guid.NewGuid(),
-                    Rating = request.Rating,
-                    Comment = request.Comment,
-                    Date = request.Date,
-                    Movie = movie,
-                    User = user
-                };
-
-                //Dodanie recenzji do bazy danych
-                _context.Reviews.Add(review);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return review;
             }
         }
     }

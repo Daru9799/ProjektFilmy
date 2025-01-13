@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Movies;
 using Movies.Application.Reviews;
@@ -9,6 +10,7 @@ namespace MoviesWebApplication.Controllers
     public class ReviewsController : BaseApiController
     {
         //Zwracanie wszystkich recenzji (przy uzyciu ReviewDto aby pozwracać dodatkowo UserId, UserName, MovieId i MovieTitle)
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
@@ -25,6 +27,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(pagedReviews);
         }
         //Zwracanie recenzji na podstawie ID filmu
+        [AllowAnonymous]
         [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
@@ -46,6 +49,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(reviews);
         }
         //Zwracanie recenzji na podstawie nazwy usera
+        [AllowAnonymous]
         [HttpGet("by-username/{userName}")]
         public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
@@ -67,6 +71,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(reviews);
         }
         //Dodawanie recenzji
+        [Authorize]
         [HttpPost("add-review")]
         public async Task<IActionResult> CreateReview([FromBody] CreateReview.CreateReviewCommand command)
         {
@@ -81,6 +86,7 @@ namespace MoviesWebApplication.Controllers
             }
         }
         //Usuwanie recenzji
+        [Authorize]
         [HttpDelete("delete-review/{id}")]
         public async Task<IActionResult> DeleteReview(Guid id)
         {
@@ -94,7 +100,8 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(result);
         }
-
+        //Edycja recenzji
+        [Authorize]
         [HttpPut("edit-review/{id}")]
         public async Task<IActionResult> EditReview(Guid id, [FromBody] EditReview.EditReviewCommand command)
         {
@@ -120,6 +127,7 @@ namespace MoviesWebApplication.Controllers
             }
         }
         //Zwracanie jednej recenzji na podstawie UserName i MovieId
+        [Authorize]
         [HttpGet("by-username-and-movie-id")]
         public async Task<ActionResult<ReviewDto>> GetReviewByUserNameAndMovieId([FromQuery] string userName, [FromQuery] Guid movieId)
         {

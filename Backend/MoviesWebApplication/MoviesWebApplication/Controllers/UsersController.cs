@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Users;
 using Movies.Domain;
@@ -9,11 +10,13 @@ namespace MoviesWebApplication.Controllers
     public class UsersController : BaseApiController
     {
         [HttpGet("all")]
+        [Authorize]
         public async Task<ActionResult<List<User>>> GetUsers()
         {
             return await Mediator.Send(new UsersList.Query());
         }
         //Zwracanie wybranych danych usera 
+        [AllowAnonymous]
         [HttpGet("by-username/{username}")]
         public async Task<ActionResult<UserProfileDto>> UserByUserName(string username)
         {

@@ -44,6 +44,9 @@ const ReviewsPage = () => {
             orderBy: sortOrder,
             sortDirection: sortDirection,
           },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
+          },
         }
       );
 

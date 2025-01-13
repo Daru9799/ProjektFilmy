@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Actors;
 using Movies.Application.Countries;
 using Movies.Application.Directors;
@@ -7,6 +8,7 @@ using Movies.Domain;
 
 namespace MoviesWebApplication.Controllers
 {
+    [AllowAnonymous]
     public class DirectorsController : BaseApiController
     {
         //Zwracanie wszystkich reżyserów
