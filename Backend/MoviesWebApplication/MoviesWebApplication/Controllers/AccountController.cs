@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -74,6 +75,66 @@ namespace MoviesWebApplication.Controllers
                 Console.WriteLine(error.Description);
             }
             return BadRequest("Problem z zarejestrowaniem użytkownika");
+        }
+        [Authorize]
+        [HttpPatch("edit")]
+        public async Task<IActionResult> EditUser(EditUserDto editUserDto)
+        {
+            // Pobierz aktualnie zalogowanego użytkownika
+            var userId = User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized("Nie można zweryfikować użytkownika.");
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+
+            if (user == null)
+                return NotFound("Nie znaleziono użytkownika.");
+
+            // Aktualizacja e-maila
+            if (!string.IsNullOrEmpty(editUserDto.NewEmail))
+            {
+                if (await _userManager.Users.AnyAsync(u => u.Email == editUserDto.NewEmail && u.Id.ToString() != userId))
+                {
+                    return BadRequest("Podany adres e-mail jest już używany przez innego użytkownika.");
+                }
+
+                user.Email = editUserDto.NewEmail;
+                var emailResult = await _userManager.UpdateAsync(user);
+
+                if (!emailResult.Succeeded)
+                {
+                    return BadRequest("Nie udało się zaktualizować adresu e-mail.");
+                }
+            }
+
+            // Aktualizacja nazwy użytkownika
+            if (!string.IsNullOrEmpty(editUserDto.NewLogin))
+            {
+                if (await _userManager.Users.AnyAsync(u => u.UserName == editUserDto.NewLogin && u.Id.ToString() != userId))
+                {
+                    return BadRequest("Podana nazwa użytkownika jest już zajęta.");
+                }
+
+                user.UserName = editUserDto.NewLogin;
+                var loginResult = await _userManager.UpdateAsync(user);
+
+                if (!loginResult.Succeeded)
+                {
+                    return BadRequest("Nie udało się zaktualizować nazwy użytkownika.");
+                }
+            }
+
+            return Ok(new
+            {
+                Message = "Dane użytkownika zostały zaktualizowane.",
+                User = new
+                {
+                    user.Id,
+                    user.Email,
+                    user.UserName
+                }
+            });
         }
     }
 }

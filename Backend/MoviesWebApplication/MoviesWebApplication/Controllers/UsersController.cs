@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using System.ComponentModel.DataAnnotations;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Movies.Application.Reviews;
 using Movies.Application.Users;
 using Movies.Domain;
 

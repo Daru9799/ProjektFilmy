@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { UserProfile } from "../../models/UserProfile";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
-  show: boolean; 
-  onClose: () => void; 
-  userData: UserProfile; 
-  onSave: (updatedUser: UserProfile, passwords?: { currentPassword: string; newPassword: string }) => void; 
+  show: boolean;
+  onClose: () => void;
+  userData: UserProfile;
+  onSave: (updatedUser: UserProfile, passwords?: { currentPassword: string; newPassword: string }) => void;
 }
 
 const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
@@ -16,10 +18,12 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Sprawdzenie, czy hasła się zgadzają
     if (newPassword && newPassword !== confirmPassword) {
       alert("Nowe hasła muszą być identyczne!");
       return;
@@ -31,11 +35,32 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
       userName: username,
     };
 
-    // Przekazanie aktualnego i nowego hasła, jeśli zostały wprowadzone
-    if (currentPassword && newPassword) {
-      onSave(updatedUser, { currentPassword, newPassword });
-    } else {
-      onSave(updatedUser);
+    try {
+      // Wykonanie zapytania do backendu (np. do API, aby zaktualizować dane użytkownika)
+      const response = await axios.patch('https://localhost:7053/api/Account/edit', {
+        NewLogin: updatedUser.userName,
+        NewEmail: updatedUser.email,
+        //currentPassword,
+        //newPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      // Jeżeli dane użytkownika zostały pomyślnie zapisane, wywołaj onSave
+      if (response.status === 200) {
+        alert('Dane zostały zapisane!');
+        localStorage.setItem("logged_username", updatedUser.userName);
+
+        // Możesz przekazać dane użytkownika do funkcji onSave
+        onSave(updatedUser, { currentPassword, newPassword });
+        navigate(`/user/${updatedUser.userName}`);
+      }
+    } catch (error) {
+      console.error("Błąd przy zapisywaniu danych użytkownika:", error);
+      alert('Wystąpił problem podczas zapisywania danych!');
     }
   };
 
