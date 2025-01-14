@@ -18,6 +18,7 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,9 +35,8 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
       email,
       userName: username,
     };
-
+    //Edycja pól logowanie i email
     try {
-      // Wykonanie zapytania do backendu (np. do API, aby zaktualizować dane użytkownika)
       const response = await axios.patch('https://localhost:7053/api/Account/edit', {
         NewLogin: updatedUser.userName,
         NewEmail: updatedUser.email,
@@ -49,18 +49,23 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
         },
       });
 
-      // Jeżeli dane użytkownika zostały pomyślnie zapisane, wywołaj onSave
       if (response.status === 200) {
-        alert('Dane zostały zapisane!');
         localStorage.setItem("logged_username", updatedUser.userName);
 
-        // Możesz przekazać dane użytkownika do funkcji onSave
+        const event = new CustomEvent("userUpdated", {
+          detail: { username: updatedUser.userName },
+        });
+        window.dispatchEvent(event);
+
         onSave(updatedUser, { currentPassword, newPassword });
         navigate(`/user/${updatedUser.userName}`);
       }
-    } catch (error) {
-      console.error("Błąd przy zapisywaniu danych użytkownika:", error);
-      alert('Wystąpił problem podczas zapisywania danych!');
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('Wystąpił problem podczas zapisywania danych!');
+      }
     }
   };
 
@@ -150,6 +155,9 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
             <i className={`fas ${showPasswords ? "fa-eye-slash" : "fa-eye"}`} />{" "}
             {showPasswords ? "Ukryj hasła" : "Pokaż hasła"}
           </Button>
+
+          {/* Komunikat o błędzie */}
+          {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
           {/* Przycisk zapisu */}
           <Button variant="primary" type="submit" className="w-100">

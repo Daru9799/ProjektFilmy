@@ -13,6 +13,7 @@ const NavBar = () => {
 
   // Zaktualizuj stan po zalogowaniu
   const handleLoginSuccess = (username: string) => {
+    localStorage.setItem("logged_username", username);
     setLoggedUsername(username);
   };
 
@@ -22,6 +23,20 @@ const NavBar = () => {
     setLoggedUsername(null);
     navigate("/");
   };
+
+  //nasłuchiwanie zmian w localStorage
+  useEffect(() => {
+    const handleUserUpdate = (event: Event) => {
+        const customEvent = event as CustomEvent<{ username: string }>;
+        setLoggedUsername(customEvent.detail.username);
+    };
+
+    window.addEventListener("userUpdated", handleUserUpdate);
+
+    return () => {
+        window.removeEventListener("userUpdated", handleUserUpdate);
+    };
+  }, []);
 
   return (
     <>
