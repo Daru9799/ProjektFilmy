@@ -99,7 +99,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
               onClick={onEdit}
               aria-label="Edytuj recenzję"
             >
-              <i className="fas fa-edit"></i> {/* Ikona ołówka */}
+              <i className="fas fa-edit zoomIcons"></i> {/* Ikona ołówka */}
             </button>
             <button
               className="btn btn-danger"
@@ -112,7 +112,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
               onClick={handleDeleteClick}
               aria-label="Usuń recenzję"
             >
-              <i className="fas fa-trash"></i> {/* Ikona kosza */}
+              <i className="fas fa-trash zoomIcons"></i> {/* Ikona kosza */}
             </button>
           </div>
         )}

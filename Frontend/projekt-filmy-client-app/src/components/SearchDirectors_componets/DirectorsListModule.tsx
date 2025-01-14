@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Director } from '../../models/Director';
 import { useNavigate } from 'react-router-dom';
-
+import '../../styles/Zoom.css'
 
 interface Props {
   directorsList:Director[]
@@ -17,7 +17,7 @@ const DirectorsListModule = ({ directorsList }: Props) => {
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
         {directorsList.map((director) => (
-          <li className="list-group-item d-flex align-items-start p-3" 
+          <li className="list-group-item d-flex align-items-start p-3 zoomCard" 
           onClick={() => handleCardClick(director.directorId)}
           style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px", cursor:"pointer" }}>
           <img 

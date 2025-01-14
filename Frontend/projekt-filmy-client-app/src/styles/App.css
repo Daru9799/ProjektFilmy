@@ -1,5 +1,5 @@
 body {
-  background-color: #000000 !important;
+  background: radial-gradient(circle, #23272a, #16191b) !important;
   margin: 0;  /* Usunięcie domyślnych marginesów */
 }
 
@@ -27,7 +27,10 @@ body {
 }
 
 .Footer{
+  background-color: #150021;
   min-height: 5%;
+  width: 70%;
+  text-align: center;
 }
 
 .App-header {

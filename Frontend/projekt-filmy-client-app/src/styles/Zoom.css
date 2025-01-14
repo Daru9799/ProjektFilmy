@@ -1,0 +1,9 @@
+.zoomCard:hover {
+    transform: scale(1.01); 
+    transition: transform 0.1s ease; 
+}
+
+.zoomIcons:hover {
+    transform: scale(1.2); 
+    transition: transform 0.2s ease; 
+}

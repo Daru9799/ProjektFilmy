@@ -2,13 +2,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom'; // Importuj useNavigate
 import { Movie } from '../../models/Movie';
 import { renderStars } from "../../functions/starFunction";
+import '../../styles/Zoom.css'
 
 interface Props {
   movieList: Movie[];
 }
 
 const MovieListModule = ({ movieList }: Props) => {
-  const navigate = useNavigate(); // Inicjalizuj nawigację
+  const navigate = useNavigate();
 
   const handleCardClick = (movieId: string) => {
     navigate(`/${movieId}`); 
@@ -20,7 +21,7 @@ const MovieListModule = ({ movieList }: Props) => {
         {movieList.map((movie) => (
           <li
             key={movie.title}
-            className="list-group-item d-flex p-3"
+            className="list-group-item d-flex p-3 zoomCard"
             onClick={() => handleCardClick(movie.movieId)} // Obsługa kliknięcia
             style={{
               borderBottom: "1px solid #ddd",
@@ -31,7 +32,8 @@ const MovieListModule = ({ movieList }: Props) => {
               display: "flex",
               flexDirection: "row",
               cursor: "pointer", // Wskaźnik kursora zmienia się na "rękę"
-            }}
+            }
+          }
           >
             <img
               src={movie.posterUrl}
