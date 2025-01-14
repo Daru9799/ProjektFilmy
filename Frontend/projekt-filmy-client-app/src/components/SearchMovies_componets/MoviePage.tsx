@@ -9,6 +9,7 @@ import { renderStars } from "../../functions/starFunction";
 import ReviewCard from "../review_components/ReviewCard";
 import ImageModal from "../../functions/ImageModal";
 import AddReviewModal from "../review_components/AddReviewPanel";
+import LoginModal from "../SingIn_SignUp_componets/LoginModal";
 import { fetchMovieData, fetchActorsData, fetchMovieReviews, fetchUserReviewForMovie, editReview, deleteReview } from "../../functions/ReloadFunctions";
 
 const MoviePage = () => {
@@ -23,10 +24,11 @@ const MoviePage = () => {
   const [userReview, setUserReview] = useState<Review | null>(null);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  // Using the imported functions
+  // Na start odpalają sie
   useEffect(() => {
     if (movieId) {
       fetchMovieData(movieId, setMovie, setError);
@@ -84,8 +86,12 @@ const MoviePage = () => {
       }
     }
   };
-  
 
+  const handleLoginSuccess = (username: string) => {
+    setShowLoginModal(false);
+    localStorage.setItem("logged_username", username);
+  };
+  
   const handleAddReview = async (review: string, rating: number) => {
     try {
       const newReviewData = {
@@ -217,7 +223,7 @@ const MoviePage = () => {
   )}
 
   {/* Dodaj */}
-  {!userReview ? (
+  {/* {!userReview ? (
   localStorage.getItem("token") ? (
     <button
       className="btn btn-primary mt-3"
@@ -230,7 +236,28 @@ const MoviePage = () => {
   )
 ) : (
   <p></p>
-)}
+)} */}
+
+      {/* Dodaj recenzję */}
+      {!userReview ? (
+        isLoggedIn ? (
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => setShowReviewModal(true)}
+          >
+            Dodaj recenzję
+          </button>
+        ) : (
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => setShowLoginModal(true)}
+          >
+            Dodaj recenzję
+          </button>
+        )
+      ) : (
+        <p></p>
+      )}
 
   {/* Add Review Modal */}
   <AddReviewModal
@@ -238,6 +265,14 @@ const MoviePage = () => {
     onClose={() => setShowReviewModal(false)}
     onAddReview={handleAddReview}
   />
+
+      {/* Modal logowania */}
+      <LoginModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+  
 </div>
 </div>
 
