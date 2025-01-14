@@ -79,10 +79,20 @@ const ReviewsPage = () => {
     fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection]);
 
-  const handleDeleteReview = (reviewId: string) => {
-    deleteReview(reviewId, setReviews);
-    fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
-  };
+
+    const handleDeleteReview = async (reviewId: string) => {
+      try {
+    
+        await deleteReview(reviewId, setReviews);
+    
+        fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
+      } catch (err) {
+        console.error("Błąd podczas usuwania recenzji:", err);
+      }
+    };
+    
+
+
 
   const handleSortChange = (category: string) => {
     switch (category) {
@@ -138,7 +148,7 @@ const ReviewsPage = () => {
   );
 
   return (
-    <div className="container my-4">
+    <div className="container my-4" style={{minHeight:"90vh"}}>
       <h2 className="mb-4" style={{ color: "white" }}>
         Wszystkie recenzje użytkownika {userName}:
       </h2>

@@ -37,9 +37,13 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
 
   const handleRatingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = parseFloat(e.target.value);
-    if (value > 0 && value <= 5) {
-      value = Math.round(value * 10) / 10; 
-      setReviewRating(value);
+
+    // Zaokrąglanie do najbliższego 0.5
+    if (!isNaN(value)) {
+      value = Math.round(value * 2) / 2; // Zaokrąglenie do najbliższej połowy
+      if (value >= 0 && value <= 5) {
+        setReviewRating(value);
+      }
     }
   };
 
@@ -71,7 +75,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
             }}
           />
           <p style={{ color: "white", fontSize: "12px" }}>
-            Maksymalnie 500 znaków
+            {`${reviewText.length}/500`}
           </p>
         </div>
         <div
@@ -93,7 +97,8 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
             min={0}
             max={5}
             value={reviewRating}
-            onChange={handleRatingChange} 
+            onChange={handleRatingChange}
+            onBlur={(e) => handleRatingChange(e)} // Upewnij się, że wartość zostanie poprawiona po opuszczeniu pola
             style={{
               textAlign: "center",
               width: "80%",

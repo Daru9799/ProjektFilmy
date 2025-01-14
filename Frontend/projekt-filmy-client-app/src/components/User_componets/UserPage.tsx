@@ -40,13 +40,22 @@ const UserPage = () => {
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
   }, [userName]);
 
-  const handleDeleteReview = (reviewId: string) => {
-    deleteReview(reviewId, setReviews);
-    if (userName) {
-      fetchUserData(userName, setUser, setError, setLoading);
-      fetchUserReviews(userName, 3, setReviews, setError);
-    }
-  };
+ 
+    const handleDeleteReview = async (reviewId: string) => {
+      try {
+    
+        await deleteReview(reviewId, setReviews);
+    
+        // Odśwież dane z serwera
+        if (userName) {
+          fetchUserData(userName, setUser, setError, setLoading);
+          fetchUserReviews(userName, 3, setReviews, setError);
+        }
+      } catch (err) {
+        console.error("Błąd podczas usuwania recenzji:", err);
+      }
+    };
+    
 
   const handleEditReview = (review?: Review, reviewText?: string, rating?: number) => {
     if (review) {
@@ -71,6 +80,7 @@ const UserPage = () => {
 
   return (
     <>
+    <div style={{minHeight:"90vh"}}>
       <div className="header">
         <p className="user-name">{user?.userName}</p>
         {/* Przycisk edytuj widoczny tylko jeśli isOwner jest true */}
@@ -148,7 +158,7 @@ const UserPage = () => {
           }}
         />
       )}
-
+</div>
     </>
   );
 };

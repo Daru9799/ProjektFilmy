@@ -45,7 +45,7 @@ const ActorPage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="container-fluid text-white" style={{marginBottom:"2%", minHeight:"100vh"}}>
+    <div className="container-fluid text-white" style={{marginBottom:"2%", minHeight:"90vh"}}>
       <div className="row my-4">
         {/* Left Column (Poster) */}
         <div className="col-3">

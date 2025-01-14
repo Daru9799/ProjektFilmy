@@ -43,16 +43,23 @@ const MoviePage = () => {
     setReviewToEdit(review);
     setShowEditModal(true);
   };
+
+
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      await deleteReview(reviewId, setReviews);
+      setUserReview(null);
   
-  const handleDeleteReview = (reviewId: string) => {
-    deleteReview(reviewId, setReviews);
-    if(movieId && userName)
-    {
-        fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        fetchMovieData(movieId, setMovie, setError);
-        fetchUserReviewForMovie(userName,movieId,setUserReview,setError); // odswieza dopiero po recznym przeładkowaniu (nie wiem czm)
+      // Odśwież dane z serwera
+      if (movieId) {
+        await fetchMovieReviews(movieId, setReviews, setError, setLoading);
+        await fetchMovieData(movieId, setMovie, setError);
+      }
+    } catch (err) {
+      console.error("Błąd podczas usuwania recenzji:", err);
     }
   };
+  
 
   const handleSaveEditedReview = async (reviewText: string, rating: number) => {
     if (reviewToEdit) {
@@ -124,7 +131,7 @@ const MoviePage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="container-fluid text-white" style={{ left: "200px", minHeight:"100vh"}}>
+    <div className="container-fluid text-white" style={{ left: "200px", minHeight:"90vh"}}>
   <div className="row my-4">
     {/* Left Column (Poster) */}
     <div className="col-3">
