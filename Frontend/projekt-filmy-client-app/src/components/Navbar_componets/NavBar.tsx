@@ -14,6 +14,7 @@ const NavBar = () => {
   // Zaktualizuj stan po zalogowaniu
   const handleLoginSuccess = (username: string) => {
     localStorage.setItem("logged_username", username);
+    window.location.reload();
     setLoggedUsername(username);
   };
 
@@ -21,7 +22,8 @@ const NavBar = () => {
     localStorage.removeItem("logged_username");
     localStorage.removeItem("token");
     setLoggedUsername(null);
-    navigate("/");
+    // navigate("/");
+    window.location.reload();
   };
 
   //nasłuchiwanie zmian w localStorage

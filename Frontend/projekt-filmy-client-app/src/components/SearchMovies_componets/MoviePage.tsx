@@ -40,12 +40,11 @@ const MoviePage = () => {
       setError("Nieoczekiwany błąd");
     }
   }, [movieId]);
-  
+
   const handleEditReview = (review: Review) => {
     setReviewToEdit(review);
     setShowEditModal(true);
   };
-
 
   const handleDeleteReview = async (reviewId: string) => {
     try {
@@ -57,12 +56,12 @@ const MoviePage = () => {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
       }
+      // window.location.reload();
     } catch (err) {
       console.error("Błąd podczas usuwania recenzji:", err);
     }
   };
   
-
   const handleSaveEditedReview = async (reviewText: string, rating: number) => {
     if (reviewToEdit) {
       try {
@@ -87,11 +86,28 @@ const MoviePage = () => {
     }
   };
 
-  const handleLoginSuccess = (username: string) => {
-    setShowLoginModal(false);
-    localStorage.setItem("logged_username", username);
-  };
-  
+const handleLoginSuccess = async (username: string) => {
+  setShowLoginModal(false);
+  localStorage.setItem("logged_username", username);
+
+  // Emitowanie zdarzenia informującego o zalogowaniu użytkownika
+  const event = new CustomEvent("userUpdated", {
+    detail: { username },
+  });
+  window.dispatchEvent(event);
+
+  // Odswieżenie danych po zalogowaniu
+  if (movieId) {
+    try {
+      await fetchMovieReviews(movieId, setReviews, setError, setLoading);
+      await fetchMovieData(movieId, setMovie, setError);
+      await fetchUserReviewForMovie(username, movieId, setUserReview, setError);
+    } catch (err) {
+      console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
+    }
+  }
+};
+
   const handleAddReview = async (review: string, rating: number) => {
     try {
       const newReviewData = {
@@ -221,22 +237,6 @@ const MoviePage = () => {
   ) : (
     <p>Brak ocen</p>
   )}
-
-  {/* Dodaj */}
-  {/* {!userReview ? (
-  localStorage.getItem("token") ? (
-    <button
-      className="btn btn-primary mt-3"
-      onClick={() => setShowReviewModal(true)}
-    >
-      Dodaj recenzję
-    </button>
-  ) : (
-    <p>Aby dodać recenzję musisz być zalogowany</p>
-  )
-) : (
-  <p></p>
-)} */}
 
       {/* Dodaj recenzję */}
       {!userReview ? (
