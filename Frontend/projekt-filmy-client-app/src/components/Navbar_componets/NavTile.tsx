@@ -14,7 +14,7 @@ const NavTile = ({ children, link, tileStyle = "btn-outline-light" }: Props) => 
         className={
           "btn " +
           tileStyle +
-          " d-flex align-items-center justify-content-center text-decoration-none rounded-4 w-100 h-100 m-1 jersey-15-regular"
+          " d-flex align-items-center justify-content-center text-decoration-none rounded-4 w-100 h-100 m-1"
         }
       >
         {children}

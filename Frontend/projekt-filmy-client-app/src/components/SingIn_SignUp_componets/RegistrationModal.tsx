@@ -57,7 +57,7 @@ const RegistrationModal = ({ show, onClose }: Props) => {
           setErrorMessage(errorsArray);
         } else {
           setErrorMessage(
-            "Wystąpił problem z kodem 400, który jest nieobsługiwany"
+            "Wystąpił problem."
           );
         }
       } 

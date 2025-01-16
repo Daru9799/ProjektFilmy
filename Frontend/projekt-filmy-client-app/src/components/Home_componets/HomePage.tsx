@@ -1,9 +1,58 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
+import MovieListModule from "../SearchMovies_componets/MovieListModule";
+import axios, { AxiosError } from "axios";
+import { Movie } from "../../models/Movie";
 
 const HomePage = () => {
+    const [movies, setMovies] = useState<Movie[]>([]);
+    const [pageInfo, setPageInfo] = useState({
+      totalItems: 0,
+      pageNumber: 1,
+      pageSize: 2,
+      totalPages: 1,
+    });
+    const [errorMessage, setErrorMessage] = useState("");
+  
+    // Do Testów
+    const staticPageSize = 3;
+    const currentPage = 1
+
+
+  useEffect(() => {
+    axios
+      .get("https://localhost:7053/api/Movies/by-filters", {
+        params: {
+          pageNumber: currentPage,
+          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
+          orderBy: "rating",
+          sortDirection:"desc",
+        },
+      })
+      .then((response) => {
+        if (response.data) {
+          const { data, totalItems, pageNumber, pageSize, totalPages } =
+            response.data;
+          setPageInfo({
+            totalItems,
+            pageNumber,
+            pageSize,
+            totalPages,
+          });
+          setMovies(data.$values);
+          console.log("Załadowano filmy.", data);
+          console.log(pageInfo);
+        } else {
+          setMovies([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching movies:", error)
+        setErrorMessage("Error fetching movies");
+      });
+  },[]);
 
   return (
-    <div className="vh-100">
+    <div style={{ minHeight: "100vh" }}>
       <div
         style={{
           backgroundImage: "url('/imgs/cinema-background.jpeg')",
@@ -24,6 +73,10 @@ const HomePage = () => {
           obejrzenia, wystawić im potem recenzje i sprawdzić recenzje innych
           użytkowników.
         </p>
+      </div>
+      <div className="d-flex flex-column justify-content-center align-items-center py-2">
+        <h1 className="mb-3 text-white jersey-15-regular">Top 3 filmy:</h1>
+        <MovieListModule movieList={movies} />
       </div>
     </div>
   );
