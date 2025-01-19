@@ -56,7 +56,7 @@ const MoviePage = () => {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
       }
-      // window.location.reload();
+      // window.location.reload();  // można tak ale troche dluzej trwa
     } catch (err) {
       console.error("Błąd podczas usuwania recenzji:", err);
     }

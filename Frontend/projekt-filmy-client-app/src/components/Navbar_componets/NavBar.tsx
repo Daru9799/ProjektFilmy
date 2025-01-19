@@ -4,16 +4,16 @@ import NavTile from "./NavTile";
 import { Link } from "react-router-dom";
 import LoginModal from "../SingIn_SignUp_componets/LoginModal";
 import RegistrationModal from "../SingIn_SignUp_componets/RegistrationModal";
-import { useNavigate } from "react-router-dom";
+
 const NavBar = () => {
   const [isLoginModalVisable, setIsLoginModalVisable] = useState(false);
   const [isRegisterModalVisable, setIsRegisterModalVisable] = useState(false);
   const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
-  const navigate = useNavigate();
 
   // Zaktualizuj stan po zalogowaniu
   const handleLoginSuccess = (username: string) => {
     localStorage.setItem("logged_username", username);
+    localStorage.setItem("lastLocation", window.location.pathname);
     window.location.reload();
     setLoggedUsername(username);
   };
@@ -22,7 +22,6 @@ const NavBar = () => {
     localStorage.removeItem("logged_username");
     localStorage.removeItem("token");
     setLoggedUsername(null);
-    // navigate("/");
     window.location.reload();
   };
 
