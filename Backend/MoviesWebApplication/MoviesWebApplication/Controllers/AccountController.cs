@@ -80,18 +80,23 @@ namespace MoviesWebApplication.Controllers
         [HttpPatch("edit")]
         public async Task<IActionResult> EditUser(EditUserDto editUserDto)
         {
-            // Pobierz aktualnie zalogowanego użytkownika
+            //Pobranie aktualnie zalogowanego użytkownika
             var userId = User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
+            {
                 return Unauthorized("Nie można zweryfikować użytkownika.");
-
+            }
+                
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
+            {
                 return NotFound("Nie znaleziono użytkownika.");
+            }
+                
 
-            // Aktualizacja e-maila
+            //Aktualizacja e-maila
             if (!string.IsNullOrEmpty(editUserDto.NewEmail))
             {
                 if (await _userManager.Users.AnyAsync(u => u.Email == editUserDto.NewEmail && u.Id.ToString() != userId))
@@ -108,7 +113,7 @@ namespace MoviesWebApplication.Controllers
                 }
             }
 
-            // Aktualizacja nazwy użytkownika
+            //Aktualizacja nazwy użytkownika
             if (!string.IsNullOrEmpty(editUserDto.NewLogin))
             {
                 if (await _userManager.Users.AnyAsync(u => u.UserName == editUserDto.NewLogin && u.Id.ToString() != userId))
@@ -135,6 +140,47 @@ namespace MoviesWebApplication.Controllers
                     user.UserName
                 }
             });
+        }
+        [Authorize]
+        [HttpPatch("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            //Pobranie ID aktualnie zalogowanego użytkownika
+            var userId = User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized("Nie można zweryfikować użytkownika.");
+            }
+                
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+
+            if (user == null)
+            {
+                return NotFound("Nie znaleziono użytkownika.");
+            }
+
+            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, changePasswordDto.NewPassword);
+            if (passwordVerificationResult == PasswordVerificationResult.Success)
+            {
+                return BadRequest(new { Errors = new List<string> { "Nowe hasło musi się różnić od aktualnego." } });
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+
+                if (result.Errors.Any(e => e.Code == "PasswordMismatch"))
+                {
+                    return BadRequest(new { Errors = new List<string> { "Podano nieprawidłowe aktualne hasło." } });
+                }
+
+                return BadRequest(new { Errors = errors });
+            }
+
+            return Ok("Hasło zostało zmienione pomyślnie.");
         }
     }
 }

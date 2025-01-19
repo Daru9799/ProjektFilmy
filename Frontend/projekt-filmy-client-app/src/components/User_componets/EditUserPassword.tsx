@@ -19,7 +19,7 @@ interface PasswordProps {
       e.preventDefault();
   
       if (newPassword !== confirmPassword) {
-        alert("Nowe hasła muszą być identyczne!");
+        setErrorMessage("Nowe hasła muszą być identyczne!");
         return;
       }
   
@@ -39,13 +39,26 @@ interface PasswordProps {
   
         if (response.status === 200) {
           alert("Hasło zostało zmienione!");
+          setErrorMessage(null);
           onClose();
         }
       } catch (error: any) {
         if (error.response && error.response.data) {
-          setErrorMessage(error.response.data);
+          const serverError = error.response.data;
+
+          if (typeof serverError === "string") {
+            setErrorMessage(serverError);
+          } else if (serverError?.errors) {
+            const errorsArray = Object.entries(serverError.errors)
+              .filter(([key]) => key !== "$id") 
+              .flatMap(([_, messages]) => Array.isArray(messages) ? messages : [])
+              .join(" "); 
+            setErrorMessage(errorsArray);
+          } else {
+            setErrorMessage("Wystąpił problem podczas zmiany hasła!");
+          }
         } else {
-          setErrorMessage("Wystąpił problem podczas zmiany hasła!");
+          setErrorMessage("Wystąpił problem z połączeniem. Spróbuj ponownie później.");
         }
       }
     };

@@ -176,6 +176,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { UserProfile } from "../../models/UserProfile";
 import axios from "axios";
 import ChangePasswordModal from "./EditUserPassword";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   show: boolean;
@@ -189,6 +190,7 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
   const [username, setUsername] = useState(userData.userName);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -215,6 +217,13 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
 
       if (response.status === 200) {
         localStorage.setItem("logged_username", updatedUser.userName);
+        localStorage.setItem("logged_username", updatedUser.userName);
+
+        const event = new CustomEvent("userUpdated", {
+          detail: { username: updatedUser.userName },
+        });
+        window.dispatchEvent(event);
+        navigate(`/user/${updatedUser.userName}`);
         onSave(updatedUser);
       }
     } catch (error: any) {
