@@ -52,9 +52,6 @@ const NavBar = () => {
             <NavTile link="search-movies">Filmy</NavTile>
             <NavTile link="search-directors">Reżyserzy</NavTile>
             <NavTile link="search-actors">Aktorzy</NavTile>
-            <NavTile link="/user/user1">User1</NavTile>
-            <NavTile link="/user/critic1">Critic1</NavTile>
-            <NavTile link="/user/user2137">User2137</NavTile>
           </div>
 
           <div className="d-flex align-items-center">
