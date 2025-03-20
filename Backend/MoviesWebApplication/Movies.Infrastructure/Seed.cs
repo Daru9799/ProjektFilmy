@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualBasic.FileIO;
 using Movies.Domain;
-using Movies.Infrastructure.Migrations;
 
 namespace Movies.Infrastructure
 {

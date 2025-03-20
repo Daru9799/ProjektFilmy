@@ -23,7 +23,8 @@ builder.Services.AddHttpContextAccessor();
 //Kontekst bazy danych
 builder.Services.AddDbContext<DataContext>(opt =>
 {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 35)));
 });
 
 //Autentykacja, logowanie, rejestracja 
