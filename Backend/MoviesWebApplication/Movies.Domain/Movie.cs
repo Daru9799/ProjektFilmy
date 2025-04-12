@@ -22,6 +22,7 @@ namespace Movies.Domain
         public ICollection<Category> Categories { get; set; }
         public ICollection<Director> Directors { get; set; }
         public ICollection<Actor> Actors { get; set; }
+        public ICollection<MovieCollection> MovieCollections { get; set; }
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public ICollection<Review> Reviews { get; set; }

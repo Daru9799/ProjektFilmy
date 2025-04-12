@@ -19,6 +19,18 @@ namespace Movies.Domain
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public ICollection<Review> Reviews { get; set; }
+        //Nowe
+        public ICollection<MovieCollection> MovieCollections { get; set; }
+        public ICollection<Reply> Replies { get; set; }
+        public ICollection<UserAchievement> UserAchievements { get; set; }
+        public ICollection<MovieCollectionReview> MovieCollectionReviews { get; set; }
+        public ICollection<MovieCollectionReviewReply> MovieCollectionReviewReplies { get; set; }
+        //RELACJE Z USERAMI (przyjaznie bloki)
+        public ICollection<UserRelation> UserRelationsFrom { get; set; }
+        public ICollection<UserRelation> UserRelationsTo { get; set; }
+        //Powiadomienia wysyłane i odbierane
+        public ICollection<Notification> UserNotificationFrom { get; set; }
+        public ICollection<Notification> UserNotificationTo { get; set; }
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
@@ -11,9 +12,11 @@ using Movies.Infrastructure;
 namespace Movies.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250412202753_ReviewReplies")]
+    partial class ReviewReplies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,38 +217,19 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MovieMovieCollection", b =>
+            modelBuilder.Entity("MovieMoviesCollection", b =>
                 {
-                    b.Property<Guid>("MovieCollectionsMovieCollectionId")
+                    b.Property<Guid>("MoviesCollectionsMoviesCollectionId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("MoviesMovieId")
                         .HasColumnType("char(36)");
 
-                    b.HasKey("MovieCollectionsMovieCollectionId", "MoviesMovieId");
+                    b.HasKey("MoviesCollectionsMoviesCollectionId", "MoviesMovieId");
 
                     b.HasIndex("MoviesMovieId");
 
-                    b.ToTable("MovieMovieCollection");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Achievement", b =>
-                {
-                    b.Property<Guid>("AchievementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("AchievementId");
-
-                    b.ToTable("Achievements");
+                    b.ToTable("MovieMoviesCollection");
                 });
 
             modelBuilder.Entity("Movies.Domain.Actor", b =>
@@ -367,9 +351,9 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("Movies.Domain.MovieCollection", b =>
+            modelBuilder.Entity("Movies.Domain.MoviesCollection", b =>
                 {
-                    b.Property<Guid>("MovieCollectionId")
+                    b.Property<Guid>("MoviesCollectionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
@@ -396,120 +380,11 @@ namespace Movies.Infrastructure.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("MovieCollectionId");
+                    b.HasKey("MoviesCollectionId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MovieCollections");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollectionReview", b =>
-                {
-                    b.Property<Guid>("MovieCollectionReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("LikesCounter")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("MovieCollectionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<float>("Rating")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("Spoilers")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("MovieCollectionReviewId");
-
-                    b.HasIndex("MovieCollectionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MovieCollectionReviews");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollectionReviewReply", b =>
-                {
-                    b.Property<Guid>("ReplyId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<Guid>("ReviewMovieCollectionReviewId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("ReplyId");
-
-                    b.HasIndex("ReviewMovieCollectionReviewId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MovieCollectionReviewReplies");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Notification", b =>
-                {
-                    b.Property<Guid>("NotificationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Resource")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("SourceUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("TargetUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("NotificationId");
-
-                    b.HasIndex("SourceUserId");
-
-                    b.HasIndex("TargetUserId");
-
-                    b.ToTable("Notifications");
+                    b.ToTable("MoviesCollections");
                 });
 
             modelBuilder.Entity("Movies.Domain.Reply", b =>
@@ -638,56 +513,6 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Movies.Domain.UserAchievement", b =>
-                {
-                    b.Property<Guid>("UserAchievementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("AchievementId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("UserAchievementId");
-
-                    b.HasIndex("AchievementId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAchievements");
-                });
-
-            modelBuilder.Entity("Movies.Domain.UserRelation", b =>
-                {
-                    b.Property<Guid>("UserRelationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("FirstUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("SecondUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserRelationId");
-
-                    b.HasIndex("FirstUserId");
-
-                    b.HasIndex("SecondUserId");
-
-                    b.ToTable("UserRelations");
-                });
-
             modelBuilder.Entity("ActorMovie", b =>
                 {
                     b.HasOne("Movies.Domain.Actor", null)
@@ -799,11 +624,11 @@ namespace Movies.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MovieMovieCollection", b =>
+            modelBuilder.Entity("MovieMoviesCollection", b =>
                 {
-                    b.HasOne("Movies.Domain.MovieCollection", null)
+                    b.HasOne("Movies.Domain.MoviesCollection", null)
                         .WithMany()
-                        .HasForeignKey("MovieCollectionsMovieCollectionId")
+                        .HasForeignKey("MoviesCollectionsMoviesCollectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -814,66 +639,13 @@ namespace Movies.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Movies.Domain.MovieCollection", b =>
+            modelBuilder.Entity("Movies.Domain.MoviesCollection", b =>
                 {
                     b.HasOne("Movies.Domain.User", "User")
-                        .WithMany("MovieCollections")
+                        .WithMany("MoviesCollections")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollectionReview", b =>
-                {
-                    b.HasOne("Movies.Domain.MovieCollection", "MovieCollection")
-                        .WithMany("MovieCollectionReviews")
-                        .HasForeignKey("MovieCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", "User")
-                        .WithMany("MovieCollectionReviews")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("MovieCollection");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollectionReviewReply", b =>
-                {
-                    b.HasOne("Movies.Domain.MovieCollectionReview", "Review")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReviewMovieCollectionReviewId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", "User")
-                        .WithMany("MovieCollectionReviewReplies")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Review");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Notification", b =>
-                {
-                    b.HasOne("Movies.Domain.User", "SourceUser")
-                        .WithMany("UserNotificationFrom")
-                        .HasForeignKey("SourceUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", "TargetUser")
-                        .WithMany("UserNotificationTo")
-                        .HasForeignKey("TargetUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SourceUser");
-
-                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("Movies.Domain.Reply", b =>
@@ -910,60 +682,9 @@ namespace Movies.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Movies.Domain.UserAchievement", b =>
-                {
-                    b.HasOne("Movies.Domain.Achievement", "Achievement")
-                        .WithMany("UserAchievements")
-                        .HasForeignKey("AchievementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", "User")
-                        .WithMany("UserAchievements")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Achievement");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Movies.Domain.UserRelation", b =>
-                {
-                    b.HasOne("Movies.Domain.User", "FirstUser")
-                        .WithMany("UserRelationsFrom")
-                        .HasForeignKey("FirstUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", "SecondUser")
-                        .WithMany("UserRelationsTo")
-                        .HasForeignKey("SecondUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FirstUser");
-
-                    b.Navigation("SecondUser");
-                });
-
-            modelBuilder.Entity("Movies.Domain.Achievement", b =>
-                {
-                    b.Navigation("UserAchievements");
-                });
-
             modelBuilder.Entity("Movies.Domain.Movie", b =>
                 {
                     b.Navigation("Reviews");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollection", b =>
-                {
-                    b.Navigation("MovieCollectionReviews");
-                });
-
-            modelBuilder.Entity("Movies.Domain.MovieCollectionReview", b =>
-                {
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Movies.Domain.Review", b =>
@@ -973,25 +694,11 @@ namespace Movies.Infrastructure.Migrations
 
             modelBuilder.Entity("Movies.Domain.User", b =>
                 {
-                    b.Navigation("MovieCollectionReviewReplies");
-
-                    b.Navigation("MovieCollectionReviews");
-
-                    b.Navigation("MovieCollections");
+                    b.Navigation("MoviesCollections");
 
                     b.Navigation("Replies");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("UserAchievements");
-
-                    b.Navigation("UserNotificationFrom");
-
-                    b.Navigation("UserNotificationTo");
-
-                    b.Navigation("UserRelationsFrom");
-
-                    b.Navigation("UserRelationsTo");
                 });
 #pragma warning restore 612, 618
         }
