@@ -19,13 +19,11 @@ namespace Movies.Infrastructure
             /*context.Movies.RemoveRange(context.Movies);
             context.Countries.RemoveRange(context.Countries);
             context.Categories.RemoveRange(context.Categories);
-            context.Directors.RemoveRange(context.Directors);
-            context.Actors.RemoveRange(context.Actors);
             context.Reviews.RemoveRange(context.Reviews);
             context.Users.RemoveRange(context.Users);
+            context.People.RemoveRange(context.People);
+            context.MoviePeople.RemoveRange(context.MoviePeople);
             await context.SaveChangesAsync();*/
-
-
 
             //Tworzenie userów
             if (userManager.Users.Any()) return;
@@ -105,9 +103,9 @@ namespace Movies.Infrastructure
             var romance = new Category { Name = "Romantyczny" };
             var adventure = new Category { Name = "Przygodowy" };
 
-            var director1 = new Director
+            var director1 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Joss",
                 LastName = "Whedon",
                 Bio = "Joss Whedon to amerykański scenarzysta, reżyser i producent, znany głównie z tworzenia serialu 'Buffy: Postrach Wampirów' oraz reżyserowania 'Avengers'.",
@@ -115,9 +113,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://fwcdn.pl/ppo/07/58/10758/451048_1.3.jpg"
             };
 
-            var director2 = new Director
+            var director2 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Robert",
                 LastName = "Zemeckis",
                 Bio = "Robert Zemeckis to amerykański reżyser filmowy, znany z takich filmów jak 'Powrót do przyszłości', 'Forrest Gump' czy 'Kto wrobił Królika Rogera'.",
@@ -125,9 +123,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://m.media-amazon.com/images/M/MV5BMTgyMTMzMDUyNl5BMl5BanBnXkFtZTcwODA0ODMyMw@@._V1_.jpg"
             };
 
-            var director3 = new Director
+            var director3 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Christopher",
                 LastName = "Nolan",
                 Bio = "Christopher Nolan to brytyjsko-amerykański reżyser i producent, znany z takich filmów jak 'Incepcja', 'Trylogia Mroczny Rycerz' i 'Interstellar'.",
@@ -135,36 +133,36 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://fwcdn.pl/ppo/08/96/40896/449999_1.3.jpg"
             };
 
-            var director4 = new Director
+            var director4 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Quentin",
                 LastName = "Tarantino",
                 Bio = "Quentin Tarantino to amerykański reżyser, znany z filmów takich jak 'Pulp Fiction', 'Kill Bill' i 'Django'.",
                 BirthDate = new DateTime(1963, 3, 27),
                 PhotoUrl = "https://m.media-amazon.com/images/M/MV5BMTgyMjI3ODA3Nl5BMl5BanBnXkFtZTcwNzY2MDYxOQ@@._V1_FMjpg_UX1000_.jpg"
             };
-            var director5 = new Director
+            var director5 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Steven",
                 LastName = "Spielberg",
                 Bio = "Steven Spielberg to jeden z najbardziej znanych reżyserów, twórca 'Jurassic Park', 'E.T.' i 'Szeregowiec Ryan'.",
                 BirthDate = new DateTime(1946, 12, 18),
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Steven_Spielberg_by_Gage_Skidmore.jpg/1200px-Steven_Spielberg_by_Gage_Skidmore.jpg"
             };
-            var director6 = new Director
+            var director6 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Peter",
                 LastName = "Jackson",
                 Bio = "Peter Jackson to nowozelandzki reżyser, znany z trylogii 'Władca Pierścieni' i 'Hobbit'.",
                 BirthDate = new DateTime(1961, 10, 31),
                 PhotoUrl = "https://fwcdn.pl/ppo/16/06/11606/450674_1.3.jpg"
             };
-            var director7 = new Director
+            var director7 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Greta",
                 LastName = "Gerwig",
                 Bio = "Greta Gerwig to reżyserka i aktorka, znana z 'Lady Bird' i 'Małych kobietek'.",
@@ -172,9 +170,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://cdn.britannica.com/89/213489-050-13BB1CF2/American-actress-director-screenwriter-Greta-Gerwig-2019.jpg"
             };
 
-            var director8 = new Director
+            var director8 = new Person
             {
-                DirectorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Bong",
                 LastName = "Joon-ho",
                 Bio = "Bong Joon-ho to południowokoreański reżyser, znany z filmów takich jak 'Snowpiercer' i 'Parasite'.",
@@ -183,9 +181,9 @@ namespace Movies.Infrastructure
             };
 
             // Aktorzy
-            var actor1 = new Actor
+            var actor1 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Robert",
                 LastName = "Downey Jr.",
                 Bio = "Robert Downey Jr. to amerykański aktor, najlepiej znany z roli Tony'ego Starka/Iron Mana w Marvel Cinematic Universe.",
@@ -193,9 +191,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://fwcdn.pl/ppo/00/31/31/449654_1.3.jpg"
             };
 
-            var actor2 = new Actor
+            var actor2 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Tom",
                 LastName = "Hanks",
                 Bio = "Tom Hanks to amerykański aktor i producent filmowy, znany z ról w filmach takich jak 'Forrest Gump', 'Cast Away' i 'Szeregowiec Ryan'.",
@@ -203,9 +201,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://fwcdn.pl/ppo/01/24/124/449666_1.3.jpg"
             };
 
-            var actor3 = new Actor
+            var actor3 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Christian",
                 LastName = "Bale",
                 Bio = "Christian Bale to brytyjsko-amerykański aktor, znany z intensywnych ról w filmach takich jak 'Mroczny Rycerz', 'American Psycho' i 'Mechanik'.",
@@ -213,9 +211,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://m.media-amazon.com/images/M/MV5BMTkxMzk4MjQ4MF5BMl5BanBnXkFtZTcwMzExODQxOA@@._V1_FMjpg_UX1000_.jpg"
             };
 
-            var actor4 = new Actor
+            var actor4 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Scarlett",
                 LastName = "Johansson",
                 Bio = "Scarlett Johansson to amerykańska aktorka i producentka filmowa, znana z roli Czarnej Wdowy w Marvel Cinematic Universe.",
@@ -223,9 +221,9 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://m.media-amazon.com/images/M/MV5BMTM3OTUwMDYwNl5BMl5BanBnXkFtZTcwNTUyNzc3Nw@@._V1_.jpg"
             };
 
-            var actor5 = new Actor
+            var actor5 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Gary",
                 LastName = "Sinise",
                 Bio = "Gary Sinise to amerykański aktor, reżyser i producent, znany z roli porucznika Dana Taylora w filmie 'Forrest Gump'. Posiada także bogatą karierę telewizyjną, w tym rolę w serialu 'CSI: NY'.",
@@ -233,45 +231,45 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Gary_Sinise_2011_%28cropped%29.jpg/168px-Gary_Sinise_2011_%28cropped%29.jpg"
             };
 
-            var actor6 = new Actor
+            var actor6 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Leonardo",
                 LastName = "DiCaprio",
                 Bio = "Leonardo DiCaprio to amerykański aktor, znany z ról w 'Titanicu', 'Incepcji' i 'Wilku z Wall Street'.",
                 BirthDate = new DateTime(1974, 11, 11),
                 PhotoUrl = "https://media.themoviedb.org/t/p/w500/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg"
             };
-            var actor7 = new Actor
+            var actor7 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Natalie",
                 LastName = "Portman",
                 Bio = "Natalie Portman to aktorka, znana z ról w 'Czarnym Łabędziu', 'Leon: Zawodowiec' i 'Thor'.",
                 BirthDate = new DateTime(1981, 6, 9),
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Natalie_Portman_2019_San_Diego_Comic-Con.jpg/1200px-Natalie_Portman_2019_San_Diego_Comic-Con.jpg"
             };
-            var actor8 = new Actor
+            var actor8 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Denzel",
                 LastName = "Washington",
                 Bio = "Denzel Washington to amerykański aktor i reżyser, znany z ról w 'Treningu', 'Malcolmie X' i 'American Gangster'.",
                 BirthDate = new DateTime(1954, 12, 28),
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/e/ed/Denzel_Washington_cropped_02.jpg"
             };
-            var actor9 = new Actor
+            var actor9 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Emma",
                 LastName = "Stone",
                 Bio = "Emma Stone to aktorka, znana z ról w 'La La Land', 'Łatwo być mną' i 'Cruelli'.",
                 BirthDate = new DateTime(1988, 11, 6),
                 PhotoUrl = "https://m.media-amazon.com/images/M/MV5BMjI4NjM1NDkyN15BMl5BanBnXkFtZTgwODgyNTY1MjE@._V1_FMjpg_UX1000_.jpg"
             };
-            var actor10 = new Actor
+            var actor10 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Elijah",
                 LastName = "Wood",
                 Bio = "Elijah Wood to amerykański aktor, najbardziej znany z roli Froda Bagginsa w trylogii 'Władca Pierścieni'.",
@@ -279,45 +277,45 @@ namespace Movies.Infrastructure
                 PhotoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVNsReNMyL0G7Y2iMSZ7aqqusxj1hdw_tCNQ&s"
             };
 
-            var actor11 = new Actor
+            var actor11 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Ian",
                 LastName = "McKellen",
                 Bio = "Ian McKellen to brytyjski aktor teatralny i filmowy, znany z roli Gandalfa we 'Władcy Pierścieni' i Magneto w serii 'X-Men'.",
                 BirthDate = new DateTime(1939, 5, 25),
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/SDCC13_-_Ian_McKellen.jpg/800px-SDCC13_-_Ian_McKellen.jpg"
             };
-            var actor12 = new Actor
+            var actor12 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Song",
                 LastName = "Kang-ho",
                 Bio = "Song Kang-ho to południowokoreański aktor, znany z 'Parasite' i 'The Host'.",
                 BirthDate = new DateTime(1967, 1, 17),
                 PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/d/df/Song_Gangho_2016.jpg"
             };
-            var actor13 = new Actor
+            var actor13 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Park",
                 LastName = "So-Dam",
                 Bio = "Park So-Dam to południowokoreańska aktorka, znana z roli w 'Parasite', gdzie zagrała sprytną i utalentowaną Kim Ki-Jung.",
                 BirthDate = new DateTime(1991, 9, 8),
                 PhotoUrl = "https://fwcdn.pl/ppo/93/78/2169378/455569_1.3.jpg"
             };
-            var actor14 = new Actor
+            var actor14 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Brad",
                 LastName = "Pitt",
                 Bio = "Brad Pitt to amerykański aktor i producent, znany z ról w 'Fight Club', 'Troi' i 'Siedem'.",
                 BirthDate = new DateTime(1963, 12, 18),
                 PhotoUrl = "https://fwcdn.pl/ppo/02/05/205/449687_1.3.jpg"
             };
-            var actor15 = new Actor
+            var actor15 = new Person
             {
-                ActorId = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
                 FirstName = "Steve",
                 LastName = "Buscemi",
                 Bio = "Steve Buscemi to amerykański aktor, reżyser i scenarzysta, znany z ról w filmach takich jak 'Wściekłe psy', 'Fargo' oraz 'Big Lebowski'.",
@@ -336,9 +334,7 @@ namespace Movies.Infrastructure
                     Description = "Najpotężniejsi bohaterowie Ziemi muszą połączyć siły, aby powstrzymać inwazję obcych.",
                     Duration = 143,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { action, comedy },
-                    Directors = new List<Director> { director1 },
-                    Actors = new List<Actor> { actor1, actor4 }
+                    Categories = new List<Category> { action, comedy }
                 },
                 new Movie
                 {
@@ -348,9 +344,7 @@ namespace Movies.Infrastructure
                     Description = "Prezydentury Kennedy'ego i Johnsona, wojna w Wietnamie, skandal Watergate i inne wydarzenia historyczne z perspektywy mężczyzny z Alabamy o niezwykłej podróży.",
                     Duration = 142,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { drama, comedy },
-                    Directors = new List<Director> { director2 },
-                    Actors = new List<Actor> { actor2, actor5 }
+                    Categories = new List<Category> { drama, comedy }
                 },
                 new Movie
                 {
@@ -360,9 +354,7 @@ namespace Movies.Infrastructure
                     Description = "Batman staje do walki z Jokerem, mistrzem zbrodni, który pragnie wywołać chaos w Gotham City.",
                     Duration = 152,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { action, drama },
-                    Directors = new List<Director> { director3 },
-                    Actors = new List<Actor> { actor3 }
+                    Categories = new List<Category> { action, drama }
                 },
                 new Movie{
                     Title = "Inception",
@@ -371,9 +363,7 @@ namespace Movies.Infrastructure
                     Description = "Film o złodziejach snów, którzy wchodzą do podświadomości swoich ofiar.",
                     Duration = 148,
                     Countries = new List<Country> { usa, uk },
-                    Categories = new List<Category> { action, sciFi },
-                    Directors = new List<Director> { director3 },
-                    Actors = new List<Actor> { actor6 }
+                    Categories = new List<Category> { action, sciFi }
                 },
                 new Movie
                 {
@@ -383,9 +373,7 @@ namespace Movies.Infrastructure
                     Description = "Naukowcy odtwarzają dinozaury, co prowadzi do katastrofalnych wydarzeń.",
                     Duration = 127,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { adventure, sciFi },
-                    Directors = new List<Director> { director5 },
-                    Actors = new List<Actor> { actor6, actor7 }
+                    Categories = new List<Category> { adventure, sciFi }
                 },
                 new Movie
                 {
@@ -395,9 +383,7 @@ namespace Movies.Infrastructure
                     Description = "Historia miłości muzyka jazzowego i początkującej aktorki w Los Angeles.",
                     Duration = 128,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { musical, romance },
-                    Directors = new List<Director> { director7 },
-                    Actors = new List<Actor> { actor9, actor7 }
+                    Categories = new List<Category> { musical, romance }
                 },
                 new Movie
                 {
@@ -407,9 +393,7 @@ namespace Movies.Infrastructure
                     Description = "Drużyna musi przenieść Pierścień do Mordoru, by zniszczyć go w ogniu Góry Przeznaczenia.",
                     Duration = 178,
                     Countries = new List<Country> { newZeland, usa },
-                    Categories = new List<Category> { adventure, drama },
-                    Directors = new List<Director> { director6 },
-                    Actors = new List<Actor> { actor10, actor11 }
+                    Categories = new List<Category> { adventure, drama }
                 },
                 new Movie
                 {
@@ -419,9 +403,7 @@ namespace Movies.Infrastructure
                     Description = "Drużyna zostaje podzielona, ale każdy członek ma do odegrania kluczową rolę w walce z siłami zła.",
                     Duration = 179,
                     Countries = new List<Country> { newZeland, usa },
-                    Categories = new List<Category> { adventure, drama },
-                    Directors = new List<Director> { director6 },
-                    Actors = new List<Actor> { actor10, actor11 }
+                    Categories = new List<Category> { adventure, drama }
                 },
                 new Movie
                 {
@@ -431,9 +413,7 @@ namespace Movies.Infrastructure
                     Description = "Ostateczna bitwa o Śródziemie i ostatni krok Froda, by zniszczyć Pierścień.",
                     Duration = 201,
                     Countries = new List<Country> { newZeland, usa },
-                    Categories = new List<Category> { adventure, drama },
-                    Directors = new List<Director> { director6 },
-                    Actors = new List<Actor> { actor10, actor11 }
+                    Categories = new List<Category> { adventure, drama }
                 },
                 new Movie
                 {
@@ -443,9 +423,7 @@ namespace Movies.Infrastructure
                     Description = "Rodzina Kim w nieoczekiwany sposób zmienia życie bogatej rodziny Parków, co prowadzi do napięcia i katastrofy.",
                     Duration = 132,
                     Countries = new List<Country> { southKorea },
-                    Categories = new List<Category> { thriller, drama },
-                    Directors = new List<Director> { director8 },
-                    Actors = new List<Actor> { actor12, actor13 }
+                    Categories = new List<Category> { thriller, drama }
                 },
                 new Movie
                 {
@@ -455,9 +433,7 @@ namespace Movies.Infrastructure
                     Description = "Łowca nagród i były niewolnik łączą siły, aby uwolnić żonę tego drugiego i zemścić się na właścicielach plantacji.",
                     Duration = 165,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { drama, action, adventure },
-                    Directors = new List<Director> { director4 },
-                    Actors = new List<Actor> { actor6 }
+                    Categories = new List<Category> { drama, action, adventure }
                 },
                 new Movie
                 {
@@ -467,9 +443,7 @@ namespace Movies.Infrastructure
                     Description = "Aktor Rick Dalton i jego dubler Cliff Booth starają się odnaleźć w Hollywood lat 60. XX wieku, w tle wydarzeń związanych z morderstwami rodziny Mansonów.",
                     Duration = 161,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { drama, comedy },
-                    Directors = new List<Director> { director4 },
-                    Actors = new List<Actor> { actor6, actor14 }
+                    Categories = new List<Category> { drama, comedy }
                 },
                 new Movie
                 {
@@ -479,9 +453,7 @@ namespace Movies.Infrastructure
                     Description = "Grupa żydowskich żołnierzy amerykańskich planuje zamach na przywódców nazistowskich podczas premiery filmu w okupowanej Francji.",
                     Duration = 153,
                     Countries = new List<Country> { usa, germany },
-                    Categories = new List<Category> { drama, action },
-                    Directors = new List<Director> { director4 },
-                    Actors = new List<Actor> { actor14 }
+                    Categories = new List<Category> { drama, action }
                 },
                 new Movie
                 {
@@ -491,9 +463,7 @@ namespace Movies.Infrastructure
                     Description = "Sześciu przestępców, nieznających swoich prawdziwych tożsamości, bierze udział w nieudanym napadzie na jubilera, co prowadzi do wzajemnej paranoi i odkrywania zdrajcy w grupie.",
                     Duration = 99,
                     Countries = new List<Country> { usa },
-                    Categories = new List<Category> { drama, thriller },
-                    Directors = new List<Director> { director4 },
-                    Actors = new List<Actor> { actor15 }
+                    Categories = new List<Category> { drama, thriller }
                 }
             };
 
@@ -712,13 +682,337 @@ namespace Movies.Infrastructure
                 review19,
             };
 
+            //Dodanie osób do listy
+            var people = new List<Person>
+            {
+                director1, 
+                director2, 
+                director3, 
+                director4, 
+                director5, 
+                director6, 
+                director7, 
+                director8,
+                actor1,
+                actor2,
+                actor3,
+                actor4,
+                actor5, 
+                actor6,
+                actor7,
+                actor8,
+                actor9,
+                actor10,
+                actor11,
+                actor12,
+                actor13,
+                actor14,
+                actor15
+            };
+
+            //ROLE
+            //Aktorzy
+            var movieActor1 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Fellowship of the Ring"),
+                Person = actor10,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor2 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Two Towers"),
+                Person = actor10,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor3 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Return of the King"),
+                Person = actor10,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor4 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Fellowship of the Ring"),
+                Person = actor11,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor5 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Two Towers"),
+                Person = actor11,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor6 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Return of the King"),
+                Person = actor11,
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor7 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                Person = actor5, // Gary Sinise
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor8 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                Person = actor3, // Christian Bale
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor9 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                Person = actor1, // Robert Downey Jr.
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor10 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                Person = actor4, // Scarlett Johansson
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor11 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Inception"),
+                Person = actor6, // Leonardo DiCaprio
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor12 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "La La Land"),
+                Person = actor9, // Emma Stone
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor13 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                Person = actor2, // Tom Hanks
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor14 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Reservoir Dogs"),
+                Person = actor15, // Steve Buscemi
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor15 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Parasite"),
+                Person = actor12, // Song Kang-ho
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor16 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Parasite"),
+                Person = actor13, // Park So-Dam
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor17 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Inglourious Basterds"),
+                Person = actor14, // Brad Pitt
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            var movieActor18 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Once Upon a Time in Hollywood"),
+                Person = actor14, // Brad Pitt
+                Role = MoviePerson.PersonRole.Actor
+            };
+
+            //przypisanie filmów dla reżyserów
+            var movieDirector1 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Avengers"),
+                Person = director1,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector2 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Forrest Gump"),
+                Person = director2,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector3 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Dark Knight"),
+                Person = director3,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector4 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Inception"),
+                Person = director3,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector5 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Django Unchained"),
+                Person = director4,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector6 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Once Upon a Time in Hollywood"),
+                Person = director4,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector7 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Inglourious Basterds"),
+                Person = director4,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector8 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Reservoir Dogs"),
+                Person = director4,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector9 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Jurassic Park"),
+                Person = director5,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector10 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Fellowship of the Ring"),
+                Person = director6,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector11 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Two Towers"),
+                Person = director6,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector12 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "The Lord of the Rings: The Return of the King"),
+                Person = director6,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector13 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "La La Land"),
+                Person = director7,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var movieDirector14 = new MoviePerson
+            {
+                MoviePersonId = Guid.NewGuid(),
+                Movie = movies.First(m => m.Title == "Parasite"),
+                Person = director8,
+                Role = MoviePerson.PersonRole.Director
+            };
+
+            var moviePeople = new List<MoviePerson>
+            {
+                movieDirector1,
+                movieDirector2,
+                movieDirector3,
+                movieDirector4,
+                movieDirector5,
+                movieDirector6,
+                movieDirector7,
+                movieDirector8,
+                movieDirector9,
+                movieDirector10,
+                movieDirector11,
+                movieDirector12,
+                movieDirector13,
+                movieDirector14,
+                movieActor1,
+                movieActor2,
+                movieActor3,
+                movieActor4,
+                movieActor5, 
+                movieActor6,
+                movieActor7, 
+                movieActor8,
+                movieActor9, 
+                movieActor10,
+                movieActor11,
+                movieActor12, 
+                movieActor13,
+                movieActor14,
+                movieActor15,
+                movieActor16,
+                movieActor17,
+                movieActor18,
+            };
+
             // załadowanie danych do pamięci
             context.Countries.AddRange(usa, uk, canada, germany, japan, newZeland, southKorea);
             context.Categories.AddRange(action, drama, comedy, document, musical, horror, thriller, sciFi, romance ,adventure);
-            context.Actors.AddRange(actor1, actor2, actor3, actor4, actor5, actor6, actor7, actor8, actor9, actor10, actor11, actor12, actor13, actor14, actor15);
-            context.Directors.AddRange(director1, director2, director3, director4, director5, director6, director7, director8);
             await context.Movies.AddRangeAsync(movies);
             await context.Reviews.AddRangeAsync(reviews);
+            //NOWE
+            await context.People.AddRangeAsync(people);
+            await context.MoviePeople.AddRangeAsync(moviePeople);
             // dodanie rekordów do bazy danych
             await context.SaveChangesAsync();
         }

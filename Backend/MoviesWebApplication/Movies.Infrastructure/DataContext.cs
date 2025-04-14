@@ -18,8 +18,6 @@ namespace Movies.Infrastructure
         public DbSet<Movie> Movies { get; set; }    
         public DbSet<Category> Categories { get; set; }
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Director> Directors { get; set; }
-        public DbSet<Actor> Actors { get; set; }
         public DbSet<Review> Reviews { get; set; }
         //NOWE
         public DbSet<MovieCollection> MovieCollections { get; set; }
@@ -30,6 +28,8 @@ namespace Movies.Infrastructure
         public DbSet<MovieCollectionReview> MovieCollectionReviews { get; set; }
         public DbSet<MovieCollectionReviewReply> MovieCollectionReviewReplies { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Person> People { get; set; }
+        public DbSet<MoviePerson> MoviePeople { get; set; }
 
         //Zdefiniowane ręcznie kluczy obcych w tabelce UserRelations oraz Notifications
         protected override void OnModelCreating(ModelBuilder modelBuilder)

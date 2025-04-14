@@ -20,12 +20,13 @@ namespace Movies.Domain
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja wiele:wielu)
         public ICollection<Country> Countries { get; set; }
         public ICollection<Category> Categories { get; set; }
-        public ICollection<Director> Directors { get; set; }
-        public ICollection<Actor> Actors { get; set; }
         public ICollection<MovieCollection> MovieCollections { get; set; }
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public ICollection<Review> Reviews { get; set; }
+
+        //Pod osoby kina
+        public ICollection<MoviePerson> MoviePerson { get; set; }
 
     }
 }

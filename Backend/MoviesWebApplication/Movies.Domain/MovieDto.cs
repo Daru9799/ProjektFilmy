@@ -21,6 +21,6 @@ namespace Movies.Domain
         //Kolekcja kategorii 
         public List<CategoryDto> Categories { get; set; }
         public List<CountryDto> Countries { get; set; }
-        public List<DirectorDto> Directors { get; set; }
+        public List<PersonDto> Directors { get; set; }
     }
 }

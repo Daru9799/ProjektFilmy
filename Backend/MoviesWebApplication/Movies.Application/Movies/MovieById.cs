@@ -32,7 +32,9 @@ namespace Movies.Application.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
-                    .Include(m => m.Directors)
+                    .Include(m => m.MoviePerson)
+                        .ThenInclude(mp => mp.Person)
+                    .Where(m => m.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director))
                     .FirstOrDefaultAsync(m => m.MovieId == request.Id, cancellationToken);
 
                 if (movie == null)
@@ -62,14 +64,14 @@ namespace Movies.Application.Movies
                         Name = c.Name
                     }).ToList(),
                     //Zwracanie reżyserów (lista)
-                    Directors = movie.Directors.Select(c => new DirectorDto
+                    Directors = movie.MoviePerson.Where(mp => mp.Role == MoviePerson.PersonRole.Director).Select(mp => new PersonDto
                     {
-                        DirectorId = c.DirectorId,
-                        FirstName = c.FirstName,
-                        LastName = c.LastName,
-                        Bio = c.Bio,
-                        BirthDate = c.BirthDate,
-                        PhotoUrl = c.PhotoUrl
+                        PersonId = mp.Person.PersonId,
+                        FirstName = mp.Person.FirstName,
+                        LastName = mp.Person.LastName,
+                        Bio = mp.Person.Bio,
+                        BirthDate = mp.Person.BirthDate,
+                        PhotoUrl = mp.Person.PhotoUrl
                     }).ToList()
                 };
             }

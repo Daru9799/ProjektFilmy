@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
 namespace Movies.Domain
 {
-    public class Director
+    public class Person
     {
         [Key]
-        public Guid DirectorId { get; set; }
+        public Guid PersonId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Bio { get; set; }
         public DateTime BirthDate { get; set; }
         public string PhotoUrl { get; set; }
-
-        //Kolekcja potrzebna do wygenerowania klucza obcego
-        public ICollection<Movie> Movies { get; set; }
+        public ICollection<MoviePerson> MoviePerson { get; set; }
     }
 }

@@ -32,8 +32,9 @@ namespace Movies.Application.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
-                    .Include(m => m.Directors)
-                    .Where(m => m.Directors.Any(d => d.DirectorId == request.DirectorId))
+                    .Include(m => m.MoviePerson)
+                        .ThenInclude(mp => mp.Person)
+                    .Where(m => m.MoviePerson.Any(mp => mp.Person.PersonId == request.DirectorId && mp.Role == MoviePerson.PersonRole.Director))
                     .ToListAsync(cancellationToken);
 
                 if (!movies.Any())
@@ -62,14 +63,14 @@ namespace Movies.Application.Movies
                         CountryId = c.CountryId,
                         Name = c.Name
                     }).ToList(),
-                    Directors = movie.Directors.Select(d => new DirectorDto
+                    Directors = movie.MoviePerson.Where(mp => mp.Role == MoviePerson.PersonRole.Director).Select(mp => new PersonDto
                     {
-                        DirectorId = d.DirectorId,
-                        FirstName = d.FirstName,
-                        LastName = d.LastName,
-                        Bio = d.Bio,
-                        BirthDate = d.BirthDate,
-                        PhotoUrl = d.PhotoUrl
+                        PersonId = mp.Person.PersonId,
+                        FirstName = mp.Person.FirstName,
+                        LastName = mp.Person.LastName,
+                        Bio = mp.Person.Bio,
+                        BirthDate = mp.Person.BirthDate,
+                        PhotoUrl = mp.Person.PhotoUrl
                     }).ToList()
                 }).ToList();
             }

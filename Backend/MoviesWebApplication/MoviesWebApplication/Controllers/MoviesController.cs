@@ -40,27 +40,27 @@ namespace MoviesWebApplication.Controllers
             return Ok(movie);
         }
         //Zwracanie filmów dla podanego id aktora
-        [HttpGet("by-actorId/{actorId}")]
-        public async Task<ActionResult<MovieDto>> GetMoviesByActorId(Guid actorId)
+        [HttpGet("by-actorId/{personId}")]
+        public async Task<ActionResult<MovieDto>> GetMoviesByActorId(Guid personId)
         {
-            var movie = await Mediator.Send(new MoviesByActorId.Query { ActorId = actorId });
+            var movie = await Mediator.Send(new MoviesByActorId.Query { ActorId = personId });
 
             if (movie == null)
             {
-                return NotFound($"Nie odnaleziono filmu o id {actorId}.");
+                return NotFound($"Nie odnaleziono filmu o id {personId}.");
             }
 
             return Ok(movie);
         }
         //Zwracanie filmów dla podanego id reżysera
-        [HttpGet("by-directorId/{directorId}")]
-        public async Task<ActionResult<MovieDto>> GetMoviesByDirectorId(Guid directorId)
+        [HttpGet("by-directorId/{personId}")]
+        public async Task<ActionResult<MovieDto>> GetMoviesByDirectorId(Guid personId)
         {
-            var movie = await Mediator.Send(new MoviesByDirectorId.Query { DirectorId = directorId });
+            var movie = await Mediator.Send(new MoviesByDirectorId.Query { DirectorId = personId });
 
             if (movie == null)
             {
-                return NotFound($"Nie odnaleziono filmu o id {directorId}.");
+                return NotFound($"Nie odnaleziono filmu o id {personId}.");
             }
 
             return Ok(movie);

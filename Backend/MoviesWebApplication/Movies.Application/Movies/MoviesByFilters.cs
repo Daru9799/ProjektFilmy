@@ -40,8 +40,8 @@ namespace Movies.Application.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
-                    .Include(m => m.Directors)
-                    .Include(m => m.Actors);
+                    .Include(m => m.MoviePerson)
+                        .ThenInclude(mp => mp.Person);
 
                 //Filtracja po tytule
                 if (!string.IsNullOrEmpty(request.TitleSearch))
@@ -65,13 +65,13 @@ namespace Movies.Application.Movies
                 //Filtracja po reżyserach
                 if (request.Directors != null && request.Directors.Any())
                 {
-                    query = query.Where(movie => request.Directors.All(director => movie.Directors.Any(d => (d.FirstName + " " + d.LastName).ToLower() == director.ToLower())));
+                    query = query.Where(movie => request.Directors.All(director => movie.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director && (mp.Person.FirstName + " " + mp.Person.LastName).ToLower() == director.ToLower())));
                 }
 
                 //Filtracja po aktorach
                 if (request.Actors != null && request.Actors.Any())
                 {
-                    query = query.Where(movie => request.Actors.All(actor => movie.Actors.Any(a => (a.FirstName + " " + a.LastName).ToLower() == actor.ToLower())));
+                    query = query.Where(movie => request.Actors.All(actor => movie.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Actor && (mp.Person.FirstName + " " + mp.Person.LastName).ToLower() == actor.ToLower())));
                 }
 
                 //Obsługa sortowania
@@ -123,14 +123,14 @@ namespace Movies.Application.Movies
                         CountryId = c.CountryId,
                         Name = c.Name
                     }).ToList(),
-                    Directors = m.Directors.Select(c => new DirectorDto
+                    Directors = m.MoviePerson.Where(mp => mp.Role == MoviePerson.PersonRole.Director).Select(mp => new PersonDto
                     {
-                        DirectorId = c.DirectorId,
-                        FirstName = c.FirstName,
-                        LastName = c.LastName,
-                        Bio = c.Bio,
-                        BirthDate = c.BirthDate,
-                        PhotoUrl = c.PhotoUrl
+                        PersonId = mp.Person.PersonId,
+                        FirstName = mp.Person.FirstName,
+                        LastName = mp.Person.LastName,
+                        Bio = mp.Person.Bio,
+                        BirthDate = mp.Person.BirthDate,
+                        PhotoUrl = mp.Person.PhotoUrl
                     }).ToList()
                 }).ToList();
 

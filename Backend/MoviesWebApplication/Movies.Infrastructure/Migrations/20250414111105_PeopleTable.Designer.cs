@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
@@ -11,9 +12,11 @@ using Movies.Infrastructure;
 namespace Movies.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250414111105_PeopleTable")]
+    partial class PeopleTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace Movies.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("ActorMovie", b =>
+                {
+                    b.Property<Guid>("ActorsActorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("MoviesMovieId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ActorsActorId", "MoviesMovieId");
+
+                    b.HasIndex("MoviesMovieId");
+
+                    b.ToTable("ActorMovie");
+                });
 
             modelBuilder.Entity("CategoryMovie", b =>
                 {
@@ -50,6 +68,21 @@ namespace Movies.Infrastructure.Migrations
                     b.HasIndex("MoviesMovieId");
 
                     b.ToTable("CountryMovie");
+                });
+
+            modelBuilder.Entity("DirectorMovie", b =>
+                {
+                    b.Property<Guid>("DirectorsDirectorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("MoviesMovieId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("DirectorsDirectorId", "MoviesMovieId");
+
+                    b.HasIndex("MoviesMovieId");
+
+                    b.ToTable("DirectorMovie");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -218,6 +251,36 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("Achievements");
                 });
 
+            modelBuilder.Entity("Movies.Domain.Actor", b =>
+                {
+                    b.Property<Guid>("ActorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PhotoUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ActorId");
+
+                    b.ToTable("Actors");
+                });
+
             modelBuilder.Entity("Movies.Domain.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
@@ -246,6 +309,36 @@ namespace Movies.Infrastructure.Migrations
                     b.HasKey("CountryId");
 
                     b.ToTable("Countries");
+                });
+
+            modelBuilder.Entity("Movies.Domain.Director", b =>
+                {
+                    b.Property<Guid>("DirectorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PhotoUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("DirectorId");
+
+                    b.ToTable("Directors");
                 });
 
             modelBuilder.Entity("Movies.Domain.Movie", b =>
@@ -652,6 +745,21 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("UserRelations");
                 });
 
+            modelBuilder.Entity("ActorMovie", b =>
+                {
+                    b.HasOne("Movies.Domain.Actor", null)
+                        .WithMany()
+                        .HasForeignKey("ActorsActorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Movies.Domain.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesMovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CategoryMovie", b =>
                 {
                     b.HasOne("Movies.Domain.Category", null)
@@ -672,6 +780,21 @@ namespace Movies.Infrastructure.Migrations
                     b.HasOne("Movies.Domain.Country", null)
                         .WithMany()
                         .HasForeignKey("CountriesCountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Movies.Domain.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesMovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DirectorMovie", b =>
+                {
+                    b.HasOne("Movies.Domain.Director", null)
+                        .WithMany()
+                        .HasForeignKey("DirectorsDirectorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
