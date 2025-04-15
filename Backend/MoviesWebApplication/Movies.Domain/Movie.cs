@@ -28,5 +28,11 @@ namespace Movies.Domain
         //Pod osoby kina
         public ICollection<MoviePerson> MoviePerson { get; set; }
 
+        //Rekomendacje (dwa klucze obce)
+        public ICollection<MovieRecommendation> Recommendations { get; set; } //Lista filmów, które są rekomendowane jako podobne do tego filmu
+        public ICollection<MovieRecommendation> RecommendedBy { get; set; }   //Lista rekomendacji w których ten film został polecony przez inne filmy
+        //Userzy ktorzy obserwuja film
+        public ICollection<User> Followers { get; set; }
+
     }
 }

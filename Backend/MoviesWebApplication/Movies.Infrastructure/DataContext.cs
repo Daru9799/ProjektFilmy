@@ -30,6 +30,7 @@ namespace Movies.Infrastructure
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<MoviePerson> MoviePeople { get; set; }
+        public DbSet<MovieRecommendation> MovieRecommendations { get; set; }
 
         //Zdefiniowane ręcznie kluczy obcych w tabelce UserRelations oraz Notifications
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,6 +56,32 @@ namespace Movies.Infrastructure
                         .HasOne(m => m.TargetUser)
                         .WithMany(u => u.UserNotificationTo)
                         .HasForeignKey(m => m.TargetUserId);
+
+            modelBuilder.Entity<MovieRecommendation>()
+                        .HasOne(m => m.Movie)
+                        .WithMany(m => m.Recommendations)
+                        .HasForeignKey(m => m.MovieId);
+
+            modelBuilder.Entity<MovieRecommendation>()
+                .HasOne(m => m.RecommendedMovie)
+                .WithMany(m => m.RecommendedBy)
+                .HasForeignKey(m => m.RecommendedMovieId);
+
+            //Wymuszenie aby nie mozna bylo powtarzac rekomendacji (każda rekomendacja między dwoma filmami tylko raz)
+            modelBuilder.Entity<MovieRecommendation>()
+                .HasIndex(m => new { m.MovieId, m.RecommendedMovieId })
+                .IsUnique();
+
+            //Wymuszenie aby tabela posredniczaca userow obserwujacych osoby kina miala nazwe Followers z filmami to samo 
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.FollowedPeople)
+                .WithMany(p => p.Followers)
+                .UsingEntity(j => j.ToTable("Followers"));
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.FollowedMovies)
+                .WithMany(m => m.Followers)
+                .UsingEntity(j => j.ToTable("ReleaseFollowers"));
         }
     }
 }

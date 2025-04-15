@@ -16,6 +16,9 @@ namespace Movies.Domain
         public string Bio { get; set; }
         public DateTime BirthDate { get; set; }
         public string PhotoUrl { get; set; }
+        //Polaczenie z tabelą posredniczącą gdzie jest id filmu i rola
         public ICollection<MoviePerson> MoviePerson { get; set; }
+        // Userzy, które obserwują tę osobę
+        public ICollection<User> Followers { get; set; }
     }
 }

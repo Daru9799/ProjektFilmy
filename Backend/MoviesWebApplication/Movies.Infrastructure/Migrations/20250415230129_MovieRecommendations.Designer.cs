@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
@@ -11,9 +12,11 @@ using Movies.Infrastructure;
 namespace Movies.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250415230129_MovieRecommendations")]
+    partial class MovieRecommendations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,36 +200,6 @@ namespace Movies.Infrastructure.Migrations
                     b.HasIndex("MoviesMovieId");
 
                     b.ToTable("MovieMovieCollection");
-                });
-
-            modelBuilder.Entity("MovieRecommendationUser", b =>
-                {
-                    b.Property<string>("LikedByUsersId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<Guid>("LikedRecommendationsRecommendationId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("LikedByUsersId", "LikedRecommendationsRecommendationId");
-
-                    b.HasIndex("LikedRecommendationsRecommendationId");
-
-                    b.ToTable("MovieRecommendationUser");
-                });
-
-            modelBuilder.Entity("MovieUser", b =>
-                {
-                    b.Property<Guid>("FollowedMoviesMovieId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("FollowersId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("FollowedMoviesMovieId", "FollowersId");
-
-                    b.HasIndex("FollowersId");
-
-                    b.ToTable("ReleaseFollowers", (string)null);
                 });
 
             modelBuilder.Entity("Movies.Domain.Achievement", b =>
@@ -707,21 +680,6 @@ namespace Movies.Infrastructure.Migrations
                     b.ToTable("UserRelations");
                 });
 
-            modelBuilder.Entity("PersonUser", b =>
-                {
-                    b.Property<Guid>("FollowedPeoplePersonId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("FollowersId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("FollowedPeoplePersonId", "FollowersId");
-
-                    b.HasIndex("FollowersId");
-
-                    b.ToTable("Followers", (string)null);
-                });
-
             modelBuilder.Entity("CategoryMovie", b =>
                 {
                     b.HasOne("Movies.Domain.Category", null)
@@ -814,36 +772,6 @@ namespace Movies.Infrastructure.Migrations
                     b.HasOne("Movies.Domain.Movie", null)
                         .WithMany()
                         .HasForeignKey("MoviesMovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MovieRecommendationUser", b =>
-                {
-                    b.HasOne("Movies.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("LikedByUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.MovieRecommendation", null)
-                        .WithMany()
-                        .HasForeignKey("LikedRecommendationsRecommendationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MovieUser", b =>
-                {
-                    b.HasOne("Movies.Domain.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("FollowedMoviesMovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("FollowersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1016,21 +944,6 @@ namespace Movies.Infrastructure.Migrations
                     b.Navigation("FirstUser");
 
                     b.Navigation("SecondUser");
-                });
-
-            modelBuilder.Entity("PersonUser", b =>
-                {
-                    b.HasOne("Movies.Domain.Person", null)
-                        .WithMany()
-                        .HasForeignKey("FollowedPeoplePersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("FollowersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Movies.Domain.Achievement", b =>

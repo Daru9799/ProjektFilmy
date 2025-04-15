@@ -31,6 +31,12 @@ namespace Movies.Domain
         //Powiadomienia wysyłane i odbierane
         public ICollection<Notification> UserNotificationFrom { get; set; }
         public ICollection<Notification> UserNotificationTo { get; set; }
+        // Kolekcja rekomendacji, które użytkownik polubił
+        public ICollection<MovieRecommendation> LikedRecommendations { get; set; }
+        //Obserwowane osoby i filmy
+        public ICollection<Person> FollowedPeople { get; set; }
+        public ICollection<Movie> FollowedMovies { get; set; }
+
 
     }
 }
