@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.People;
 using Movies.Domain;
+using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {

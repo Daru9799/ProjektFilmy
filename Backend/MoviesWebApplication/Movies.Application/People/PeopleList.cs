@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
+using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 using Movies.Infrastructure;
-using static Movies.Domain.MoviePerson;
+using static Movies.Domain.Entities.MoviePerson;
 
 namespace Movies.Application.People
 {

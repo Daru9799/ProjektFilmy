@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Movies.Domain;
 using Movies.Infrastructure;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication
 {

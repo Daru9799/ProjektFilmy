@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Reviews;
 using Movies.Application.Users;
-using Movies.Domain;
+using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Movies;
 using Movies.Application.Reviews;
 using Movies.Domain;
+using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
 {

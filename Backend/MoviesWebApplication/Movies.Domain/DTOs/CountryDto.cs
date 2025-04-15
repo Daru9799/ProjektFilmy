@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Movies.Domain
+namespace Movies.Domain.DTOs
 {
-    public class CategoryDto
+    public class CountryDto
     {
-        public Guid CategoryId { get; set; }
+        public Guid CountryId { get; set; }
         public string Name { get; set; }
     }
 }

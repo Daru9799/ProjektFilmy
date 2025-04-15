@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Movies.Domain;
+using Movies.Domain.DTOs;
 using Movies.Infrastructure;
 
 namespace Movies.Application.People

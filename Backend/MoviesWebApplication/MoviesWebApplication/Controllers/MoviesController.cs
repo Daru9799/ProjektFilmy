@@ -8,6 +8,7 @@ using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Authorization;
+using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
 {

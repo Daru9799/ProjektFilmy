@@ -7,6 +7,8 @@ using MediatR;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Domain.Entities;
+using Movies.Domain.DTOs;
 
 namespace Movies.Application.Reviews
 {

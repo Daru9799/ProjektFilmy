@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
-using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Domain.Entities;
+using Movies.Domain.DTOs;
 
 namespace Movies.Application.Reviews
 {

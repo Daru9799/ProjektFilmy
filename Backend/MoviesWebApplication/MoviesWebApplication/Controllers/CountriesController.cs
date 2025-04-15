@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Countries;
-using Movies.Domain;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {

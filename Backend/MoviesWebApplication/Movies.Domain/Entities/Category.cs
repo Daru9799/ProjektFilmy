@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 
-namespace Movies.Domain
+namespace Movies.Domain.Entities
 {
     public class Category
     {

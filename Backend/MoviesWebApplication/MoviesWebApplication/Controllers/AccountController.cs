@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Domain;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Movies.Domain.Entities;
+using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
 {

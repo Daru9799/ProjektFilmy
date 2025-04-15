@@ -4,9 +4,9 @@ using Movies.Infrastructure;
 using Movies.Application.Movies;
 using MoviesWebApplication;
 using Microsoft.AspNetCore.Identity;
-using Movies.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Movies.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

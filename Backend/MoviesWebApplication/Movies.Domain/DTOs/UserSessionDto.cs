@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Movies.Domain
+namespace Movies.Domain.DTOs
 {
     //Sesja bedzie zwracane po zalogowaniu
     public class UserSessionDto

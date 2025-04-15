@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
-using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Domain.Entities;
 
 namespace Movies.Application.Categories
 {

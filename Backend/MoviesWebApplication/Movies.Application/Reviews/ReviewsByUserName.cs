@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Domain.Entities;
+using Movies.Domain.DTOs;
 
 namespace Movies.Application.Reviews
 {

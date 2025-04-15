@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Movies.Domain.Entities;
 
-namespace Movies.Domain
+namespace Movies.Domain.DTOs
 {
     //Model do zwracania profilów użytkowników
     public class UserProfileDto

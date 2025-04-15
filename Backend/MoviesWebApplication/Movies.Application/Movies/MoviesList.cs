@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
+using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 using Movies.Infrastructure;
 
 namespace Movies.Application.Movies
