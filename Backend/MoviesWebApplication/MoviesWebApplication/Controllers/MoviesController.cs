@@ -1,12 +1,6 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Movies;
-using Movies.Application.Categories;
-using Movies.Application.Countries;
-using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
-using Movies.Infrastructure;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Authorization;
 using Movies.Domain.DTOs;
 
@@ -91,6 +85,63 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(pagedMovies);
+        }
+
+        [HttpGet("by-collectionId/{collectionId}")]
+        public async Task<ActionResult<MovieDto>> GetMoviesByCollectionId(Guid collectionId)
+        {
+            var movie = await Mediator.Send(new MovieByCollectionId.Query { CollectionId = collectionId });
+
+            if (movie == null)
+            {
+                return NotFound($"Nie odnaleziono filmu dla kolekcji z id {collectionId}.");
+            }
+
+            return Ok(movie);
+        }
+
+        [Authorize]
+        [HttpPost("{collectionId}/add-movie/{movieId}")]
+        public async Task<IActionResult> AddMovieToCollection(Guid collectionId, Guid movieId)
+        {
+            try
+            {
+                var command = new AddMovieToCollection.AddMovieToCollectionCommand
+                {
+                    MovieCollectionId = collectionId,
+                    MovieId = movieId
+                };
+
+                var updatedCollection = await Mediator.Send(command);
+
+                return Ok(updatedCollection);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("{collectionId}/{movieId}")]
+        public async Task<IActionResult> DeleteMovieFromCollection(Guid collectionId, Guid movieId)
+        {
+            var result = await Mediator.Send(new DeleteMovieFromCollection.DeleteMovieFromCollectionCommand
+            {
+                MovieCollectionId = collectionId,
+                MovieId = movieId
+            });
+
+            if (result == null)
+            {
+                return NotFound($"Nie znaleziono kolekcji filmów o ID: {collectionId} lub filmu o ID: {movieId}.");
+            }
+
+            return Ok(result);
         }
     }
 }

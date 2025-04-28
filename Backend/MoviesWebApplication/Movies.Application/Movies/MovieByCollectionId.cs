@@ -1,16 +1,16 @@
 ﻿using MediatR;
-using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
+using Movies.Infrastructure;
 
 namespace Movies.Application.Movies
 {
-    public class MoviesByActorId
+    public class MovieByCollectionId
     {
         public class Query : IRequest<List<MovieDto>>
         {
-            public Guid ActorId { get; set; }
+            public Guid CollectionId { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, List<MovieDto>>
@@ -23,14 +23,14 @@ namespace Movies.Application.Movies
 
             public async Task<List<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                //Pobiera filmy na podstawie ID aktora
+                //Pobiera filmy na podstawie ID listy filmów
                 var movies = await _context.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .Include(m => m.MoviePerson)
-                        .ThenInclude(mp => mp.Person)
-                    .Where(m => m.MoviePerson.Any(mp => mp.Person.PersonId == request.ActorId && mp.Role == MoviePerson.PersonRole.Actor))
+                    .ThenInclude(mp => mp.Person)
+                    .Where(m => m.MovieCollections.Any(mc => mc.MovieCollectionId == request.CollectionId))
                     .ToListAsync(cancellationToken);
 
                 if (!movies.Any())
@@ -70,6 +70,6 @@ namespace Movies.Application.Movies
                     }).ToList()
                 }).ToList();
             }
-        }
+        }   
     }
 }

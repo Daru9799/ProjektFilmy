@@ -34,7 +34,7 @@ namespace MoviesWebApplication.Controllers
 
         [AllowAnonymous]
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<MovieCollection>>> GetReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<PagedResponse<MovieCollection>>> GetMoiveCollection([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
             var query = new MovieCollectionList.Query
             {
@@ -49,7 +49,7 @@ namespace MoviesWebApplication.Controllers
 
 
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("add-collection")]
         public async Task<IActionResult> CreateMovieCollection([FromBody] CreateMovieCollection.CreateMovieCollectionCommand command)
         {
@@ -65,9 +65,9 @@ namespace MoviesWebApplication.Controllers
         }
 
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpDelete("delete-collection/{id}")]
-        public async Task<IActionResult> DeleteReview(Guid id)
+        public async Task<IActionResult> DeleteMovieCollection(Guid id)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace MoviesWebApplication.Controllers
 
 
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPatch("edit-collection/{id}")]
         public async Task<IActionResult> EditMovieCollection(Guid id, [FromBody] EditMovieCollection.EditMovieCollectionCommand command)
         {
