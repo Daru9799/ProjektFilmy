@@ -10,7 +10,7 @@ namespace MoviesWebApplication.Controllers
 {
     public class MovieCollectionController:BaseApiController
     {
-        [AllowAnonymous]
+        [AllowAnonymous] 
         [HttpGet("by-user-id/{userId}")]
         public async Task<ActionResult<List<MovieCollection>>> GetMovieCollectionsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "likes", [FromQuery] string sortDirection = "desc")
         {
@@ -32,7 +32,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(reviews);
         }
 
-        [AllowAnonymous]
+        [AllowAnonymous] // do testow
         [HttpGet("all")]
         public async Task<ActionResult<PagedResponse<MovieCollection>>> GetMoiveCollection([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {

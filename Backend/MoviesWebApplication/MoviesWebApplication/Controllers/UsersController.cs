@@ -1,8 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Application.Reviews;
 using Movies.Application.Users;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
@@ -32,5 +29,20 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(user);
         }
+
+        [Authorize]
+        [HttpGet("statistics/{userId}")]
+        public async Task<ActionResult<StatisticsDto>> StatistcsByUserId(Guid userId)
+        {
+            var statistics = await Mediator.Send(new UserStatisticsByUserId.Query { UserId = userId });
+
+            if (statistics == null)
+            {
+                return NotFound($"Nie znaleziono użytkownika o Id: {userId}");
+            }
+
+            return Ok(statistics);
+        }
+
     }
 }
