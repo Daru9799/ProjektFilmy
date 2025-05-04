@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.VisualBasic.FileIO;
+﻿using Microsoft.AspNetCore.Identity;
 using Movies.Domain.Entities;
 
 namespace Movies.Infrastructure
@@ -66,6 +59,13 @@ namespace Movies.Infrastructure
             var japan = new Country { Name = "Japonia" };
             var newZeland = new Country { Name = "Nowa Zelandia" };
             var southKorea = new Country { Name = "Korea Południowa" };
+
+            //Osiągnięcia
+            var kinoManiak = new Achievement { Title = "KinoManiak", Description = "Obejrzałeś już 100 filmów!" };
+            var pierwszySeans = new Achievement { Title = "Pierwszy Seans", Description = "Obejrzałeś swój pierwszy film!" };
+            var maratonFilmowy = new Achievement { Title = "Maraton Filmowy", Description = "Obejrzałeś 5 filmów jednego dnia!" };
+            var krytykFilmowy = new Achievement { Title = "Krytyk Filmowy", Description = "Dodałeś już 10 recenzji!" };
+            var horrofil = new Achievement { Title = "HorroFil", Description = "Obejrzałeś 10 horrorów." };
 
             //Gatunki
             var action = new Category
