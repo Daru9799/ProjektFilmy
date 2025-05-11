@@ -9,8 +9,8 @@ namespace MoviesWebApplication.Controllers
     //Tylko do testów
     public class UsersController : BaseApiController
     {
-        [HttpGet("all")]
         [Authorize]
+        [HttpGet("all")]
         public async Task<ActionResult<List<User>>> GetUsers()
         {
             return await Mediator.Send(new UsersList.Query());
@@ -44,5 +44,24 @@ namespace MoviesWebApplication.Controllers
             return Ok(statistics);
         }
 
+        [Authorize]
+        [HttpPatch("change-role/{userId}")]
+        public async Task<IActionResult> ChangeUserRole(string userId, [FromBody] ChangeUserRoleDto dto)
+        {
+            var command = new EditUserRole.Command
+            {
+                UserId = userId,
+                NewRole = dto.NewRole
+            };
+
+            var result = await Mediator.Send(command);
+
+            if (!result)
+            {
+                return BadRequest("Nie udało się zmienić roli użytkownika. Sprawdź czy użytkownik lub podana rola istnieją.");
+            }
+
+            return Ok("Rola została zmieniona.");
+        }
     }
 }
