@@ -27,7 +27,7 @@ namespace Movies.Application.Reviews
 
         public async Task<Review> Handle(DeleteReview request, CancellationToken cancellationToken)
         {
-            // Pobranie recenzji z bazy
+            //Pobranie recenzji z bazy
             var review = await _context.Reviews
                 .FirstOrDefaultAsync(r => r.ReviewId == request.ReviewId, cancellationToken);
 

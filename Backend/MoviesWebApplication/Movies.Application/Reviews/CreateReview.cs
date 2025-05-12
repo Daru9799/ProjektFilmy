@@ -19,7 +19,7 @@ namespace Movies.Application.Reviews
             public string Comment { get; set; }
             public DateTime Date { get; set; }
             public Guid MovieId { get; set; }
-            public string UserName { get; set; }  // Nazwa użytkownika
+            public string UserName { get; set; }
 
             public class Handler : IRequestHandler<CreateReviewCommand, Review>
             {

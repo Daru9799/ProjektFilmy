@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
+using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Movies.Domain.Entities;
 
-namespace Movies.Application.Reviews
+namespace Movies.Application.MovieCollectionReviews
 {
-    public class EditReview 
+    public class EditMovieCollectionReview
     {
-        public class EditReviewCommand : IRequest<Review>
+        public class EditMovieCollectionReviewCommand : IRequest<MovieCollectionReview>
         {
             public Guid ReviewId { get; set; }
-            //Edycja tylko dla ocen i komentarzy
-            public float? Rating { get; set; } 
-            public string Comment { get; set; } 
+            public float? Rating { get; set; }
+            public string Comment { get; set; }
+            public bool? Spoilers { get; set; }
         }
 
-        public class Handler : IRequestHandler<EditReviewCommand, Review>
+        public class Handler : IRequestHandler<EditMovieCollectionReviewCommand, MovieCollectionReview>
         {
             private readonly DataContext _context;
 
@@ -30,18 +29,16 @@ namespace Movies.Application.Reviews
                 _context = context;
             }
 
-            public async Task<Review> Handle(EditReviewCommand request, CancellationToken cancellationToken)
+            public async Task<MovieCollectionReview> Handle(EditMovieCollectionReviewCommand request, CancellationToken cancellationToken)
             {
-                //Pobranie recenzji z bazy
-                var review = await _context.Reviews
-                    .FirstOrDefaultAsync(r => r.ReviewId == request.ReviewId, cancellationToken);
+                var review = await _context.MovieCollectionReviews
+                    .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.ReviewId, cancellationToken);
 
                 if (review == null)
                 {
                     return null;
                 }
 
-                //Aktualizacja pól
                 if (request.Rating.HasValue)
                 {
                     review.Rating = request.Rating.Value;
@@ -52,7 +49,11 @@ namespace Movies.Application.Reviews
                     review.Comment = request.Comment;
                 }
 
-                //Zapis zmian w bazie danych
+                if (request.Spoilers.HasValue)
+                {
+                    review.Spoilers = request.Spoilers.Value;
+                }
+
                 await _context.SaveChangesAsync(cancellationToken);
 
                 return review;
