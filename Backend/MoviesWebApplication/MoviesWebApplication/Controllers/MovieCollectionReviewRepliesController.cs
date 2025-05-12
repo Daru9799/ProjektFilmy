@@ -29,7 +29,7 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(replies);
         }
-        //Dodawanie nowej odpowiedzi
+        //Dodawanie nowego komentarza do recenzji listy filmowej
         [AllowAnonymous]
         [HttpPost("add-review-reply")]
         public async Task<IActionResult> CreateReviewReply([FromBody] CreateMovieCollectionReviewReply.CreateMovieCollectionReviewReplyCommand command)
@@ -42,6 +42,46 @@ namespace MoviesWebApplication.Controllers
             catch (ValidationException ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+        //Usuwanie komentarza do recenzji listy filmowej
+        [AllowAnonymous]
+        [HttpDelete("delete-review-reply/{id}")]
+        public async Task<IActionResult> DeleteReviewReply(Guid id)
+        {
+            var result = await Mediator.Send(new DeleteMovieCollectionReviewReply(id));
+
+            if (result == null)
+            {
+                return NotFound($"Nie znaleziono komentarza o ID: {id}");
+            }
+
+            return Ok(result);
+        }
+        //Edycja komentarza do recenzji listy filmowej
+        [AllowAnonymous]
+        [HttpPut("edit-review-reply/{id}")]
+        public async Task<IActionResult> EditReviewReply(Guid id, [FromBody] EditMovieCollectionReviewReply.EditMovieCollectionReviewReplyCommand command)
+        {
+            try
+            {
+                command.ReplyId = id;
+
+                var reply = await Mediator.Send(command);
+                if (reply == null)
+                {
+                    return NotFound($"Nie znaleziono komentarza o ID: {id}");
+                }
+
+                return Ok(reply);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
             }
         }
     }
