@@ -114,7 +114,7 @@ namespace MoviesWebApplication.Controllers
 
                 var updatedCollection = await Mediator.Send(command);
 
-                return Ok(updatedCollection);
+                return Ok("Pomyślnie dodano film do kolekcji.");
             }
             catch (InvalidOperationException ex)
             {
@@ -141,7 +141,7 @@ namespace MoviesWebApplication.Controllers
                 return NotFound($"Nie znaleziono kolekcji filmów o ID: {collectionId} lub filmu o ID: {movieId}.");
             }
 
-            return Ok(result);
+            return Ok("Pomyślnie usunięto film z kolekcji.");
         }
     }
 }

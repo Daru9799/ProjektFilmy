@@ -55,13 +55,13 @@ namespace Movies.Application.Reviews
                     _ => query.OrderBy(m => m.ReviewId) //Domyślne sortowanie po id
                 };
 
-                // Paginacja
+                //Paginacja
                 var reviews = await query
                     .Skip((request.PageNumber - 1) * request.PageSize)
                     .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
 
-                // Obliczenie całkowitej liczby elementów
+                //Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);
 
                 //Pobieranie tokena JWT z nagłówka

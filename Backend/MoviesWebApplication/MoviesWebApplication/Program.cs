@@ -10,14 +10,11 @@ using Movies.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Dodaj HttpContextAccessor
+//HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
 //Kontekst bazy danych
@@ -36,14 +33,14 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Movie
 
 builder.Services.AddControllers(opt =>
 {
-    // Dodanie globalnej polityki autoryzacji
+    //Dodanie globalnej polityki autoryzacji
     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     opt.Filters.Add(new AuthorizeFilter(policy));
 })
 //Naprawienie bledu z poprawnym wyswietlaniem obiektów z innych tabel
 .AddJsonOptions(options =>
 {
-    // Konfiguracja serializacji JSON
+    //Konfiguracja serializacji JSON
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
 });
 
@@ -60,7 +57,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -77,7 +73,6 @@ app.UseCors("AllowAll");
 
 app.MapControllers();
 
-//TWORZENIE BAZY DANYCH PUNKT 10
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 

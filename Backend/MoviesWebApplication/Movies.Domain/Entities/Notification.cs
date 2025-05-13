@@ -22,9 +22,9 @@ namespace Movies.Domain.Entities
         public bool IsRead { get; set; }
         public string Resource { get; set; }
         //Relacja miedzy tabela Users
-        public string SourceUserId { get; set; } //W przypadku czegos od strony bedzie domyslne id typu 0 (admin)
+        public string? SourceUserId { get; set; } //Nullable dla systemowych
         public string TargetUserId { get; set; }
-        public User SourceUser { get; set; }
+        public User? SourceUser { get; set; }
         public User TargetUser { get; set; }
     }
 }

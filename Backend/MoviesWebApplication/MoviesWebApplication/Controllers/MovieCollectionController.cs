@@ -56,7 +56,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var movieCollection = await Mediator.Send(command);
-                return Ok(movieCollection);
+                return Ok("Pomyślnie utworzono kolekcje.");
             }
             catch (ValidationException ex)
             {
@@ -78,7 +78,7 @@ namespace MoviesWebApplication.Controllers
                     return NotFound($"Nie znaleziono listy filmów z ID: {id}");
                 }
 
-                return Ok(result);
+                return Ok("Pomyślnie usunięto kolekcje.");
             }
             catch (InvalidOperationException ex)
             {
@@ -102,7 +102,7 @@ namespace MoviesWebApplication.Controllers
 
                 var movieCollection = await Mediator.Send(command);
 
-                return Ok(movieCollection);
+                return Ok("Pomyślnie zmieniono kolekcje.");
             }
             catch (InvalidOperationException ex)
             {
