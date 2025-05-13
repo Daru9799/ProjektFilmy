@@ -9,7 +9,8 @@ namespace MoviesWebApplication.Controllers
     //Tylko do testów
     public class UsersController : BaseApiController
     {
-        [Authorize]
+        //Potem wyłączyć (a najlepiej usunąć bo jest to endpoint testowy xD)
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<ActionResult<List<User>>> GetUsers()
         {

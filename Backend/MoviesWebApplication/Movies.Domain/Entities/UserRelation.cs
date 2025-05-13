@@ -13,8 +13,8 @@ namespace Movies.Domain.Entities
         public Guid UserRelationId { get; set; }
         public enum RelationType
         {
-            Friend, //Lista obejrzanych
-            Blocked    //Lista planowanych
+            Friend, //Znajomi
+            Blocked    //Zablokowani
         }
         public RelationType Type { get; set; }
         //Relacja miedzy tabela Users

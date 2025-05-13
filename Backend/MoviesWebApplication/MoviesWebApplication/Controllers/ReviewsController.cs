@@ -23,9 +23,9 @@ namespace MoviesWebApplication.Controllers
                 OrderBy = orderBy
             };
 
-            var pagedReviews = await Mediator.Send(query);
+            var reviews = await Mediator.Send(query);
 
-            return Ok(pagedReviews);
+            return Ok(reviews);
         }
         //Zwracanie recenzji na podstawie ID filmu
         [AllowAnonymous]
@@ -79,7 +79,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var review = await Mediator.Send(command);
-                return Ok(review); 
+                return Ok("Pomyślnie dodano recenzje."); 
             }
             catch (ValidationException ex)
             {
@@ -99,7 +99,7 @@ namespace MoviesWebApplication.Controllers
                 return NotFound($"Nie znaleziono recenzji o ID: {id}");
             }
 
-            return Ok(result);
+            return Ok("Recenzja została pomyslnie usunięta.");
         }
         //Edycja recenzji
         [Authorize]
@@ -116,7 +116,7 @@ namespace MoviesWebApplication.Controllers
                     return NotFound($"Nie znaleziono recenzji o ID: {id}");
                 }
 
-                return Ok(review);
+                return Ok("Recenzja została zmieniona.");
             }
             catch (ValidationException ex)
             {

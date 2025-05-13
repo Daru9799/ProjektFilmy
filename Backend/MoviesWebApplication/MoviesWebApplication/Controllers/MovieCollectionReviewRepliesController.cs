@@ -37,7 +37,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var reply = await Mediator.Send(command);
-                return Ok(reply);
+                return Ok("Pomyślnie dodano komentarz.");
             }
             catch (ValidationException ex)
             {
@@ -56,7 +56,7 @@ namespace MoviesWebApplication.Controllers
                 return NotFound($"Nie znaleziono komentarza o ID: {id}");
             }
 
-            return Ok(result);
+            return Ok("Pomyślnie usunięto komentarz.");
         }
         //Edycja komentarza do recenzji listy filmowej
         [AllowAnonymous]
@@ -73,7 +73,7 @@ namespace MoviesWebApplication.Controllers
                     return NotFound($"Nie znaleziono komentarza o ID: {id}");
                 }
 
-                return Ok(reply);
+                return Ok("Pomyślnie zmieniono komentarz.");
             }
             catch (ValidationException ex)
             {

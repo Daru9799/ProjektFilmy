@@ -39,7 +39,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var review = await Mediator.Send(command);
-                return Ok(review);
+                return Ok("Pomyślnie dodano recenzje.");
             }
             catch (ValidationException ex)
             {
@@ -58,7 +58,7 @@ namespace MoviesWebApplication.Controllers
                 return NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}");
             }
 
-            return Ok(result);
+            return Ok("Pomyślnie usunięto recenzje.");
         }
         //Edycja recenzji listy filmowej
         [AllowAnonymous]
@@ -75,7 +75,7 @@ namespace MoviesWebApplication.Controllers
                     return NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}");
                 }
 
-                return Ok(review);
+                return Ok("Pomyślnie zmieniono recenzje.");
             }
             catch (ValidationException ex)
             {
