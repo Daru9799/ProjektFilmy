@@ -8,6 +8,7 @@ using MediatR;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application.Interfaces;
 
 namespace Movies.Application.Notifications
 {
@@ -27,10 +28,12 @@ namespace Movies.Application.Notifications
             public class Handler : IRequestHandler<CreateNotificationCommand, Notification>
             {
                 private readonly DataContext _context;
+                private readonly INotificationSender _notificationSender;
 
-                public Handler(DataContext context)
+                public Handler(DataContext context, INotificationSender notificationSender)
                 {
                     _context = context;
+                    _notificationSender = notificationSender;
                 }
 
                 public async Task<Notification> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
@@ -79,6 +82,9 @@ namespace Movies.Application.Notifications
 
                     _context.Notifications.Add(notification);
                     await _context.SaveChangesAsync(cancellationToken);
+
+                    //Wysłanie powiadomienia przez SignalR
+                    await _notificationSender.SendAsync(notification);
 
                     return notification;
                 }

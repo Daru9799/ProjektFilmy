@@ -12,6 +12,7 @@ import UserPage from './components/User_componets/UserPage';
 import DirectorPage from './components/SearchDirectors_componets/DirectorPage';
 import ActorPage from './components/SearchActors_componets/ActorPage';
 import UserReviewsPage from './components/User_componets/UserReviews';
+import NotificationTestPage from './components/TEST_COMPONENTS/NotificationTestPage';
 
 
 
@@ -29,7 +30,8 @@ export const routes: RouteObject[] = [
       { path: "/user/:userName", element: <UserPage /> },
       { path: "/actor/:actorId", element: <ActorPage /> },
       { path: "/director/:directorId", element: <DirectorPage /> },
-      { path: "/user/:userName/reviews", element: <UserReviewsPage /> }
+      { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
+      { path: "/notifications", element: <NotificationTestPage/>}
     ],
   },
 ];

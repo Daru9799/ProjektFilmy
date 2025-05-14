@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Movies.Infrastructure;
 using Movies.Application.Movies;
@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Hubs;
+using Movies.Application.Interfaces;
+using MoviesWebApplication.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,14 @@ builder.Services.AddSwaggerGen();
 
 //HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
+
+//SingnalR
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
+
+builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
 
 //Kontekst bazy danych
 builder.Services.AddDbContext<DataContext>(opt =>
@@ -37,7 +48,7 @@ builder.Services.AddControllers(opt =>
     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     opt.Filters.Add(new AuthorizeFilter(policy));
 })
-//Naprawienie bledu z poprawnym wyswietlaniem obiekt�w z innych tabel
+//Naprawienie bledu z poprawnym wyswietlaniem obiektów z innych tabel
 .AddJsonOptions(options =>
 {
     //Konfiguracja serializacji JSON
@@ -46,11 +57,12 @@ builder.Services.AddControllers(opt =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000") //Adres dla frontu
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -65,11 +77,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors("AllowAll");
 
 app.MapControllers();
 
@@ -89,5 +101,11 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "Error");
 }
+
+//WebScoket zeby SignalR dzialał
+app.UseWebSockets();
+
+//Rejestracja endpointu SignalR dla powiadomien w czasie rzeczywistym pod adresem /notificationHub
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
