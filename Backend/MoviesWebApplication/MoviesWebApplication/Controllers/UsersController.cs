@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Movies.Application.Movies;
 using Movies.Application.Users;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using System.Security.Claims;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -63,6 +65,143 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok("Rola została zmieniona.");
+        }
+
+        [Authorize]
+        [HttpPost("add-follow-person/{personId}")]
+        public async Task<IActionResult> AddFollowToPerson(Guid personId)
+        {
+            try
+            {
+                // userId pobierane jest z Tokena
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Nieprawidłowy token: brak identyfikatora użytkownika." });
+                }
+
+                var command = new AddFollowToPerson.AddFollowToPersonCommand
+                {
+                    PersonId = personId,
+                    UserId = userId,
+                };
+
+                var updatedCollection = await Mediator.Send(command);
+
+                return Ok("Pomyślnie zaczęto obserwować osobę.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("delete-follow-person/{personId}")]
+        public async Task<IActionResult> DeleteFollowFromPerson(Guid personId)
+        {
+            try
+            {
+                // userId pobierane jest z Tokena
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Nieprawidłowy token: brak identyfikatora użytkownika." });
+                }
+
+                var command = new DeleteFollowFromPerson.DeleteFollowFromPersonCommand
+                {
+                    PersonId = personId,
+                    UserId = userId,
+                };
+
+                var updatedCollection = await Mediator.Send(command);
+
+                return Ok("Pomyślnie przestano obserwować osobę");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("add-follow-movie/{movieId}")]
+        public async Task<IActionResult> AddFollowToMovie(Guid movieId)
+        {
+            try
+            {
+                // userId pobierane jest z Tokena
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Nieprawidłowy token: brak identyfikatora użytkownika." });
+                }
+
+                var command = new AddFollowToMovie.AddFollowToMovieCommand
+                {
+                    MovieId = movieId,
+                    UserId = userId,
+                };
+
+                var updatedCollection = await Mediator.Send(command);
+
+                return Ok("Pomyślnie zaczęto obserwować film.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        
+        [Authorize]
+        [HttpDelete("delete-follow-movie/{movieId}")]
+        public async Task<IActionResult> DeleteFollowFromMovie(Guid movieId)
+        {
+            try
+            {
+                // userId pobierane jest z Tokena
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Nieprawidłowy token: brak identyfikatora użytkownika." });
+                }
+
+                var command = new DeleteFollowFromMovie.DeleteFollowFromMovieCommand
+                {
+                    MovieId = movieId,
+                    UserId = userId,
+                };
+
+                var updatedCollection = await Mediator.Send(command);
+
+                return Ok("Pomyślnie przestano obserwować film");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }
