@@ -44,7 +44,7 @@ namespace Movies.Application.Users
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .Include(m => m.MoviePerson)
-                        .ThenInclude(mp => mp.Person) // ← kluczowe!
+                        .ThenInclude(mp => mp.Person) 
                     .ToListAsync(cancellationToken);
 
 
@@ -72,7 +72,8 @@ namespace Movies.Application.Users
                     {
                         PersonId = g.Key.PersonId,
                         FirstName = g.Key.FirstName,
-                        LastName = g.Key.LastName
+                        LastName = g.Key.LastName,
+                        PhotoUrl = g.Key.PhotoUrl
                     })
                     .FirstOrDefault();  // Zwróci pierwszego aktora, jeśli istnieje
 
@@ -89,7 +90,8 @@ namespace Movies.Application.Users
                     {
                         PersonId = g.Key.PersonId,
                         FirstName = g.Key.FirstName,
-                        LastName = g.Key.LastName
+                        LastName = g.Key.LastName,
+                        PhotoUrl=g.Key.PhotoUrl
                     })
                     .FirstOrDefault();  // Zwróci pierwszego reżysera, jeśli istnieje
 

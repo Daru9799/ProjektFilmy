@@ -1,23 +1,24 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
-using Movies.Domain.Entities;
+using Movies.Domain.DTOs;
 using Movies.Infrastructure;
+
 
 namespace Movies.Application.MovieCollections
 {
     public class CollectionsByUserId
     {
-        public class Query : IRequest<PagedResponse<MovieCollection>>
+        public class Query : IRequest<PagedResponse<MovieCollectionDto>>
         {
-            public Guid UserId;
+            public Guid UserId { get; set; }
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public string OrderBy { get; set; }
             public string SortDirection { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, PagedResponse<MovieCollection>>
+        public class Handler : IRequestHandler<Query, PagedResponse<MovieCollectionDto>>
         {
             private readonly DataContext _context;
 
@@ -26,10 +27,12 @@ namespace Movies.Application.MovieCollections
                 _context = context;
             }
 
-            public async Task<PagedResponse<MovieCollection>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<PagedResponse<MovieCollectionDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var query = _context.MovieCollections
                     .Where(mc => mc.User.Id == request.UserId.ToString() && mc.Type == Domain.Entities.MovieCollection.CollectionType.Custom)
+                    .Include(mc => mc.Movies)
+                    .Include(mc => mc.User) 
                     .AsQueryable();
 
                 // Sortowanie
@@ -56,9 +59,33 @@ namespace Movies.Application.MovieCollections
                     .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
 
-                return new PagedResponse<MovieCollection>
+                // Konwersja MovieCollection na MovieCollectionDto
+                var movieCollectionDtos = data.Select(mc => new MovieCollectionDto
                 {
-                    Data = data,
+                    MovieCollectionId = mc.MovieCollectionId,
+                    Title = mc.Title,
+                    Description = mc.Description,
+                    ShareMode = mc.ShareMode.ToString(),
+                    AllowCopy = mc.AllowCopy,
+                    CollectionType = mc.Type.ToString(),
+                    LikesCounter = mc.LikesCounter,
+                    UserName = mc.User.UserName,
+                    Movies = mc.Movies.Select(m => new MovieDto
+                    {
+                        MovieId = m.MovieId,
+                        Title = m.Title,
+                        PosterUrl=m.PosterUrl
+
+                    }).ToList()
+                }).ToList();
+
+                // Obliczenie całkowitej liczby elementów
+                int totalItems = await query.CountAsync(cancellationToken);
+
+                return new PagedResponse<MovieCollectionDto>
+                {
+                    Data = movieCollectionDtos,
+                    TotalItems = totalItems,
                     PageNumber = request.PageNumber,
                     PageSize = request.PageSize
                 };

@@ -1,67 +1,80 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+using Movies.Domain.DTOs;
 using Movies.Domain;
-using Movies.Domain.Entities;
 using Movies.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
-namespace Movies.Application.Achievements
+public class AchievementsByUserId
 {
-    public class AchievementsByUserId
+    public class Query : IRequest<PagedResponse<UserAchievementDto>>
     {
-        public class Query:IRequest<PagedResponse<UserAchievement>>
+        public Guid UserId { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public string OrderBy { get; set; }
+        public string SortDirection { get; set; }
+    }
+
+    public class Handler : IRequestHandler<Query, PagedResponse<UserAchievementDto>>
+    {
+        private readonly DataContext _context;
+
+        public Handler(DataContext context)
         {
-            public Guid UserId;
-            public int PageNumber { get; set; }
-            public int PageSize { get; set; }
-            public string OrderBy { get; set; }
-            public string SortDirection { get; set; }
+            _context = context;
         }
 
-        public class Handler:IRequestHandler<Query, PagedResponse<UserAchievement>>
+        public async Task<PagedResponse<UserAchievementDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            private readonly DataContext _context;
+            var query = _context.UserAchievements
+                .Include(ua => ua.User)
+                .Include(ua => ua.Achievement)
+                .Where(ua => ua.User.Id == request.UserId.ToString());
 
-            public Handler(DataContext context)
+            if (!string.IsNullOrEmpty(request.OrderBy))
             {
-                _context = context;
-            }
-
-            public async Task<PagedResponse<UserAchievement>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var query = _context.UserAchievements
-                    .Where(ua => ua.User.Id == request.UserId.ToString());
-
-                if (!string.IsNullOrEmpty(request.OrderBy))
+                if (request.OrderBy.Equals("Date", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (request.OrderBy.Equals("Date", StringComparison.OrdinalIgnoreCase))
-                    {
-                        query = request.SortDirection?.ToLower() == "desc"
-                            ? query.OrderByDescending(ua => ua.Date)
-                            : query.OrderBy(ua => ua.Date);
-                    }
-                    else if (request.OrderBy.Equals("Title", StringComparison.OrdinalIgnoreCase))
-                    {
-                        query = request.SortDirection?.ToLower() == "desc"
-                            ? query.OrderByDescending(ua => ua.Achievement.Title)
-                            : query.OrderBy(ua => ua.Achievement.Title);
-                    }
+                    query = request.SortDirection?.ToLower() == "desc"
+                        ? query.OrderByDescending(ua => ua.Date)
+                        : query.OrderBy(ua => ua.Date);
                 }
-
-                // Paginacja
-                var skip = (request.PageNumber - 1) * request.PageSize;
-                var data = await query
-                    .Skip(skip)
-                    .Take(request.PageSize)
-                    .ToListAsync(cancellationToken);
-
-                return new PagedResponse<UserAchievement>
+                else if (request.OrderBy.Equals("Title", StringComparison.OrdinalIgnoreCase))
                 {
-                    Data = data,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
-                };
-
+                    query = request.SortDirection?.ToLower() == "desc"
+                        ? query.OrderByDescending(ua => ua.Achievement.Title)
+                        : query.OrderBy(ua => ua.Achievement.Title);
+                }
             }
+
+            var skip = (request.PageNumber - 1) * request.PageSize;
+            var data = await query
+                .Skip(skip)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+
+            int totalItems = await query.CountAsync(cancellationToken);
+
+
+            var userAchievementDtos = data.Select(ua => new UserAchievementDto
+            {
+                UserAchievementId = ua.UserAchievementId,
+                Date = ua.Date,
+                Achievement = new AchievementDto
+                {
+                    AchievementId = ua.Achievement.AchievementId,
+                    Title = ua.Achievement.Title,
+                    Description = ua.Achievement.Description
+                },
+            }).ToList();
+
+            return new PagedResponse<UserAchievementDto>
+            {
+                Data = userAchievementDtos,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalItems = totalItems
+            };
         }
     }
 }

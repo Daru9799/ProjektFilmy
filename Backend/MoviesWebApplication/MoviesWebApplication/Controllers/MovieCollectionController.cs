@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollections;
 using Movies.Domain;
+using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 
 
@@ -11,8 +12,8 @@ namespace MoviesWebApplication.Controllers
     public class MovieCollectionController:BaseApiController
     {
         [AllowAnonymous] 
-        [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<MovieCollection>>> GetMovieCollectionsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "likes", [FromQuery] string sortDirection = "desc")
+        [HttpGet("by-user-id/{userId}")]  // tylko Custom (2)
+        public async Task<ActionResult<List<MovieCollectionDto>>> GetMovieCollectionsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "likes", [FromQuery] string sortDirection = "desc")
         {
             var query = new CollectionsByUserId.Query
             {
@@ -34,7 +35,7 @@ namespace MoviesWebApplication.Controllers
 
         [AllowAnonymous] // do testow
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<MovieCollection>>> GetMoiveCollection([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<PagedResponse<MovieCollectionDto>>> GetMoiveCollection([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
             var query = new MovieCollectionList.Query
             {
@@ -47,7 +48,19 @@ namespace MoviesWebApplication.Controllers
             return Ok(pagedReviews);
         }
 
+        [AllowAnonymous]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MovieCollectionDto>> GetMovieCollection(Guid id)
+        {
+            var movie = await Mediator.Send(new CollectionById.Query { Id = id });
 
+            if (movie == null)
+            {
+                return NotFound($"Nie odnaleziono listy filmów z id {id}.");
+            }
+
+            return Ok(movie);
+        }
 
         [Authorize]
         [HttpPost("add-collection")]

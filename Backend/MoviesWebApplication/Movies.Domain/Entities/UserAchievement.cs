@@ -1,6 +1,4 @@
-﻿
-
-namespace Movies.Domain.Entities
+﻿namespace Movies.Domain.Entities
 {
     public class UserAchievement
     {

@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Domain.Entities;
 using Movies.Domain;
 using Movies.Application.Achievements;
-using Movies.Application.MovieCollections;
+using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -11,7 +10,7 @@ namespace MoviesWebApplication.Controllers
     {
         [AllowAnonymous] 
         [HttpGet("all")]
-        public async Task<ActionResult<PagedResponse<Achievement>>> GetAchievements([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ActionResult<PagedResponse<AchievementDto>>> GetAchievements([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
         {
             var query = new GetAllAchievements.Query
             {
@@ -27,9 +26,9 @@ namespace MoviesWebApplication.Controllers
 
         [AllowAnonymous]
         [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<UserAchievement>>> GetAchievementsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
+        public async Task<ActionResult<List<UserAchievementDto>>> GetAchievementsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
         {
-            var query = new CollectionsByUserId.Query
+            var query = new AchievementsByUserId.Query
             {
                 UserId = userId,
                 PageNumber = pageNumber,
