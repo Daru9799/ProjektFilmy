@@ -1,0 +1,74 @@
+﻿using MediatR;
+using Movies.Domain.Entities;
+using Movies.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static Movies.Application.Reviews.EditReview;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+
+namespace Movies.Application.Replies
+{
+    public class EditReply
+    {
+        public class EditReplyCommand : IRequest<Reply>
+        {
+            public Guid ReplyId { get; set; }
+            public string Comment { get; set; }
+        }
+
+        public class Handler : IRequestHandler<EditReplyCommand, Reply>
+        {
+            private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
+
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
+            {
+                _context = context;
+                _httpContextAccessor = httpContextAccessor;
+            }
+
+            public async Task<Reply> Handle(EditReplyCommand request, CancellationToken cancellationToken)
+            {
+
+                // Pobranie ID aktualnie zalogowanego użytkownika
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                }
+
+                //Pobranie recenzji z bazy
+                var reply = await _context.Replies
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.ReplyId == request.ReplyId, cancellationToken);
+
+                if (reply == null)
+                {
+                    throw new ValidationException($"Nie znaleziono odpowiedzi o podanym ID");
+                }
+
+                if (reply.User == null || reply.User.Id != currentUserId)
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do modyfikacji tej odpowiedzi. Nie jesteś właścicielem tego komentarza.");
+                }
+
+                if (!string.IsNullOrEmpty(request.Comment))
+                {
+                    reply.Comment = request.Comment;
+                }
+
+                //Zapis zmian w bazie danych
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return reply;
+            }
+        }
+    }
+}
