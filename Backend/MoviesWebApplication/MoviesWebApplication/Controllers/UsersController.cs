@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Movies.Application.Movies;
 using Movies.Application.Users;
 using Movies.Domain.DTOs;
@@ -51,20 +52,30 @@ namespace MoviesWebApplication.Controllers
         [HttpPatch("change-role/{userId}")]
         public async Task<IActionResult> ChangeUserRole(string userId, [FromBody] ChangeUserRoleDto dto)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var command = new EditUserRole.Command
             {
                 UserId = userId,
-                NewRole = dto.NewRole
+                NewRole = dto.NewRole,
+                CurrentUserId = currentUserId
             };
 
-            var result = await Mediator.Send(command);
-
-            if (!result)
+            try
             {
-                return BadRequest("Nie udało się zmienić roli użytkownika. Sprawdź czy użytkownik lub podana rola istnieją.");
-            }
+                var result = await Mediator.Send(command);
 
-            return Ok("Rola została zmieniona.");
+                if (!result)
+                {
+                    return BadRequest("Nie udało się zmienić roli użytkownika. Sprawdź czy użytkownik lub podana rola istnieją.");
+                }
+
+                return Ok("Rola została zmieniona.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Nie masz uprawnień do zmiany roli.");
+            }    
         }
 
         [Authorize]

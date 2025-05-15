@@ -16,6 +16,7 @@ namespace Movies.Application.Users
         {
             public string UserId { get; set; }
             public string NewRole { get; set; }
+            public string CurrentUserId { get; set; } //Check kto próbuje wykonać polecenie
         }
 
         public class Handler : IRequestHandler<Command, bool>
@@ -29,6 +30,14 @@ namespace Movies.Application.Users
 
             public async Task<bool> Handle(Command request, CancellationToken cancellationToken)
             {
+                //Najpierw sprawdzam czy zmiany próbuje dokonać moderator
+                var currentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == request.CurrentUserId, cancellationToken);
+
+                if (currentUser == null || currentUser.UserRole != User.Role.Mod)
+                    throw new UnauthorizedAccessException();
+
+                //Poszukiwanie usera któremu należy zmienić rolę
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
 
