@@ -70,7 +70,6 @@ namespace Movies.Application.Replies
                     Date = request.Date,
                     User = user,
                     Review = review
-                    
                 };
 
                 //Dodanie recenzji do bazy danych
