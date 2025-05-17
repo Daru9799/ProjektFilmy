@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Actor } from "../../models/Actor";
+import { Person } from "../../models/Person";
 import ImageModal from "../../functions/ImageModal"; 
 import { fetchActorMovies } from "../../functions/ReloadFunctions";
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
@@ -10,7 +10,7 @@ import { Movie } from "../../models/Movie";
 const ActorPage = () => {
 
   const { actorId } = useParams();
-  const [actor, setActor] = useState<Actor | null>(null);
+  const [person, setPerson] = useState<Person | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -18,14 +18,18 @@ const ActorPage = () => {
   useEffect(() => {
     const fetchActorById = async () => {
       try {
-        const actorResponse = await axios.get(`https://localhost:7053/api/Actors/${actorId}`);
-        setActor(actorResponse.data);
+        const peopleResponse = await axios.get(
+          `https://localhost:7053/api/People/${actorId}`
+        );
+        setPerson(peopleResponse.data);
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           if (!err.response) {
             setError("Błąd sieci: nie można połączyć się z serwerem.");
           } else {
-            setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
+            setError(
+              `Błąd: ${err.response.status} - ${err.response.statusText}`
+            );
           }
         } else {
           setError("Wystąpił nieoczekiwany błąd.");
@@ -37,8 +41,7 @@ const ActorPage = () => {
     };
 
     fetchActorById();
-        if(actorId)
-        fetchActorMovies(actorId, setMovies, setError, setLoading);
+    if (actorId) fetchActorMovies(actorId, setMovies, setError, setLoading);
   }, [actorId]);
 
   if (loading) return <p>Ładowanie danych...</p>;
@@ -52,8 +55,8 @@ const ActorPage = () => {
           <div className="p-2 text-center">
             {/* Użycie ImageModal */}
             <ImageModal
-              imageUrl={actor?.photoUrl}
-              altText={`${actor?.firstName} ${actor?.lastName} Poster`}
+              imageUrl={person?.photoUrl}
+              altText={`${person?.firstName} ${person?.lastName} Poster`}
               defaultImageUrl="/path/to/defaultPoster.jpg"
             />
           </div>
@@ -63,23 +66,23 @@ const ActorPage = () => {
         <div className="col-8" style={{ textAlign: "left", marginLeft: "50px", marginTop: "20px" }}>
           {/* Title (Actor's Name) */}
           <h2 className="mb-3" style={{ fontSize: "4rem" }}>
-            {actor?.firstName && actor?.lastName ? `${actor.firstName} ${actor.lastName}` : "Imię i nazwisko niedostępne"}
+            {person?.firstName && person?.lastName ? `${person.firstName} ${person.lastName}` : "Imię i nazwisko niedostępne"}
           </h2>
 
           {/* Data urodzenia */}
           <p style={{ marginTop: "50px" }}>
             <span className="fw-bold">Data urodzenia: </span>
-            {actor?.birthDate
-              ? new Date(actor.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" })
+            {person?.birthDate
+              ? new Date(person.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" })
               : "Brak danych"}
           </p>
           <p style={{ marginTop: "10px" }}>
             <span className="fw-bold">Liczba wszystkich filmów: </span>
-              {actor?.totalMovies ? `${actor.totalMovies}` : "Niedostępna"}
+              {person?.totalMovies ? `${person.totalMovies}` : "Niedostępna"}
           </p>
           <p style={{ marginTop: "10px" }}>
             <span className="fw-bold">Najczęściej gra w: </span>
-              {actor?.favoriteGenre ? `${actor.favoriteGenre}` : "Niedostępny"}
+              {person?.favoriteGenre ? `${person.favoriteGenre}` : "Niedostępny"}
           </p>
 
           {/* Biografia */}
@@ -94,7 +97,7 @@ const ActorPage = () => {
               marginRight: "50px",
             }}
           >
-            <p className="text-dark">{actor?.bio || "Brak danych o biografii."}</p>
+            <p className="text-dark">{person?.bio || "Brak danych o biografii."}</p>
           </div>
         </div>
 
