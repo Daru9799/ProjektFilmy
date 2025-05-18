@@ -12,7 +12,9 @@ namespace Movies.Domain.Entities
         {
             Invitation, //zaproszenie do znajomych
             MovieRelease, //film wychodzi
-            PersonUpdate //cos nowego u osoby (rezyer, aktor)
+            PersonUpdate, //cos nowego u osoby (rezyer, aktor)
+            ReviewCommented, //skomentowana recenzja (filmu lub kolekcji)
+            CollectionReviewed //zrecenzowana lista filmowa
         }
         public Guid NotificationId { get; set; }
         public string Title { get; set; }
