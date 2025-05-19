@@ -60,7 +60,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
         }}
       >
         <div style={{ flex: 1, textAlign: "left", color: "white" }}>
-          <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}>Critic</p>
+          <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}></p>
           <textarea
             className="form-control"
             rows={4}
@@ -98,7 +98,7 @@ const AddReviewModal: React.FC<AddReviewModalProps> = ({
             max={5}
             value={reviewRating}
             onChange={handleRatingChange}
-            onBlur={(e) => handleRatingChange(e)} // Upewnij się, że wartość zostanie poprawiona po opuszczeniu pola
+            onBlur={(e) => handleRatingChange(e)} 
             style={{
               textAlign: "center",
               width: "80%",

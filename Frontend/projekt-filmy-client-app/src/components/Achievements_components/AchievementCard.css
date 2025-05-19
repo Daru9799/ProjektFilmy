@@ -1,0 +1,29 @@
+.achievement-card {
+  background-color: #330867;
+  color: white;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  height: 150px;
+  position: relative;
+}
+
+.card-description {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  font-size: 14px;
+}
+
+.achievement-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.achievement-card:hover .card-description {
+  opacity: 1;
+}

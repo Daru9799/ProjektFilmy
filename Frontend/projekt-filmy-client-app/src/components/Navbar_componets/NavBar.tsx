@@ -53,6 +53,7 @@ const NavBar = () => {
             <NavTile link="search-directors">Reżyserzy</NavTile>
             <NavTile link="search-actors">Aktorzy</NavTile>
             <NavTile link="notifications">Test powiadomień</NavTile>
+            <NavTile link="/achievements">Osiągnięcia</NavTile>
           </div>
 
           <div className="d-flex align-items-center">

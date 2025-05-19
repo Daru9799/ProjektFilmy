@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigate, RouteObject, createBrowserRouter } from 'react-router-dom'
+import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from './App'
 import "./styles/App.css"
 import HomePage from './components/Home_componets/HomePage';
@@ -13,6 +12,7 @@ import DirectorPage from './components/SearchDirectors_componets/DirectorPage';
 import ActorPage from './components/SearchActors_componets/ActorPage';
 import UserReviewsPage from './components/User_componets/UserReviews';
 import NotificationTestPage from './components/TEST_COMPONENTS/NotificationTestPage';
+import AllAchievements from './components/Achievements_components/AllAchievements';
 
 
 
@@ -31,7 +31,8 @@ export const routes: RouteObject[] = [
       { path: "/actor/:actorId", element: <ActorPage /> },
       { path: "/director/:directorId", element: <DirectorPage /> },
       { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
-      { path: "/notifications", element: <NotificationTestPage/>}
+      { path: "/notifications", element: <NotificationTestPage/>},
+      {path:"/achievements", element:<AllAchievements/>}
     ],
   },
 ];
