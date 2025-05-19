@@ -2,8 +2,9 @@
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using static Movies.Domain.Entities.MovieCollection;
-
 
 namespace Movies.Application.MovieCollections
 {
@@ -16,25 +17,36 @@ namespace Movies.Application.MovieCollections
             public required string Title { get; set; }
             public string? Description { get; set; }
             public bool AllowCopy { get; set; }
-            public string UserName { get; set; }
         }
 
         public class Handler : IRequestHandler<CreateMovieCollectionCommand, MovieCollection>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<MovieCollection> Handle(CreateMovieCollectionCommand request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken);
+                // Pobierz ID zalogowanego użytkownika z claimów
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                }
+
+                // Znajdź użytkownika w bazie na podstawie ID
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
 
                 if (user == null)
                 {
-                    throw new InvalidOperationException("Użytkownik nie istnieje.");
+                    throw new InvalidOperationException("Nie znaleziono użytkownika.");
                 }
 
                 var newCollection = new MovieCollection
@@ -47,7 +59,7 @@ namespace Movies.Application.MovieCollections
                     AllowCopy = request.AllowCopy,
                     LikesCounter = 0,
                     User = user,
-                    Movies = new List<Movie>(),
+                    Movies = new List<Movie>()
                 };
 
                 await _context.MovieCollections.AddAsync(newCollection, cancellationToken);

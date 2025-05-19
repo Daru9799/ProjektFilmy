@@ -2,9 +2,8 @@
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
-using System.Threading;
-using System.Threading.Tasks;
-using System;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.MovieCollections
 {
@@ -20,34 +19,44 @@ namespace Movies.Application.MovieCollections
         public class DeleteMovieCollectionCommand : IRequestHandler<DeleteMovieCollection, MovieCollection>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public DeleteMovieCollectionCommand(DataContext context)
+            public DeleteMovieCollectionCommand(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<MovieCollection> Handle(DeleteMovieCollection request, CancellationToken cancellationToken)
             {
-                // Logowanie ID, które próbujesz usunąć
                 Console.WriteLine($"Attempting to delete MovieCollection with ID: {request.MovieCollectionId}");
 
-                // Znajdź MovieCollection w bazie danych
+                // Pobranie ID aktualnie zalogowanego użytkownika
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                }
+
                 var movieCollection = await _context.MovieCollections
+                    .Include(m => m.User)
                     .FirstOrDefaultAsync(m => m.MovieCollectionId == request.MovieCollectionId, cancellationToken);
 
-                // Jeśli MovieCollection nie istnieje, rzuć wyjątek
                 if (movieCollection == null)
                 {
                     throw new InvalidOperationException($"Nie znaleziono listy filmów o ID: {request.MovieCollectionId}");
                 }
 
-                // Usuń znalezioną MovieCollection z kontekstu
-                _context.MovieCollections.Remove(movieCollection);
+                // Sprawdzenie, czy aktualny użytkownik jest właścicielem kolekcji
+                if (movieCollection.User.Id != currentUserId)
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej kolekcji.");
+                }
 
-                // Zapisz zmiany w bazie danych
+                _context.MovieCollections.Remove(movieCollection);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                // Zwróć usuniętą kolekcję filmów
                 return movieCollection;
             }
         }

@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Movies.Application.MovieCollectionReviewReplies;
 using Movies.Application.Replies;
 using Movies.Domain.DTOs;
 
