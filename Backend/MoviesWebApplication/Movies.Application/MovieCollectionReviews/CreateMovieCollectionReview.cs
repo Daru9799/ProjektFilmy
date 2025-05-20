@@ -8,6 +8,8 @@ using MediatR;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -25,14 +27,24 @@ namespace Movies.Application.MovieCollectionReviews
             public class Handler : IRequestHandler<CreateMovieCollectionReviewCommand, MovieCollectionReview>
             {
                 private readonly DataContext _context;
+                private readonly IHttpContextAccessor _httpContextAccessor;
 
-                public Handler(DataContext context)
+                public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
                 {
                     _context = context;
+                    _httpContextAccessor = httpContextAccessor;
                 }
 
                 public async Task<MovieCollectionReview> Handle(CreateMovieCollectionReviewCommand request, CancellationToken cancellationToken)
                 {
+                    //Sprawdzenie czy user jest zalogowany
+                    var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    if (string.IsNullOrEmpty(currentUserId))
+                    {
+                        throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    }
+
                     //Sprawdzenie istnienia kolekcji
                     var collection = await _context.MovieCollections
                         .FirstOrDefaultAsync(m => m.MovieCollectionId == request.MovieCollectionId, cancellationToken);
@@ -49,6 +61,11 @@ namespace Movies.Application.MovieCollectionReviews
                     if (user == null)
                     {
                         throw new ValidationException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
+                    }
+
+                    if (user.Id != currentUserId)
+                    {
+                        throw new UnauthorizedAccessException("Nie masz uprawnień do dodania recenzji!");
                     }
 
                     //Tworzenie nowej recenzji dla listy

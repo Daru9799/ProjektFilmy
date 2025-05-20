@@ -30,7 +30,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(replies);
         }
         //Dodawanie nowego komentarza do recenzji listy filmowej
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("add-review-reply")]
         public async Task<IActionResult> CreateReviewReply([FromBody] CreateMovieCollectionReviewReply.CreateMovieCollectionReviewReplyCommand command)
         {
@@ -45,7 +45,7 @@ namespace MoviesWebApplication.Controllers
             }
         }
         //Usuwanie komentarza do recenzji listy filmowej
-        [AllowAnonymous]
+        [Authorize]
         [HttpDelete("delete-review-reply/{id}")]
         public async Task<IActionResult> DeleteReviewReply(Guid id)
         {
@@ -59,7 +59,7 @@ namespace MoviesWebApplication.Controllers
             return Ok("Pomyślnie usunięto komentarz.");
         }
         //Edycja komentarza do recenzji listy filmowej
-        [AllowAnonymous]
+        [Authorize]
         [HttpPut("edit-review-reply/{id}")]
         public async Task<IActionResult> EditReviewReply(Guid id, [FromBody] EditMovieCollectionReviewReply.EditMovieCollectionReviewReplyCommand command)
         {

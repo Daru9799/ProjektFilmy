@@ -8,6 +8,8 @@ using MediatR;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.MovieCollectionReviewReplies
 {
@@ -23,14 +25,24 @@ namespace Movies.Application.MovieCollectionReviewReplies
             public class Handler : IRequestHandler<CreateMovieCollectionReviewReplyCommand, MovieCollectionReviewReply>
             {
                 private readonly DataContext _context;
+                private readonly IHttpContextAccessor _httpContextAccessor;
 
-                public Handler(DataContext context)
+                public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
                 {
                     _context = context;
+                    _httpContextAccessor = httpContextAccessor;
                 }
 
                 public async Task<MovieCollectionReviewReply> Handle(CreateMovieCollectionReviewReplyCommand request, CancellationToken cancellationToken)
                 {
+                    //Sprawdzenie czy user jest zalogowany
+                    var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    if (string.IsNullOrEmpty(currentUserId))
+                    {
+                        throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    }
+
                     //Sprawdzenie istnienia recenzji
                     var review = await _context.MovieCollectionReviews
                         .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.MovieCollectionReviewId, cancellationToken);
@@ -47,6 +59,11 @@ namespace Movies.Application.MovieCollectionReviewReplies
                     if (user == null)
                     {
                         throw new ValidationException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
+                    }
+
+                    if (user.Id != currentUserId)
+                    {
+                        throw new UnauthorizedAccessException("Nie masz uprawnień do dodania komentarza!");
                     }
 
                     //Tworzenie nowej odpowiedzi

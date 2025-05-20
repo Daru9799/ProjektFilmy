@@ -7,6 +7,8 @@ using MediatR;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -23,21 +25,37 @@ namespace Movies.Application.MovieCollectionReviews
     public class DeleteCollectionReviewHandler : IRequestHandler<DeleteMovieCollectionReview, MovieCollectionReview>
     {
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DeleteCollectionReviewHandler(DataContext context)
+        public DeleteCollectionReviewHandler(DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<MovieCollectionReview> Handle(DeleteMovieCollectionReview request, CancellationToken cancellationToken)
         {
+            //Sprawdzenie czy user jest zalogowany
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+            }
+
             //Pobranie recenzji kolekcji z bazy
             var review = await _context.MovieCollectionReviews
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.ReviewId, cancellationToken);
 
             if (review == null)
             {
                 return null;
+            }
+
+            if (review.User == null || review.User.Id != currentUserId)
+            {
+                throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej recenzji. Nie jesteś właścicielem tej recenzji.");
             }
 
             _context.MovieCollectionReviews.Remove(review);
