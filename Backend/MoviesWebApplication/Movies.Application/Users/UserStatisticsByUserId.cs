@@ -59,10 +59,8 @@ namespace Movies.Application.Users
                        Rating = g.Key,
                        Count = g.Count()
                    })
-                   .OrderByDescending(r => r.Count)
+                   .OrderByDescending(r => r.Rating)
                    .ToList();
-
-
 
                 var favoriteActor = watchedMovies
                     .SelectMany(m => m.MoviePerson.Where(mp => mp.Role == PersonRole.Actor && mp.Person != null))
