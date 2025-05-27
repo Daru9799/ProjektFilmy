@@ -7,7 +7,7 @@ import "./styles/index.css";
 import "./styles/App.css";
 import "./styles/Fonts.css"
 import { RouterProvider } from "react-router-dom";
-import { router } from "./Routes";
+import { router } from "./Routes/Routes";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
