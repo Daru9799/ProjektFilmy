@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
-import { renderStars } from "../../functions/starFunction";
-import "./ReviewCard.css";
+import { renderStars } from "../../hooks/RenderStars";
 
 interface AddReviewModalProps {
   show: boolean;

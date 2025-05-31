@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import { Review } from "../../models/Review";
-import { renderStars } from "../../functions/starFunction";
-import "./ReviewCard.css";
+import { renderStars } from "../../hooks/RenderStars";
 
 interface ReviewCardProps {
   review: Review;

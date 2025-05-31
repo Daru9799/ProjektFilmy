@@ -1,7 +1,7 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from '../App'
 import HomePage from '../components/Home_componets/HomePage';
-import MoviePage from '../components/SearchMovies_componets/MoviePage';
+import MoviePage from '../components/MoviePage_components/MoviePage';
 import SearchMoviesPage from "../components/SearchMovies_componets/SearchMoviesPage"
 import SearchDirectorsPage from "../components/SearchDirectors_componets/SearchDirectorsPage";
 import SearchActorsPage from "../components/SearchActors_componets/SearchActorsPage";

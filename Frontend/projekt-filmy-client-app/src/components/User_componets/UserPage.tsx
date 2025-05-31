@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserProfile, userRole } from "../../models/UserProfile";
 import { Review } from "../../models/Review";
-import { fetchUserData, fetchUserReviews, deleteReview, editReview } from "../../functions/ReloadFunctions";
-import "./UserPage.css";
 import ReviewCard from "../review_components/ReviewCard";
 import AddReviewModal from "../review_components/AddReviewPanel";
 import EditUserModal from "./EditUserModal";
+import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
+import { deleteReview, editReview } from "../../API/reviewApi";
+import "../../styles/UserPage.css"
 
 function getUserRoleName(role: userRole): string {
   switch (role) {

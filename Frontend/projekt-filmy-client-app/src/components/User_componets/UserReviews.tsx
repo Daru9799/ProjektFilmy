@@ -7,8 +7,8 @@ import SortReviewModule from "../review_components/SortReviewsModle";
 import ReviewCard from "../review_components/ReviewCard"; 
 import { useParams, useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { deleteReview, editReview } from "../../functions/ReloadFunctions"; 
 import AddReviewModal from "../review_components/AddReviewPanel"; 
+import { deleteReview, editReview } from "../../API/reviewApi";
 
 const ReviewsPage = () => {
   const { userName } = useParams(); 

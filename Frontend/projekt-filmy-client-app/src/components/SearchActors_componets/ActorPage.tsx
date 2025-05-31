@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Person } from "../../models/Person";
-import ImageModal from "../../functions/ImageModal"; 
-import { fetchActorMovies } from "../../functions/ReloadFunctions";
+import ImageModal from "../../hooks/ImageModal"; 
+import { fetchActorMovies } from "../../API/personApi";
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
 import { Movie } from "../../models/Movie";
 

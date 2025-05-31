@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Director } from "../../models/Director";
-import ImageModal from "../../functions/ImageModal"; 
+import ImageModal from "../../hooks/ImageModal"; 
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
-import { fetchDirectorMovies } from "../../functions/ReloadFunctions";
+import { fetchDirectorMovies } from "../../API/personApi";
 import { Movie } from "../../models/Movie";
 
 const DirectorPage = () => {

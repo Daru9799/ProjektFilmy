@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom'; // Importuj useNavigate
 import { Movie } from '../../models/Movie';
-import { renderStars } from "../../functions/starFunction";
+import { renderStars } from "../../hooks/RenderStars";
 import '../../styles/Zoom.css'
 
 interface Props {
