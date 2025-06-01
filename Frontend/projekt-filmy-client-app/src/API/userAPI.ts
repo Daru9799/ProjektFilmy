@@ -50,7 +50,7 @@ export const fetchUserReviews = async (
       {
         params: {
           pageNumber: 1,
-          pageSize, // Ustawienie rozmiaru strony z parametru
+          pageSize, 
           orderBy: "desc",
           sortDirection: "year",
         },
@@ -74,5 +74,43 @@ export const fetchUserReviews = async (
       }
     }
     console.error(err);
+  }
+};
+
+
+export const fetchUserStatistics = async (
+  userName: string,
+  setUser: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    setLoading(true);
+    setError(null);
+    const response = await axios.get(
+      `https://localhost:7053/api/users/statistics/${userName}`,{
+
+          headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+      
+    );
+    setUser(response.data);
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (!err.response) {
+        setError("Błąd sieci: nie można połączyć się z serwerem.");
+      } else if (err.response.status === 404) {
+        setError(`Użytkownik o nazwie '${userName}' nie został znaleziony.`);
+      } else {
+        setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
+      }
+    } else {
+      setError("Wystąpił nieoczekiwany błąd.");
+    }
+    console.error(err);
+  } finally {
+    setLoading(false);
   }
 };

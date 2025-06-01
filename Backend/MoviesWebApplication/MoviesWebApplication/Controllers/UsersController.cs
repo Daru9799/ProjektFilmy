@@ -38,7 +38,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("statistics/{userName}")]
         public async Task<ActionResult<StatisticsDto>> StatistcsByUserId(string userName)
         {
-            var statistics = await Mediator.Send(new UserStatisticsByUserId.Query { userName = userName });
+            var statistics = await Mediator.Send(new UserStatisticsByUserName.Query { userName = userName });
 
             if (statistics == null)
             {

@@ -4,7 +4,7 @@ using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
-public class AchievementsByUserId
+public class AchievementsByUserName
 {
     public class Query : IRequest<PagedResponse<UserAchievementDto>>
     {

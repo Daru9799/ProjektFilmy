@@ -7,7 +7,7 @@ using static Movies.Domain.Entities.MoviePerson;
 
 namespace Movies.Application.Users
 {
-    public class UserStatisticsByUserId
+    public class UserStatisticsByUserName
     {
         public class Query : IRequest<StatisticsDto> 
         {

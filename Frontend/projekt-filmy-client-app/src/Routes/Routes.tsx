@@ -13,6 +13,7 @@ import UserReviewsPage from '../components/User_componets/UserReviews';
 import NotificationTestPage from '../components/TEST_COMPONENTS/NotificationTestPage';
 import AllAchievements from '../components/Achievements_components/AllAchievements';
 import UserAchievements from '../components/Achievements_components/UserAchievements';
+import UserStatistics from '../components/User_componets/UserStatistics';
 
 
 
@@ -33,7 +34,8 @@ export const routes: RouteObject[] = [
       { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
       { path: "/notifications", element: <NotificationTestPage/>},
       { path: "/achievements", element:<AllAchievements/>},
-      { path:"/user-achievements/:userName",element:<UserAchievements/>}
+      { path:"/user-achievements/:userName",element:<UserAchievements/>},
+      {path:"users/statistics/:userName", element:<UserStatistics/>}
     ],
   },
 ];

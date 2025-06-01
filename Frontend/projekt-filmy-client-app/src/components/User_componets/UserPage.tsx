@@ -95,6 +95,12 @@ const UserPage = () => {
   </button>
   <button
     className="edit-button"
+    onClick={()=>navigate(`/users/statistics/${user?.userName}`)}
+  >
+    Statystyki
+  </button>
+  <button
+    className="edit-button"
     onClick={() => navigate(`/user-achievements/${user?.userName}`)}
   >
     Osiągnięcia
