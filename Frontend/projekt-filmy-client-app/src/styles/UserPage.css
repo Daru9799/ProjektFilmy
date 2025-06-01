@@ -1,21 +1,27 @@
 /* Nagłówek */
+
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 80px;
-    background-color: #1f0f35;
-  }
-  
-  .user-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 80px;
+  background-color: #1f0f35;
+  padding: 0 20px;
+}
+
+.header-buttons {
+  display: flex;
+  margin-top: 50px;
+  margin-left: 65%; 
+}
+
+.user-name {
     font-size: 3rem;
     color: white;
     margin-left: 80px;
     margin-top: 50px;
   }
-  
-
-  
+    
 /* Wiersze informacji */
 .info-row {
     display: flex;
@@ -56,11 +62,11 @@
   }
   
   
-  
-  /* Sekcja recenzji */
   .reviews {
     align-items: center;
     margin-top: 60px;
+    margin-left: 40px;
+    margin-right: 40px;
   }
   
   .reviews-title {
@@ -68,6 +74,14 @@
     color: white;
     font-size: 2rem;
   }
+
+  .header-buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 80px;
+  margin-top: 50px;
+}
+
   
 
 

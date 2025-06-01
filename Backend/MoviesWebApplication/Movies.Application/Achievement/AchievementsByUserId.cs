@@ -8,7 +8,7 @@ public class AchievementsByUserId
 {
     public class Query : IRequest<PagedResponse<UserAchievementDto>>
     {
-        public Guid UserId { get; set; }
+        public string UserName { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public string OrderBy { get; set; }
@@ -29,7 +29,7 @@ public class AchievementsByUserId
             var query = _context.UserAchievements
                 .Include(ua => ua.User)
                 .Include(ua => ua.Achievement)
-                .Where(ua => ua.User.Id == request.UserId.ToString());
+                .Where(ua => ua.User.UserName == request.UserName);
 
             if (!string.IsNullOrEmpty(request.OrderBy))
             {

@@ -54,7 +54,6 @@ body {
   border: none;
   background-color: #943ce7;
   color: white;
-  margin-right: 50px;
   cursor: pointer;
 }
 
@@ -64,7 +63,8 @@ body {
   transform: scale(1.1); 
 }
 
-.list-button {
+/* przycisk wewnątrz 'tabeli' na MoviePage */
+.inside-table-button {  
   background-color: #a294f9; 
   min-width: 60px;
   min-height: 40px;
@@ -82,23 +82,34 @@ body {
   font-weight: normal;  
 }
 
-.list-button:hover {
+.inside-table-button:hover {
   background-color: #8e80f5;
   transform: scale(1.05);
 }
 
-
-.review-btn {
-  font-size: 20px;
-  color: white;
+.outside-table-button {
   background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-bottom: none;
+  color: white;
   transition: all 0.3s ease;
+
+  padding: 10px 10px;     
+  font-size: 1.1rem;       
 }
 
-.review-btn:hover {
-  background-color: #6C48C5;
-  color: white;
+.outside-table-button:hover {
+  background-color: white;
+  color: #212529;
 }
+
+.outside-table-button-active {
+  background-color: white;
+  color: #212529;
+}
+
+
+
+

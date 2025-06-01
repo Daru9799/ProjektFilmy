@@ -9,6 +9,16 @@
   position: relative;
 }
 
+.achievement-date {
+  position: absolute;
+  top: 20px;
+  right: 12px;
+  font-size: 0.9rem;
+  color: #aaa;
+  opacity: 0; /* Ukryj domyślnie */
+  transition: opacity 0.3s ease;
+}
+
 .card-description {
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -24,6 +34,7 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.achievement-card:hover .card-description {
+.achievement-card:hover .card-description,
+.achievement-card:hover .achievement-date {
   opacity: 1;
 }

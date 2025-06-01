@@ -12,6 +12,7 @@ import ActorPage from '../components/SearchActors_componets/ActorPage';
 import UserReviewsPage from '../components/User_componets/UserReviews';
 import NotificationTestPage from '../components/TEST_COMPONENTS/NotificationTestPage';
 import AllAchievements from '../components/Achievements_components/AllAchievements';
+import UserAchievements from '../components/Achievements_components/UserAchievements';
 
 
 
@@ -31,7 +32,8 @@ export const routes: RouteObject[] = [
       { path: "/director/:directorId", element: <DirectorPage /> },
       { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
       { path: "/notifications", element: <NotificationTestPage/>},
-      { path: "/achievements", element:<AllAchievements/>}
+      { path: "/achievements", element:<AllAchievements/>},
+      { path:"/user-achievements/:userName",element:<UserAchievements/>}
     ],
   },
 ];

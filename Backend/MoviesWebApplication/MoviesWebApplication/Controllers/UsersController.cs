@@ -35,14 +35,14 @@ namespace MoviesWebApplication.Controllers
         }
 
         [Authorize]
-        [HttpGet("statistics/{userId}")]
-        public async Task<ActionResult<StatisticsDto>> StatistcsByUserId(Guid userId)
+        [HttpGet("statistics/{userName}")]
+        public async Task<ActionResult<StatisticsDto>> StatistcsByUserId(string userName)
         {
-            var statistics = await Mediator.Send(new UserStatisticsByUserId.Query { UserId = userId });
+            var statistics = await Mediator.Send(new UserStatisticsByUserId.Query { userName = userName });
 
             if (statistics == null)
             {
-                return NotFound($"Nie znaleziono użytkownika o Id: {userId}");
+                return NotFound($"Nie znaleziono użytkownika o Id: {userName}");
             }
 
             return Ok(statistics);

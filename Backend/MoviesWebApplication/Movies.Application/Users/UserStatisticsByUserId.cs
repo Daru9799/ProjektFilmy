@@ -11,7 +11,7 @@ namespace Movies.Application.Users
     {
         public class Query : IRequest<StatisticsDto> 
         {
-            public Guid UserId { get; set; }
+            public string userName { get; set; }
         }
 
 
@@ -27,15 +27,14 @@ namespace Movies.Application.Users
 
             public async Task<StatisticsDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var userId = request.UserId;
-
+            
                 var watchedMovieIds = await _context.MovieCollections
-                    .Where(mc => mc.User.Id == userId.ToString() && mc.Type == CollectionType.Watched)
+                    .Where(mc => mc.User.UserName == request.userName && mc.Type == CollectionType.Watched)
                     .SelectMany(mc => mc.Movies.Select(mmc => mmc.MovieId))
                     .ToListAsync(cancellationToken);
 
                 var plannedMovieCount = await _context.MovieCollections
-                    .Where(mc => mc.User.Id == userId.ToString() && mc.Type == CollectionType.Planned)
+                    .Where(mc => mc.User.UserName == request.userName.ToString() && mc.Type == CollectionType.Planned)
                     .SelectMany(mc => mc.Movies)
                     .CountAsync(cancellationToken);
 
@@ -49,7 +48,7 @@ namespace Movies.Application.Users
 
 
                 var reviews = await _context.Reviews
-                    .Where(r => r.User.Id == userId.ToString())
+                    .Where(r => r.User.UserName == request.userName)
                     .ToListAsync(cancellationToken);
 
                 var ratingDistribution = reviews

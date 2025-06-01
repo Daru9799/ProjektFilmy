@@ -25,12 +25,12 @@ namespace MoviesWebApplication.Controllers
 
 
         [AllowAnonymous]
-        [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<UserAchievementDto>>> GetAchievementsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
+        [HttpGet("by-user-id/{userName}")]
+        public async Task<ActionResult<List<UserAchievementDto>>> GetAchievementsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
         {
             var query = new AchievementsByUserId.Query
             {
-                UserId = userId,
+                UserName = userName,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 SortDirection = sortDirection,
@@ -40,7 +40,7 @@ namespace MoviesWebApplication.Controllers
 
             if (reviews.Data == null || !reviews.Data.Any())
             {
-                return NotFound($"Nie znaleziono osiągnięć dla użytkowinka z ID '{userId}'.");
+                return NotFound($"Nie znaleziono osiągnięć dla użytkowinka z ID '{userName}'.");
             }
 
             return Ok(reviews);

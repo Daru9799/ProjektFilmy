@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../hooks/RenderStars";
+import "../../styles/ReviewCard.css"
 
 interface ReviewCardProps {
   review: Review;

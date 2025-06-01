@@ -9,6 +9,7 @@ import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import "../../styles/UserPage.css"
 
+
 function getUserRoleName(role: userRole): string {
   switch (role) {
     case userRole.user:
@@ -82,15 +83,26 @@ const UserPage = () => {
   return (
     <>
     <div style={{minHeight:"90vh"}}>
-      <div className="header">
-        <p className="user-name">{user?.userName}</p>
-        {/* Przycisk edytuj widoczny tylko jeśli isOwner jest true */}
-        {user?.isOwner && (
-          <button className="edit-button" onClick={() => setShowEditUserModal(true)}>
-            Edytuj
-          </button>
-        )}
-      </div>
+     <div className="header">
+  <p className="user-name">{user?.userName}</p>
+  <div className="header-buttons">
+  <button
+    className="edit-button"
+    style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
+    onClick={() => user?.isOwner && setShowEditUserModal(true)}
+  >
+    Edytuj
+  </button>
+  <button
+    className="edit-button"
+    onClick={() => navigate(`/user-achievements/${user?.userName}`)}
+  >
+    Osiągnięcia
+  </button>
+</div>
+
+</div>
+
 
       <div className="info-row">
         <p className="info-label">Email:</p>
@@ -107,7 +119,7 @@ const UserPage = () => {
         <div className="info-value">{user?.reviewsCount}</div>
       </div>
 
-      <div className="pt-3">
+      <div className="reviews">
         <h3 style={{ color: "white" }}>Ostatnie recenzje:</h3>
         {reviews.length > 0 ? (
           reviews.map((review) => (
@@ -125,11 +137,11 @@ const UserPage = () => {
 
         {(user?.reviewsCount ?? 0) > 3 && (
           <button
-            className="review-btn"
+            className="btn btn-outline-light mt-3"
             onClick={() => navigate(`/user/${userName}/reviews`)}
             style={{ marginBottom: "2%" }}
           >
-            ...
+            Wszystkie recenzje
           </button>
         )}
       </div>

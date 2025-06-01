@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Achievement } from "../../models/Achievement";
 import PaginationModule from "../PaginationModule";
-import { fetchAchievements } from "../../API/achievementApi"
-import "../../styles/AchievementCard.css"
+import { fetchAchievements } from "../../API/achievementApi";
+import "../../styles/AchievementCard.css";
 
 const AllAchievements = () => {
+  const navigate = useNavigate();
+
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,6 +19,8 @@ const AllAchievements = () => {
   });
   const [sortOrder] = useState<string>("date");
   const [sortDirection] = useState<string>("desc");
+
+  const loggedUserName = localStorage.getItem("logged_username");
 
   useEffect(() => {
     fetchAchievements(
@@ -41,9 +46,31 @@ const AllAchievements = () => {
   return (
     <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
       <div className="flex-grow-1">
-        <h2 style={{ color: "white", marginBottom: "5%", marginTop: "3%" }}>
-          Wszystkie osiągnięcia:
-        </h2>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            marginBottom: "5%",
+            marginTop: "3%",
+          }}
+        >
+          <h2 style={{ color: "white", margin: 0 }}>Wszystkie osiągnięcia:</h2>
+
+          {loggedUserName && (
+            <button
+              onClick={() => navigate(`/user-achievements/${loggedUserName}`)}
+              className="btn btn-outline-light mt-3"
+              style={{
+                position: "absolute",
+                right: 0,
+              }}
+            >
+              Moje osiągnięcia
+            </button>
+          )}
+        </div>
 
         <div className="row">
           {achievements.length > 0 ? (
