@@ -80,6 +80,14 @@ const NavBar = () => {
                       <hr className="dropdown-divider" />
                     </li>
                     <li>
+                      <Link className="dropdown-item" to={`/user/${loggedUsername}/friends`}>
+                        Znajomi
+                      </Link>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                    <li>
                       <button className="dropdown-item" onClick={handleLogout} >
                         Wyloguj
                       </button>

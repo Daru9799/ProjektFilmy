@@ -6,6 +6,7 @@ import ReviewCard from "../review_components/ReviewCard";
 import AddReviewModal from "../review_components/AddReviewPanel";
 import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
+import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import "../../styles/UserPage.css"
 
@@ -31,13 +32,19 @@ const UserPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [relations, setRelations] = useState<any>(null);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const loggedUserName = localStorage.getItem("logged_username");
     if (userName) {
       fetchUserData(userName, setUser, setError, setLoading);
       fetchUserReviews(userName, 3, setReviews, setError);
+      if (loggedUserName)
+      {
+        fetchRelationsData(loggedUserName, setRelations, setError);
+      }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
   }, [userName]);
@@ -77,38 +84,81 @@ const UserPage = () => {
     }
   };
 
+  const handleDeleteRelation = async (relationId: string) => {
+    await deleteRelation(relationId, setRelations, setError);
+    if (userName) {
+        setLoading(true);
+        fetchRelationsData(userName, setRelations, setError).finally(() => {
+        setLoading(false);
+      });
+    }
+  };
+
+  const isFriend = relations?.$values.some(
+    (relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName
+  );
+
+  const isBlocked = relations?.$values.some(
+    (relation: any) => relation.type === "Blocked" && relation.relatedUserName === user?.userName
+  );
+
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p className="error">{error}</p>;
+
+  if (isBlocked) {
+      navigate("/"); //W przypadku bloka przenosi na /
+      return null;
+  }
 
   return (
     <>
     <div style={{minHeight:"90vh"}}>
-     <div className="header">
-  <p className="user-name">{user?.userName}</p>
-  <div className="header-buttons">
-  <button
-    className="edit-button"
-    style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
-    onClick={() => user?.isOwner && setShowEditUserModal(true)}
-  >
-    Edytuj
-  </button>
-  <button
-    className="edit-button"
-    onClick={()=>navigate(`/users/statistics/${user?.userName}`)}
-  >
-    Statystyki
-  </button>
-  <button
-    className="edit-button"
-    onClick={() => navigate(`/user-achievements/${user?.userName}`)}
-  >
-    Osiągnięcia
-  </button>
-</div>
+      <div className="header">
+        <p className="user-name">{user?.userName}</p>
 
-</div>
+        <div className="relation-buttons">
+          {!user?.isOwner && (
+            <>
+              {!isFriend ? (
+                <button className="btn btn-success">
+                  Dodaj do znajomych
+                </button>
+              ) : (
+                <button className="btn btn-danger" onClick={() => handleDeleteRelation(relations?.$values.find((relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName)?.relationId)}>
+                  Usuń ze znajomych
+                </button>
+              )}
+              {!isFriend && (
+                  <button className="btn btn-danger">
+                    Zablokuj
+                  </button>
+                )}
+            </>
+          )}
+        </div>
 
+        <div className="header-buttons">
+          <button
+            className="edit-button"
+            style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
+            onClick={() => user?.isOwner && setShowEditUserModal(true)}
+          >
+            Edytuj
+          </button>
+          <button
+            className="edit-button"
+            onClick={()=>navigate(`/users/statistics/${user?.userName}`)}
+          >
+            Statystyki
+          </button>
+          <button
+            className="edit-button"
+            onClick={() => navigate(`/user-achievements/${user?.userName}`)}
+          >
+            Osiągnięcia
+          </button>
+        </div>
+      </div>
 
       <div className="info-row">
         <p className="info-label">Email:</p>
