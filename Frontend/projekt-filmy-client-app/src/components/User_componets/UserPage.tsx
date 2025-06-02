@@ -156,19 +156,21 @@ const UserPage = () => {
         <div className="header-buttons">
           <button
             className="edit-button"
-            style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
+            style={{ visibility: user?.isOwner ? "visible" : "hidden" }} // nie pokazuje przycisków jak nie jestesmy zalogowani
             onClick={() => user?.isOwner && setShowEditUserModal(true)}
           >
             Edytuj
           </button>
           <button
             className="edit-button"
+             style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
             onClick={()=>navigate(`/users/statistics/${user?.userName}`)}
           >
             Statystyki
           </button>
           <button
             className="edit-button"
+             style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
             onClick={() => navigate(`/user-achievements/${user?.userName}`)}
           >
             Osiągnięcia

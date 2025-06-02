@@ -10,7 +10,7 @@ const UserStatistics = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const loggedUserName = localStorage.getItem("logged_username");
   
   useEffect(() => {
     if (userName) {
@@ -27,7 +27,9 @@ const UserStatistics = () => {
   return (
     <div className="container text-white my-4" style={{ minHeight: "90vh" }}>
       <h2 className="text-center mb-4">
-        Statystyki użytkownika <strong>{userName}</strong>
+        {loggedUserName === userName
+      ? "Twoje osiągnięcia:"
+      : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
       </h2>
 
       {/* Górne 4 karty */}
@@ -55,7 +57,7 @@ const UserStatistics = () => {
   <div className="card bg-dark text-white h-100">
     <div className="card-body text-center">
       {userStats.favoriteActor ? (
-        <Link to={`/people/${userStats.favoriteActor.actorId}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <Link to={`/people/${userStats.favoriteActor.personId}`} style={{ textDecoration: "none", color: "inherit" }}>
           <img
             src={userStats.favoriteActor.photoUrl}
             alt="Ulubiony aktor"
@@ -126,7 +128,7 @@ const UserStatistics = () => {
   />
 
   <AccordionChart
-    title="Filmy według krajów"
+    title="Filmy według państw"
     data={userStats.watchedMoviesByCountry.$values.map(item => ({
       country: item.country.name,
       count: item.count

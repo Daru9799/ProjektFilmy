@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SearchModule from "../SearchModule";
 import PaginationModule from "../PaginationModule";
-import { Actor } from "../../models/Actor";
 import ActorsListModule from "./ActorsListModule";
 import axios from "axios";
 import NoPeopleFoundModal from "../NoPeopleFoundModal";
+import { Person } from "../../models/Person";
 
 
 const SearchActorsPage = () => {
     const [searchText, setSearchText] = useState<string>("");
-    const [actors, setActors] = useState<Actor[]>([]);
+    const [actors, setActors] = useState<Person[]>([]);
     const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
     const [pageInfo, setPageInfo] = useState({
         totalItems: 0,

@@ -1,10 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Actor } from '../../models/Actor';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Zoom.css'
+import { Person } from '../../models/Person';
 
 interface Props {
-  actorsList:Actor[]
+  actorsList:Person[]
 }
 
 const ActorsListModule = ({ actorsList }: Props) => {
@@ -18,7 +18,7 @@ const ActorsListModule = ({ actorsList }: Props) => {
       <ul className="list-group">
         {actorsList.map((actor) => (
           <li className="list-group-item d-flex align-items-start p-3 zoomCard" 
-          onClick={() => handleCardClick(actor.actorId)}
+          onClick={() => handleCardClick(actor.personId)}
           style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px", cursor:"pointer" }}>
           <img 
             src={actor.photoUrl} 

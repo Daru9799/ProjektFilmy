@@ -18,29 +18,44 @@ export const fetchMovieData = async (movieId: string, setMovie: React.Dispatch<R
     console.error(movieError);
   }
 };
-
+// https://localhost:7053/api/People/by-filters?pageNumber=1&pageSize=2&noPagination=true&role=1&movieId=08dd7b57-97ba-4c79-852b-164b472a2b02
 // Fetch actors data   -- !!!!!  DO ZMIANY
-export const fetchActorsData = async (movieId: string, setActors: React.Dispatch<React.SetStateAction<any[]>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+export const fetchActorsData = async (
+  movieId: string,
+  setActors: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
   try {
-    const actorsResponse = await axios.get(`https://localhost:7053/api/Actors/by-movie-id/${movieId}`);
-    if (actorsResponse.data?.$values) {
-      setActors(actorsResponse.data.$values);
+    const response = await axios.get("https://localhost:7053/api/People/by-filters", {
+      params: {
+        pageNumber: 1,
+        pageSize: 2,
+        noPagination: true,
+        role: 1,
+        movieId: movieId,
+      },
+    });
+
+    const actorsArray = response.data?.data?.$values;
+
+    if (Array.isArray(actorsArray) && actorsArray.length > 0) {
+      setActors(actorsArray);
     } else {
-      setActors([]); 
+      setActors([]);
       console.log("Nie znaleziono aktorów dla tego filmu");
     }
-  } catch (actorsError) {
-    if (axios.isAxiosError(actorsError)) {
-      if (actorsError.response?.status === 404) {
-        setActors([]); // Jak nie pobrało to lista pusta
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        setActors([]);
         console.log("No actors found for this movie.");
       } else {
-        setError("Błąd podczas wczytywaina danych");
+        setError("Błąd podczas wczytywania danych");
       }
     } else {
       setError("Nieoczekiwany błąd");
     }
-    console.error(actorsError);
+    console.error(error);
   }
 };
 
