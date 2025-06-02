@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Movies.Application.UserRelations
 {
@@ -22,16 +24,25 @@ namespace Movies.Application.UserRelations
     public class DeleteUserRelationHandler : IRequestHandler<DeleteUserRelation, UserRelation>
     {
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DeleteUserRelationHandler(DataContext context)
+        public DeleteUserRelationHandler(DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<UserRelation> Handle(DeleteUserRelation request, CancellationToken cancellationToken)
         {
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var relation = await _context.UserRelations
                 .FirstOrDefaultAsync(r => r.UserRelationId == request.RelationId, cancellationToken);
+
+            if (string.IsNullOrEmpty(currentUserId) || (relation.FirstUserId != currentUserId && relation.SecondUserId != currentUserId))
+            {
+                throw new UnauthorizedAccessException("Nie masz uprawnień do usuwania tej relacji.");
+            }
 
             if (relation == null)
             {

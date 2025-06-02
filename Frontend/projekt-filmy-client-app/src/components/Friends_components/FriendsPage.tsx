@@ -33,7 +33,7 @@ const FriendsPage = () => {
 
 
   if (loading) return <p>Ładowanie danych...</p>;
-  if (error) return <p className="error">{error}</p>;
+  if (error) return <h1 className="error" style={{ color: 'white'}}>{error}</h1>;
 
 return (
     <>
