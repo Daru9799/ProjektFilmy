@@ -2,14 +2,23 @@ import axios from "axios";
 
 export const fetchRelationsData = async (username: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
   try {
-    const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`);
+    const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     setRelations(relationsResponse.data);
   } catch (relationsError) {
     if (axios.isAxiosError(relationsError)) {
       if (relationsError.response?.status === 404) {
-        setError("Nie znaleziono filmu");
+        setError("Nie znaleziono relacji");
+      } else if (relationsError.response?.status === 403) {
+        const errorMessage = "Nie masz uprawnień do przeglądania listy tego użytkownika.";
+        setError(errorMessage);
       } else {
-        setError("Błąd podczas wczytywaina danych");
+        setError("Błąd podczas wczytywania danych");
       }
     } else {
       setError("Nieoczekiwany błąd");

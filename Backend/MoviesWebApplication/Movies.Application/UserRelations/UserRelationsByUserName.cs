@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Movies.Application.UserRelations
 {
@@ -23,14 +25,19 @@ namespace Movies.Application.UserRelations
         public class Handler : IRequestHandler<Query, List<UserRelationDto>>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<List<UserRelationDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                //Sprawdzenie czy user jest zalogowany
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken);
 
@@ -38,6 +45,11 @@ namespace Movies.Application.UserRelations
                     throw new ValidationException($"Nie znaleziono użytkownika o nazwie '{request.UserName}'.");
 
                 var userId = user.Id;
+
+                if (string.IsNullOrEmpty(currentUserId) || userId != currentUserId)
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do przeglądania listy tego użytkownika.");
+                }
 
                 //Szukanie relacji (z obu stron A - B i B - A)
                 var query = _context.UserRelations

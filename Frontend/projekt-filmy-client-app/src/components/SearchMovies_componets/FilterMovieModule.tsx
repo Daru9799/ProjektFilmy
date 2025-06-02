@@ -1,13 +1,10 @@
 import axios from "axios";
 import stringSimilarity from "string-similarity";
-
 import React, { useState, useEffect } from "react";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import { Category } from "../../models/Category";
 import { Country } from "../../models/Country";
 import { Person } from "../../models/Person";
-import { Director } from "../../models/Director";
-
 import { fetchAllCategories } from "../../API/CategoriesAPI";
 import { fetchAllCountries } from "../../API/CountriesAPI";
 
@@ -21,7 +18,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [countryData, setCountryData] = useState<Country[]>([]);
   const [actorData, setActorData] = useState<Person[]>([]);
-  const [directorData, setDirectorData] = useState<Director[]>([]);
+  const [directorData, setDirectorData] = useState<Person[]>([]);
 
   const [dataToShow, setDataToShow] = useState<Country[] | Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -31,7 +28,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [selectedActors, setSelectedActors] = useState<Person[]>([]);
 
   const [directorName, setDirectorName] = useState<string>("");
-  const [selectedDirectors, setSelectedDirectors] = useState<Director[]>([]);
+  const [selectedDirectors, setSelectedDirectors] = useState<Person[]>([]);
 
   // Do ustawiania stopnia pasowania przy dodawaniu Aktorów i Reżyserów(0.0 - 1.0)
   const rateThreShold = 0.6;
@@ -179,7 +176,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
       // Jeśli reżyser istnieje i nie jest jeszcze dodany, dodaj go
       if (
         director &&
-        !selectedDirectors.some((d) => d.directorId === director.directorId)
+        !selectedDirectors.some((d) => d.personId === director.personId)
       ) {
         setSelectedDirectors((prev) => [...prev, director]);
       }
@@ -193,7 +190,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     if (type === "actor") {
       setSelectedActors((prev) => prev.filter((a) => a.personId !== id));
     } else if (type === "director") {
-      setSelectedDirectors((prev) => prev.filter((d) => d.directorId !== id));
+      setSelectedDirectors((prev) => prev.filter((d) => d.personId !== id));
     }
   };
 
@@ -334,7 +331,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
             <div className="row row-cols-auto">
               {selectedDirectors.map((director) => (
                 <div
-                  key={director.directorId}
+                  key={director.personId}
                   className="col bg-light m-1 p-1 rounded"
                 >
                   {director.firstName} {director.lastName}{" "}
@@ -343,7 +340,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
                     className="btn-close"
                     aria-label="Close"
                     onClick={() =>
-                      handleDelete(director.directorId, "director")
+                      handleDelete(director.personId, "director")
                     }
                   ></button>
                 </div>

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SearchModule from "../SearchModule";
 import PaginationModule from "../PaginationModule";
-import { Person } from "../../models/Person";
 import ActorsListModule from "./ActorsListModule";
 import axios from "axios";
 import NoPeopleFoundModal from "../NoPeopleFoundModal";
+import { Person } from "../../models/Person";
 
 
 const SearchActorsPage = () => {

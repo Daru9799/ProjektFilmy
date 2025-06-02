@@ -1,5 +1,7 @@
 import { UserRelation } from "../../models/UserRelation";
 import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Modal, Button } from 'react-bootstrap';
 
 interface FriendCardProps {
   friend: UserRelation;
@@ -8,10 +10,19 @@ interface FriendCardProps {
 
 const FriendCard = ({ friend, onDelete }: FriendCardProps) => {
 
+  const [showModal, setShowModal] = useState(false);
+  
   const handleDelete = () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć ${friend.relatedUserName} ze znajomych?`)) {
-      onDelete(friend.relationId);
-    }
+    setShowModal(true); // Pokaż modal
+  };
+
+  const handleCancelDelete = () => {
+    setShowModal(false); // Zamknij modal bez usuwania
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(friend.relationId); // Wywołaj onDelete
+    setShowModal(false); // Zamknij modal po usunięciu
   };
 
   return (
@@ -25,6 +36,23 @@ const FriendCard = ({ friend, onDelete }: FriendCardProps) => {
             Usuń ze znajomych
           </button>
       </div>
+
+      <Modal show={showModal} onHide={handleCancelDelete} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Czy na pewno chcesz usunąć {friend.relatedUserName} ze znajomych?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelDelete}>
+            Anuluj
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Usuń
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

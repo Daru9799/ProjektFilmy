@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Person } from '../../models/Person';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Zoom.css'
+import { Person } from '../../models/Person';
 
 interface Props {
   personList:Person[]

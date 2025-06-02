@@ -1,4 +1,3 @@
-import {Actor} from '../models/Actor'
 import {CountryResponse} from '../models/Country';
 import {CategoryResponse} from '../models/Category';
 import { Person } from './Person';
@@ -14,7 +13,7 @@ export interface UserStats {
   numberOfPlannedMovies: number;
   numberOfReviews: number;
   favoriteDirector: Person;
-  favoriteActor: Actor;
+  favoriteActor: Person;
   watchedMoviesByCategory: { $values: CategoryResponse[] };
   watchedMoviesByCountry: { $values: CountryResponse[] };
   ratingDistribution: { $values: RatingCount[] };

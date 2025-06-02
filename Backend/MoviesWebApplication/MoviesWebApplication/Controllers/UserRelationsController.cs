@@ -24,7 +24,7 @@ namespace MoviesWebApplication.Controllers
             }
         }
         //Zwracanie relacji dla konkretnego uzytkownika (z możliwościa podania jakiego typu ma być "" -> zwróci wszystko)
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("by-username/{userName}")]
         public async Task<ActionResult<List<UserRelationDto>>> GetRelationsByUserName(string userName, [FromQuery] string type = "")
         {
@@ -45,13 +45,21 @@ namespace MoviesWebApplication.Controllers
 
                 return Ok(relations);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
+            }
             catch (ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Wystąpił nieoczekiwany błąd: " + ex.Message);
+            }
         }
         //Usuwanie relacji
-        [AllowAnonymous]
+        [Authorize]
         [HttpDelete("delete-relation/{id}")]
         public async Task<IActionResult> DeleteUserRelation(Guid id)
         {
