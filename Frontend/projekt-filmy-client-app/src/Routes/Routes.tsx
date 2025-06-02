@@ -7,8 +7,7 @@ import SearchDirectorsPage from "../components/SearchDirectors_componets/SearchD
 import SearchActorsPage from "../components/SearchActors_componets/SearchActorsPage";
 import ReviewsPage from '../components/review_components/ReviewsPage';
 import UserPage from '../components/User_componets/UserPage';
-import DirectorPage from '../components/SearchDirectors_componets/DirectorPage';
-import ActorPage from '../components/SearchActors_componets/ActorPage';
+import PersonPage from '../components/SearchDirectors_componets/PersonPage';
 import UserReviewsPage from '../components/User_componets/UserReviews';
 import NotificationTestPage from '../components/TEST_COMPONENTS/NotificationTestPage';
 import AllAchievements from '../components/Achievements_components/AllAchievements';
@@ -29,8 +28,7 @@ export const routes: RouteObject[] = [
       { path: "/:movieId", element: <MoviePage /> },
       { path: "/:movieId/reviews", element: <ReviewsPage /> },
       { path: "/user/:userName", element: <UserPage /> },
-      { path: "/actor/:actorId", element: <ActorPage /> },
-      { path: "/director/:directorId", element: <DirectorPage /> },
+      { path: "/people/:id", element: <PersonPage /> },
       { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
       { path: "/notifications", element: <NotificationTestPage/>},
       { path: "/achievements", element:<AllAchievements/>},

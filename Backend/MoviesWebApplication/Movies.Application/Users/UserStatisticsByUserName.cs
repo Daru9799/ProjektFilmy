@@ -72,7 +72,7 @@ namespace Movies.Application.Users
                         LastName = g.Key.LastName,
                         PhotoUrl = g.Key.PhotoUrl
                     })
-                    .FirstOrDefault();  // Zwróci pierwszego aktora, jeśli istnieje
+                    .FirstOrDefault(); 
 
                 if (favoriteActor == null)
                 {

@@ -4,5 +4,7 @@ export interface Category {
 }
 
 export interface CategoryResponse {
+    category: any;
+    count: any;
     $values: Category[];
 }

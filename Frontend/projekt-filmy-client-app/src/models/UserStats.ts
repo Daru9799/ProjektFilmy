@@ -1,18 +1,10 @@
 import {Actor} from '../models/Actor'
-import {Director} from '../models/Director'
+import {CountryResponse} from '../models/Country';
+import {CategoryResponse} from '../models/Category';
+import { Person } from './Person';
 
 export interface RatingCount {
   rating: number;
-  count: number;
-}
-
-export interface CountryCount {
-  country: string;
-  count: number;
-}
-
-export interface CategoryCount {
-  category: string;
   count: number;
 }
 
@@ -21,9 +13,9 @@ export interface UserStats {
   numberOfWathcedMovies: number;
   numberOfPlannedMovies: number;
   numberOfReviews: number;
-  favoriteDirector: Director;
+  favoriteDirector: Person;
   favoriteActor: Actor;
-  watchedMoviesByCategory: { $values: CategoryCount[] };
-  watchedMoviesByCountry: { $values: CountryCount[] };
+  watchedMoviesByCategory: { $values: CategoryResponse[] };
+  watchedMoviesByCountry: { $values: CountryResponse[] };
   ratingDistribution: { $values: RatingCount[] };
 }

@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Director } from '../../models/Director';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Zoom.css'
+import { Person } from '../../models/Person';
 
 interface Props {
-  directorsList:Director[]
+  directorsList:Person[]
 }
 
 const DirectorsListModule = ({ directorsList }: Props) => {
   const navigate = useNavigate(); 
 
   const handleCardClick = (directorId: string) => {
-    navigate(`/director/${directorId}`)}; 
+    navigate(`/people/${directorId}`)}; 
   return (
     <div className="container d-flex justify-content-center align-items-top p-0">
       <ul className="list-group">
         {directorsList.map((director) => (
           <li className="list-group-item d-flex align-items-start p-3 zoomCard" 
-          onClick={() => handleCardClick(director.directorId)}
+          onClick={() => handleCardClick(director.personId)}
           style={{ borderBottom: "1px solid #ddd", width: "600px", height: "180px", borderRadius: "15px", marginBottom: "5px", cursor:"pointer" }}>
           <img 
             src={director.photoUrl} 

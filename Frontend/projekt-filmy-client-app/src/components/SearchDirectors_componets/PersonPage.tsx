@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Director } from "../../models/Director";
 import ImageModal from "../../hooks/ImageModal"; 
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
 import { fetchDirectorMovies } from "../../API/personApi";
 import { Movie } from "../../models/Movie";
+import { Person } from "../../models/Person";
 
-const DirectorPage = () => {
-  const { directorId } = useParams();
-  const [director, setActor] = useState<Director | null>(null);
+const PersonPage = () => {
+  const { id } = useParams();
+  const [person, setPerson] = useState<Person | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -18,8 +18,9 @@ const DirectorPage = () => {
   useEffect(() => {
     const fetchDirectorById = async () => {
       try {
-        const actorResponse = await axios.get(`https://localhost:7053/api/Directors/${directorId}`);
-        setActor(actorResponse.data);
+
+        const actorResponse = await axios.get(`https://localhost:7053/api/People/${id}`);
+        setPerson(actorResponse.data);
       } catch (err: any) {
         if (axios.isAxiosError(err)) {
           if (!err.response) {
@@ -37,10 +38,10 @@ const DirectorPage = () => {
     };
 
     fetchDirectorById();
-    if(directorId)
-    fetchDirectorMovies(directorId, setMovies, setError, setLoading);
+    if(id)
+    fetchDirectorMovies(id, setMovies, setError, setLoading);
 
-  }, [directorId]);
+  }, [id]);
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
@@ -53,8 +54,8 @@ const DirectorPage = () => {
           <div className="p-2 text-center">
             {/* Użycie ImageModal */}
             <ImageModal
-              imageUrl={director?.photoUrl}
-              altText={`${director?.firstName} ${director?.lastName} Poster`}
+              imageUrl={person?.photoUrl}
+              altText={`${person?.firstName} ${person?.lastName} Poster`}
               defaultImageUrl="/path/to/defaultPoster.jpg"
             />
           </div>
@@ -64,23 +65,23 @@ const DirectorPage = () => {
         <div className="col-8" style={{ textAlign: "left", marginLeft: "50px", marginTop: "20px" }}>
           {/* Title (Actor's Name) */}
           <h2 className="mb-3" style={{ fontSize: "4rem" }}>
-            {director?.firstName && director?.lastName ? `${director.firstName} ${director.lastName}` : "Imię i nazwisko niedostępne"}
+            {person?.firstName && person?.lastName ? `${person.firstName} ${person.lastName}` : "Imię i nazwisko niedostępne"}
           </h2>
 
           {/* Data urodzenia */}
           <p style={{ marginTop: "50px" }}>
             <span className="fw-bold">Data urodzenia: </span>
-            {director?.birthDate
-              ? new Date(director.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" })
+            {person?.birthDate
+              ? new Date(person.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" })
               : "Brak danych"}
           </p>
           <p style={{ marginTop: "10px" }}>
             <span className="fw-bold">Liczba wszystkich filmów: </span>
-              {director?.totalMovies ? `${director.totalMovies}` : "Niedostępna"}
+              {person?.totalMovies ? `${person.totalMovies}` : "Niedostępna"}
           </p>
           <p style={{ marginTop: "10px" }}>
             <span className="fw-bold">Najczęściej kręci: </span>
-              {director?.favoriteGenre ? `${director.favoriteGenre}` : "Niedostępny"}
+              {person?.favoriteGenre ? `${person.favoriteGenre}` : "Niedostępny"}
           </p>
 
 
@@ -96,7 +97,7 @@ const DirectorPage = () => {
               marginRight: "50px",
             }}
           >
-            <p className="text-dark">{director?.bio || "Brak danych o biografii."}</p>
+            <p className="text-dark">{person?.bio || "Brak danych o biografii."}</p>
           </div>
         </div>
       </div>
@@ -113,4 +114,4 @@ const DirectorPage = () => {
   );
 };
 
-export default DirectorPage;
+export default PersonPage;

@@ -1,6 +1,6 @@
 import { CategoryResponse } from './Category';
 import { CountryResponse } from './Country';
-import { DirectorResponse } from './Director';
+import { PeopleResponse } from './Person';
 
 export interface Movie {
     movieId: string;
@@ -14,5 +14,5 @@ export interface Movie {
     averageScore: number;
     categories?: CategoryResponse; //Trzeba dac tak bo inaczej nie da sie obsluzyc zwracanych list obiektów 
     countries?: CountryResponse;
-    directors?: DirectorResponse;
+    directors?: PeopleResponse;
 }

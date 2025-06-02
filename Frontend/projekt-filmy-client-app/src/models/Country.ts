@@ -4,5 +4,7 @@ export interface Country {
 }
 
 export interface CountryResponse {
+    country: any;
+    count: any;
     $values: Country[];
 }

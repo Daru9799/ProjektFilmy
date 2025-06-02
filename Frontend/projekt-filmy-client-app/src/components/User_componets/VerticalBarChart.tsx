@@ -67,10 +67,11 @@ const VerticalBarChart = ({
           value={yLabel}
           angle={-90}
           position="insideLeft"
-          offset={-5}
+          offset={-20}
           style={{ fill: "#fff" }}
         />
       </YAxis>
+      
       <Tooltip />
       <Bar dataKey={xKey} fill={barColor}>
         <LabelList dataKey={xKey} position="right" />

@@ -84,7 +84,7 @@ const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
                   <button
                     key={person.personId}
                     className="inside-table-button"
-                    onClick={() => navigate(`/actor/${person.personId}`)}
+                    onClick={() => navigate(`/people/${person.personId}`)}
                   >
                     {person.firstName} {person.lastName}
                   </button>

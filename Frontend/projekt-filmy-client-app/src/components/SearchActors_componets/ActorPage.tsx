@@ -9,7 +9,7 @@ import { Movie } from "../../models/Movie";
 
 const ActorPage = () => {
 
-  const { actorId } = useParams();
+  const { actorId: personId } = useParams();
   const [person, setPerson] = useState<Person | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,7 +19,7 @@ const ActorPage = () => {
     const fetchActorById = async () => {
       try {
         const peopleResponse = await axios.get(
-          `https://localhost:7053/api/People/${actorId}`
+          `https://localhost:7053/api/People/${personId}`
         );
         setPerson(peopleResponse.data);
       } catch (err: any) {
@@ -41,8 +41,8 @@ const ActorPage = () => {
     };
 
     fetchActorById();
-    if (actorId) fetchActorMovies(actorId, setMovies, setError, setLoading);
-  }, [actorId]);
+    if (personId) fetchActorMovies(personId, setMovies, setError, setLoading);
+  }, [personId]);
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;

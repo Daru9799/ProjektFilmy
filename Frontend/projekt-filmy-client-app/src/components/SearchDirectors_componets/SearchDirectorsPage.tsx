@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import SearchModule from "../SearchModule";
 import PaginationModule from "../PaginationModule";
-import { Director } from "../../models/Director";
 import NoPeopleFoundModal from "../NoPeopleFoundModal";
 import axios from "axios";
 import DirectorsListModule from "./DirectorsListModule";
+import { Person } from "../../models/Person";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
-  const [directors, setDirectors] = useState<Director[]>([]);
+  const [person, setDirectors] = useState<Person[]>([]);
   const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
   const [pageInfo, setPageInfo] = useState({
     totalItems: 0,
@@ -22,7 +22,7 @@ const SearchDirectorsPage = () => {
 
   useEffect(() => {
     axios
-      .get("https://localhost:7053/api/Directors/all", {
+      .get("https://localhost:7053/api/People/all", {
         params: {
           pageNumber: currentPage,
           pageSize: staticPageSize,
@@ -52,7 +52,7 @@ const SearchDirectorsPage = () => {
   const handleSearchSubmit = () => {
     setCurrentPage(1);
     axios
-      .get("https://localhost:7053/api/Directors/all", {
+      .get("https://localhost:7053/api/People/all", {
         params: {
           pageNumber: currentPage,
           pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
@@ -135,7 +135,7 @@ const SearchDirectorsPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <DirectorsListModule directorsList={directors} />
+      <DirectorsListModule directorsList={person} />
 
       <div className="mt-auto">
         <PaginationModule

@@ -12,3 +12,4 @@ export interface Person {
 export interface PeopleResponse {
     $values: Person[];
 }
+

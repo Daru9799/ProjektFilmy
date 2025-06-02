@@ -46,10 +46,10 @@ const MovieHeader: React.FC<Props> = ({
             :
           </span>{" "}
           {movie?.directors?.$values?.length
-            ? movie.directors.$values.map((d, index) => (
-                <React.Fragment key={d.directorId}>
+            ? movie.directors.$values.map((d) => (
+                <React.Fragment key={d.personId}>
                   <span
-                    onClick={() => navigate(`/director/${d.directorId}`)}
+                    onClick={() => navigate(`/people/${d.personId}`)}
                     style={{ cursor: "pointer" }}
                   >
                     {`${d.firstName} ${d.lastName}`}
