@@ -8,6 +8,7 @@ import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
+import { Modal, Button } from 'react-bootstrap';
 import "../../styles/UserPage.css"
 
 
@@ -34,6 +35,7 @@ const UserPage = () => {
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [relations, setRelations] = useState<any>(null);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,15 +85,29 @@ const UserPage = () => {
       setReviewToEdit(null);
     }
   };
+  
+  const handleDeleteRel = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    handleDeleteRelation(relations?.$values.find((relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName)?.relationId)
+    setShowDeleteModal(false);
+  };
 
   const handleDeleteRelation = async (relationId: string) => {
     await deleteRelation(relationId, setRelations, setError);
-    if (userName) {
-        setLoading(true);
-        fetchRelationsData(userName, setRelations, setError).finally(() => {
-        setLoading(false);
-      });
-    }
+    setRelations((prevRelations: any) => {
+      const updatedRelations = { ...prevRelations };
+      updatedRelations.$values = updatedRelations.$values.filter(
+        (relation: any) => relation.relationId !== relationId
+      );
+    return updatedRelations;
+    });
   };
 
   const isFriend = relations?.$values.some(
@@ -124,7 +140,7 @@ const UserPage = () => {
                   Dodaj do znajomych
                 </button>
               ) : (
-                <button className="btn btn-danger" onClick={() => handleDeleteRelation(relations?.$values.find((relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName)?.relationId)}>
+                <button className="btn btn-danger" onClick={handleDeleteRel}>
                   Usuń ze znajomych
                 </button>
               )}
@@ -227,6 +243,23 @@ const UserPage = () => {
           }}
         />
       )}
+      {showDeleteModal && (
+    <Modal show={showDeleteModal} onHide={handleCancelDelete} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Czy na pewno chcesz usunąć tego użytkownika ze znajomych?
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCancelDelete}>
+          Anuluj
+        </Button>
+        <Button variant="danger" onClick={handleConfirmDelete}>
+          Usuń
+        </Button>
+      </Modal.Footer>
+    </Modal>)}
 </div>
     </>
   );
