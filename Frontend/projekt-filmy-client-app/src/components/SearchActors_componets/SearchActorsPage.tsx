@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SearchModule from "../SearchModule";
 import PaginationModule from "../PaginationModule";
-import { Actor } from "../../models/Actor";
+import { Person } from "../../models/Person";
 import ActorsListModule from "./ActorsListModule";
 import axios from "axios";
 import NoPeopleFoundModal from "../NoPeopleFoundModal";
@@ -9,7 +9,7 @@ import NoPeopleFoundModal from "../NoPeopleFoundModal";
 
 const SearchActorsPage = () => {
     const [searchText, setSearchText] = useState<string>("");
-    const [actors, setActors] = useState<Actor[]>([]);
+    const [actors, setActors] = useState<Person[]>([]);
     const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
     const [pageInfo, setPageInfo] = useState({
         totalItems: 0,
@@ -23,11 +23,12 @@ const SearchActorsPage = () => {
 
     useEffect(() => {
       axios
-        .get("https://localhost:7053/api/Actors/all", {
+        .get("https://localhost:7053/api/People/by-filters", {
           params: {
             pageNumber: currentPage,
             pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
-            actorSearch: searchText,
+            personSearch: searchText,
+            role: 1
           },
         })
         .then((response) => {
@@ -138,7 +139,7 @@ const SearchActorsPage = () => {
           onPageChange={handlePageChange}
         />
 
-        <ActorsListModule actorsList={actors} />
+        <ActorsListModule personList={actors} />
 
         <div className="mt-auto">
           <PaginationModule

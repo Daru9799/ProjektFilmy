@@ -5,8 +5,11 @@ import React, { useState, useEffect } from "react";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import { Category } from "../../models/Category";
 import { Country } from "../../models/Country";
-import { Actor } from "../../models/Actor";
+import { Person } from "../../models/Person";
 import { Director } from "../../models/Director";
+
+import { fetchAllCategories } from "../../API/CategoriesAPI";
+import { fetchAllCountries } from "../../API/CountriesAPI";
 
 interface Props {
   // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako Actor[], Reżyserów jako Director[] 
@@ -17,7 +20,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [countryData, setCountryData] = useState<Country[]>([]);
-  const [actorData, setActorData] = useState<Actor[]>([]);
+  const [actorData, setActorData] = useState<Person[]>([]);
   const [directorData, setDirectorData] = useState<Director[]>([]);
 
   const [dataToShow, setDataToShow] = useState<Country[] | Category[]>([]);
@@ -25,7 +28,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const [actorName, setActorName] = useState<string>("");
-  const [selectedActors, setSelectedActors] = useState<Actor[]>([]);
+  const [selectedActors, setSelectedActors] = useState<Person[]>([]);
 
   const [directorName, setDirectorName] = useState<string>("");
   const [selectedDirectors, setSelectedDirectors] = useState<Director[]>([]);
@@ -58,30 +61,10 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   ];
 
   useEffect(() => {
-    axios
-      .get("https://localhost:7053/api/Categories/all")
-      .then((response) => {
-        if (response.data && response.data.$values) {
-          setCategoryData(response.data.$values);
-          console.log(response.data.$values);
-        } else {
-          setCategoryData([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching categories:", error));
+    fetchAllCategories(setCategoryData);
+    fetchAllCountries(setCountryData);
 
-    axios
-      .get("https://localhost:7053/api/Countries/all")
-      .then((response) => {
-        if (response.data && response.data.$values) {
-          setCountryData(response.data.$values);
-          console.log(response.data.$values);
-        } else {
-          setCountryData([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching countries:", error));
-
+    // Do zmiany w dół:
     axios
       .get("https://localhost:7053/api/Actors/all", {
         params: {
@@ -116,6 +99,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
         }
       })
       .catch((error) => console.error("Error fetching directors:", error));
+    // do zmiany w góre 
   }, []);
 
   
@@ -163,7 +147,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
       );
 
       // Jeśli aktor istnieje i nie jest jeszcze dodany, dodaj go
-      if (actor && !selectedActors.some((a) => a.actorId === actor.actorId)) {
+      if (actor && !selectedActors.some((a) => a.personId === actor.personId)) {
         setSelectedActors((prev) => [...prev, actor]);
       }
     }
@@ -207,7 +191,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
 
   const handleDelete = (id: string, type: string) => {
     if (type === "actor") {
-      setSelectedActors((prev) => prev.filter((a) => a.actorId !== id));
+      setSelectedActors((prev) => prev.filter((a) => a.personId !== id));
     } else if (type === "director") {
       setSelectedDirectors((prev) => prev.filter((d) => d.directorId !== id));
     }
@@ -302,7 +286,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
             <div className="row row-cols-auto">
               {selectedActors.map((actor) => (
                 <div
-                  key={actor.actorId}
+                  key={actor.personId}
                   className="col bg-light m-1 p-1 rounded"
                 >
                   {actor.firstName} {actor.lastName}{" "}
@@ -310,7 +294,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
                     type="button"
                     className="btn-close"
                     aria-label="Close"
-                    onClick={() => handleDelete(actor.actorId, "actor")}
+                    onClick={() => handleDelete(actor.personId, "actor")}
                   ></button>
                 </div>
               ))}

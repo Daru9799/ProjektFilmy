@@ -45,3 +45,6 @@ export const fetchActorMovies = async (actorId: string, setMovies: React.Dispatc
   }
 };
 
+// Do pobrania wszystkich osób po określonej roli
+export const fetchPeopleByRole= async()=>{};
+
