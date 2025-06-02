@@ -14,6 +14,7 @@ import AllAchievements from '../components/Achievements_components/AllAchievemen
 import UserAchievements from '../components/Achievements_components/UserAchievements';
 import UserStatistics from '../components/User_componets/UserStatistics';
 import FriendsPage from '../components/Friends_components/FriendsPage';
+import CreateMovieCollection from '../components/MovieCollection_components/CreateMovieCollection';
 
 
 
@@ -28,14 +29,15 @@ export const routes: RouteObject[] = [
       { path: "search-actors", element: <SearchActorsPage /> },
       { path: "/:movieId", element: <MoviePage /> },
       { path: "/:movieId/reviews", element: <ReviewsPage /> },
-      { path: "/user/:userName", element: <UserPage /> },
-      { path: "/people/:id", element: <PersonPage /> },
-      { path: "/user/:userName/reviews", element: <UserReviewsPage /> },
-      { path: "/notifications", element: <NotificationTestPage/>},
-      { path: "/achievements", element:<AllAchievements/>},
-      { path: "/user/:userName/friends", element: <FriendsPage /> },
-      { path: "/user-achievements/:userName",element:<UserAchievements/>},
-      { path: "users/statistics/:userName", element:<UserStatistics/>}
+      { path: "user/:userName", element: <UserPage /> },
+      { path: "people/:id", element: <PersonPage /> },
+      { path: "user/:userName/reviews", element: <UserReviewsPage /> },
+      { path: "notifications", element: <NotificationTestPage/>},
+      { path: "achievements", element:<AllAchievements/>},
+      { path: "user/:userName/friends", element: <FriendsPage /> },
+      { path: "user/achievements/:userName",element:<UserAchievements/>},
+      { path: "users/statistics/:userName", element:<UserStatistics/>},
+      { path: "users/moviecollection/create", element:<CreateMovieCollection/>}
     ],
   },
 ];

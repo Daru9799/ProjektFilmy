@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import homeIcon from "../../imgs/home_icon.png";
 import NavTile from "./NavTile";
 import { Link } from "react-router-dom";
@@ -74,6 +74,26 @@ const NavBar = () => {
                     <li>
                       <Link className="dropdown-item" to={`/user/${loggedUsername}`}>
                         Profil
+                      </Link>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                      <li>
+                      <Link className="dropdown-item" to={`/user-achievements/${loggedUsername}`}>
+                        Osiągnięcia
+                      </Link>
+                    </li>
+                          <hr className="dropdown-divider" />
+                      <li>
+                      <Link className="dropdown-item" to={`users/statistics/${loggedUsername}`}>
+                        Statystyki
+                      </Link>
+                    </li>
+                        <hr className="dropdown-divider" />
+                      <li>
+                      <Link className="dropdown-item" to={`users/moviecollection/create`}>
+                        Utwórz kolekcję
                       </Link>
                     </li>
                     <li>

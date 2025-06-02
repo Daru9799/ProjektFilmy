@@ -89,6 +89,9 @@ export const fetchUserStatistics = async (
     setError(null);
     const response = await axios.get(
       `https://localhost:7053/api/users/statistics/${userName}`,{
+                  headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
       
     );

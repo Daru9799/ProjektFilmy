@@ -67,13 +67,18 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var movieCollection = await Mediator.Send(command);
-                return Ok("Pomyślnie utworzono kolekcje.");
+                return Ok(new
+                {
+                    message = "Pomyślnie utworzono kolekcję.",
+                    collectionId = movieCollection.MovieCollectionId
+                });
             }
             catch (ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
 
         [Authorize]

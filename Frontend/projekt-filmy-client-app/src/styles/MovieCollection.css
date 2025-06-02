@@ -1,0 +1,87 @@
+.create-collection-container {
+  background-color: #1f0f35; /* ciemne tło */
+  color: white; /* biały tekst poza inputami */
+  min-height: 90vh;
+  padding: 1rem 2rem;
+  max-width: 600px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+.create-collection-container label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: white;
+}
+
+.create-collection-container input,
+.create-collection-container textarea,
+.create-collection-container select {
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  font-size: 1rem;
+  width: 90%; /* mniejsze pole, nie pełna szerokość */
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.create-collection-container input::placeholder,
+.create-collection-container textarea::placeholder {
+  color: #888;
+}
+
+.create-collection-container input:focus,
+.create-collection-container textarea:focus,
+.create-collection-container select:focus {
+  border-color: #7b6ef6; /* ładny fioletowy akcent na fokus */
+}
+
+.create-collection-container textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;         /* Wyrównanie pionowe */
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-row input[type="checkbox"] {
+  appearance: none;            /* Reset stylów systemowych */
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+.checkbox-row input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-row label {
+  margin: 0;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
