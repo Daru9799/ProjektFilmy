@@ -5,10 +5,11 @@ import NoPeopleFoundModal from "../NoPeopleFoundModal";
 import axios from "axios";
 import DirectorsListModule from "./DirectorsListModule";
 import { Person } from "../../models/Person";
+import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../../API/personApi";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
-  const [person, setDirectors] = useState<Person[]>([]);
+  const [person, setPerson] = useState<Person[]>([]);
   const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
   const [pageInfo, setPageInfo] = useState({
     totalItems: 0,
@@ -21,98 +22,23 @@ const SearchDirectorsPage = () => {
   const totalPages = pageInfo.totalPages;
 
   useEffect(() => {
-    axios
-      .get("https://localhost:7053/api/People/all", {
-        params: {
-          pageNumber: currentPage,
-          pageSize: staticPageSize,
-          directorSearch: searchText,
-        },
-      })
-      .then((response) => {
-        if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setPageInfo({
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-          });
-          setDirectors(data.$values);
-          console.log("Załadowano reżyserów.", data);
-          console.log(pageInfo);
-        } else {
-          setDirectors([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching movies:", error));
+    fetchPeopleByRole(
+      currentPage,
+      staticPageSize,
+      "",
+      0,
+      setPerson,
+      setPageInfo
+    );
   }, [currentPage]);
 
-  const handleSearchSubmit = () => {
+  // !!! Błąd: Nie wyświetla komunikatu o braku szukanej osoby(reżysera) 
+  const handleSearchSubmit = async () => {
     setCurrentPage(1);
-    axios
-      .get("https://localhost:7053/api/People/all", {
-        params: {
-          pageNumber: currentPage,
-          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
-          directorSearch: searchText,
-        },
-      })
-      .then((response) => {
-        if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setPageInfo({
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-          });
-          if (data.$values.length === 0) {
-            setIsNoPeopleFoundVisable(true);
-            setPageInfo({
-              totalItems: totalItems,
-              pageNumber: 1,
-              pageSize: pageSize,
-              totalPages: 1,
-            });
-          }
-          setDirectors(data.$values);
-          console.log("Załadowano aktorów.", data);
-          console.log(pageInfo);
-        } else {
-          setDirectors([]);
-        }
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          // Obsługa AxiosError
-          if (error.response) {
-            // Serwer zwrócił odpowiedź z kodem błędu
-            console.error(
-              `Error ${error.response.status}: ${
-                error.response.data?.message || "Wystąpił błąd"
-              }`
-            );
-            if (error.response.status === 404) {
-              // Obsługa błędu 404
-              console.error("Nie znaleziono zasobu.");
-              setDirectors([]);
-              setPageInfo({
-                totalItems: 0,
-                pageNumber: 1,
-                pageSize: 2,
-                totalPages: 1,
-              });
-              setIsNoPeopleFoundVisable(true);
-            }
-          }
-        } else {
-          // Inny rodzaj błędu (nie związany z Axios)
-          console.error("Nieznany błąd:", error);
-        }
-      });
+    await fetchByPersonSearchAndRole(currentPage, staticPageSize, searchText, 0, setPerson, setPageInfo);
+    if(person.length === 0) setIsNoPeopleFoundVisable(true);
+    console.log("person.length: "+person.length);
+    console.log(person);
   };
 
   const handlePageChange = (page: number) => {
