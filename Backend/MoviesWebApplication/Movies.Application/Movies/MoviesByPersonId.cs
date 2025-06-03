@@ -6,11 +6,11 @@ using Movies.Domain.DTOs;
 
 namespace Movies.Application.Movies
 {
-    public class MoviesByActorId
+    public class MoviesByPersonId
     {
         public class Query : IRequest<List<MovieDto>>
         {
-            public Guid ActorId { get; set; }
+            public Guid PersonId { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, List<MovieDto>>
@@ -23,14 +23,14 @@ namespace Movies.Application.Movies
 
             public async Task<List<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                //Pobiera filmy na podstawie ID aktora
+                //Pobiera filmy na podstawie ID reżysera
                 var movies = await _context.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .Include(m => m.MoviePerson)
                         .ThenInclude(mp => mp.Person)
-                    .Where(m => m.MoviePerson.Any(mp => mp.Person.PersonId == request.ActorId && mp.Role == MoviePerson.PersonRole.Actor))
+                    .Where(m => m.MoviePerson.Any(mp => mp.Person.PersonId == request.PersonId ))
                     .ToListAsync(cancellationToken);
 
                 if (!movies.Any())

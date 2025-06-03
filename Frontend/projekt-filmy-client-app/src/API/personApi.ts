@@ -1,56 +1,31 @@
 import axios from "axios";   // do zmiany
 import { Person } from "../models/Person";
 
-export const fetchDirectorMovies = async (
-  directorId: string, 
-  setMovies: React.Dispatch<React.SetStateAction<any[]>>, 
-  setError: React.Dispatch<React.SetStateAction<string | null>>, 
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const fetchPersonMovies = async (
+  personId: string,
+  setMovies: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   try {
     const response = await axios.get(
-      `https://localhost:7053/api/Movies/by-directorId/${directorId}`);
+      `https://localhost:7053/api/Movies/by-personId/${personId}`
+    );
 
     if (response.status === 200) {
       const data = response.data.$values;
-      setMovies(data); 
+      setMovies(data);
     }
-  } catch (reviewsError) {
-    if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-      setMovies([]); 
-      console.log("Nie znaleznio filmów dla tego reżysera");
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      setMovies([]);
+      console.log("Nie znaleziono filmów dla tej osoby.");
     } else {
-      setError("Błąd podczas wczytywania danych");
-      console.error(reviewsError);
+      setError("Błąd podczas wczytywania danych.");
+      console.error(error);
     }
   } finally {
-    setLoading(false); 
-  }
-};
-
-
-export const fetchActorMovies = async (
-  actorId: string, 
-  setMovies: React.Dispatch<React.SetStateAction<any[]>>, 
-  setError: React.Dispatch<React.SetStateAction<string | null>>, 
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
-  try {
-    const response = await axios.get(
-      `https://localhost:7053/api/Movies/by-actorId/${actorId}`);
-
-    if (response.status === 200) {
-      const data = response.data.$values;
-      setMovies(data); 
-    }
-  } catch (reviewsError) {
-    if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-      setMovies([]); 
-      console.log("Nie znaleznio filmów dla tego aktora");
-    } else {
-      setError("Błąd podczas wczytywania danych");
-      console.error(reviewsError);
-    }
-  } finally {
-    setLoading(false); 
+    setLoading(false);
   }
 };
 

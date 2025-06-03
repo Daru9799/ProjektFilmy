@@ -3,9 +3,9 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import ImageModal from "../../hooks/ImageModal"; 
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
-import { fetchDirectorMovies } from "../../API/personApi";
 import { Movie } from "../../models/Movie";
 import { Person } from "../../models/Person";
+import { fetchPersonMovies } from "../../API/personApi";
 
 const PersonPage = () => {
   const { id } = useParams();
@@ -16,7 +16,7 @@ const PersonPage = () => {
 
 
   useEffect(() => {
-    const fetchDirectorById = async () => {
+    const fetchPersonById = async () => {
       try {
 
         const actorResponse = await axios.get(`https://localhost:7053/api/People/${id}`);
@@ -37,9 +37,9 @@ const PersonPage = () => {
       }
     };
 
-    fetchDirectorById();
+    fetchPersonById();
     if(id)
-    fetchDirectorMovies(id, setMovies, setError, setLoading);
+    fetchPersonMovies(id, setMovies, setError, setLoading);
 
   }, [id]);
 

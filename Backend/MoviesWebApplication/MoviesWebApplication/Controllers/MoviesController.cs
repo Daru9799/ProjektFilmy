@@ -34,24 +34,12 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(movie);
         }
-        //Zwracanie filmów dla podanego id aktora
-        [HttpGet("by-actorId/{personId}")]
-        public async Task<ActionResult<MovieDto>> GetMoviesByActorId(Guid personId)
-        {
-            var movie = await Mediator.Send(new MoviesByActorId.Query { ActorId = personId });
 
-            if (movie == null)
-            {
-                return NotFound($"Nie odnaleziono filmu o id {personId}.");
-            }
-
-            return Ok(movie);
-        }
         //Zwracanie filmów dla podanego id reżysera
-        [HttpGet("by-directorId/{personId}")]
+        [HttpGet("by-personId/{personId}")]
         public async Task<ActionResult<MovieDto>> GetMoviesByDirectorId(Guid personId)
         {
-            var movie = await Mediator.Send(new MoviesByDirectorId.Query { DirectorId = personId });
+            var movie = await Mediator.Send(new MoviesByPersonId.Query { PersonId = personId });
 
             if (movie == null)
             {
