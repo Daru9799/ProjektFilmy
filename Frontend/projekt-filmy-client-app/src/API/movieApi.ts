@@ -1,4 +1,6 @@
 import axios from "axios";
+import qs from "qs";
+import { Movie } from "../models/Movie";
 
 // Fetch movie data
 export const fetchMovieData = async (movieId: string, setMovie: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
@@ -132,5 +134,47 @@ export const fetchUserReviewForMovie = async (
       setError("Błąd podczas wczytywania danych");
       console.error(reviewsError);
     }
+  }
+};
+
+
+interface PaginationResponse {
+  data: {
+    $values: Movie[];
+  };
+  totalItems: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+interface FetchMoviesParams {
+  pageNumber: number;
+  pageSize: number;
+  titleSearch?: string;
+  orderBy?: string;
+  sortDirection?: string;
+  categoryNames?: string[];
+  countryNames?: string[];
+  actorsList?: string[];
+  directorsList?: string[];
+}
+
+export const fetchMoviesByFilters = async (
+  params: FetchMoviesParams
+): Promise<PaginationResponse> => {
+  try {
+    const response = await axios.get<PaginationResponse>(
+      "https://localhost:7053/api/Movies/by-filters",
+      {
+        params,
+        paramsSerializer: (params) =>
+          qs.stringify(params, { arrayFormat: "repeat" }),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    throw error;
   }
 };

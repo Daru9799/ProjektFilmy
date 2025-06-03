@@ -31,7 +31,7 @@ const SearchActorsPage = () => {
           currentPage,
           staticPageSize,
           "",
-          0,
+          1,
           setPerson,
           setPageInfo,
           setError,

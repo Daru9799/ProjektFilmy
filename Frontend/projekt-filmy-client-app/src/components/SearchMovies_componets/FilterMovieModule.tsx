@@ -28,9 +28,6 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   const [directorName, setDirectorName] = useState<string>("");
   const [selectedDirectors, setSelectedDirectors] = useState<Person[]>([]);
 
-  // Do ustawiania stopnia pasowania przy dodawaniu Aktorów i Reżyserów(0.0 - 1.0)
-  const rateThreShold = 0.6;
-
   useEffect(() => {
     const selectedActorsStrings = selectedActors.map(
       (actor) => `${actor.firstName} ${actor.lastName}`

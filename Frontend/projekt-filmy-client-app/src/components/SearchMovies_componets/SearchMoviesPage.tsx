@@ -9,6 +9,7 @@ import SortMovieModule from "./SortMovieModule";
 import { Movie } from "../../models/Movie";
 import MovieListModule from "./MovieListModule";
 import NoMoviesModal from "./NoMoviesModal";
+import { fetchMoviesByFilters } from "../../API/movieApi";
 
 const SearchMoviesPage = () => {
   const [searchText, setSearchText] = useState<string>("");
@@ -31,119 +32,86 @@ const SearchMoviesPage = () => {
 
   // Załadowanie listy wszystkich filmów na sam start, oraz przy zmianie page'a 
   useEffect(() => {
-    axios
-      .get("https://localhost:7053/api/Movies/by-filters", {
-        params: {
+    const loadMovies = async () => {
+      try {
+        const response = await fetchMoviesByFilters({
           pageNumber: currentPage,
-          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
+          pageSize: staticPageSize,
           titleSearch: searchText,
-          orderBy: sortCategory ? sortCategory : "title",
-          sortDirection: sortDirection ? sortDirection : "asc",
-
+          orderBy: sortCategory || "title",
+          sortDirection: sortDirection || "asc",
           categoryNames: filterList[0],
           countryNames: filterList[1],
           actorsList: filterList[2],
           directorsList: filterList[3],
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
+        });
+
+        const { data, totalItems, pageNumber, pageSize, totalPages } = response;
+        setPageInfo({ totalItems, pageNumber, pageSize, totalPages });
+        setMovies(data.$values);
+
+        // Sprawdź czy nie ma wyników
+        if (data.$values.length === 0) {
+          setIsNoMovieModalVisible(true);
         }
-      })
-      .then((response) => {
-        if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setPageInfo({
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-          });
-          setMovies(data.$values);
-          console.log("Załadowano filmy.", data);
-          console.log(pageInfo);
-        } else {
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          setIsNoMovieModalVisible(true);
           setMovies([]);
+          setPageInfo({
+            totalItems: 0,
+            pageNumber: 1,
+            pageSize: 2,
+            totalPages: 1,
+          });
         }
-      })
-      .catch((error) => console.error("Error fetching movies:", error));
-  }, [currentPage]);
+        console.error("Błąd podczas pobieraniu filmów po filtrach:", error);
+      }
+    };
+
+    loadMovies();
+  }, [currentPage, searchText, sortCategory, sortDirection, filterList]);
 
   //                       PO KLIKNIĘCIU SZUKAJ:
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = async () => {
     setCurrentPage(1);
-    console.log("handleSearchSubmit");
-    console.log("searchText:", searchText);
-    console.log("sortCategory:", sortCategory);
-    console.log("sortDirection:", sortDirection);
-    console.log("filterList-gatunki:", filterList[0]);
-
-    axios
-      .get("https://localhost:7053/api/Movies/by-filters", {
-        params: {
-          pageNumber: currentPage,
-          pageSize: staticPageSize, // odpowiedzialna za ilość jednocześnie wyświetlanych filmów
-          titleSearch: searchText,
-          orderBy: sortCategory ? sortCategory : "title",
-          sortDirection: sortDirection ? sortDirection : "asc",
-          categoryNames: filterList[0],
-          countryNames: filterList[1],
-          actorsList: filterList[2],
-          directorsList: filterList[3],
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
-        },
-      })
-      .then((response) => {
-        if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setPageInfo({
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-          });
-          setMovies(data.$values);
-          console.log("Załadowano filmy.", data);
-          console.log(pageInfo);
-        } else {
-          setMovies([]);
-        }
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          // Obsługa AxiosError
-          if (error.response) {
-            // Serwer zwrócił odpowiedź z kodem błędu
-            console.error(
-              `Error ${error.response.status}: ${
-                error.response.data?.message || "Wystąpił błąd"
-              }`
-            );
-            if (error.response.status === 404) {
-              // Obsługa błędu 404
-              console.error("Nie znaleziono zasobu.");
-              setMovies([]);
-              setPageInfo({
-                totalItems: 0,
-                pageNumber: 1,
-                pageSize: 2,
-                totalPages: 1,
-              });
-              setIsNoMovieModalVisible(true);
-            }
-          }
-        } else {
-          // Inny rodzaj błędu (nie związany z Axios)
-          console.error("Nieznany błąd:", error);
-        }
+    try {
+      const response = await fetchMoviesByFilters({
+        pageNumber: 1,
+        pageSize: staticPageSize,
+        titleSearch: searchText,
+        orderBy: sortCategory || "title",
+        sortDirection: sortDirection || "asc",
+        categoryNames: filterList[0],
+        countryNames: filterList[1],
+        actorsList: filterList[2],
+        directorsList: filterList[3],
       });
+
+      const { data, ...paginationData } = response;
+      setPageInfo(paginationData);
+      setMovies(data.$values);
+
+      if (data.$values.length === 0) {
+        setIsNoMovieModalVisible(true);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        setIsNoMovieModalVisible(true);
+        setMovies([]);
+        setPageInfo({
+          totalItems: 0,
+          pageNumber: 1,
+          pageSize: 2,
+          totalPages: 1,
+        });
+      }
+      console.error("Błąd podczas pobieraniu filmów po filtrach:", error);
+    }
   };
 
   //                       PO KLIKNIĘCIU SORTUJ:
-  const handleSort = (type: string) => {
+  const handleSort = async(type: string) => {
     setCurrentPage(1);
     console.log(`Wybrano kategorię do sortowania: ${type}`);
     const typeArray = type.split(" ");
@@ -151,74 +119,29 @@ const SearchMoviesPage = () => {
     const srtDirection = typeArray[1];
     setSortCategory(typeArray[0]);
     setSortDirection(typeArray[1]);
-    axios
-      .get("https://localhost:7053/api/Movies/by-filters", {
-        params: {
-          pageNumber: currentPage,
-          pageSize: staticPageSize,
-
-          titleSearch: searchText,
-
-          // Nie można korzystać z zmiennych useState, które się nadpisuje w tej samej funkci,
-          // dlatego korzystam z lokalnej zmiennej dla tej funkcji
-          orderBy: srtCategory ? srtCategory : "title",
-          sortDirection: srtDirection ? srtDirection : "asc",
-
-          categoryNames: filterList[0],
-          countryNames: filterList[1],
-          actorsList: filterList[2],
-          directorsList: filterList[3],
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: "repeat" }); // Powtarza klucz dla każdej wartości
-        },
-      })
-      .then((response) => {
-        if (response.data) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setPageInfo({
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-          });
-          setMovies(data.$values);
-          console.log("Załadowano filmy.", data);
-          console.log(pageInfo);
-        } else {
-          setMovies([]);
-        }
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          // Obsługa AxiosError
-          if (error.response) {
-            // Serwer zwrócił odpowiedź z kodem błędu
-            console.error(
-              `Error ${error.response.status}: ${
-                error.response.data?.message || "Wystąpił błąd"
-              }`
-            );
-            if (error.response.status === 404) {
-              // Obsługa błędu 404
-              console.error("Nie znaleziono zasobu.");
-              setMovies([]);
-              setPageInfo({
-                totalItems: 0,
-                pageNumber: 1,
-                pageSize: 2,
-                totalPages: 1,
-              });
-              setIsNoMovieModalVisible(true);
-            }
-          }
-        } else {
-          // Inny rodzaj błędu (nie związany z Axios)
-          console.error("Nieznany błąd:", error);
-        }
+    try {
+      const response = await fetchMoviesByFilters({
+        pageNumber: 1,
+        pageSize: staticPageSize,
+        titleSearch: searchText,
+        orderBy: srtCategory || "title",
+        sortDirection: srtDirection || "asc",
+        categoryNames: filterList[0],
+        countryNames: filterList[1],
+        actorsList: filterList[2],
+        directorsList: filterList[3],
       });
-    // Tutaj można dodać logikę sortowania.
+
+      const { data, ...paginationData } = response;
+      setPageInfo(paginationData);
+      setMovies(data.$values);
+
+      if (data.$values.length === 0) {
+        setIsNoMovieModalVisible(true);
+      }
+    } catch (error) {
+      // Obsługa błędów
+    }
   };
 
   const handlePageChange = (page: number) => {
