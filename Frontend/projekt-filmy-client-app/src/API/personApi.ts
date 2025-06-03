@@ -1,7 +1,11 @@
 import axios from "axios";   // do zmiany
 import { Person } from "../models/Person";
 
-export const fetchDirectorMovies = async (directorId: string, setMovies: React.Dispatch<React.SetStateAction<any[]>>, setError: React.Dispatch<React.SetStateAction<string | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const fetchDirectorMovies = async (
+  directorId: string, 
+  setMovies: React.Dispatch<React.SetStateAction<any[]>>, 
+  setError: React.Dispatch<React.SetStateAction<string | null>>, 
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
     const response = await axios.get(
       `https://localhost:7053/api/Movies/by-directorId/${directorId}`);
@@ -24,7 +28,11 @@ export const fetchDirectorMovies = async (directorId: string, setMovies: React.D
 };
 
 
-export const fetchActorMovies = async (actorId: string, setMovies: React.Dispatch<React.SetStateAction<any[]>>, setError: React.Dispatch<React.SetStateAction<string | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const fetchActorMovies = async (
+  actorId: string, 
+  setMovies: React.Dispatch<React.SetStateAction<any[]>>, 
+  setError: React.Dispatch<React.SetStateAction<string | null>>, 
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
     const response = await axios.get(
       `https://localhost:7053/api/Movies/by-actorId/${actorId}`);
@@ -60,7 +68,9 @@ export const fetchPeopleByRole = async (
       pageSize: number;
       totalPages: number;
     }>
-  >
+  >,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ): Promise<void> => {
   return axios
     .get("https://localhost:7053/api/People/by-filters", {
@@ -88,8 +98,10 @@ export const fetchPeopleByRole = async (
         setPerson([]);
       }
     })
-    .catch((error) => console.error("Error fetching persons:", error));
+    .catch((error) => setError("Error fetching persons:" + error))
+    .finally(() => setLoading(false));
 };
+
 
 export const fetchByPersonSearchAndRole = async (
   currentPage: number,
@@ -105,66 +117,76 @@ export const fetchByPersonSearchAndRole = async (
       totalPages: number;
     }>
   >
-) => {
-  axios
-    .get("https://localhost:7053/api/People/by-filters", {
-      params: {
-        pageNumber: currentPage,
-        pageSize: staticPageSize,
-        personSearch: searchText,
-        role: roleNum,
-      },
-    })
-    .then((response) => {
-      if (response.data) {
-        const { data, totalItems, pageNumber, pageSize, totalPages } =
-          response.data;
-        setPagination({
-          totalItems,
-          pageNumber,
-          pageSize,
-          totalPages,
-        });
-        if (data.$values.length === 0) {
-          setPagination({
-            totalItems: totalItems,
-            pageNumber: 1,
-            pageSize: pageSize,
-            totalPages: 1,
-          });
-        }
-        setPerson(data.$values);
-        console.log("fetchByPersonSearchAndRole: Załadowano osoby.", data);
-        console.log({totalItems,pageNumber,pageSize,totalPages});
-      } else {
-        setPerson([]);
+): Promise<Person[]> => {
+  // Zwracamy Promise<Person[]>
+  try {
+    const response = await axios.get(
+      "https://localhost:7053/api/People/by-filters",
+      {
+        params: {
+          pageNumber: currentPage,
+          pageSize: staticPageSize,
+          personSearch: searchText,
+          role: roleNum,
+        },
       }
-    })
-    .catch((error) => {
-      if (axios.isAxiosError(error)) {
-        // Obsługa AxiosError
-        if (error.response) {
-          // Serwer zwrócił odpowiedź z kodem błędu
-          console.error(
-            `Error ${error.response.status}: ${
-              error.response.data?.message || "Wystąpił błąd"
-            }`
-          );
-          if (error.response.status === 404) {
-            // Obsługa błędu 404
-            console.error("Nie znaleziono zasobu.");
-            setPerson([]);
-            setPagination({
-              totalItems: 0,
-              pageNumber: 1,
-              pageSize: 2,
-              totalPages: 1,
-            });
-          }
-        }
-      } else {
-        // Inny rodzaj błędu (nie związany z Axios)
-        console.error("Nieznany błąd:", error);
-      }
+    );
+
+    if (response.data) {
+      const { data, totalItems, pageNumber, pageSize, totalPages } =
+        response.data;
+      const people = data.$values || []; // Zabezpieczenie przed undefined
+
+      setPerson(people);
+      setPagination({
+        totalItems,
+        pageNumber,
+        pageSize,
+        totalPages,
+      });
+
+      return people; // Zwracamy people (zawsze tablica)
+    }
+    return []; // Jeśli brak response.data
+  } catch (error) {
+    setPerson([]);
+    setPagination({
+      totalItems: 0,
+      pageNumber: 1,
+      pageSize: staticPageSize,
+      totalPages: 1,
     });
+    return []; // W przypadku błędu też zwracamy pustą tablicę
+  }
+};
+
+export const fetchByPersonSearchAndRoleNoPgnt = async (
+  searchText: string,
+  roleNum: number,
+
+): Promise<Person[]> => {
+  // Zwracamy Promise<Person[]>
+  try {
+    const response = await axios.get(
+      "https://localhost:7053/api/People/by-filters",
+      {
+        params: {
+          noPagination: true,
+          personSearch: searchText,
+          role: roleNum,
+        },
+      }
+    );
+
+    if (response.data) {
+      const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
+      const people = data.$values || []; // Zabezpieczenie przed undefined
+      return people; // Zwracamy people (zawsze tablica)
+    }
+
+    return []; // Jeśli brak response.data
+
+  } catch (error) {
+    return []; // W przypadku błędu też zwracamy pustą tablicę
+  }
 };

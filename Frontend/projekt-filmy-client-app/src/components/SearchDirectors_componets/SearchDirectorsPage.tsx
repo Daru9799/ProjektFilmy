@@ -17,6 +17,10 @@ const SearchDirectorsPage = () => {
     pageSize: 2,
     totalPages: 1,
   });
+
+  // setError i loading trzeba jeszcze zaimplementować
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState(1);
   const staticPageSize = 4;
   const totalPages = pageInfo.totalPages;
@@ -28,17 +32,23 @@ const SearchDirectorsPage = () => {
       "",
       0,
       setPerson,
-      setPageInfo
+      setPageInfo,
+      setError,
+      setLoading
     );
   }, [currentPage]);
 
-  // !!! Błąd: Nie wyświetla komunikatu o braku szukanej osoby(reżysera) 
   const handleSearchSubmit = async () => {
     setCurrentPage(1);
-    await fetchByPersonSearchAndRole(currentPage, staticPageSize, searchText, 0, setPerson, setPageInfo);
-    if(person.length === 0) setIsNoPeopleFoundVisable(true);
-    console.log("person.length: "+person.length);
-    console.log(person);
+    const results = await fetchByPersonSearchAndRole(
+      currentPage,
+      staticPageSize,
+      searchText,
+      0,
+      setPerson,
+      setPageInfo
+    );
+    setIsNoPeopleFoundVisable(results.length === 0);
   };
 
   const handlePageChange = (page: number) => {

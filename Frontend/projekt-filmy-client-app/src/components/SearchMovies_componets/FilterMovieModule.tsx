@@ -1,5 +1,3 @@
-import axios from "axios";
-import stringSimilarity from "string-similarity";
 import React, { useState, useEffect } from "react";
 import { Button, Row, Col, Form } from "react-bootstrap";
 import { Category } from "../../models/Category";
@@ -7,18 +5,18 @@ import { Country } from "../../models/Country";
 import { Person } from "../../models/Person";
 import { fetchAllCategories } from "../../API/CategoriesAPI";
 import { fetchAllCountries } from "../../API/CountriesAPI";
+import { fetchByPersonSearchAndRoleNoPgnt } from "../../API/personApi";
 
 interface Props {
-  // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako Actor[], Reżyserów jako Director[] 
-  getFilters: (list:[string[],string[],string[],string[]]) => void;
+  // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako string[], Reżyserów jako string[]
+  getFilters: (list: [string[], string[], string[], string[]]) => void;
 }
+
 
 const FilterMovieModule = ({ getFilters }: Props) => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [countryData, setCountryData] = useState<Country[]>([]);
-  const [actorData, setActorData] = useState<Person[]>([]);
-  const [directorData, setDirectorData] = useState<Person[]>([]);
 
   const [dataToShow, setDataToShow] = useState<Country[] | Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -57,49 +55,11 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     { key: "aktorzy", label: "Aktorzy" },
   ];
 
+  // Pobranie wszystkich kategorii i krajów
   useEffect(() => {
     fetchAllCategories(setCategoryData);
     fetchAllCountries(setCountryData);
-
-    // Do zmiany w dół:
-    axios
-      .get("https://localhost:7053/api/Actors/all", {
-        params: {
-          NoPagination: true, //Pobieranie bez paginacji (wszystko na raz)
-        },
-      })
-      .then((response) => {
-        if (response) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setActorData(data.$values);
-          console.log(data.$values);
-        } else {
-          setActorData([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching actors:", error));
-
-    axios
-      .get("https://localhost:7053/api/Directors/all", {
-        params: {
-          NoPagination: true, //Pobieranie bez paginacji (wszystko na raz)
-        },
-      })
-      .then((response) => {
-        if (response) {
-          const { data, totalItems, pageNumber, pageSize, totalPages } =
-            response.data;
-          setDirectorData(data.$values);
-        } else {
-          setDirectorData([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching directors:", error));
-    // do zmiany w góre 
   }, []);
-
-  
 
   const handleTabClick = (tabKey: string) => {
     if (activeTab === tabKey) {
@@ -127,63 +87,48 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     }
   };
 
-  const handleActorSearch = () => {
-    // Połącz imiona i nazwiska aktorów w jeden ciąg, aby dopasować do actorName
-    const actorNames = actorData.map((a) => `${a.firstName} ${a.lastName}`);
+  const handleActorSearch = async() => {
+    const response = await fetchByPersonSearchAndRoleNoPgnt(actorName, 1);
+    if (response.length === 0) return;
 
-    // Znajdź najlepsze dopasowanie
-    const { bestMatch } = stringSimilarity.findBestMatch(
-      actorName.toLowerCase(),
-      actorNames.map((name) => name.toLowerCase())
+    // Znajdź pierwszego aktora, którego nie ma w selectedActors
+    const actorToAdd = response.find(
+      (actor) =>
+        !selectedActors.some((selectedActor) => selectedActor.personId === actor.personId)
     );
 
-    // Sprawdź, czy wynik jest wystarczająco podobny (ustaw próg, np. 0.7)
-    if (bestMatch.rating >= rateThreShold) {
-      const actor = actorData.find(
-        (a) => `${a.firstName} ${a.lastName}`.toLowerCase() === bestMatch.target
-      );
-
-      // Jeśli aktor istnieje i nie jest jeszcze dodany, dodaj go
-      if (actor && !selectedActors.some((a) => a.personId === actor.personId)) {
-        setSelectedActors((prev) => [...prev, actor]);
-      }
+    if (actorToAdd) {
+      setSelectedActors((prev) => [...prev, actorToAdd]);
+      setActorName("");
+    } else {
+      // Wszyscy znalezieni aktorzy są już na liście
+      console.log("Wszyscy znalezieni aktorzy są już dodani.");
+      // Możesz też ustawić komunikat dla użytkownika:
+      // setError("Wszyscy pasujący aktorzy są już dodani.");
     }
-
-    // Zresetuj pole wyszukiwania
-    setActorName("");
   };
 
-  const handleDirectorSearch = () => {
-    // Połącz imiona i nazwiska reżyserów w jeden ciąg, aby dopasować do directorName
-    const directorNames = directorData.map(
-      (d) => `${d.firstName} ${d.lastName}`
+  const handleDirectorSearch = async () => {
+    const response = await fetchByPersonSearchAndRoleNoPgnt(directorName, 0);
+    if (response.length === 0) return;
+
+    // Znajdź pierwszego aktora, którego nie ma w selectedActors
+    const directorToAdd = response.find(
+      (director) =>
+        !selectedActors.some(
+          (selectedDirector) => selectedDirector.personId === director.personId
+        )
     );
 
-    console.log("Reżyserowie tutaj:", directorNames);
-
-    // Znajdź najlepsze dopasowanie
-    const { bestMatch } = stringSimilarity.findBestMatch(
-      directorName.toLowerCase(),
-      directorNames.map((name) => name.toLowerCase())
-    );
-
-    // Sprawdź, czy wynik jest wystarczająco podobny (ustaw próg, np. 0.7)
-    if (bestMatch.rating >= rateThreShold) {
-      const director = directorData.find(
-        (d) => `${d.firstName} ${d.lastName}`.toLowerCase() === bestMatch.target
-      );
-
-      // Jeśli reżyser istnieje i nie jest jeszcze dodany, dodaj go
-      if (
-        director &&
-        !selectedDirectors.some((d) => d.personId === director.personId)
-      ) {
-        setSelectedDirectors((prev) => [...prev, director]);
-      }
+    if (directorToAdd) {
+      setSelectedDirectors((prev) => [...prev, directorToAdd]);
+      setDirectorName("");
+    } else {
+      // Wszyscy znalezieni aktorzy są już na liście
+      console.log("Wszyscy znalezieni aktorzy są już dodani.");
+      // Możesz też ustawić komunikat dla użytkownika:
+      // setError("Wszyscy pasujący reżyserzy są już dodani.");
     }
-
-    // Zresetuj pole wyszukiwania
-    setDirectorName("");
   };
 
   const handleDelete = (id: string, type: string) => {
