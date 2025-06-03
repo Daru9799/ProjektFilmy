@@ -60,7 +60,7 @@ const AllAchievements = () => {
 
           {loggedUserName && (
             <button
-              onClick={() => navigate(`/user-achievements/${loggedUserName}`)}
+              onClick={() => navigate(`/user/achievements/${loggedUserName}`)}
               className="btn btn-outline-light mt-3"
               style={{
                 position: "absolute",

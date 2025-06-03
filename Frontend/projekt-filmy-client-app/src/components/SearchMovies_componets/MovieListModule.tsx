@@ -1,18 +1,27 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom'; // Importuj useNavigate
+import { useNavigate } from 'react-router-dom';
 import { Movie } from '../../models/Movie';
 import { renderStars } from "../../hooks/RenderStars";
-import '../../styles/Zoom.css'
+import '../../styles/Zoom.css';
 
 interface Props {
   movieList: Movie[];
+  onSelect?: (movie: Movie) => void;
+  tempSelectedMovies?: Movie[];
+  onToggleSelect?: (movie: Movie) => void;
 }
 
-const MovieListModule = ({ movieList }: Props) => {
+
+const MovieListModule = ({ movieList, onSelect }: Props) => {
   const navigate = useNavigate();
 
-  const handleCardClick = (movieId: string) => {
-    navigate(`/${movieId}`); 
+  
+  const handleCardClick = (movie: Movie) => {
+    if (onSelect) {
+      onSelect(movie);               // tryb wyboru w modalu
+    } else {
+      navigate(`/${movie.movieId}`); // standardowa nawigacja
+    }
   };
 
   return (
@@ -20,9 +29,9 @@ const MovieListModule = ({ movieList }: Props) => {
       <ul className="list-group">
         {movieList.map((movie) => (
           <li
-            key={movie.title}
+            key={movie.movieId}
             className="list-group-item d-flex p-3 zoomCard"
-            onClick={() => handleCardClick(movie.movieId)} // Obsługa kliknięcia
+            onClick={() => handleCardClick(movie)}
             style={{
               borderBottom: "1px solid #ddd",
               width: "600px",
@@ -31,9 +40,8 @@ const MovieListModule = ({ movieList }: Props) => {
               marginBottom: "5px",
               display: "flex",
               flexDirection: "row",
-              cursor: "pointer", // Wskaźnik kursora zmienia się na "rękę"
-            }
-          }
+              cursor: "pointer",
+            }}
           >
             <img
               src={movie.posterUrl}
@@ -48,15 +56,17 @@ const MovieListModule = ({ movieList }: Props) => {
             />
             <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
               {/* Tytuł filmu i oceny */}
-              <div className="d-flex justify-content-between align-items-start" style={{ flexGrow: 1 }}>
-                {/* Tytuł filmu */}
+              <div
+                className="d-flex justify-content-between align-items-start"
+                style={{ flexGrow: 1 }}
+              >
                 <h5
                   className="mb-2"
                   style={{
                     whiteSpace: "normal",
                     wordWrap: "break-word",
                     textAlign: "left",
-                    maxWidth: "300px"
+                    maxWidth: "300px",
                   }}
                 >
                   {movie.title} (
@@ -77,7 +87,10 @@ const MovieListModule = ({ movieList }: Props) => {
                   <span style={{ fontSize: "1rem" }}>
                     {Number(movie.averageScore).toFixed(1)}/5
                   </span>
-                  <p className="mb-0 mt-2" style={{ fontSize: "0.9rem", textAlign: "left" }}>
+                  <p
+                    className="mb-0 mt-2"
+                    style={{ fontSize: "0.9rem", textAlign: "left" }}
+                  >
                     Ilość ocen: {movie.scoresNumber || "0"}
                   </p>
                 </div>
@@ -90,7 +103,7 @@ const MovieListModule = ({ movieList }: Props) => {
                   fontSize: "0.9rem",
                   color: "#555",
                   justifyContent: "flex-start",
-                  marginTop: "auto", // Gatunki będą zawsze na dole
+                  marginTop: "auto", // Gatunki zawsze na dole
                 }}
               >
                 {movie?.categories?.$values?.length ? (

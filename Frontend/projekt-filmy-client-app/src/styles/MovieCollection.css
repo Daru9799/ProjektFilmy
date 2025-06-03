@@ -1,9 +1,26 @@
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.form-left, .form-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-right textarea {
+  height: 100%;
+  min-height: 160px; /* dopasuj do potrzeb */
+}
+
 .create-collection-container {
-  background-color: #1f0f35; /* ciemne tło */
-  color: white; /* biały tekst poza inputami */
+  background-color: #1f0f35; 
+  color: white;
   min-height: 90vh;
   padding: 1rem 2rem;
-  max-width: 600px;
+  max-width: 70%;
   margin: auto;
   font-family: Arial, sans-serif;
 }
@@ -24,37 +41,36 @@
   border: 1px solid #ccc;
   padding: 8px 12px;
   font-size: 1rem;
-  width: 90%; /* mniejsze pole, nie pełna szerokość */
+  width: 70%; 
+   border-radius: 6px;
   box-sizing: border-box;
   margin-bottom: 1rem;
   outline: none;
   transition: border-color 0.3s ease;
 }
 
-.create-collection-container input::placeholder,
-.create-collection-container textarea::placeholder {
-  color: #888;
-}
 
 .create-collection-container input:focus,
 .create-collection-container textarea:focus,
 .create-collection-container select:focus {
-  border-color: #7b6ef6; /* ładny fioletowy akcent na fokus */
+  border-color: #7b6ef6; 
 }
 
 .create-collection-container textarea {
   min-height: 80px;
   resize: vertical;
 }
+
+
 .checkbox-row {
   display: flex;
-  align-items: center;         /* Wyrównanie pionowe */
+  align-items: center;   
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .checkbox-row input[type="checkbox"] {
-  appearance: none;            /* Reset stylów systemowych */
+  appearance: none;          
   -webkit-appearance: none;
   width: 20px;
   height: 20px;

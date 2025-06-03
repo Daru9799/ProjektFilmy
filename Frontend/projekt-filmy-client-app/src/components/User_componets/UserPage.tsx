@@ -171,7 +171,7 @@ const UserPage = () => {
           <button
             className="edit-button"
              style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
-            onClick={() => navigate(`/user-achievements/${user?.userName}`)}
+            onClick={() => navigate(`/user/achievements/${user?.userName}`)}
           >
             Osiągnięcia
           </button>

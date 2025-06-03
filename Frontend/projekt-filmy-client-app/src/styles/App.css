@@ -63,6 +63,21 @@ body {
   transform: scale(1.1); 
 }
 
+.green-button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #0da07e;
+  color: white;
+  cursor: pointer;
+}
+
+.green-button:hover {
+  background-color: #0cbf95; 
+  transform: scale(1.1); 
+}
+
 /* przycisk wewnątrz 'tabeli' na MoviePage */
 .inside-table-button {  
   background-color: #a294f9; 

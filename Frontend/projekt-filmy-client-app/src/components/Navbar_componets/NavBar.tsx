@@ -80,7 +80,7 @@ const NavBar = () => {
                       <hr className="dropdown-divider" />
                     </li>
                       <li>
-                      <Link className="dropdown-item" to={`/user-achievements/${loggedUsername}`}>
+                      <Link className="dropdown-item" to={`/user/achievements/${loggedUsername}`}>
                         Osiągnięcia
                       </Link>
                     </li>
