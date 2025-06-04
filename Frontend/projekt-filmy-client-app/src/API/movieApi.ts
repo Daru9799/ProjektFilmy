@@ -3,7 +3,11 @@ import qs from "qs";
 import { Movie } from "../models/Movie";
 
 // Fetch movie data
-export const fetchMovieData = async (movieId: string, setMovie: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+export const fetchMovieData = async (
+  movieId: string | undefined, 
+  setMovie: React.Dispatch<React.SetStateAction<any>>, 
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
   try {
     const movieResponse = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
     setMovie(movieResponse.data);
@@ -60,6 +64,7 @@ export const fetchActorsData = async (
     console.error(error);
   }
 };
+
 
 // Fetch movie reviews
 export const fetchMovieReviews = async (movieId: string, setReviews: React.Dispatch<React.SetStateAction<any[]>>, setError: React.Dispatch<React.SetStateAction<string | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {

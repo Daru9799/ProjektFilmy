@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
 import PaginationModule from "../PaginationModule";
@@ -8,6 +7,8 @@ import ReviewCard from "./ReviewCard";
 import MovieListModule from "../SearchMovies_componets/MovieListModule"; 
 import { useParams } from "react-router-dom";
 import { Movie } from "../../models/Movie"; 
+import { fetchReviewsByMovieId } from "../../API/reviewApi";
+import { fetchMovieData } from "../../API/movieApi";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -24,49 +25,26 @@ const ReviewsPage = () => {
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [movie, setMovie] = useState<Movie | null>(null); // State for movie details
 
-
   useEffect(() => {
-    const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
-      try {
-        const reviewResponse: AxiosResponse<{
-          data: { $values: Review[] };
-          totalItems: number;
-          pageNumber: number;
-          pageSize: number;
-          totalPages: number;
-        }> = await axios.get(
-          `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`,
-          {
-            params: {
-              pageNumber: page,
-              pageSize: pageS,
-              orderBy: sortOrder,
-              sortDirection: sortDirection,
-            },
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
-            },
-          }
-        );
-        const { data, totalItems, pageNumber, pageSize, totalPages } = reviewResponse.data;
-        setReviews(data.$values);
-        setPagination({ totalItems, pageNumber, pageSize, totalPages });
+    try{
+      // Pobranie recenzji dla filmu
+      fetchReviewsByMovieId(
+        movieId,
+        pagination.pageNumber,
+        pagination.pageSize,
+        sortOrder,
+        sortDirection,
+        setReviews,
+        setPagination,
+        setError
+      );
+      // Pobranie filmu dla którego są recenzje
+      fetchMovieData(movieId, setMovie, setError);
+    }
+    finally{
+      setLoading(false);
+    }
 
-      
-        const movieResponse = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
-        setMovie(movieResponse.data); 
-      } catch (err: any) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
-        } else {
-          setError("Nieoczekiwany błąd.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviewsByMovieId(pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection, movieId]);
 
   const handleSortChange = (category: string) => {
@@ -106,8 +84,6 @@ const ReviewsPage = () => {
         Recenzje filmu:
       </h2>
   
-
-
     {/* Komponent sortowania */}
     <SortReviewModule onSort={handleSortChange} />
 
@@ -115,8 +91,6 @@ const ReviewsPage = () => {
 <div style={{marginTop:"5%"}}>
   {movie && <MovieListModule movieList={movie ? [movie] : []} />}
 </div>
-
-
       {reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard

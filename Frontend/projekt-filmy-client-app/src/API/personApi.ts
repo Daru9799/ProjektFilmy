@@ -90,8 +90,7 @@ export const fetchByPersonSearchAndRole = async (
       pageNumber: number;
       pageSize: number;
       totalPages: number;
-    }>
-  >
+    }>>
 ): Promise<Person[]> => {
   // Zwracamy Promise<Person[]>
   try {

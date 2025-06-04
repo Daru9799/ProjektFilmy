@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import qs from "qs";
 import axios from "axios";
 
 import SearchModule from "../SearchModule";

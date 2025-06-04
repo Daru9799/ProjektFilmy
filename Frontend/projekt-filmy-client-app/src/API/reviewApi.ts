@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Review } from "../models/Review";
 
 
 // Delete user review
@@ -56,7 +57,46 @@ export const editReview = async (
   }
 };
 
-
-
-
-
+export const fetchReviewsByMovieId = async (
+  movieId: string | undefined,
+  page: number,
+  pageS: number,
+  sortOrder: string,
+  sortDirection: string,
+  setReviews: React.Dispatch<React.SetStateAction<Review[]>>,
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      totalItems: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+    }>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+) => {
+  try {
+    const reviewResponse = await axios.get(
+      `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`,
+      {
+        params: {
+          pageNumber: page,
+          pageSize: pageS,
+          orderBy: sortOrder,
+          sortDirection: sortDirection,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
+        },
+      }
+    );
+    const { data, totalItems, pageNumber, pageSize, totalPages } = reviewResponse.data;
+    setReviews(data.$values);
+    setPagination({ totalItems, pageNumber, pageSize, totalPages });
+  }
+  catch (err) {
+    if (axios.isAxiosError(err)) {
+      setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
+    } else {
+      setError("Nieoczekiwany błąd.");
+    }
+  }
+};

@@ -85,7 +85,7 @@ namespace Movies.Application.Movies
                     ("year", "asc") => query.OrderBy(m => m.ReleaseDate),
                     ("id", "desc") => query.OrderByDescending(m => m.MovieId),
                     ("id", "asc") => query.OrderBy(m => m.MovieId),
-                    ("rating", "desc") => query.OrderByDescending(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),  
+                    ("rating", "desc") => query.OrderByDescending(m => m.Reviews.Any(r => r.Rating > 0) ? m.Reviews.Where(r => r.Rating > 0).Average(r => r.Rating) : 0),  
                     ("rating", "asc") => query.OrderBy(m => m.Reviews.Any() ? m.Reviews.Average(r => r.Rating) : 0),
                     ("reviews", "desc") => query.OrderByDescending(m => m.Reviews.Count),
                     ("reviews", "asc") => query.OrderBy(m => m.Reviews.Count),
