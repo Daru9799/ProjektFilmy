@@ -11,16 +11,21 @@ interface Props {
   onToggleSelect?: (movie: Movie) => void;
 }
 
-
-const MovieListModule = ({ movieList, onSelect }: Props) => {
+const MovieListModule = ({
+  movieList,
+  onToggleSelect,
+  tempSelectedMovies = [],
+}: Props) => {
   const navigate = useNavigate();
 
-  
+  const isSelected = (movie: Movie) =>
+    tempSelectedMovies.some((m) => m.movieId === movie.movieId);
+
   const handleCardClick = (movie: Movie) => {
-    if (onSelect) {
-      onSelect(movie);               // tryb wyboru w modalu
+    if (onToggleSelect) {
+      onToggleSelect(movie); // Multi-select mode
     } else {
-      navigate(`/${movie.movieId}`); // standardowa nawigacja
+      navigate(`/${movie.movieId}`); // Navigation
     }
   };
 
@@ -30,7 +35,7 @@ const MovieListModule = ({ movieList, onSelect }: Props) => {
         {movieList.map((movie) => (
           <li
             key={movie.movieId}
-            className="list-group-item d-flex p-3 zoomCard"
+            className={`list-group-item d-flex p-3 zoomCard ${isSelected(movie) ? 'bg-info bg-opacity-25' : ''}`}
             onClick={() => handleCardClick(movie)}
             style={{
               borderBottom: "1px solid #ddd",
@@ -38,8 +43,6 @@ const MovieListModule = ({ movieList, onSelect }: Props) => {
               height: "180px",
               borderRadius: "15px",
               marginBottom: "5px",
-              display: "flex",
-              flexDirection: "row",
               cursor: "pointer",
             }}
           >
@@ -55,11 +58,7 @@ const MovieListModule = ({ movieList, onSelect }: Props) => {
               }}
             />
             <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-              {/* Tytuł filmu i oceny */}
-              <div
-                className="d-flex justify-content-between align-items-start"
-                style={{ flexGrow: 1 }}
-              >
+              <div className="d-flex justify-content-between align-items-start" style={{ flexGrow: 1 }}>
                 <h5
                   className="mb-2"
                   style={{
@@ -77,33 +76,23 @@ const MovieListModule = ({ movieList, onSelect }: Props) => {
                     : null}
                   )
                 </h5>
-
-                {/* Gwiazdki i ilość ocen */}
-                <div
-                  className="d-flex flex-column align-items-end"
-                  style={{ marginLeft: "40px" }}
-                >
+                <div className="d-flex flex-column align-items-end" style={{ marginLeft: "40px" }}>
                   <div>{renderStars(movie.averageScore || 0)}</div>
                   <span style={{ fontSize: "1rem" }}>
                     {Number(movie.averageScore).toFixed(1)}/5
                   </span>
-                  <p
-                    className="mb-0 mt-2"
-                    style={{ fontSize: "0.9rem", textAlign: "left" }}
-                  >
+                  <p className="mb-0 mt-2" style={{ fontSize: "0.9rem", textAlign: "left" }}>
                     Ilość ocen: {movie.scoresNumber || "0"}
                   </p>
                 </div>
               </div>
-
-              {/* Gatunki */}
               <div
                 className="d-flex flex-wrap"
                 style={{
                   fontSize: "0.9rem",
                   color: "#555",
                   justifyContent: "flex-start",
-                  marginTop: "auto", // Gatunki zawsze na dole
+                  marginTop: "auto",
                 }}
               >
                 {movie?.categories?.$values?.length ? (
