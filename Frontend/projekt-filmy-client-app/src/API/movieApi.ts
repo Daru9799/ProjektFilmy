@@ -165,6 +165,7 @@ interface FetchMoviesParams {
   directorsList?: string[];
 }
 
+// Zwraca listę filmów
 export const fetchMoviesByFilters = async (
   params: FetchMoviesParams
 ): Promise<PaginationResponse> => {
@@ -181,5 +182,42 @@ export const fetchMoviesByFilters = async (
   } catch (error) {
     console.error("Error fetching movies:", error);
     throw error;
+  }
+};
+
+export const fetchMoviesListByIds = async (
+  pageNumber: number,
+  pageSize: number,
+  moviesIds: string[] | null,
+  setMovies: React.Dispatch<React.SetStateAction<Movie[]>>
+): Promise<void> => {
+  try {
+    const params: any = {
+      pageNumber,
+      pageSize,
+    };
+
+    // Dodaj movieIdList tylko jeśli istnieje i nie jest pusty
+    if (moviesIds && moviesIds.length > 0) {
+      params.movieIdList = moviesIds;
+    }
+
+    const response = await axios.get(
+      "https://localhost:7053/api/movies/get-list-by-id",
+      {
+        params,
+        paramsSerializer: (params) =>
+          qs.stringify(params, { arrayFormat: "repeat" }),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    console.log("Pobrane filmy:", response.data.data.$values);
+    setMovies(response.data.data.$values);
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    throw error; // Lepiej przekazać błąd wyżej
   }
 };

@@ -5,6 +5,7 @@ import AddReviewModal from "../review_components/AddReviewPanel";
 import MovieHeader from "./MovieHeader";
 import LoginModal from "../SingIn_SignUp_componets/LoginModal";
 import { useMoviePageLogic } from "../../hooks/useMoviePageLogic";
+import RecommendMovieModule from "./RecommendMovieModule";
 
 const MoviePage = () => {
   const {
@@ -54,6 +55,8 @@ const MoviePage = () => {
           <MovieTabs movie={movie} people={people} />
         </div>
       </div>
+
+      <RecommendMovieModule movieId = {movie?.movieId} />
 
       {reviewToEdit && (
         <AddReviewModal

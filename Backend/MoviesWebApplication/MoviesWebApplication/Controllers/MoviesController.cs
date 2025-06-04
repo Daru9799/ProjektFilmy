@@ -3,6 +3,7 @@ using Movies.Application.Movies;
 using Movies.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -33,6 +34,20 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok(movie);
+        }
+        //Zwraca liste filmów, poprzez listę movieId tych filmów.
+        [HttpGet("get-list-by-id")]
+        public async Task<ActionResult<PagedResponse<MovieDto>>> GetMovieListById(
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 2, 
+            [FromQuery] List<Guid> movieIdList = null) 
+        {
+            var movies = await Mediator.Send(new MoviesListByIds.Query { PageNumber = pageNumber, PageSize = pageSize, moviesIds = movieIdList });
+            if (movies == null)
+            {
+                return NotFound($"Nie odnaleziono filmów o podanych id {movieIdList}.");
+            }
+            return Ok(movies);
         }
 
         //Zwracanie filmów dla podanego id reżysera

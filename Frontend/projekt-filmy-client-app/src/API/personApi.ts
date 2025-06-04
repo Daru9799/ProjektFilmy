@@ -70,8 +70,7 @@ export const fetchPeopleByRole = async (
       pageNumber: number;
       pageSize: number;
       totalPages: number;
-    }>
-  >,
+    }>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ): Promise<void> => {
