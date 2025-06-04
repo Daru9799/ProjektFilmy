@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import SearchModule from "../SearchModule";
-import PaginationModule from "../PaginationModule";
-import ActorsListModule from "./ActorsListModule";
-import NoPeopleFoundModal from "../NoPeopleFoundModal";
-import { Person } from "../../models/Person";
-import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../../API/personApi";
+import SearchModule from "../components/SearchModule";
+import PaginationModule from "../components/PaginationModule";
+import PeopleListModule from "../components/People_componets/PeopleListModule";
+import NoPeopleFoundModal from "../components/NoPeopleFoundModal";
+import { Person } from "../models/Person";
+import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
 
 
 const SearchActorsPage = () => {
@@ -65,7 +65,7 @@ const SearchActorsPage = () => {
           onPageChange={handlePageChange}
         />
 
-        <ActorsListModule personList={person} />
+        <PeopleListModule peopleList={person} type={"actor"} />
 
         <div className="mt-auto">
           <PaginationModule

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import SearchModule from "../SearchModule";
-import PaginationModule from "../PaginationModule";
-import NoPeopleFoundModal from "../NoPeopleFoundModal";
+import SearchModule from "../components/SearchModule";
+import PaginationModule from "../components/PaginationModule";
+import NoPeopleFoundModal from "../components/NoPeopleFoundModal";
 import axios from "axios";
-import DirectorsListModule from "./DirectorsListModule";
-import { Person } from "../../models/Person";
-import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../../API/personApi";
+import PeopleListModule from "../components/People_componets/PeopleListModule";
+import { Person } from "../models/Person";
+import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
@@ -71,7 +71,7 @@ const SearchDirectorsPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <DirectorsListModule directorsList={person} />
+      <PeopleListModule peopleList={person} type={"director"} />
 
       <div className="mt-auto">
         <PaginationModule

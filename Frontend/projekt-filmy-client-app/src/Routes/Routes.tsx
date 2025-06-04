@@ -1,13 +1,13 @@
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from '../App'
-import HomePage from '../components/Home_componets/HomePage';
+import HomePage from './HomePage';
 import MoviePage from '../components/MoviePage_components/MoviePage';
 import SearchMoviesPage from "../components/SearchMovies_componets/SearchMoviesPage"
-import SearchDirectorsPage from "../components/SearchDirectors_componets/SearchDirectorsPage";
-import SearchActorsPage from "../components/SearchActors_componets/SearchActorsPage";
+import SearchDirectorsPage from "./SearchDirectorsPage";
+import SearchActorsPage from "./SearchActorsPage";
 import ReviewsPage from '../components/review_components/ReviewsPage';
 import UserPage from '../components/User_componets/UserPage';
-import PersonPage from '../components/SearchDirectors_componets/PersonPage';
+import PersonPage from './PersonPage';
 import UserReviewsPage from '../components/User_componets/UserReviews';
 import NotificationTestPage from '../components/TEST_COMPONENTS/NotificationTestPage';
 import AllAchievements from '../components/Achievements_components/AllAchievements';

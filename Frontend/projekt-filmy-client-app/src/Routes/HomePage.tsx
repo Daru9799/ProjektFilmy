@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import MovieListModule from "../SearchMovies_componets/MovieListModule";
+import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import axios, { AxiosError } from "axios";
-import { Movie } from "../../models/Movie";
+import { Movie } from "../models/Movie";
 
 const HomePage = () => {
     const [movies, setMovies] = useState<Movie[]>([]);
@@ -19,6 +19,7 @@ const HomePage = () => {
 
 
   useEffect(() => {
+    // Będzie trzeba wymyśleć potem co będzie na stronie startowej
     axios
       .get("https://localhost:7053/api/Movies/by-filters", {
         params: {

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 
+
+// !!! Narazie nie jest wykorzystywny !!!
 const SortActorsModule: React.FC<{ onSort: (category: string) => void }> = ({
   onSort,
 }) => {

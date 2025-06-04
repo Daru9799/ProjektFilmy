@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import ImageModal from "../../hooks/ImageModal"; 
-import MovieListModule from "../SearchMovies_componets/MovieListModule";
-import { Movie } from "../../models/Movie";
-import { Person } from "../../models/Person";
-import { fetchPersonMovies } from "../../API/personApi";
+import ImageModal from "../hooks/ImageModal"; 
+import { Movie } from "../models/Movie";
+import { Person } from "../models/Person";
+import { fetchPersonById, fetchPersonMovies } from "../API/personApi";
+import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 
 const PersonPage = () => {
   const { id } = useParams();
@@ -16,31 +15,8 @@ const PersonPage = () => {
 
 
   useEffect(() => {
-    const fetchPersonById = async () => {
-      try {
-
-        const actorResponse = await axios.get(`https://localhost:7053/api/People/${id}`);
-        setPerson(actorResponse.data);
-      } catch (err: any) {
-        if (axios.isAxiosError(err)) {
-          if (!err.response) {
-            setError("Błąd sieci: nie można połączyć się z serwerem.");
-          } else {
-            setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
-          }
-        } else {
-          setError("Wystąpił nieoczekiwany błąd.");
-        }
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPersonById();
-    if(id)
-    fetchPersonMovies(id, setMovies, setError, setLoading);
-
+    fetchPersonById(id,setPerson, setError, setLoading);
+    if(id) fetchPersonMovies(id, setMovies, setError, setLoading);
   }, [id]);
 
   if (loading) return <p>Ładowanie danych...</p>;

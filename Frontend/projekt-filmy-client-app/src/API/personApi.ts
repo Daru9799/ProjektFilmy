@@ -1,6 +1,34 @@
 import axios from "axios";   // do zmiany
 import { Person } from "../models/Person";
 
+
+export const fetchPersonById = async (
+  id: string | undefined,
+  setPerson: React.Dispatch<React.SetStateAction<Person | null>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    const actorResponse = await axios.get(
+      `https://localhost:7053/api/People/${id}`
+    );
+    setPerson(actorResponse.data);
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      if (!err.response) {
+        setError("Błąd sieci: nie można połączyć się z serwerem.");
+      } else {
+        setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
+      }
+    } else {
+      setError("Wystąpił nieoczekiwany błąd.");
+    }
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 export const fetchPersonMovies = async (
   personId: string,
   setMovies: React.Dispatch<React.SetStateAction<any[]>>,
