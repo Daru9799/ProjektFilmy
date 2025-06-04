@@ -78,6 +78,21 @@ body {
   transform: scale(1.1); 
 }
 
+.cancel-button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #616e6b;
+  color: white;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #505856; 
+  transform: scale(1.1); 
+}
+
 /* przycisk wewnątrz 'tabeli' na MoviePage */
 .inside-table-button {  
   background-color: #a294f9; 
