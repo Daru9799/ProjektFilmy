@@ -3,7 +3,7 @@ import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { decodeJWT } from "../../hooks/decodeJWT";
 import { createRelation } from "../../API/relationApi";
-import { getInvitationFromUser, deleteNotification } from "../../API/notificationApi";
+import { deleteNotification } from "../../API/notificationApi";
 
 interface NotificationCardProps {
   notification: Notification;
