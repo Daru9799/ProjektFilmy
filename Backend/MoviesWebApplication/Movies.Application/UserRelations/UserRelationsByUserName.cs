@@ -61,7 +61,32 @@ namespace Movies.Application.UserRelations
                 //Zwracanie po podanym typie (lub jesli brak bez filtrowania)
                 if (!string.IsNullOrEmpty(request.Type) && Enum.TryParse<UserRelation.RelationType>(request.Type, true, out var relationType))
                 {
-                    query = query.Where(r => r.Type == relationType);
+                    if (relationType == UserRelation.RelationType.Blocked)
+                    {
+                        //Relacja jednostronna (Blocked)
+                        query = _context.UserRelations
+                            .Include(r => r.FirstUser)
+                            .Include(r => r.SecondUser)
+                            .Where(r => r.FirstUserId == userId && r.Type == relationType);
+                    }
+                    else
+                    {
+                        //Dwustronne relacje (Friend)
+                        query = _context.UserRelations
+                            .Include(r => r.FirstUser)
+                            .Include(r => r.SecondUser)
+                            .Where(r =>
+                                (r.FirstUserId == userId || r.SecondUserId == userId) &&
+                                r.Type == relationType);
+                    }
+                }
+                else
+                {
+                    //Gdy nie ma podanego typu
+                    query = _context.UserRelations
+                        .Include(r => r.FirstUser)
+                        .Include(r => r.SecondUser)
+                        .Where(r => r.FirstUserId == userId || r.SecondUserId == userId);
                 }
 
                 var relations = await query.ToListAsync(cancellationToken);

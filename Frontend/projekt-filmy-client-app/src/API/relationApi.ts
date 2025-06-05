@@ -1,19 +1,20 @@
 import axios from "axios";
 
-export const fetchRelationsData = async (username: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+export const fetchRelationsData = async (username: string, type: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
   try {
-    const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+    const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`, {
+      params: {
+        type: type
         },
-      }
-    );
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     setRelations(relationsResponse.data);
   } catch (relationsError) {
     if (axios.isAxiosError(relationsError)) {
       if (relationsError.response?.status === 404) {
-        setError("Nie znaleziono relacji");
+        return;
       } else if (relationsError.response?.status === 403) {
         const errorMessage = "Nie masz uprawnień do przeglądania listy tego użytkownika.";
         setError(errorMessage);
@@ -27,7 +28,7 @@ export const fetchRelationsData = async (username: string, setRelations: React.D
   }
 };
 
-export const deleteFriendRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>
+export const deleteRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
     await axios.delete(
@@ -49,9 +50,10 @@ export const deleteFriendRelation = async (relationId: string, setRelations: Rea
   }
 };
 
-export const createFriendRelation = async (
+export const createRelation = async (
   firstUserId: string,
   secondUserId: string,
+  type: number, //0 - Friend 1 - Blocked
   setRelations: React.Dispatch<React.SetStateAction<any>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
@@ -61,7 +63,7 @@ export const createFriendRelation = async (
       {
         firstUserId,
         secondUserId,
-        type: 0 //Friend to 0 w enumie
+        type
       },
       {
         headers: {
@@ -70,7 +72,6 @@ export const createFriendRelation = async (
       }
     );
 
-    // Odśwież relacje po dodaniu nowej
     setRelations((prevRelations: any) => {
       const updated = { ...prevRelations };
       updated.$values = [...(updated?.$values || []), response.data];

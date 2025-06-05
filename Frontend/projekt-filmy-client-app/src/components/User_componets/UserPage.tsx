@@ -6,7 +6,7 @@ import ReviewCard from "../review_components/ReviewCard";
 import AddReviewModal from "../review_components/AddReviewPanel";
 import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
-import { fetchRelationsData, deleteFriendRelation, createFriendRelation } from "../../API/relationApi";
+import { fetchRelationsData, deleteRelation, createRelation } from "../../API/relationApi";
 import { sendFriendInvitation, checkIsInvited, checkIsInvitedByUser, getInvitationFromUser, deleteNotification } from "../../API/notificationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import { Modal, Button } from 'react-bootstrap';
@@ -51,7 +51,7 @@ const UserPage = () => {
       fetchUserReviews(userName, 3, setReviews, setError);
       if (loggedUserName)
       {
-        fetchRelationsData(loggedUserName, setRelations, setError);
+        fetchRelationsData(loggedUserName, "", setRelations, setError);
       }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
@@ -122,7 +122,7 @@ const UserPage = () => {
   };
 
   const handleDeleteRelation = async (relationId: string) => {
-    await deleteFriendRelation(relationId, setRelations, setError);
+    await deleteRelation(relationId, setRelations, setError);
     setRelations((prevRelations: any) => {
       const updatedRelations = { ...prevRelations };
       updatedRelations.$values = updatedRelations.$values.filter(
@@ -177,7 +177,7 @@ const UserPage = () => {
     if (!user || !loggedUserId) return;
 
     //Utworzenie relacji
-    await createFriendRelation(loggedUserId, user.id, setRelations, setError);
+    await createRelation(loggedUserId, user.id, 0, setRelations, setError);
 
     //Pobranie zaproszeń
     const invitation = await getInvitationFromUser(loggedUserId, user.userName);
@@ -188,8 +188,28 @@ const UserPage = () => {
     }
 
     //Odświeżenie dla przycisków
-    await fetchRelationsData(localStorage.getItem("logged_username")!, setRelations, setError);
+    await fetchRelationsData(localStorage.getItem("logged_username")!, "", setRelations, setError);
     setIsInvitedByUser(false);
+  };
+
+  const handleBlock = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("Token nie jest dostępny.");
+      return;
+    }
+
+    const decodedToken = decodeJWT(token);
+    const loggedUserId = decodedToken.nameid;
+
+    if (!user || !loggedUserId) return;
+
+    //Utworzenie relacji
+    await createRelation(loggedUserId, user.id, 1, setRelations, setError);
+
+    //Odświeżenie dla przycisków
+    await fetchRelationsData(localStorage.getItem("logged_username")!, "", setRelations, setError);
   };
 
   const isFriend = relations?.$values.some(
@@ -231,7 +251,7 @@ const UserPage = () => {
                 </button>
               )}
               {!isFriend && (
-                  <button className="btn btn-danger">
+                  <button className="btn btn-danger" onClick={handleBlock}>
                     Zablokuj
                   </button>
                 )}

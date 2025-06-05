@@ -13,16 +13,16 @@ const FriendCard = ({ friend, onDelete }: FriendCardProps) => {
   const [showModal, setShowModal] = useState(false);
   
   const handleDelete = () => {
-    setShowModal(true); // Pokaż modal
+    setShowModal(true);
   };
 
   const handleCancelDelete = () => {
-    setShowModal(false); // Zamknij modal bez usuwania
+    setShowModal(false);
   };
 
   const handleConfirmDelete = () => {
-    onDelete(friend.relationId); // Wywołaj onDelete
-    setShowModal(false); // Zamknij modal po usunięciu
+    onDelete(friend.relationId);
+    setShowModal(false);
   };
 
   return (

@@ -15,6 +15,7 @@ import UserAchievements from '../components/Achievements_components/UserAchievem
 import UserStatistics from '../components/User_componets/UserStatistics';
 import FriendsPage from '../components/Friends_components/FriendsPage';
 import CreateMovieCollection from '../components/MovieCollection_components/CreateMovieCollection';
+import BlockedPage from '../components/Blocked_components/BlockedPage';
 
 
 
@@ -37,7 +38,8 @@ export const routes: RouteObject[] = [
       { path: "user/:userName/friends", element: <FriendsPage /> },
       { path: "user/achievements/:userName",element:<UserAchievements/>},
       { path: "users/statistics/:userName", element:<UserStatistics/>},
-      { path: "users/moviecollection/create", element:<CreateMovieCollection/>}
+      { path: "users/moviecollection/create", element:<CreateMovieCollection/>},
+      { path: "user/:userName/blocked", element:<BlockedPage/>}
     ],
   },
 ];
