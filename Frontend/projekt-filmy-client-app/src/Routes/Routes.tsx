@@ -16,6 +16,7 @@ import UserStatistics from '../components/User_componets/UserStatistics';
 import FriendsPage from '../components/Friends_components/FriendsPage';
 import CreateMovieCollection from '../components/MovieCollection_components/CreateMovieCollection';
 import BlockedPage from '../components/Blocked_components/BlockedPage';
+import NotificationPage from '../components/Notifications_components/NotificationsPage';
 
 
 
@@ -33,13 +34,14 @@ export const routes: RouteObject[] = [
       { path: "user/:userName", element: <UserPage /> },
       { path: "people/:id", element: <PersonPage /> },
       { path: "user/:userName/reviews", element: <UserReviewsPage /> },
-      { path: "notifications", element: <NotificationTestPage/>},
+      { path: "notificationsTest", element: <NotificationTestPage/>}, //POTEM DO USUNIECIA DO TESTOW POWIADOMIEN!!!
       { path: "achievements", element:<AllAchievements/>},
       { path: "user/:userName/friends", element: <FriendsPage /> },
       { path: "user/achievements/:userName",element:<UserAchievements/>},
       { path: "users/statistics/:userName", element:<UserStatistics/>},
       { path: "users/moviecollection/create", element:<CreateMovieCollection/>},
-      { path: "user/:userName/blocked", element:<BlockedPage/>}
+      { path: "user/:userName/blocked", element:<BlockedPage/>},
+      { path: "notifications", element: <NotificationPage/>}
     ],
   },
 ];
