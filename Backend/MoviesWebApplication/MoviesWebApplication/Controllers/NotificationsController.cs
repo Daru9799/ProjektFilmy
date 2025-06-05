@@ -11,7 +11,7 @@ namespace MoviesWebApplication.Controllers
         //Zwracanie powiadomień na podstawie id usera
         [AllowAnonymous]
         [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<NotificationDto>>> GetNotificationsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc", [FromQuery] bool? isRead = null)
+        public async Task<ActionResult<List<NotificationDto>>> GetNotificationsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc", [FromQuery] bool? isRead = null, [FromQuery] string type = null, [FromQuery] bool noPagination = false, [FromQuery] string sourceUserName = null)
         {
             var query = new NotificationsByUserId.Query
             {
@@ -20,7 +20,11 @@ namespace MoviesWebApplication.Controllers
                 PageSize = pageSize,
                 SortDirection = sortDirection,
                 OrderBy = orderBy,
-                IsRead = isRead
+                IsRead = isRead,
+                Type = type,
+                NoPagination = noPagination,
+                SourceUserName = sourceUserName
+
             };
 
             var notifications = await Mediator.Send(query);

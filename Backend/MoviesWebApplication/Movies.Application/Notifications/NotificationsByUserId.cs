@@ -23,6 +23,9 @@ namespace Movies.Application.Notifications
             public string OrderBy { get; set; }
             public string SortDirection { get; set; }
             public bool? IsRead { get; set; }
+            public string Type { get; set; }
+            public bool NoPagination { get; set; }
+            public string SourceUserName { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, PagedResponse<NotificationDto>>
@@ -46,6 +49,18 @@ namespace Movies.Application.Notifications
                     query = query.Where(n => n.IsRead == request.IsRead.Value);
                 }
 
+                //Sprawdzenie po typie
+                if (!string.IsNullOrEmpty(request.Type))
+                {
+                    query = query.Where(n => n.Type.ToString() == request.Type);
+                }
+
+                //Sprawdzenie po źródle
+                if (!string.IsNullOrEmpty(request.SourceUserName))
+                {
+                    query = query.Where(n => n.SourceUser != null && n.SourceUser.UserName == request.SourceUserName);
+                }
+
                 //Obsługa sortowania
                 query = (request.OrderBy?.ToLower(), request.SortDirection?.ToLower()) switch
                 {
@@ -57,33 +72,61 @@ namespace Movies.Application.Notifications
                 };
 
                 //Paginacja
-                var notifications = await query
-                    .Skip((request.PageNumber - 1) * request.PageSize)
-                    .Take(request.PageSize)
-                    .ToListAsync(cancellationToken);
-
-                int totalItems = await query.CountAsync(cancellationToken);
-
-                var notificationDtos = notifications.Select(n => new NotificationDto
+                if (request.NoPagination)
                 {
-                    NotificationId = n.NotificationId,
-                    Title = n.Title,
-                    Description = n.Description,
-                    Type = n.Type.ToString(),
-                    Date = n.Date,
-                    IsRead = n.IsRead,
-                    Resource = n.Resource,
-                    SourceUserId = n.SourceUserId,
-                    SourceUserName = n.SourceUser?.UserName ?? "System" //W przypadku null mamy System
-                }).ToList();
+                    var notifications = await query.ToListAsync(cancellationToken);
 
-                return new PagedResponse<NotificationDto>
+                    var notificationDtos = notifications.Select(n => new NotificationDto
+                    {
+                        NotificationId = n.NotificationId,
+                        Title = n.Title,
+                        Description = n.Description,
+                        Type = n.Type.ToString(),
+                        Date = n.Date,
+                        IsRead = n.IsRead,
+                        Resource = n.Resource,
+                        SourceUserId = n.SourceUserId,
+                        SourceUserName = n.SourceUser?.UserName ?? "System"
+                    }).ToList();
+
+                    return new PagedResponse<NotificationDto>
+                    {
+                        Data = notificationDtos,
+                        TotalItems = notificationDtos.Count,
+                        PageNumber = 1,
+                        PageSize = notificationDtos.Count
+                    };
+                }
+                else
                 {
-                    Data = notificationDtos,
-                    TotalItems = totalItems,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
-                };
+                    var notifications = await query
+                        .Skip((request.PageNumber - 1) * request.PageSize)
+                        .Take(request.PageSize)
+                        .ToListAsync(cancellationToken);
+
+                    var notificationDtos = notifications.Select(n => new NotificationDto
+                    {
+                        NotificationId = n.NotificationId,
+                        Title = n.Title,
+                        Description = n.Description,
+                        Type = n.Type.ToString(),
+                        Date = n.Date,
+                        IsRead = n.IsRead,
+                        Resource = n.Resource,
+                        SourceUserId = n.SourceUserId,
+                        SourceUserName = n.SourceUser?.UserName ?? "System"
+                    }).ToList();
+
+                    int totalItems = await query.CountAsync(cancellationToken);
+
+                    return new PagedResponse<NotificationDto>
+                    {
+                        Data = notificationDtos,
+                        TotalItems = totalItems,
+                        PageNumber = request.PageNumber,
+                        PageSize = request.PageSize
+                    };
+                }
             }
         }
     }

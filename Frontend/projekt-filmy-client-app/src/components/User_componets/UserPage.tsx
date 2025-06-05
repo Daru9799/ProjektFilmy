@@ -7,8 +7,10 @@ import AddReviewModal from "../review_components/AddReviewPanel";
 import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
+import { sendFriendInvitation, checkIsInvited } from "../../API/notificationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import { Modal, Button } from 'react-bootstrap';
+import { decodeJWT } from "../../hooks/decodeJWT";
 import "../../styles/UserPage.css"
 
 
@@ -36,6 +38,9 @@ const UserPage = () => {
   const [relations, setRelations] = useState<any>(null);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [showAlreadyInvitedModal, setShowAlreadyInvitedModal] = useState(false);
+  const [showInvitedModal, setShowInvitedModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -110,6 +115,37 @@ const UserPage = () => {
     });
   };
 
+
+  const sendInvitation = async () => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("Token nie jest dostępny.");
+      return;
+    }
+
+    // Dekodowanie tokenu
+    if(user)
+    {
+      const alreadyInvited = await checkIsInvited(user.id);
+
+      if (alreadyInvited) {
+        setShowAlreadyInvitedModal(true);
+        return;
+      }
+
+      const decodedToken = decodeJWT(token);
+      const sourceUserId = decodedToken.nameid; //Id użytkownika, który wysyła zaproszenie
+      const sourceUserName = localStorage.getItem("logged_username");
+      const targetUserId = user.id;  //Id użytkownika docelowego
+
+      sendFriendInvitation(targetUserId, sourceUserId, sourceUserName, setNotification, setError);
+      setShowInvitedModal(true);
+    }
+  };
+
+
   const isFriend = relations?.$values.some(
     (relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName
   );
@@ -136,7 +172,7 @@ const UserPage = () => {
           {!user?.isOwner && (
             <>
               {!isFriend ? (
-                <button className="btn btn-success">
+                <button className="btn btn-success" onClick={sendInvitation}>
                   Dodaj do znajomych
                 </button>
               ) : (
@@ -262,6 +298,38 @@ const UserPage = () => {
         </Button>
       </Modal.Footer>
     </Modal>)}
+
+    <Modal show={showAlreadyInvitedModal} onHide={() => setShowAlreadyInvitedModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Informacja</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{display: "flex", alignItems: "center", color: "red", fontWeight: "bold"}}>
+            Ten użytkownik został już zaproszony.
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setShowAlreadyInvitedModal(false)}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showInvitedModal} onHide={() => setShowInvitedModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Informacja</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{display: "flex", alignItems: "center", color: "green", fontWeight: "bold"}}>
+            Pomyślnie wysłano zaproszenie do grona znajomych!
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={() => setShowInvitedModal(false)}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
 </div>
     </>
   );
