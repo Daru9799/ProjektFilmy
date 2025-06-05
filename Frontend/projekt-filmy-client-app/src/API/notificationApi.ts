@@ -13,7 +13,7 @@ export const sendFriendInvitation = async (
     const response = await axios.post(
       "https://localhost:7053/api/Notifications/add-notification",
       {
-        title: `Zaproszenie do znajomych od użytkownika ${sourceUserName}!`,
+        title: `Zaproszenie do grona znajomych!`,
         description: `${sourceUserName} zaprasza Cię do grona znajomych!`,
         type: "Invitation",
         date: new Date().toISOString(),

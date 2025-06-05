@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
-import { decodeJWT } from "../../hooks/decodeJWT";
-import { createRelation } from "../../API/relationApi";
-import { deleteNotification } from "../../API/notificationApi";
+import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
 
 interface NotificationCardProps {
   notification: Notification;
@@ -11,39 +9,13 @@ interface NotificationCardProps {
 }
 
 const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDelete }) => {
-    const [relations, setRelations] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const handleAccept = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-        console.error("Brak tokenu");
-        return;
-        }
-
-        const decodedToken = decodeJWT(token);
-        const loggedUserId = decodedToken.nameid;
-
-        //Tworzenie relacji (Friend)
-        await createRelation(loggedUserId, notification.sourceUserId, 0, setRelations, setError);
-        
-        //Usuwanie zaproszenia
-        await deleteNotification(notification.notificationId, setError);
-
-        console.log("Zaakceptowano zaproszenie");
-        onDelete();
-    };
-
-    const handleDelete = async () => {
-        await deleteNotification(notification.notificationId, setError)
-        onDelete();
-        console.log("Usuwanie powiadomienia");
-    };
-
-    const handleView = () => {
-        console.log("Przejdź do:", notification.resource);
-        //Przenoszenie do resource
-    };
+    const handleAccept = () => handleAcceptInvitation(notification, onDelete, setError);
+    
+    const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
+    
+    const handleView = () => handleViewResource(notification);
 
     const renderActions = () => {
         switch (notification.type) {

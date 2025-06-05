@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useNotifications } from "../../hooks/useNotifications";
-import NotificationCard from "../../components/Notifications_components/NotificationCard";
+import NotificationDropdownItem from "../../components/Navbar_componets/NotificationListItem";
 
 const NotificationDropdown = () => {
     const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotifications();
@@ -31,14 +31,16 @@ const NotificationDropdown = () => {
       </button>
 
     <ul className="dropdown-menu dropdown-menu-end " aria-labelledby="notificationsDropdown" style={{ minWidth: "300px", fontFamily: "'Arial', sans-serif" }}>
-        {notifications.slice(0, 3).map((n) => (
-            <li key={n.notificationId} className="dropdown-item p-0">
-            <NotificationCard 
-                notification={n} 
-                onDelete={() => { fetchNotifications(pageInfo.pageNumber); }} 
+        <div className="list-group list-group-flush">
+          {notifications.slice(0, 3).map((n, idx, arr) => (
+            <NotificationDropdownItem
+              key={n.notificationId}
+              notification={n}
+              onDelete={() => fetchNotifications(pageInfo.pageNumber)}
+              isLast={idx === arr.length - 1}
             />
-            </li>
-        ))}
+          ))}
+        </div>
         <li>
             <hr className="dropdown-divider" />
         </li>
