@@ -10,7 +10,6 @@ const NavBar = () => {
   const [isLoginModalVisable, setIsLoginModalVisable] = useState(false);
   const [isRegisterModalVisable, setIsRegisterModalVisable] = useState(false);
   const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
-  const [hasNewNotifications, setHasNewNotifications] = useState(true);
   
 
   // Zaktualizuj stan po zalogowaniu

@@ -25,7 +25,6 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
         const loggedUserId = decodedToken.nameid;
 
         //Tworzenie relacji (Friend)
-        ///Tutaj trzeba ogarnąć najlepiej sourceUserId z notyfikacji
         await createRelation(loggedUserId, notification.sourceUserId, 0, setRelations, setError);
         
         //Usuwanie zaproszenia
@@ -101,7 +100,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
     <div
       className="card shadow-sm"
       style={{
-        backgroundColor: notification.isRead ? "#f8f9fa" : "#c2dafc", // ciemniejszy niebieski
+        backgroundColor: notification.isRead ? "#f8f9fa" : "#c2dafc",
       }}
     >
       <div className="card-body">

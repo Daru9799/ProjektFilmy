@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { useNotifications } from "../../hooks/useNotifications";
+import NotificationCard from "../../components/Notifications_components/NotificationCard";
 
 const NotificationDropdown = () => {
-  const { notifications, hasNew, setHasNew } = useNotifications();
+    const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotifications();
+
+  const handleOpenDropdown = () => {
+    setHasNew(false);
+    fetchNotifications(pageInfo.pageNumber);
+  };
 
   return (
     <div className="dropdown mx-2">
@@ -13,7 +19,7 @@ const NotificationDropdown = () => {
         data-bs-toggle="dropdown"
         aria-expanded="false"
         title="Powiadomienia"
-        onClick={() => setHasNew(false)}
+        onClick={handleOpenDropdown}
       >
         <i className={hasNew ? "bi bi-bell-fill" : "bi bi-bell"}></i>
         {hasNew && (
@@ -24,26 +30,24 @@ const NotificationDropdown = () => {
         )}
       </button>
 
-      <ul
-        className="dropdown-menu dropdown-menu-end"
-        aria-labelledby="notificationsDropdown"
-        style={{ minWidth: "280px" }}
-      >
+    <ul className="dropdown-menu dropdown-menu-end " aria-labelledby="notificationsDropdown" style={{ minWidth: "300px", fontFamily: "'Arial', sans-serif" }}>
         {notifications.slice(0, 3).map((n) => (
-        <li key={n.notificationId} className="dropdown-item">
-            <div className="fw-bold">{n.title}</div>
-            <div className="small text-muted">{n.description}</div>
-        </li>
+            <li key={n.notificationId} className="dropdown-item p-0">
+            <NotificationCard 
+                notification={n} 
+                onDelete={() => { fetchNotifications(pageInfo.pageNumber); }} 
+            />
+            </li>
         ))}
         <li>
-          <hr className="dropdown-divider" />
+            <hr className="dropdown-divider" />
         </li>
         <li>
-          <Link to="/notifications" className="dropdown-item text-center">
+            <Link to="/notifications" className="dropdown-item text-center">
             Zobacz wszystkie
-          </Link>
+            </Link>
         </li>
-      </ul>
+    </ul>
     </div>
   );
 };
