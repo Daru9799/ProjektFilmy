@@ -27,7 +27,7 @@ export const fetchRelationsData = async (username: string, setRelations: React.D
   }
 };
 
-export const deleteRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>
+export const deleteFriendRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
     await axios.delete(
@@ -46,5 +46,42 @@ export const deleteRelation = async (relationId: string, setRelations: React.Dis
   } catch (err) {
     console.error("Błąd podczas usuwania relacji:", err);
     setError("Nie udało się usunąć relacji. Spróbuj ponownie.");
+  }
+};
+
+export const createFriendRelation = async (
+  firstUserId: string,
+  secondUserId: string,
+  setRelations: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    const response = await axios.post(
+      `https://localhost:7053/api/UserRelations/add-relation`,
+      {
+        firstUserId,
+        secondUserId,
+        type: 0 //Friend to 0 w enumie
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    // Odśwież relacje po dodaniu nowej
+    setRelations((prevRelations: any) => {
+      const updated = { ...prevRelations };
+      updated.$values = [...(updated?.$values || []), response.data];
+      return updated;
+    });
+  } catch (err) {
+    console.error("Błąd podczas tworzenia relacji:", err);
+    if (axios.isAxiosError(err) && err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else {
+      setError("Nie udało się dodać relacji. Spróbuj ponownie.");
+    }
   }
 };

@@ -6,8 +6,8 @@ import ReviewCard from "../review_components/ReviewCard";
 import AddReviewModal from "../review_components/AddReviewPanel";
 import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
-import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
-import { sendFriendInvitation, checkIsInvited } from "../../API/notificationApi";
+import { fetchRelationsData, deleteFriendRelation, createFriendRelation } from "../../API/relationApi";
+import { sendFriendInvitation, checkIsInvited, checkIsInvitedByUser, getInvitationFromUser, deleteNotification } from "../../API/notificationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import { Modal, Button } from 'react-bootstrap';
 import { decodeJWT } from "../../hooks/decodeJWT";
@@ -41,6 +41,7 @@ const UserPage = () => {
   const [notification, setNotification] = useState(null);
   const [showAlreadyInvitedModal, setShowAlreadyInvitedModal] = useState(false);
   const [showInvitedModal, setShowInvitedModal] = useState(false);
+  const [isInvitedByUser, setIsInvitedByUser] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +55,22 @@ const UserPage = () => {
       }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
+
+    if (loggedUserName && userName) {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token nie jest dostępny.");
+        return;
+      }
+
+      //Dekodowanie tokenu
+      const decodedToken = decodeJWT(token);
+      const loggedUserId = decodedToken.nameid;
+      
+
+      checkIsInvitedByUser(loggedUserId, userName).then(setIsInvitedByUser);
+    }
   }, [userName]);
 
  
@@ -105,7 +122,7 @@ const UserPage = () => {
   };
 
   const handleDeleteRelation = async (relationId: string) => {
-    await deleteRelation(relationId, setRelations, setError);
+    await deleteFriendRelation(relationId, setRelations, setError);
     setRelations((prevRelations: any) => {
       const updatedRelations = { ...prevRelations };
       updatedRelations.$values = updatedRelations.$values.filter(
@@ -146,6 +163,35 @@ const UserPage = () => {
   };
 
 
+  const handleAcceptInvitation = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("Token nie jest dostępny.");
+      return;
+    }
+
+    const decodedToken = decodeJWT(token);
+    const loggedUserId = decodedToken.nameid;
+
+    if (!user || !loggedUserId) return;
+
+    //Utworzenie relacji
+    await createFriendRelation(loggedUserId, user.id, setRelations, setError);
+
+    //Pobranie zaproszeń
+    const invitation = await getInvitationFromUser(loggedUserId, user.userName);
+
+    //Usuwanie zaproszenia
+    if (invitation) {
+      await deleteNotification(invitation.notificationId, setError);
+    }
+
+    //Odświeżenie dla przycisków
+    await fetchRelationsData(localStorage.getItem("logged_username")!, setRelations, setError);
+    setIsInvitedByUser(false);
+  };
+
   const isFriend = relations?.$values.some(
     (relation: any) => relation.type === "Friend" && relation.relatedUserName === user?.userName
   );
@@ -171,7 +217,11 @@ const UserPage = () => {
         <div className="relation-buttons">
           {!user?.isOwner && (
             <>
-              {!isFriend ? (
+              {isInvitedByUser ? (
+                <button className="btn btn-primary" onClick={handleAcceptInvitation}>
+                  Akceptuj zaproszenie
+                </button>
+              ) : !isFriend ? (
                 <button className="btn btn-success" onClick={sendInvitation}>
                   Dodaj do znajomych
                 </button>

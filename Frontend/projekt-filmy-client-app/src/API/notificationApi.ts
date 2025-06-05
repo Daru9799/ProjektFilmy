@@ -43,6 +43,7 @@ export const sendFriendInvitation = async (
   }
 };
 
+//Sprawdzanie czy zalogowany A zaprosił już B (aby nie mógł zapraszać dwukrotnie)
 export const checkIsInvited = async (targetUserId: string): Promise<boolean> => {
   const loggedUserName = localStorage.getItem("logged_username");
 
@@ -62,10 +63,63 @@ export const checkIsInvited = async (targetUserId: string): Promise<boolean> => 
 
     const notifications: Notification[] = response.data.data?.$values ?? [];
 
-    return notifications.some(n => n.sourceUserName === loggedUserName);
+    return notifications.length > 0;
   } catch (error) {
     console.error("Błąd podczas sprawdzania zaproszenia:", error);
     return false;
+  }
+};
+
+//Sprawdzenie czy A nie otrzymał przypadkiem zaproszenia od B (aby nie renderować niepotrzebnie Dodaj do znajomych)
+export const checkIsInvitedByUser = async (loggedUserId: string, profileUserName: string): Promise<boolean> => {
+  try {
+    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${loggedUserId}`, {
+      params: {
+        type: "Invitation",
+        noPagination: true,
+        sourceUserName: profileUserName,  //Nazwa profilu który jest przeglądany
+      },
+    });
+
+    const notifications: Notification[] = response.data.data?.$values ?? [];
+    return notifications.length > 0;
+  } catch (error) {
+    console.error("Błąd podczas sprawdzania zaproszenia:", error);
+    return false;
+  }
+};
+
+//Pobranie zaproszenia
+export const getInvitationFromUser = async (
+  loggedUserId: string,
+  profileUserName: string
+): Promise<Notification | null> => {
+  try {
+    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${loggedUserId}`, {
+      params: {
+        type: "Invitation",
+        noPagination: true,
+        sourceUserName: profileUserName,
+      },
+    });
+
+    const notifications: Notification[] = response.data.data?.$values ?? [];
+    return notifications.length > 0 ? notifications[0] : null;
+  } catch (error) {
+    console.error("Błąd podczas pobierania zaproszenia:", error);
+    return null;
+  }
+};
+
+//Usuwanie powiadomienia
+export const deleteNotification = async (notificationId: string, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+  try {
+    await axios.delete(
+      `https://localhost:7053/api/Notifications/delete-notification/${notificationId}`,
+    );
+  } catch (err) {
+    console.error("Błąd podczas usuwania powiadomienia:", err);
+    setError("Nie udało się usunąć powiadomienia.");
   }
 };
 

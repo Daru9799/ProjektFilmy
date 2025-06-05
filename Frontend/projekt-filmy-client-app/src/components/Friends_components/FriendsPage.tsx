@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { UserRelation } from "../../models/UserRelation";
-import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
+import { fetchRelationsData, deleteFriendRelation } from "../../API/relationApi";
 import FriendCard from "../../components/Friends_components/FriendCard"
 
 const FriendsPage = () => {
@@ -22,7 +22,7 @@ const FriendsPage = () => {
   const friends = relations?.$values.filter((relation: UserRelation) => relation.type === "Friend");
 
   const handleDeleteRelation = async (relationId: string) => {
-    await deleteRelation(relationId, setRelations, setError);
+    await deleteFriendRelation(relationId, setRelations, setError);
     if (userName) {
     setLoading(true);
     fetchRelationsData(userName, setRelations, setError).finally(() => {
