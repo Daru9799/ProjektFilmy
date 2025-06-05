@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Notification } from "../models/Notification";
+import { PaginationResponse } from "../API/PaginationResponse"
 
 export const sendFriendInvitation = async (
   targetUserId: string,
@@ -123,3 +124,20 @@ export const deleteNotification = async (notificationId: string, setError: React
   }
 };
 
+//Lista wszystkich powiadomień
+export const fetchNotificationsByUserId = async (
+  userId: string,
+  pageNumber: number,
+  pageSize: number
+): Promise<PaginationResponse<Notification>> => {
+  const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
+    params: {
+      pageNumber,
+      pageSize,
+      orderBy: "date",
+      sortDirection: "desc",
+    },
+  });
+
+  return response.data;
+};

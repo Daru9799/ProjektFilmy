@@ -68,9 +68,9 @@ const NavBar = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                   title="Powiadomienia"
-                  onClick={() => setHasNewNotifications(false)} //Zdejmowanie stanu "Nowe powiadomienia"
+                  onClick={() => setHasNewNotifications(false)}
                 >
-                  <i className="bi bi-bell"></i>
+                  <i className={hasNewNotifications ? "bi bi-bell-fill" : "bi bi-bell"}></i>
                   {hasNewNotifications && (
                     <span
                       className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
