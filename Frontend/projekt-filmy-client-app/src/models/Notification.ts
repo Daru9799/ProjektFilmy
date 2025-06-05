@@ -7,4 +7,5 @@ export interface Notification {
     isRead: boolean
     resource: string
     sourceUserName: string
+    sourceUserId: string
 }

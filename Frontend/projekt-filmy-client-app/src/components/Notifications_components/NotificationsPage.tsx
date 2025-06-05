@@ -52,6 +52,10 @@ const NotificationPage = () => {
         fetchNotifications(pageInfo.pageNumber);
     }, [pageInfo.pageNumber]);
 
+    const handleDeleteNotification = () => {
+      fetchNotifications(pageInfo.pageNumber);
+  };
+
     //SingalR
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -99,9 +103,13 @@ const NotificationPage = () => {
         {loading && <p>Ładowanie...</p>}
         {!loading && notifications.length === 0 && <p>Brak powiadomień.</p>}
         <div className="d-flex flex-column gap-3 mb-3">
-            {notifications.map((n) => (
-                <NotificationCard key={n.notificationId} notification={n} />
-            ))}
+            {notifications.map(notification => (
+            <NotificationCard 
+              key={notification.notificationId} 
+              notification={notification} 
+              onDelete={handleDeleteNotification} 
+            />
+          ))}
         </div>
 
       {/* Komponent paginacji */}
