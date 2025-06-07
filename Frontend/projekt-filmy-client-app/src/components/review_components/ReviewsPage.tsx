@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
-import PaginationModule from "../PaginationModule";
 import SortReviewModule from "./SortReviewsModle"; 
 import ReviewCard from "./ReviewCard"; 
 import MovieListModule from "../SearchMovies_componets/MovieListModule"; 
@@ -9,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { Movie } from "../../models/Movie"; 
 import { fetchReviewsByMovieId } from "../../API/reviewApi";
 import { fetchMovieData } from "../../API/movieApi";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();

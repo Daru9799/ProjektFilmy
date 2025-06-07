@@ -1,45 +1,80 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Movie } from "../models/Movie";
-
+import { useMovieLoader } from "./useMovieLoader"; 
 
 export const useCreateMovieCollection = () => {
-  const navigate = useNavigate();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [shareMode, setShareMode] = useState(0);
   const [allowCopy, setAllowCopy] = useState(true);
   const [movieIds, setMovieIds] = useState<string>("");
+
   const [showModal, setShowModal] = useState(false);
-  const [availableMovies, setAvailableMovies] = useState<Movie[]>([]);
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
   const [tempSelectedMovies, setTempSelectedMovies] = useState<Movie[]>([]);
+
+  const [sortCategory, setSortCategory] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<string>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState<string>("");
+
+
+  const {
+    movies,
+    pageInfo,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+    loadMovies,
+  } = useMovieLoader(6);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleOpenModal = async () => {
-    try {
-      const response = await axios.get("https://localhost:7053/api/Movies/by-filters", {
-        params: { pageNumber: 1, pageSize: 8 },
-      });
-      setAvailableMovies(response.data.data.$values);
-      setTempSelectedMovies(selectedMovies);
-      setShowModal(true);
-    } catch (error) {
-      console.error("Błąd przy pobieraniu filmów:", error);
-    }
-  };
+const handleOpenModal = async () => {
+  await loadMovies({
+    page: currentPage,
+    searchText,
+    pageSize: 6,
+  });
+
+  setTempSelectedMovies([...selectedMovies]);
+
+  setShowModal(true);
+};
 
   const handleToggleSelect = (movie: Movie) => {
     const alreadySelected = tempSelectedMovies.some((m) => m.movieId === movie.movieId);
     const updatedList = alreadySelected
       ? tempSelectedMovies.filter((m) => m.movieId !== movie.movieId)
       : [...tempSelectedMovies, movie];
-
     setTempSelectedMovies(updatedList);
   };
+
+  const handlePageChange = async (page: number) => {
+  setCurrentPage(page);
+  await loadMovies({
+    page,
+    sortCategory,
+    sortDirection,
+    searchText,
+    pageSize: 6,
+  });
+};
+
+  const handleCloseModal = async () => {
+    setShowModal(false);
+    setSearchText("");
+    setCurrentPage(1);
+    await loadMovies({
+      page: 1,
+      sortCategory,
+      sortDirection,
+      searchText: "",
+      pageSize: 6,
+    });
+  };
+
 
   const handleConfirmSelection = () => {
     setSelectedMovies(tempSelectedMovies);
@@ -70,11 +105,11 @@ export const useCreateMovieCollection = () => {
         },
       });
 
-      alert("Kolekcja została utworzona!");
-      navigate("/");
+      return true;
     } catch (err) {
       console.error("Błąd przy tworzeniu kolekcji:", err);
       setError("Nie udało się utworzyć kolekcji. Spróbuj ponownie.");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -93,7 +128,7 @@ export const useCreateMovieCollection = () => {
     setMovieIds,
     showModal,
     setShowModal,
-    availableMovies,
+    movies,
     selectedMovies,
     setSelectedMovies,
     tempSelectedMovies,
@@ -104,6 +139,18 @@ export const useCreateMovieCollection = () => {
     handleToggleSelect,
     handleConfirmSelection,
     handleCreateCollection,
+    sortCategory,
+    setSortCategory,
+    sortDirection,
+    setSortDirection,
+    currentPage,
+    pageInfo,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+    handlePageChange,
+    searchText,
+    handleCloseModal,      
+    setSearchText     
   };
 };
 

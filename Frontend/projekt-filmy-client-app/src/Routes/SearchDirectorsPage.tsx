@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import SearchModule from "../components/SearchModule";
-import PaginationModule from "../components/PaginationModule";
-import NoPeopleFoundModal from "../components/NoPeopleFoundModal";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import PeopleListModule from "../components/People_componets/PeopleListModule";
 import { Person } from "../models/Person";
 import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
+import SearchModule from "../components/SharedModals/SearchModule";
+import PaginationModule from "../components/SharedModals/PaginationModule";
+import NoPeopleFoundModal from "../components/SharedModals/NoPeopleFoundModal";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ImageModal from "../hooks/ImageModal"; 
+import ImageModal from '../components/SharedModals/ImageModal';
 import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
 import { fetchPersonById, fetchPersonMovies } from "../API/personApi";

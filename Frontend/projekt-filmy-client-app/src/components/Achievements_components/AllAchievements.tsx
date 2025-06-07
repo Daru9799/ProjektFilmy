@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Achievement } from "../../models/Achievement";
-import PaginationModule from "../PaginationModule";
 import { fetchAchievements } from "../../API/achievementApi";
 import "../../styles/AchievementCard.css";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 const AllAchievements = () => {
   const navigate = useNavigate();

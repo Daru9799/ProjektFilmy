@@ -1,7 +1,7 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import PaginationModule from "../PaginationModule";
+import { ReactNode, useEffect, useState } from "react";
 import NotificationCard from "../../components/Notifications_components/NotificationCard"
 import { useNotifications } from "../../hooks/useNotifications";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 const NotificationPage = () => {
     const { notifications, pageInfo, fetchNotifications } = useNotifications();

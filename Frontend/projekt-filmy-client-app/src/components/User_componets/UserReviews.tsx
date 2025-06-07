@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
-import PaginationModule from "../PaginationModule";
 import SortReviewModule from "../review_components/SortReviewsModle"; 
 import ReviewCard from "../review_components/ReviewCard"; 
 import { useParams, useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import AddReviewModal from "../review_components/AddReviewPanel"; 
 import { deleteReview, editReview } from "../../API/reviewApi";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 const ReviewsPage = () => {
   const { userName } = useParams(); 

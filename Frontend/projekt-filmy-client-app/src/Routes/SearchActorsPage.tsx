@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import SearchModule from "../components/SearchModule";
-import PaginationModule from "../components/PaginationModule";
-import PeopleListModule from "../components/People_componets/PeopleListModule";
-import NoPeopleFoundModal from "../components/NoPeopleFoundModal";
 import { Person } from "../models/Person";
 import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
+import SearchModule from "../components/SharedModals/SearchModule";
+import PaginationModule from "../components/SharedModals/PaginationModule";
+import PeopleListModule from "../components/People_componets/PeopleListModule";
+import NoPeopleFoundModal from "../components/SharedModals/NoPeopleFoundModal";
 
 
 const SearchActorsPage = () => {

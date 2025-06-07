@@ -14,9 +14,9 @@ import AllAchievements from '../components/Achievements_components/AllAchievemen
 import UserAchievements from '../components/Achievements_components/UserAchievements';
 import UserStatistics from '../components/User_componets/UserStatistics';
 import FriendsPage from '../components/Friends_components/FriendsPage';
-import CreateMovieCollection from '../components/MovieCollection_components/CreateMovieCollection';
 import BlockedPage from '../components/Blocked_components/BlockedPage';
 import NotificationPage from '../components/Notifications_components/NotificationsPage';
+import CreateMovieCollection from '../components/CreateMovieCollection_components/CreateMovieCollection';
 
 
 

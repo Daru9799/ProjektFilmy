@@ -1,4 +1,4 @@
-import ImageModal from "../../hooks/ImageModal";
+import ImageModal from '../../components/SharedModals/ImageModal';
 import MovieTabs from "./MovieTabs";
 import ReviewsSection from "./ReviewsSection";
 import AddReviewModal from "../review_components/AddReviewPanel";

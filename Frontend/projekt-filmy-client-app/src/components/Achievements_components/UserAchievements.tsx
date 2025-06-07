@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { UserAchievement } from "../../models/UserAchievement";
-import PaginationModule from "../PaginationModule";
 import { fetchUserAchievements } from "../../API/achievementApi";
 import "../../styles/AchievementCard.css";
 import { useParams, useNavigate } from "react-router-dom";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 const UserAchievements = () => {
   const { userName } = useParams();

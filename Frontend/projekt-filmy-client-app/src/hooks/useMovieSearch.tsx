@@ -1,64 +1,48 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import qs from "qs";
-import { Movie } from "../models/Movie";
+import { useMovieLoader } from "./useMovieLoader";
 
-export const useMovieSearch = () => {
+const staticPageSize = 4;
+
+export const useSearchMovies = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [filterList, setFilterList] = useState<[string[], string[], string[], string[]]>([[], [], [], []]);
-  const [sortCategory, setSortCategory] = useState("title");
-  const [sortDirection, setSortDirection] = useState("asc");
-
+  const [sortCategory, setSortCategory] = useState<string>("title");
+  const [sortDirection, setSortDirection] = useState<string>("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageInfo, setPageInfo] = useState({
-    totalItems: 0,
-    pageNumber: 1,
-    pageSize: 4,
-    totalPages: 1,
-  });
 
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchMovies = () => {
-    setLoading(true);
-    setError(null);
-
-    axios
-      .get("https://localhost:7053/api/Movies/by-filters", {
-        params: {
-          pageNumber: currentPage,
-          pageSize: pageInfo.pageSize,
-          titleSearch: searchText,
-          orderBy: sortCategory,
-          sortDirection: sortDirection,
-          categoryNames: filterList[0],
-          countryNames: filterList[1],
-          actorsList: filterList[2],
-          directorsList: filterList[3],
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: "repeat" });
-        },
-      })
-      .then((response) => {
-        const { data, totalItems, pageNumber, pageSize, totalPages } = response.data;
-        setMovies(data.$values);
-        setPageInfo({ totalItems, pageNumber, pageSize, totalPages });
-      })
-      .catch((err) => {
-        setError("Wystąpił błąd podczas pobierania filmów.");
-        setMovies([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const {
+    movies,
+    pageInfo,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+    loadMovies,
+  } = useMovieLoader(staticPageSize);
 
   useEffect(() => {
-    fetchMovies();
-  }, [currentPage, sortCategory, sortDirection]);
+    loadMovies({
+      page: currentPage,
+      searchText,
+      filterList,
+      sortCategory,
+      sortDirection,
+      pageSize: staticPageSize,
+    });
+  }, [currentPage, searchText, filterList, sortCategory, sortDirection]);
+
+  const handleSearchSubmit = () => {
+    setCurrentPage(1); 
+  };
+
+  const handleSort = (type: string) => {
+    const [category, direction] = type.split(" ");
+    setSortCategory(category);
+    setSortDirection(direction);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return {
     searchText,
@@ -66,14 +50,14 @@ export const useMovieSearch = () => {
     filterList,
     setFilterList,
     sortCategory,
-    setSortCategory,
     sortDirection,
-    setSortDirection,
     movies,
-    loading,
-    error,
-    fetchMovies,
     pageInfo,
-    setCurrentPage,
+    currentPage,
+    handlePageChange,
+    handleSearchSubmit,
+    handleSort,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
   };
 };
