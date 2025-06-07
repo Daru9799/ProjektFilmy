@@ -19,7 +19,7 @@ const SelectedMoviesList: React.FC<SelectedMoviesListProps> = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <h4 style={{ marginBottom: "1rem" }}>Wybrane filmy</h4>
+      <h4 style={{marginTop:"5%", marginBottom: "1rem" }}>Wybrane filmy</h4>
       {selectedMovies.length === 0 ? (
         <span style={{ color: "white", fontStyle: "italic" }}>
           Brak wybranych filmów

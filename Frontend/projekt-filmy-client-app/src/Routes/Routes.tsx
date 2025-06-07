@@ -39,7 +39,7 @@ export const routes: RouteObject[] = [
       { path: "user/:userName/friends", element: <FriendsPage /> },
       { path: "user/achievements/:userName",element:<UserAchievements/>},
       { path: "users/statistics/:userName", element:<UserStatistics/>},
-      { path: "users/moviecollection/create", element:<CreateMovieCollection/>},
+      { path: "user/:userName/moviecollection/create", element:<CreateMovieCollection/>},
       { path: "user/:userName/blocked", element:<BlockedPage/>},
       { path: "notifications", element: <NotificationPage/>}
     ],

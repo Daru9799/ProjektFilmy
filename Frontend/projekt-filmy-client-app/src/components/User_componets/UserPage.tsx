@@ -281,6 +281,13 @@ const UserPage = () => {
           >
             Osiągnięcia
           </button>
+             <button
+            className="edit-button"
+             style={{ visibility: user?.isOwner ? "visible" : "hidden" }}
+            onClick={() => navigate(`/user/${user?.userName}/moviecollection/create`)}
+          >
+            Dodaj listę
+          </button>
         </div>
       </div>
 

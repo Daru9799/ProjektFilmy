@@ -56,7 +56,7 @@
 .create-collection-container textarea {
   min-height: 80px;
   resize: vertical;
-  max-height: 180px;
+  max-height: 170px;
   overflow-y: auto;
 }
 
@@ -202,4 +202,23 @@
   cursor: pointer;
 }
 
+.custom-modal .modal-content {
+  background-color: #252424; 
+  color: #4c4c4c;
+  border: none;
+}
+
+.custom-modal .modal-header,
+.custom-modal .modal-footer {
+  border: none;
+  background-color: #4c4c4c;
+}
+
+.custom-modal .modal-title {
+  color: white;
+}
+
+.selected-movie-highlight {
+  background-color: #abadaf;
+}
 

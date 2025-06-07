@@ -4,6 +4,9 @@ import { Movie } from "../../models/Movie";
 import MovieListModule from "../SearchMovies_componets/MovieListModule";
 import PaginationModule from "../SharedModals/PaginationModule";
 import SearchModule from "../SharedModals/SearchModule";
+import FilterMovieModule from "../SearchMovies_componets/FilterMovieModule";
+import SortMovieModule from "../SearchMovies_componets/SortMovieModule";
+import NoMoviesModal from "../SearchMovies_componets/NoMoviesModal";
 
 
 type Props = {
@@ -18,7 +21,12 @@ type Props = {
   onPageChange: (page: number) => void;
   searchText: string;
   setSearchText: (text: string) => void;
+  setFilterList: (filters: [string[], string[], string[], string[]]) => void;
+  handleSort: (sort: string) => void;
+  isNoMovieModalVisible: boolean;
+  setIsNoMovieModalVisible: (visible: boolean) => void;
 };
+
 
 const MovieSelectionModal: React.FC<Props> = ({
   show,
@@ -30,7 +38,11 @@ const MovieSelectionModal: React.FC<Props> = ({
   currentPage,
   totalPages,
   onPageChange,
-  setSearchText
+  setSearchText,
+  setFilterList,
+  handleSort,
+  isNoMovieModalVisible,
+  setIsNoMovieModalVisible,
 }) => {
 
   const handleClose = () => {
@@ -39,7 +51,7 @@ const MovieSelectionModal: React.FC<Props> = ({
   };
 
   return (
-    <Modal show={show} onHide={handleClose} size="lg" centered>
+    <Modal show={show} onHide={handleClose} size="lg" centered  dialogClassName="custom-modal">
       <Modal.Header closeButton>
         <Modal.Title>Wybierz filmy do dodania</Modal.Title>
       </Modal.Header>
@@ -55,6 +67,11 @@ const MovieSelectionModal: React.FC<Props> = ({
           submit={() => onPageChange(1)}
         />
 
+        
+      <FilterMovieModule getFilters={setFilterList} />
+
+      <SortMovieModule onSort={handleSort} />
+
         <MovieListModule
           movieList={movies}
           tempSelectedMovies={tempSelectedMovies}
@@ -68,6 +85,12 @@ const MovieSelectionModal: React.FC<Props> = ({
             onPageChange={onPageChange}
           />
         )}
+
+        
+      <NoMoviesModal
+        show={isNoMovieModalVisible}
+        onClose={() => setIsNoMovieModalVisible(false)}
+      />
 
       </Modal.Body>
       <Modal.Footer className="d-flex justify-content-center mt-4 gap-3">

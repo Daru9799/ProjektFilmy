@@ -94,12 +94,7 @@ const NavBar = () => {
                         Statystyki
                       </Link>
                     </li>
-                        <hr className="dropdown-divider" />
-                      <li>
-                      <Link className="dropdown-item" to={`users/moviecollection/create`}>
-                        Utwórz kolekcję
-                      </Link>
-                    </li>
+                     
                     <li>
                       <hr className="dropdown-divider" />
                     </li>

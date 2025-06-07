@@ -1,4 +1,4 @@
-import "../../styles/MovieCollection.css";
+import "../../styles/CreateMovieCollection.css";
 import CollectionForm from "./CollectionForm";
 import MovieSelectionModal from "./MovieSelectionModal";
 import SelectedMoviesList from "./SelectedMoviesList";
@@ -34,8 +34,13 @@ const {
   currentPage,
   handlePageChange,
   handleCloseModal,
-    searchText,             
-  setSearchText   
+  searchText,             
+  setSearchText,
+  setFilterList,
+  handleSort,
+  isNoMovieModalVisible,
+  setIsNoMovieModalVisible,
+     
 } = useCreateMovieCollection();
   const [showInfoModal, setShowInfoModal] = useState(false);
 const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -100,6 +105,10 @@ const navigate = useNavigate();
         onPageChange={handlePageChange}
         searchText={searchText}
         setSearchText={setSearchText}
+        setFilterList={setFilterList}
+        handleSort={handleSort}
+        isNoMovieModalVisible={isNoMovieModalVisible}
+        setIsNoMovieModalVisible={setIsNoMovieModalVisible}
       />
 
       <InfoModal

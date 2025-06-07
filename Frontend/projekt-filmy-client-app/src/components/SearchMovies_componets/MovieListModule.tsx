@@ -35,7 +35,7 @@ const MovieListModule = ({
         {movieList.map((movie) => (
           <li
             key={movie.movieId}
-            className={`list-group-item d-flex p-3 zoomCard ${isSelected(movie) ? 'bg-info bg-opacity-25' : ''}`}
+           className={`list-group-item d-flex p-3 zoomCard ${isSelected(movie) ? 'selected-movie-highlight' : ''}`}
             onClick={() => handleCardClick(movie)}
             style={{
               borderBottom: "1px solid #ddd",

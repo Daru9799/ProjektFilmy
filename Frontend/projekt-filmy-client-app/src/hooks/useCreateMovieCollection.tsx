@@ -1,24 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Movie } from "../models/Movie";
-import { useMovieLoader } from "./useMovieLoader"; 
+import { useMovieLoader } from "./useMovieLoader";
 
 export const useCreateMovieCollection = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [shareMode, setShareMode] = useState(0);
-  const [allowCopy, setAllowCopy] = useState(true);
+  const [allowCopy, setAllowCopy] = useState(false);
   const [movieIds, setMovieIds] = useState<string>("");
 
   const [showModal, setShowModal] = useState(false);
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
   const [tempSelectedMovies, setTempSelectedMovies] = useState<Movie[]>([]);
 
-  const [sortCategory, setSortCategory] = useState<string>("");
+  const [filterList, setFilterList] = useState<[string[], string[], string[], string[]]>([[], [], [], []]);
   const [sortDirection, setSortDirection] = useState<string>("asc");
+  const [sortCategory, setSortCategory] = useState<string>("title");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState<string>("");
-
 
   const {
     movies,
@@ -31,17 +32,20 @@ export const useCreateMovieCollection = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-const handleOpenModal = async () => {
-  await loadMovies({
-    page: currentPage,
-    searchText,
-    pageSize: 6,
-  });
+  
+  const handleOpenModal = async () => {
+        await loadMovies({
+      page: currentPage,
+      searchText,
+      pageSize: 6,
+      sortCategory: "title",
+      sortDirection,
+      filterList,
+    });
 
-  setTempSelectedMovies([...selectedMovies]);
-
-  setShowModal(true);
-};
+    setTempSelectedMovies([...selectedMovies]);
+    setShowModal(true);
+  };
 
   const handleToggleSelect = (movie: Movie) => {
     const alreadySelected = tempSelectedMovies.some((m) => m.movieId === movie.movieId);
@@ -52,28 +56,35 @@ const handleOpenModal = async () => {
   };
 
   const handlePageChange = async (page: number) => {
-  setCurrentPage(page);
-  await loadMovies({
-    page,
-    sortCategory,
-    sortDirection,
-    searchText,
-    pageSize: 6,
-  });
-};
-
-  const handleCloseModal = async () => {
-    setShowModal(false);
-    setSearchText("");
-    setCurrentPage(1);
+    setCurrentPage(page);
     await loadMovies({
-      page: 1,
-      sortCategory,
-      sortDirection,
-      searchText: "",
+      page,
+      searchText,
       pageSize: 6,
+      sortCategory: "title",
+      sortDirection,
+      filterList,
     });
   };
+
+const handleCloseModal = async () => {
+  setShowModal(false);
+  setSearchText("");
+  setCurrentPage(1);
+
+  setSortCategory("title");
+  setSortDirection("asc");
+  setFilterList([[], [], [], []]);
+
+  await loadMovies({
+    page: 1,
+    searchText: "",
+    pageSize: 6,
+    sortCategory: "title",
+    sortDirection: "asc",
+    filterList: [[], [], [], []],
+  });
+};
 
 
   const handleConfirmSelection = () => {
@@ -81,6 +92,23 @@ const handleOpenModal = async () => {
     setMovieIds(tempSelectedMovies.map((m) => m.movieId).join(","));
     setShowModal(false);
   };
+
+  
+const handleSort = async (type: string) => {
+  const [category, direction] = type.split(" ");
+  setSortCategory(category);
+  setSortDirection(direction);
+  setCurrentPage(1);
+
+  await loadMovies({
+    page: 1,
+    searchText,
+    pageSize: 6,
+    sortCategory: category,
+    sortDirection: direction,
+    filterList,
+  });
+};
 
   const handleCreateCollection = async () => {
     setLoading(true);
@@ -139,18 +167,16 @@ const handleOpenModal = async () => {
     handleToggleSelect,
     handleConfirmSelection,
     handleCreateCollection,
-    sortCategory,
-    setSortCategory,
-    sortDirection,
-    setSortDirection,
     currentPage,
     pageInfo,
-    isNoMovieModalVisible,
-    setIsNoMovieModalVisible,
     handlePageChange,
     searchText,
-    handleCloseModal,      
-    setSearchText     
+    setSearchText,
+    handleCloseModal,
+    handleSort,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+    setFilterList,
   };
 };
 
