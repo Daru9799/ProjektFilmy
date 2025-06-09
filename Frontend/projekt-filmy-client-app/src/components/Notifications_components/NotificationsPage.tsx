@@ -22,13 +22,13 @@ const NotificationPage = () => {
         Twoje powiadomienia
       </h2>
         {loading && <p>Ładowanie...</p>}
-        {!loading && notifications.length === 0 && <p>Brak powiadomień.</p>}
+        {!loading && notifications.length === 0 && <h3 style={{ color: "white" }}>Brak powiadomień.</h3>}
         <div className="d-flex flex-column gap-3 mb-3">
             {notifications.map(notification => (
             <NotificationCard 
               key={notification.notificationId} 
-              notification={notification} 
-              onDelete={handleDeleteNotification} 
+              notification={notification}
+              onDelete={handleDeleteNotification}
             />
           ))}
         </div>

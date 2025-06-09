@@ -130,14 +130,27 @@ export const fetchNotificationsByUserId = async (
   pageNumber: number,
   pageSize: number
 ): Promise<PaginationResponse<Notification>> => {
-  const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
-    params: {
-      pageNumber,
-      pageSize,
-      orderBy: "date",
-      sortDirection: "desc",
-    },
-  });
+  try {
+    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
+      params: {
+        pageNumber,
+        pageSize,
+        orderBy: "date",
+        sortDirection: "desc",
+      },
+    });
 
   return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return {
+        data: { $values: [] },
+        totalItems: 0,
+        pageNumber,
+        pageSize,
+        totalPages: 0,
+      };
+    }
+  throw error;
+  }
 };

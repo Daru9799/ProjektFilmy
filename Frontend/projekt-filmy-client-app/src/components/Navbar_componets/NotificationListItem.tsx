@@ -60,7 +60,7 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
   };
 
   return (
-      <div className={`list-group-item bg-white border-0 px-3 py-2 ${isLast ? '' : 'border-bottom'}`}>
+    <div className={`list-group-item bg-white border-0 px-3 py-2 ${isLast ? '' : 'border-bottom'}`}>
       <div className="fw-semibold mb-1">{notification.title}</div>
       <div className="text-muted small">{notification.description}</div>
       {renderActions()}

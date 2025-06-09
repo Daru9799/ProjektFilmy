@@ -69,7 +69,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
                   Zobacz recenzję
                 </Button>
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                  suń powiadomienie
+                  Usuń powiadomienie
                 </Button>
             </div>
             );

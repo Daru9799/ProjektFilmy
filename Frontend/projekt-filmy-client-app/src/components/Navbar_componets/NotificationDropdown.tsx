@@ -32,14 +32,20 @@ const NotificationDropdown = () => {
 
     <ul className="dropdown-menu dropdown-menu-end " aria-labelledby="notificationsDropdown" style={{ minWidth: "300px", fontFamily: "'Arial', sans-serif" }}>
         <div className="list-group list-group-flush">
-          {notifications.slice(0, 3).map((n, idx, arr) => (
-            <NotificationDropdownItem
-              key={n.notificationId}
-              notification={n}
-              onDelete={() => fetchNotifications(pageInfo.pageNumber)}
-              isLast={idx === arr.length - 1}
-            />
-          ))}
+          {notifications.length === 0 ? (
+            <div className="list-group-item text-center text-muted py-3">
+              Brak powiadomień
+            </div>
+          ) : (
+            notifications.slice(0, 3).map((n, idx, arr) => (
+              <NotificationDropdownItem
+                key={n.notificationId}
+                notification={n}
+                onDelete={() => fetchNotifications(pageInfo.pageNumber)}
+                isLast={idx === arr.length - 1}
+              />
+            ))
+          )}
         </div>
         <li>
             <hr className="dropdown-divider" />
