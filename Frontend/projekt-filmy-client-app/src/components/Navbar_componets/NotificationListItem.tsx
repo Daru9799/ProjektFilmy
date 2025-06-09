@@ -2,6 +2,7 @@ import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationDropdownItemProps {
   notification: Notification;
@@ -11,12 +12,18 @@ interface NotificationDropdownItemProps {
 
 const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ notification, onDelete, isLast }) => {
   const [error, setError] = useState<string | null>(null);
-
   const handleAccept = () => handleAcceptInvitation(notification, onDelete, setError);
-
   const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
+  const navigate = useNavigate();
 
-  const handleView = () => handleViewResource(notification);
+  const handleView = () => {
+    const resource = handleViewResource(notification);
+    if (resource) {
+      navigate(resource);
+    } else {
+      setError("ERROR");
+    }
+  };
 
   const renderActions = () => {
     switch (notification.type) {
@@ -28,6 +35,9 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
             </Button>
             <Button variant="danger" size="sm" onClick={handleDelete}>
               Odrzuć
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleView}>
+              Zobacz profil
             </Button>
           </div>
         );

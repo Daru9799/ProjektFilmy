@@ -23,7 +23,14 @@ export const handleDeleteNotification = async (notification: Notification, onDel
   onDelete();
 };
 
-export const handleViewResource = (notification: Notification) => {
+export const handleViewResource = (notification: Notification): string | null => {
   console.log("Przejdź do:", notification.resource);
-  //Potem doda sie tutaj przechodzenie do konkretnej stronki z resourca
+  if (notification.resource) 
+  {
+    return notification.resource
+  }
+  else
+  {
+    return null;
+  }
 };

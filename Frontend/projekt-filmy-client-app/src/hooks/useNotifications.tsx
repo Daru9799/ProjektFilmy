@@ -4,10 +4,13 @@ import { fetchNotificationsByUserId } from "../API/notificationApi";
 import { decodeJWT } from "./decodeJWT";
 import * as signalR from "@microsoft/signalr";
 import { PaginationResponse } from "../API/PaginationResponse";
+import { useNavigate } from "react-router-dom";
 
 export const useNotifications = (initialPage = 1, pageSize = 5) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasNew, setHasNew] = useState(false);
+  const navigate = useNavigate();
+  
   const [pageInfo, setPageInfo] = useState({
     totalItems: 0,
     pageNumber: initialPage,
@@ -18,7 +21,11 @@ export const useNotifications = (initialPage = 1, pageSize = 5) => {
   const fetchNotifications = useCallback(async (page: number) => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("logged_username");
-    if (!token || !username) return;
+    if (!token || !username) 
+    {
+      navigate("/");
+      return;
+    }
 
     const decodedToken = decodeJWT(token);
     const userId = decodedToken.nameid;

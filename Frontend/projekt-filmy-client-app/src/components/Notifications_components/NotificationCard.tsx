@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationCardProps {
   notification: Notification;
@@ -10,12 +11,18 @@ interface NotificationCardProps {
 
 const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDelete }) => {
     const [error, setError] = useState<string | null>(null);
-
     const handleAccept = () => handleAcceptInvitation(notification, onDelete, setError);
-    
     const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
-    
-    const handleView = () => handleViewResource(notification);
+    const navigate = useNavigate();
+
+    const handleView = () => {
+      const resource = handleViewResource(notification);
+      if (resource) {
+        navigate(resource);
+      } else {
+        setError("ERROR");
+      }
+    };
 
     const renderActions = () => {
         switch (notification.type) {
@@ -23,10 +30,13 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
             return (
             <div className="d-flex gap-2 mt-3">
                 <Button variant="success" size="sm" onClick={handleAccept}>
-                Dodaj do znajomych
+                  Dodaj do znajomych
                 </Button>
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                Odrzuć zaproszenie
+                  Odrzuć zaproszenie
+                </Button>
+                <Button variant="primary" size="sm" onClick={handleView}>
+                  Zobacz profil
                 </Button>
             </div>
             );
@@ -34,10 +44,10 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
             return (
             <div className="d-flex gap-2 mt-3">
                 <Button variant="primary" size="sm" onClick={handleView}>
-                Zobacz komentarz
+                  Zobacz komentarz
                 </Button>
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                Usuń powiadomienie
+                  Usuń powiadomienie
                 </Button>
             </div>
             );
@@ -45,10 +55,10 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
             return (
             <div className="d-flex gap-2 mt-3">
                 <Button variant="primary" size="sm" onClick={handleView}>
-                Zobacz stronę filmu
+                  Zobacz stronę filmu
                 </Button>
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                Usuń powiadomienie
+                  Usuń powiadomienie
                 </Button>
             </div>
             );
@@ -56,10 +66,10 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
             return (
             <div className="d-flex gap-2 mt-3">
                 <Button variant="primary" size="sm" onClick={handleView}>
-                Zobacz recenzję
+                  Zobacz recenzję
                 </Button>
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                Usuń powiadomienie
+                  suń powiadomienie
                 </Button>
             </div>
             );

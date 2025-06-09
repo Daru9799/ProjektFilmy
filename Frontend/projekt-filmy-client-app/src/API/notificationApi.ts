@@ -18,7 +18,7 @@ export const sendFriendInvitation = async (
         type: "Invitation",
         date: new Date().toISOString(),
         isRead: false,
-        resource: "ZASÓB TESTOWY",
+        resource: `/user/${sourceUserName}`,
         sourceUserId: sourceUserId,
         targetUserId: targetUserId, //Id zapraszanego usera
       },
