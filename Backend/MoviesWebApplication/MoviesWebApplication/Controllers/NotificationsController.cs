@@ -65,5 +65,21 @@ namespace MoviesWebApplication.Controllers
 
             return Ok("Powiadomienie zostało pomyślnie usunięte.");
         }
+
+        //Nadpisanie czy powiadomienie zostało odczytane
+        [AllowAnonymous]
+        [HttpPatch("update-isread/{id}")]
+        public async Task<IActionResult> UpdateIsRead(Guid id, [FromBody] UpdateNotificationReadStatus.Command command)
+        {
+            try
+            {
+                var result = await Mediator.Send(command);
+                return Ok("Status przeczytania został zaktualizowany.");
+            }
+            catch (ValidationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }

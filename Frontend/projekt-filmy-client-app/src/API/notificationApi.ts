@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Notification } from "../models/Notification";
 import { PaginationResponse } from "../API/PaginationResponse"
+import { NotificationType } from "../models/NotificationType";
 
 export const sendFriendInvitation = async (
   targetUserId: string,
@@ -128,15 +129,21 @@ export const deleteNotification = async (notificationId: string, setError: React
 export const fetchNotificationsByUserId = async (
   userId: string,
   pageNumber: number,
-  pageSize: number
+  pageSize: number,
+  orderBy: "date" | "type" = "date",
+  sortDirection: "asc" | "desc" = "desc",
+  isRead?: boolean,
+  type?: NotificationType,
 ): Promise<PaginationResponse<Notification>> => {
   try {
     const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
       params: {
         pageNumber,
         pageSize,
-        orderBy: "date",
-        sortDirection: "desc",
+        orderBy,
+        sortDirection,
+        isRead,
+        type,
       },
     });
 
@@ -152,5 +159,26 @@ export const fetchNotificationsByUserId = async (
       };
     }
   throw error;
+  }
+};
+
+//Status odczytania powiadomienia
+export const markNotificationAsRead = async (notificationId: string): Promise<void> => {
+  try {
+    await axios.patch(
+      `https://localhost:7053/api/Notifications/update-isread/${notificationId}`,
+      {
+        notificationId,
+        isRead: true
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
+  } catch (error) {
+    console.error("Błąd podczas ustawiania powiadomienia jako przeczytane:", error);
+    throw error;
   }
 };

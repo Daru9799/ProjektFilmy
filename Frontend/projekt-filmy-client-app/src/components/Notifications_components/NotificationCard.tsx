@@ -15,8 +15,8 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDel
     const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
     const navigate = useNavigate();
 
-    const handleView = () => {
-      const resource = handleViewResource(notification);
+    const handleView = async () => {
+      const resource = await handleViewResource(notification);
       if (resource) {
         navigate(resource);
       } else {

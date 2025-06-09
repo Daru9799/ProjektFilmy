@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { Notification } from "../../models/Notification";
+import { NotificationType } from "../../models/NotificationType";
 import { fetchNotificationsByUserId } from "../../API/notificationApi";
 import { decodeJWT } from "../../hooks/decodeJWT";
 import * as signalR from "@microsoft/signalr";
@@ -9,7 +10,7 @@ interface NotificationContextProps {
   notifications: Notification[];
   hasNew: boolean;
   setHasNew: (val: boolean) => void;
-  fetchNotifications: (page: number) => Promise<void>;
+  fetchNotifications: (page?: number, orderBy?: "date" | "type", sortDirection?: "asc" | "desc", isRead?: boolean, notificationType?: NotificationType) => Promise<void>;
   pageInfo: {
     totalItems: number;
     pageNumber: number;
@@ -30,7 +31,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     totalPages: 1,
   });
 
-  const fetchNotifications = useCallback(async (page: number = 1) => {
+  const fetchNotifications = useCallback(async (page: number = 1, orderBy: "date" | "type" = "date", sortDirection: "asc" | "desc" = "desc", isRead?: boolean | undefined, notificationType?: NotificationType | undefined) => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("logged_username");
     if (!token || !username) 
@@ -42,7 +43,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const userId = decodedToken.nameid;
 
     try {
-      const data: PaginationResponse<Notification> = await fetchNotificationsByUserId(userId, page, pageInfo.pageSize);
+      const data: PaginationResponse<Notification> = await fetchNotificationsByUserId(userId, page, pageInfo.pageSize, orderBy, sortDirection, isRead, notificationType);
       setNotifications(data.data.$values);
       setPageInfo({
         totalItems: data.totalItems,

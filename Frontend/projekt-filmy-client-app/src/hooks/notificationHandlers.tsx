@@ -1,6 +1,6 @@
 import { decodeJWT } from "../hooks/decodeJWT";
 import { createRelation } from "../API/relationApi";
-import { deleteNotification } from "../API/notificationApi";
+import { deleteNotification, markNotificationAsRead } from "../API/notificationApi";
 import { Notification } from "../models/Notification";
 
 export const handleAcceptInvitation = async (notification: Notification, onDelete: () => void, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
@@ -23,8 +23,13 @@ export const handleDeleteNotification = async (notification: Notification, onDel
   onDelete();
 };
 
-export const handleViewResource = (notification: Notification): string | null => {
+export const handleViewResource = async (notification: Notification): Promise<string | null> => {
   console.log("Przejdź do:", notification.resource);
+  if(notification.isRead == false)
+  {
+    console.debug("Odczytane!")
+    await markNotificationAsRead(notification.notificationId);
+  }
   if (notification.resource) 
   {
     return notification.resource
