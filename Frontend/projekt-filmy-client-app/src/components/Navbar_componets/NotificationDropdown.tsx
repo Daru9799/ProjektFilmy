@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { useNotifications } from "../../hooks/useNotifications";
 import NotificationDropdownItem from "../../components/Navbar_componets/NotificationListItem";
+import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 
 const NotificationDropdown = () => {
-    const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotifications();
+  const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotificationContext();
 
   const handleOpenDropdown = () => {
     setHasNew(false);
@@ -52,7 +52,7 @@ const NotificationDropdown = () => {
         </li>
         <li>
             <Link to="/notifications" className="dropdown-item text-center">
-            Zobacz wszystkie
+              Zobacz wszystkie
             </Link>
         </li>
     </ul>

@@ -1,10 +1,10 @@
 import { ReactNode, useEffect, useState } from "react";
 import NotificationCard from "../../components/Notifications_components/NotificationCard"
-import { useNotifications } from "../../hooks/useNotifications";
 import PaginationModule from "../SharedModals/PaginationModule";
+import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 
 const NotificationPage = () => {
-    const { notifications, pageInfo, fetchNotifications } = useNotifications();
+    const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotificationContext();
     const [loading, setLoading] = useState(false);
 
     const handlePageChange = (page: number) => {
