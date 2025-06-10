@@ -307,6 +307,13 @@ const UserPage = () => {
           display: none, nie renderuje obiektów  wiec nie ma takiego tłoku w tym rzędzie
           jeżeli będą jeszcze jakieś przyciski dodawane to można pokombinowac z innym rozwiązaniem 
           */}
+          {/*
+              Ogolnie to wszysztko działa, ale pojawia się problem z tym, że kiedy użytkownik sam sobie moda zabierze,
+              to do momentu wylogowania wciąż widzi przycisk, ale nie może zmienić roli. Aktualnie sprawdzam czy użytkownik jest modem
+              poprzez JWT więc pewnio to jest przyczyną, jak macie jakieś pomysły jak to inaczej zrobić to chętnie skorzystam z pomocy.
+              Drugi problem jest taki że po zmianie roli z usera na krytyka i wice wersa nie zmieniają się kolory recenzji, dopiero po
+              odświeżeniu. 
+            */}
           <div className="header-buttons">
             <button
               className="edit-button"
