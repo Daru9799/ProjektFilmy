@@ -29,65 +29,59 @@
 
 /* Wiersze informacji */
 .info-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 70px;
-    position: relative; 
-  }
-  
-  .info-label {
-    color: white;
-    position: absolute; 
-    font-size: 1rem;
-    left:30%; 
-    margin-right: 20px;
-    transform: translateX(-20px);
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 70px;
+  position: relative;
+}
 
-  .info-value {
-    background-color: white;
-    padding: 5px 5px;
-    font-size: 1.1rem;
-    min-height: 15px;
-    border-radius: 20px;
-    text-align: center;
-    width: 20%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative; 
-    left: 50%;
-    transform: translateX(-50%); 
-    position: absolute
-  }
-  
-  .info-value span {
-    color: black;
-  }
-  
-  
-  .reviews {
-    align-items: center;
-    margin-top: 60px;
-    margin-left: 40px;
-    margin-right: 40px;
-  }
-  
-  .reviews-title {
-    text-align: center;
-    color: white;
-    font-size: 2rem;
-  }
+.info-label {
+  color: white;
+  position: absolute;
+  font-size: 1rem;
+  left: 30%;
+  margin-right: 20px;
+  transform: translateX(-20px);
+}
 
-  .header-buttons {
+.info-value {
+  background-color: white;
+  padding: 5px 5px;
+  font-size: 1.1rem;
+  min-height: 15px;
+  border-radius: 20px;
+  text-align: center;
+  width: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+}
+
+.info-value span {
+  color: black;
+}
+
+.reviews {
+  align-items: center;
+  margin-top: 60px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+.reviews-title {
+  text-align: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.header-buttons {
   display: flex;
   gap: 10px;
   margin-right: 80px;
   margin-top: 50px;
 }
-
-  
-
-
-  

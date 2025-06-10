@@ -36,7 +36,6 @@ export const fetchUserData = async (
   }
 };
 
-
 // Fetch user reviews
 export const fetchUserReviews = async (
   userName: string,
@@ -50,7 +49,7 @@ export const fetchUserReviews = async (
       {
         params: {
           pageNumber: 1,
-          pageSize, 
+          pageSize,
           orderBy: "desc",
           sortDirection: "year",
         },
@@ -77,7 +76,6 @@ export const fetchUserReviews = async (
   }
 };
 
-
 export const fetchUserStatistics = async (
   userName: string,
   setUser: React.Dispatch<React.SetStateAction<any>>,
@@ -88,12 +86,12 @@ export const fetchUserStatistics = async (
     setLoading(true);
     setError(null);
     const response = await axios.get(
-      `https://localhost:7053/api/users/statistics/${userName}`,{
-                  headers: {
+      `https://localhost:7053/api/users/statistics/${userName}`,
+      {
+        headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
-      
     );
     setUser(response.data);
   } catch (err) {
@@ -112,4 +110,20 @@ export const fetchUserStatistics = async (
   } finally {
     setLoading(false);
   }
+};
+
+//change Role
+
+export const changeRole = async (userId: string, newRole: string) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.patch(
+    `https://localhost:7053/api/Users/change-role/${userId}`,
+    { newRole },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
 };
