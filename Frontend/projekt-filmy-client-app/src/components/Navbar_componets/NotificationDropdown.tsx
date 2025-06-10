@@ -3,11 +3,11 @@ import NotificationDropdownItem from "../../components/Navbar_componets/Notifica
 import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 
 const NotificationDropdown = () => {
-  const { notifications, hasNew, setHasNew, fetchNotifications, pageInfo } = useNotificationContext();
+  const { latestNotifications, hasNew, setHasNew, fetchLatestNotifications } = useNotificationContext();
 
   const handleOpenDropdown = () => {
     setHasNew(false);
-    fetchNotifications(pageInfo.pageNumber);
+    fetchLatestNotifications()
   };
 
   return (
@@ -32,16 +32,15 @@ const NotificationDropdown = () => {
 
     <ul className="dropdown-menu dropdown-menu-end " aria-labelledby="notificationsDropdown" style={{ minWidth: "300px", fontFamily: "'Arial', sans-serif" }}>
         <div className="list-group list-group-flush">
-          {notifications.length === 0 ? (
+          {latestNotifications.length === 0 ? (
             <div className="list-group-item text-center text-muted py-3">
               Brak powiadomień
             </div>
           ) : (
-            notifications.slice(0, 3).map((n, idx, arr) => (
+            latestNotifications.slice(0, 3).map((n, idx, arr) => (
               <NotificationDropdownItem
                 key={n.notificationId}
                 notification={n}
-                onDelete={() => fetchNotifications(pageInfo.pageNumber)}
                 isLast={idx === arr.length - 1}
               />
             ))
@@ -51,7 +50,7 @@ const NotificationDropdown = () => {
             <hr className="dropdown-divider" />
         </li>
         <li>
-            <Link to="/notifications" className="dropdown-item text-center">
+            <Link to="/notifications?reset=true" className="dropdown-item text-center">
               Zobacz wszystkie
             </Link>
         </li>

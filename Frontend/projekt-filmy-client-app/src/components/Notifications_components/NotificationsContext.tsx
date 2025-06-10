@@ -1,37 +1,64 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { Notification } from "../../models/Notification";
 import { NotificationType } from "../../models/NotificationType";
-import { fetchNotificationsByUserId } from "../../API/notificationApi";
+import { fetchNotificationsByUserId, deleteNotification } from "../../API/notificationApi";
 import { decodeJWT } from "../../hooks/decodeJWT";
 import * as signalR from "@microsoft/signalr";
 import { PaginationResponse } from "../../API/PaginationResponse";
+import { useRef } from "react";
 
 interface NotificationContextProps {
   notifications: Notification[];
+  latestNotifications: Notification[];
   hasNew: boolean;
   setHasNew: (val: boolean) => void;
   fetchNotifications: (page?: number, orderBy?: "date" | "type", sortDirection?: "asc" | "desc", isRead?: boolean, notificationType?: NotificationType) => Promise<void>;
+  fetchLatestNotifications: () => Promise<void>;
+  removeNotification: (id: string) => Promise<void>;
   pageInfo: {
     totalItems: number;
     pageNumber: number;
     pageSize: number;
     totalPages: number;
   };
+  filters: NotificationFilters;
+  setFilters: React.Dispatch<React.SetStateAction<NotificationFilters>>;
 }
+
+type NotificationFilters = {
+  orderBy: "date" | "type";
+  sortDirection: "asc" | "desc";
+  isRead?: boolean;
+  notificationType?: NotificationType;
+};
 
 const NotificationContext = createContext<NotificationContextProps | undefined>(undefined);
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]); //Lista dla strony z powiadomieniami
+  const [latestNotifications, setLatestNotifications] = useState<Notification[]>([]); //Lista dla navbaru
   const [hasNew, setHasNew] = useState(false);
-  const [pageInfo, setPageInfo] = useState({
-    totalItems: 0,
-    pageNumber: 1,
-    pageSize: 5,
-    totalPages: 1,
-  });
+  const [pageInfo, setPageInfo] = useState({totalItems: 0, pageNumber: 1, pageSize: 2, totalPages: 1});
+  const [filters, setFilters] = useState<{orderBy: "date" | "type"; sortDirection: "asc" | "desc"; isRead?: boolean; notificationType?: NotificationType;}>({orderBy: "date", sortDirection: "desc",});
+  const connectionRef = useRef<signalR.HubConnection | null>(null);
 
-  const fetchNotifications = useCallback(async (page: number = 1, orderBy: "date" | "type" = "date", sortDirection: "asc" | "desc" = "desc", isRead?: boolean | undefined, notificationType?: NotificationType | undefined) => {
+  const fetchLatestNotifications = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("logged_username");
+    if (!token || !username) return;
+
+    const decodedToken = decodeJWT(token);
+    const userId = decodedToken.nameid;
+
+    try {
+      const data: PaginationResponse<Notification> = await fetchNotificationsByUserId(userId, 1, 3, "date", "desc");
+      setLatestNotifications(data.data.$values);
+    } catch (err) {
+      console.error("Błąd pobierania najnowszych powiadomień:", err);
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async (page: number = 1, orderBy = filters.orderBy, sortDirection = filters.sortDirection, isRead = filters.isRead, notificationType = filters.notificationType) => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("logged_username");
     if (!token || !username) 
@@ -54,14 +81,28 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error("Błąd pobierania powiadomień:", err);
     }
-  }, [pageInfo.pageSize]);
+  }, [pageInfo.pageSize, filters]);
+
+  const removeNotification = async (id: string) => {
+    try {
+      setNotifications((prev) => prev.filter((n) => n.notificationId !== id));
+      setLatestNotifications((prev) => prev.filter((n) => n.notificationId !== id));
+      setPageInfo((prev) => ({
+        ...prev,
+        totalItems: Math.max(0, prev.totalItems - 1),
+      }));
+      await fetchNotifications();
+      await fetchLatestNotifications();
+    } catch (err) {
+      console.error("Błąd usuwania powiadomienia:", err);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) 
-    {
-        return;
-    }
+    if (!token) return;
+
+    if (connectionRef.current) return;
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:7053/notificationHub", {
@@ -69,6 +110,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       })
       .configureLogging(signalR.LogLevel.Information)
       .build();
+
+    connectionRef.current = connection;
 
     connection
       .start()
@@ -78,9 +121,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     connection.on("ReceiveNotification", (notification: Notification) => {
       console.log("Otrzymano powiadomienie:", notification);
       setHasNew(true);
-      if (pageInfo.pageNumber === 1) {
-        setNotifications((prev) => [notification, ...prev.slice(0, pageInfo.pageSize - 1)]);
-      }
+
+      // if (pageInfo.pageNumber === 1) {
+      //   fetchNotifications(); //Na razie wyłączona aktualizacja powiadomień na stronie
+      // }
+
+      setLatestNotifications((prev) => [notification, ...prev.slice(0, 2)]);
+
       setPageInfo((prev) => ({
         ...prev,
         totalItems: prev.totalItems + 1,
@@ -88,19 +135,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => {
-      connection
-        .stop()
-        .then(() => console.log("Rozłączono z SignalR"))
-        .catch((err) => console.error("Błąd rozłączania z SignalR:", err));
+      if (connectionRef.current) {
+        connectionRef.current
+          .stop()
+          .then(() => console.log("Rozłączono z SignalR"))
+          .catch((err) => console.error("Błąd rozłączania z SignalR:", err));
+        connectionRef.current = null;
+      }
     };
-  }, [pageInfo.pageNumber, pageInfo.pageSize]);
+  }, []);
 
-  useEffect(() => {
-    fetchNotifications(pageInfo.pageNumber);
-  }, [fetchNotifications, pageInfo.pageNumber]);
 
   return (
-    <NotificationContext.Provider value={{ notifications, hasNew, setHasNew, fetchNotifications, pageInfo }}>
+    <NotificationContext.Provider value={{ notifications, latestNotifications, hasNew, setHasNew, fetchNotifications, fetchLatestNotifications, removeNotification, pageInfo, filters, setFilters}}>
       {children}
     </NotificationContext.Provider>
   );

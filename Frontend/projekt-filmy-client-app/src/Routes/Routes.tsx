@@ -41,7 +41,7 @@ export const routes: RouteObject[] = [
       { path: "users/statistics/:userName", element:<UserStatistics/>},
       { path: "user/:userName/moviecollection/create", element:<CreateMovieCollection/>},
       { path: "user/:userName/blocked", element:<BlockedPage/>},
-      { path: "notifications", element: <NotificationPage/>}
+      { path: "notifications", element: <NotificationPage />}
     ],
   },
 ];

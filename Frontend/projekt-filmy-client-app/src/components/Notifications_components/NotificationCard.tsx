@@ -3,17 +3,26 @@ import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
 import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 
 interface NotificationCardProps {
   notification: Notification;
-  onDelete: () => void;
 }
 
-const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onDelete }) => {
+const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => {
     const [error, setError] = useState<string | null>(null);
-    const handleAccept = () => handleAcceptInvitation(notification, onDelete, setError);
-    const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
+    const { removeNotification } = useNotificationContext();
     const navigate = useNavigate();
+
+    const handleAccept = async () => {
+      await handleAcceptInvitation(notification, setError);
+      removeNotification(notification.notificationId);
+    };
+
+    const handleDelete = async () => {
+      await handleDeleteNotification(notification, setError);
+      removeNotification(notification.notificationId);
+    };
 
     const handleView = async () => {
       const resource = await handleViewResource(notification);

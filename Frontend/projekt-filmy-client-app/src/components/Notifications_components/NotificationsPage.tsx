@@ -2,35 +2,26 @@ import { ReactNode, useEffect, useState } from "react";
 import NotificationCard from "../../components/Notifications_components/NotificationCard"
 import PaginationModule from "../SharedModals/PaginationModule";
 import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import SortNotificationModule from "../../components/Notifications_components/SortNotificationModule"
-import type { ReadFilterOption, NotificationTypeFilterOption } from "../../components/Notifications_components/SortNotificationModule";
-import { readFilterMap } from "../../components/Notifications_components/SortNotificationModule";
+import { readFilterMap, ReadFilterOption, NotificationTypeFilterOption } from "../../components/Notifications_components/SortNotificationModule";
 
 const NotificationPage = () => {
-    const { notifications, fetchNotifications, pageInfo } = useNotificationContext();
+    const { notifications, fetchNotifications, pageInfo, filters, setFilters } = useNotificationContext();
     const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [orderBy, setOrderBy] = useState<"date" | "type">("date");
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-    const [isReadFilter, setReadFilter] = useState<ReadFilterOption>("all");
-    const [typeFilter, setTypeFilter] = useState<NotificationTypeFilterOption>("all");
     const navigate = useNavigate();
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const shouldReset = searchParams.get("reset") === "true";
 
     const handlePageChange = (page: number) => {
-      const typeParam = typeFilter === "all" ? undefined : typeFilter;
-      fetchNotifications(page, orderBy, sortDirection, readFilterMap[isReadFilter], typeParam);
-    };
-
-    const handleDeleteNotification = () => {
-      const typeParam = typeFilter === "all" ? undefined : typeFilter;
-      fetchNotifications(pageInfo.pageNumber, orderBy, sortDirection, readFilterMap[isReadFilter], typeParam);
+      fetchNotifications(page);
     };
 
     useEffect(() => {
       const token = localStorage.getItem("token");
-
       if (!token) {
         console.error("Token nie jest dostępny.");
         setShowUnauthorizedModal(true);
@@ -38,19 +29,29 @@ const NotificationPage = () => {
       }
     });
 
+    useEffect(() => {
+      fetchNotifications(1, filters.orderBy, filters.sortDirection, filters.isRead, filters.notificationType);
+    }, [filters]);
+
+    useEffect(() => {
+      if (shouldReset) {
+        setFilters({
+          orderBy: "date",
+          sortDirection: "desc",
+          isRead: undefined,
+          notificationType: undefined,
+        });
+      }
+    }, [shouldReset]);
+
     const handleCloseUnauthorizedModal = () => {
       setShowUnauthorizedModal(false);
       navigate("/");
     };
 
-    const handleSort = (newOrderBy: "date" | "type", newSortDirection: "asc" | "desc", filter: ReadFilterOption = "all", typeFilter: NotificationTypeFilterOption = "all") => {
-      setOrderBy(newOrderBy);
-      setSortDirection(newSortDirection);
-      setReadFilter(filter);
-      setTypeFilter(typeFilter);
-      const typeParam = typeFilter === "all" ? undefined : typeFilter;
-
-      fetchNotifications(1, newOrderBy, newSortDirection, readFilterMap[filter], typeParam);
+    const handleSort = (newOrderBy: "date" | "type", newSortDirection: "asc" | "desc", readFilter: ReadFilterOption = "all", typeFilter: NotificationTypeFilterOption = "all") => {
+      const newFilters = { orderBy: newOrderBy, sortDirection: newSortDirection, isRead: readFilterMap[readFilter], notificationType: typeFilter === "all" ? undefined : typeFilter,};
+      setFilters(newFilters);
     };
 
   return (
@@ -66,7 +67,6 @@ const NotificationPage = () => {
             <NotificationCard 
               key={notification.notificationId} 
               notification={notification}
-              onDelete={handleDeleteNotification}
             />
           ))}
         </div>

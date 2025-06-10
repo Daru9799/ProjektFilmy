@@ -3,18 +3,27 @@ import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
 import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 
 interface NotificationDropdownItemProps {
   notification: Notification;
-  onDelete: () => void;
   isLast?: boolean;
 }
 
-const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ notification, onDelete, isLast }) => {
+const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ notification, isLast }) => {
   const [error, setError] = useState<string | null>(null);
-  const handleAccept = () => handleAcceptInvitation(notification, onDelete, setError);
-  const handleDelete = () => handleDeleteNotification(notification, onDelete, setError);
+  const { removeNotification } = useNotificationContext();
   const navigate = useNavigate();
+
+  const handleAccept = async () => {
+    await handleAcceptInvitation(notification, setError);
+    removeNotification(notification.notificationId);
+  };
+
+  const handleDelete = async () => {
+    await handleDeleteNotification(notification, setError);
+    removeNotification(notification.notificationId);
+  };
 
   const handleView = async () => {
     const resource = await handleViewResource(notification);

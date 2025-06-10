@@ -3,7 +3,8 @@ import { createRelation } from "../API/relationApi";
 import { deleteNotification, markNotificationAsRead } from "../API/notificationApi";
 import { Notification } from "../models/Notification";
 
-export const handleAcceptInvitation = async (notification: Notification, onDelete: () => void, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+
+export const handleAcceptInvitation = async (notification: Notification, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
   const token = localStorage.getItem("token");
   if (!token) {
     console.error("Brak tokenu");
@@ -15,12 +16,10 @@ export const handleAcceptInvitation = async (notification: Notification, onDelet
 
   await createRelation(loggedUserId, notification.sourceUserId, 0, () => {}, setError);
   await deleteNotification(notification.notificationId, setError);
-  onDelete();
 };
 
-export const handleDeleteNotification = async (notification: Notification, onDelete: () => void, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+export const handleDeleteNotification = async (notification: Notification, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
   await deleteNotification(notification.notificationId, setError);
-  onDelete();
 };
 
 export const handleViewResource = async (notification: Notification): Promise<string | null> => {
