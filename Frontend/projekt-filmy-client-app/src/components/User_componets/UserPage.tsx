@@ -85,6 +85,7 @@ const UserPage = () => {
         : setIsLoggedUserMod(false);
 
       checkIsInvitedByUser(loggedUserId, userName).then(setIsInvitedByUser);
+      console.log(decodedToken);
     }
   }, [userName]);
 

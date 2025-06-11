@@ -14,7 +14,9 @@ interface Props {
   setShowLoginModal: (value: boolean) => void;
   handleAddReview: (review: string, rating: number) => void;
   handleLoginSuccess: (username: string) => void;
+  handleChangeFollowing: () => void;
   userReview: Review | null;
+  isFollowing: boolean;
 }
 
 const MovieHeader: React.FC<Props> = ({
@@ -26,7 +28,9 @@ const MovieHeader: React.FC<Props> = ({
   setShowLoginModal,
   handleAddReview,
   handleLoginSuccess,
+  handleChangeFollowing,
   userReview,
+  isFollowing,
 }) => {
   const navigate = useNavigate();
 
@@ -107,6 +111,8 @@ const MovieHeader: React.FC<Props> = ({
           handleAddReview={handleAddReview}
           handleLoginSuccess={handleLoginSuccess}
           userReview={userReview}
+          isFollowing={isFollowing}
+          handleChangeFollowing={handleChangeFollowing}
         />
       </div>
     </div>
