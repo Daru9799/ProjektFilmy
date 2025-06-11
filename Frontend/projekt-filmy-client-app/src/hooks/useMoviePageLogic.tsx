@@ -5,15 +5,14 @@ import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
 import { Review } from "../models/Review";
 import {
-  addFollowMovie,
   fetchActorsData,
   fetchMovieData,
   fetchMovieReviews,
-  removeFollowMovie,
 } from "../API/movieApi";
 import { fetchUserReviewForMovie } from "../API/movieApi";
 import { editReview, deleteReview } from "../API/reviewApi";
 import { decodeJWT } from "./decodeJWT";
+import { addFollowMovie, removeFollowMovie } from "../API/userAPI";
 
 export const useMoviePageLogic = () => {
   const { movieId } = useParams();
@@ -147,6 +146,8 @@ export const useMoviePageLogic = () => {
       setError("Błąd podczas dodawania recenzji");
     }
   };
+
+  // sprawdzanie czy użytkownik followuje
 
   const checkFollowing = () => {
     if (movieId && userName) {
