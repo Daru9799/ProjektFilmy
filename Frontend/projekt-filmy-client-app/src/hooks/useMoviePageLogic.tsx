@@ -4,10 +4,15 @@ import { useParams } from "react-router-dom";
 import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
 import { Review } from "../models/Review";
-import { fetchActorsData, fetchMovieData, fetchMovieReviews } from "../API/movieApi";
-import { fetchUserReviewForMovie} from "../API/movieApi";
+import {
+  fetchActorsData,
+  fetchMovieData,
+  fetchMovieReviews,
+} from "../API/movieApi";
+import { fetchUserReviewForMovie } from "../API/movieApi";
 import { editReview, deleteReview } from "../API/reviewApi";
-
+import { decodeJWT } from "./decodeJWT";
+import { addFollowMovie, removeFollowMovie } from "../API/userAPI";
 
 export const useMoviePageLogic = () => {
   const { movieId } = useParams();
@@ -23,6 +28,7 @@ export const useMoviePageLogic = () => {
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
 
   useEffect(() => {
     if (movieId) {
@@ -30,6 +36,7 @@ export const useMoviePageLogic = () => {
       fetchActorsData(movieId, setPeople, setError);
       fetchMovieReviews(movieId, setReviews, setError, setLoading);
       fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
+      checkFollowing();
     } else {
       setError("Nieoczekiwany błąd");
     }
@@ -65,7 +72,12 @@ export const useMoviePageLogic = () => {
         if (movieId) {
           await fetchMovieReviews(movieId, setReviews, setError, setLoading);
           await fetchMovieData(movieId, setMovie, setError);
-          await fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
+          await fetchUserReviewForMovie(
+            userName,
+            movieId,
+            setUserReview,
+            setError
+          );
         }
       } catch (err) {
         console.error("Błąd podczas edycji recenzji:", err);
@@ -80,13 +92,20 @@ export const useMoviePageLogic = () => {
   const handleLoginSuccess = async (username: string) => {
     setShowLoginModal(false);
     localStorage.setItem("logged_username", username);
-    window.dispatchEvent(new CustomEvent("userUpdated", { detail: { username } }));
+    window.dispatchEvent(
+      new CustomEvent("userUpdated", { detail: { username } })
+    );
 
     if (movieId) {
       try {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
-        await fetchUserReviewForMovie(username, movieId, setUserReview, setError);
+        await fetchUserReviewForMovie(
+          username,
+          movieId,
+          setUserReview,
+          setError
+        );
       } catch (err) {
         console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
       }
@@ -114,12 +133,59 @@ export const useMoviePageLogic = () => {
       if (response.status === 200 && movieId) {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
-        await fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
+        await fetchUserReviewForMovie(
+          userName,
+          movieId,
+          setUserReview,
+          setError
+        );
         setShowReviewModal(false);
       }
     } catch (error) {
       console.error("Błąd podczas dodawania recenzji:", error);
       setError("Błąd podczas dodawania recenzji");
+    }
+  };
+
+  // sprawdzanie czy użytkownik followuje
+
+  const checkFollowing = () => {
+    if (movieId && userName) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token nie jest dostępny.");
+        return;
+      }
+      const decodedToken = decodeJWT(token);
+      const loggedUserId = decodedToken.nameid;
+
+      if (movie?.followers?.$values.some((user) => user.id === loggedUserId)) {
+        setIsFollowing(true);
+      } else {
+        setIsFollowing(false);
+      }
+    }
+  };
+
+  const handleChangeFollowing = async () => {
+    if (isFollowing === false) {
+      try {
+        const data = await addFollowMovie(movie?.movieId);
+        console.log("Odpowiedz: ", data);
+        setIsFollowing(true);
+      } catch (error: any) {
+        console.error(error);
+        setError(error);
+      }
+    } else {
+      try {
+        const data = await removeFollowMovie(movie?.movieId);
+        console.log("Odpowiedz: ", data);
+        setIsFollowing(false);
+      } catch (error: any) {
+        console.error(error);
+        setError(error);
+      }
     }
   };
 
@@ -135,13 +201,16 @@ export const useMoviePageLogic = () => {
     loading,
     error,
     isLoggedIn: !!localStorage.getItem("token"),
+    isFollowing,
     setShowReviewModal,
     setShowLoginModal,
     setShowEditModal,
+    setIsFollowing,
     handleEditReview,
     handleDeleteReview,
     handleAddReview,
     handleLoginSuccess,
     handleSaveEditedReview,
+    handleChangeFollowing,
   };
 };

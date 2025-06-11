@@ -1,4 +1,4 @@
-import ImageModal from '../../components/SharedModals/ImageModal';
+import ImageModal from "../../components/SharedModals/ImageModal";
 import MovieTabs from "./MovieTabs";
 import ReviewsSection from "./ReviewsSection";
 import AddReviewModal from "../review_components/AddReviewPanel";
@@ -20,43 +20,55 @@ const MoviePage = () => {
     loading,
     error,
     isLoggedIn,
+    isFollowing,
     setShowReviewModal,
     setShowLoginModal,
     setShowEditModal,
+    setIsFollowing,
     handleEditReview,
     handleDeleteReview,
     handleAddReview,
     handleLoginSuccess,
     handleSaveEditedReview,
+    handleChangeFollowing,
   } = useMoviePageLogic();
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="container-fluid text-white" style={{ left: "200px", minHeight: "90vh" }}>
+    <div
+      className="container-fluid text-white"
+      style={{ left: "200px", minHeight: "90vh" }}
+    >
       <div className="row my-4">
         <div className="col-3 text-center p-2">
-          <ImageModal imageUrl={movie?.posterUrl} altText="Poster" defaultImageUrl="/path/to/defaultPoster.jpg" />
+          <ImageModal
+            imageUrl={movie?.posterUrl}
+            altText="Poster"
+            defaultImageUrl="/path/to/defaultPoster.jpg"
+          />
         </div>
         <div className="col-9">
-        <MovieHeader
-          movie={movie}
-          isLoggedIn={isLoggedIn}
-          showReviewModal={showReviewModal}
-          setShowReviewModal={setShowReviewModal}
-          showLoginModal={showLoginModal}
-          setShowLoginModal={setShowLoginModal}
-          handleAddReview={handleAddReview}
-          handleLoginSuccess={handleLoginSuccess}
-          userReview={userReview}
-        />
+          <MovieHeader
+            movie={movie}
+            isLoggedIn={isLoggedIn}
+            showReviewModal={showReviewModal}
+            setShowReviewModal={setShowReviewModal}
+            showLoginModal={showLoginModal}
+            setShowLoginModal={setShowLoginModal}
+            handleAddReview={handleAddReview}
+            handleLoginSuccess={handleLoginSuccess}
+            userReview={userReview}
+            isFollowing={isFollowing}
+            handleChangeFollowing={handleChangeFollowing}
+          />
 
           <MovieTabs movie={movie} people={people} />
         </div>
       </div>
 
-      <RecommendMovieModule movieId = {movie?.movieId} />
+      <RecommendMovieModule movieId={movie?.movieId} />
 
       {reviewToEdit && (
         <AddReviewModal

@@ -4,13 +4,16 @@ import { Movie } from "../models/Movie";
 
 // Fetch movie data
 export const fetchMovieData = async (
-  movieId: string | undefined, 
-  setMovie: React.Dispatch<React.SetStateAction<any>>, 
+  movieId: string | undefined,
+  setMovie: React.Dispatch<React.SetStateAction<any>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
-    const movieResponse = await axios.get(`https://localhost:7053/api/Movies/${movieId}`);
+    const movieResponse = await axios.get(
+      `https://localhost:7053/api/Movies/${movieId}`
+    );
     setMovie(movieResponse.data);
+    console.log(movieResponse.data);
   } catch (movieError) {
     if (axios.isAxiosError(movieError)) {
       if (movieError.response?.status === 404) {
@@ -32,15 +35,18 @@ export const fetchActorsData = async (
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
-    const response = await axios.get("https://localhost:7053/api/People/by-filters", {
-      params: {
-        pageNumber: 1,
-        pageSize: 2,
-        noPagination: true,
-        role: 1,
-        movieId: movieId,
-      },
-    });
+    const response = await axios.get(
+      "https://localhost:7053/api/People/by-filters",
+      {
+        params: {
+          pageNumber: 1,
+          pageSize: 2,
+          noPagination: true,
+          role: 1,
+          movieId: movieId,
+        },
+      }
+    );
 
     const actorsArray = response.data?.data?.$values;
 
@@ -65,9 +71,13 @@ export const fetchActorsData = async (
   }
 };
 
-
 // Fetch movie reviews
-export const fetchMovieReviews = async (movieId: string, setReviews: React.Dispatch<React.SetStateAction<any[]>>, setError: React.Dispatch<React.SetStateAction<string | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const fetchMovieReviews = async (
+  movieId: string,
+  setReviews: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   try {
     const reviewsResponse = await axios.get(
       `https://localhost:7053/api/Reviews/by-movie-id/${movieId}`,
@@ -77,28 +87,30 @@ export const fetchMovieReviews = async (movieId: string, setReviews: React.Dispa
           pageSize: 2,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
         },
       }
     );
 
     if (reviewsResponse.status === 200) {
       const reviewsData = reviewsResponse.data.data.$values;
-      setReviews(reviewsData); 
+      setReviews(reviewsData);
     }
   } catch (reviewsError) {
-    if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-      setReviews([]); 
+    if (
+      axios.isAxiosError(reviewsError) &&
+      reviewsError.response?.status === 404
+    ) {
+      setReviews([]);
       console.log("Nie znaleznio recenzji dla tego filmu");
     } else {
       setError("Błąd podczas wczytywania danych");
       console.error(reviewsError);
     }
   } finally {
-    setLoading(false); 
+    setLoading(false);
   }
 };
-
 
 export const fetchUserReviewForMovie = async (
   userN: string,
@@ -129,11 +141,14 @@ export const fetchUserReviewForMovie = async (
 
     if (response.status === 200) {
       const reviewsData = response.data;
-      setReview(reviewsData); 
+      setReview(reviewsData);
     }
   } catch (reviewsError) {
-    if (axios.isAxiosError(reviewsError) && reviewsError.response?.status === 404) {
-      setReview(null); 
+    if (
+      axios.isAxiosError(reviewsError) &&
+      reviewsError.response?.status === 404
+    ) {
+      setReview(null);
       console.log("Nie znaleznio recenzji dla tego filmu");
     } else {
       setError("Błąd podczas wczytywania danych");
@@ -141,7 +156,6 @@ export const fetchUserReviewForMovie = async (
     }
   }
 };
-
 
 interface PaginationResponse {
   data: {

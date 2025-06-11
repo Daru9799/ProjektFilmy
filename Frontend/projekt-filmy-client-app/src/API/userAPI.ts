@@ -127,3 +127,79 @@ export const changeRole = async (userId: string, newRole: string) => {
   );
   return response.data;
 };
+
+export const addFollowMovie = async (movieId: string | undefined) => {
+  if (!movieId) {
+    console.error("Brak ID filmu!");
+    return;
+  }
+  const token = localStorage.getItem("token");
+  const response = await axios.post(
+    `https://localhost:7053/api/Users/add-follow-movie/${movieId}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const removeFollowMovie = async (movieId: string | undefined) => {
+  if (!movieId) {
+    console.error("Brak ID filmu!");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  const response = await axios.delete(
+    `https://localhost:7053/api/Users/delete-follow-movie/${movieId}`,
+    {
+      data: {},
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const addFollowPerson = async (personId: string | undefined) => {
+  if (!personId) {
+    console.error("Brak ID filmu!");
+    return;
+  }
+  const token = localStorage.getItem("token");
+  const response = await axios.post(
+    `https://localhost:7053/api/Users/add-follow-person/${personId}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const removeFollowPerson = async (personId: string | undefined) => {
+  if (!personId) {
+    console.error("Brak ID osoby!");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  const response = await axios.delete(
+    `https://localhost:7053/api/Users/delete-follow-person/${personId}`,
+    {
+      data: {},
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};

@@ -10,7 +10,9 @@ interface Props {
   setShowLoginModal: (value: boolean) => void;
   handleAddReview: (review: string, rating: number) => void;
   handleLoginSuccess: (username: string) => void;
+  handleChangeFollowing: () => void;
   userReview: any;
+  isFollowing: boolean;
 }
 
 const ReviewActionsPanel: React.FC<Props> = ({
@@ -21,21 +23,27 @@ const ReviewActionsPanel: React.FC<Props> = ({
   setShowLoginModal,
   handleAddReview,
   handleLoginSuccess,
+  handleChangeFollowing,
   userReview,
+  isFollowing,
 }) => {
+  const check = () => {
+    console.log(isFollowing);
+  };
+
   return (
     <>
       {!userReview ? (
         isLoggedIn ? (
           <button
-            className="btn btn-outline-light mt-3"
+            className="btn btn-outline-light mt-3 w-100"
             onClick={() => setShowReviewModal(true)}
           >
             Dodaj recenzję
           </button>
         ) : (
           <button
-            className="btn btn-outline-light mt-3"
+            className="btn btn-outline-light mt-3 w-100"
             onClick={() => setShowLoginModal(true)}
           >
             Dodaj recenzję
@@ -44,6 +52,16 @@ const ReviewActionsPanel: React.FC<Props> = ({
       ) : (
         <p></p>
       )}
+      {/* Dodaję przycisk do followania tutaj bo nie ma sensu zmieniać layoutu strony*/}
+      {
+        <button
+          className="btn btn-outline-light mt-3 w-100"
+          style={{ backgroundColor: !isFollowing ? "green" : "red" }}
+          onClick={handleChangeFollowing}
+        >
+          {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
+        </button>
+      }
 
       <AddReviewModal
         show={showReviewModal}
