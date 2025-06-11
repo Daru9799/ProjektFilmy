@@ -138,7 +138,7 @@ const NavBar = () => {
       </nav>
 
       <LoginModal show={isLoginModalVisable} onClose={() => setIsLoginModalVisable(false)} onLoginSuccess={handleLoginSuccess} />
-      <RegistrationModal show={isRegisterModalVisable} onClose={() => setIsRegisterModalVisable(false)} />
+      <RegistrationModal show={isRegisterModalVisable} onClose={() => setIsRegisterModalVisable(false)} onRegisterSuccess={handleLoginSuccess} />
     </>
   );
 };

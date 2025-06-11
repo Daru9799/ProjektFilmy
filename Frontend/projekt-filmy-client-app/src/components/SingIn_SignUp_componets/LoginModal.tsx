@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 interface Props {
   show: boolean;
@@ -69,6 +70,10 @@ const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
             Zaloguj się
           </Button>
         </Form>
+          <div className="text-center mt-3">lub</div>
+          <div className="d-flex justify-content-center mt-1">
+            <GoogleLoginButton onLoginSuccess={onLoginSuccess} onError={(msg) => setErrorMessage(msg)} onClose={onClose}/>
+          </div>
       </Modal.Body>
     </Modal>
   );

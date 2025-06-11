@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Google.Apis.Auth;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -182,6 +183,47 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok("Hasło zostało zmienione pomyślnie.");
+        }
+
+        //Autentykacja przy użyciu google
+        [AllowAnonymous]
+        [HttpPost("google-login")]
+        public async Task<ActionResult<UserSessionDto>> GoogleLogin(UserGoogleLoginDto dto)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(dto.IdToken);
+
+            var email = payload.Email;
+            var nameFromGoogle = payload.Name;
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            //Sprawdzam czy istnieje już taki user (jeśli nie to rejestracja)
+            if (user == null)
+            {
+                if (string.IsNullOrWhiteSpace(dto.UserName))
+                {
+                    return BadRequest("Brakuje nazwy użytkownika do rejestracji.");
+                }
+
+                user = new User
+                {
+                    Email = email,
+                    UserName = dto.UserName
+                };
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest("Nie udało się utworzyć konta.");
+                }
+            }
+
+            //Logowanie i przekazanie JWT
+            return new UserSessionDto
+            {
+                UserName = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
     }
 }

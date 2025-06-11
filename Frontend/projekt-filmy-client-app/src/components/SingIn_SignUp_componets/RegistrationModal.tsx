@@ -1,13 +1,15 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 interface Props {
   show: boolean; // Czy modal jest widoczny
   onClose: () => void; // Funkcja zamykająca modal
+  onRegisterSuccess: (username: string) => void;
 }
 
-const RegistrationModal = ({ show, onClose }: Props) => {
+const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +33,9 @@ const RegistrationModal = ({ show, onClose }: Props) => {
 
       console.log("Registration successful:", response.data);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("logged_username", response.data.userName);
+
+      onRegisterSuccess(response.data.userName);
 
       onClose();
 
@@ -115,6 +120,10 @@ const RegistrationModal = ({ show, onClose }: Props) => {
             Zarejestruj się
           </Button>
         </Form>
+        <div className="text-center mt-3">lub</div>
+        <div className="d-flex justify-content-center mt-1">
+          <GoogleLoginButton onLoginSuccess={onRegisterSuccess} onError={(msg) => setErrorMessage(msg)} onClose={onClose}/>
+        </div>
       </Modal.Body>
     </Modal>
   );

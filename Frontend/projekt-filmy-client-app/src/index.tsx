@@ -8,8 +8,15 @@ import "./styles/App.css";
 import "./styles/Fonts.css"
 import { RouterProvider } from "react-router-dom";
 import { router } from "./Routes/Routes";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!;
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-root.render(<RouterProvider router={router} />);
+root.render(
+  <GoogleOAuthProvider clientId={clientId}>
+    <RouterProvider router={router} />
+  </GoogleOAuthProvider>
+);
