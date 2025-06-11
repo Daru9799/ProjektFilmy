@@ -32,13 +32,67 @@ export const fetchRecommendByMovieId = async (
         },
       }
     );
-
+    if (response.data) {
+      const { data,pageNumber,totalItems, pageSize, totalPages } =
+        response.data;
+      setPagination({
+        totalItems,
+        pageNumber,
+        pageSize,
+        totalPages,
+      });
+    }
     return response.data.data.$values;
     
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const errorMessage = err.response
         ? `Server error: ${err.response.status} - ${err.response.statusText}`
+        : "Network error: Could not connect to server";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Unexpected error occurred");
+  }
+};
+
+export const LikeRecommendation = async (recommendId: string) => {
+  try {
+    const response = await axios.post(
+      `https://localhost:7053/api/Recommendations/like-recommend/${recommendId}`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data; // Dobrą praktyką jest zwracanie odpowiedzi
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage = err.response
+        ? `Server error: ${err.response.status} - ${err.response.data?.message || err.response.statusText}`
+        : "Network error: Could not connect to server";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Unexpected error occurred");
+  }
+};
+
+export const DeleteLikeRecommendation = async (recommendId: string) => {
+  try {
+    const response = await axios.delete(
+      `https://localhost:7053/api/Recommendations/delete-like-recommend/${recommendId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage = err.response
+        ? `Server error: ${err.response.status} - ${err.response.data?.message || err.response.statusText}`
         : "Network error: Could not connect to server";
       throw new Error(errorMessage);
     }

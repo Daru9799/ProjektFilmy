@@ -3,9 +3,10 @@ import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import { Movie } from "../../models/Movie";
 import { Recommendation } from "../../models/Recommendation";
-import { fetchRecommendByMovieId } from "../../API/MovieRecommendAPI";
+import { DeleteLikeRecommendation, fetchRecommendByMovieId, LikeRecommendation } from "../../API/MovieRecommendAPI";
 import { fetchMoviesListByIds } from "../../API/movieApi";
 import RecommendListModule from "../MovieRecommend_componets/RecommendListModule";
+import PaginationModule from "../SharedModals/PaginationModule";
 
 interface Props {
   movieId: string | undefined,
@@ -20,8 +21,10 @@ const RecommendMovieModule = ({movieId}:Props) => {
 		totalItems: 0,
 		pageNumber: 1,
 		pageSize: 2,
-		totalPages: 1,
+		totalPages: 2,
 	});
+  const[currentPage,setCurrentPage] = useState(1)
+  const staticPageSize = 2;
 
 	const [open, setOpen] = useState(false);
 
@@ -34,22 +37,19 @@ const RecommendMovieModule = ({movieId}:Props) => {
         // 1. Pobierz rekomendacje (z await!)
         const recommendations = await fetchRecommendByMovieId(
           movieId,
-          pageInfo.pageNumber,
-          pageInfo.pageSize,
-					setPageInfo,
-					setError
+          currentPage,
+          staticPageSize,
+          setPageInfo,
+          setError
         );
         setRecommendList(recommendations);
         // 2. Wyodrębnij ID polecanych filmów
         const recommendedMovieIds = recommendations.map(
           (rec: Recommendation) => rec.recommendedMovieId
         );
-
         // 3. Pobierz pełne informacje o filmach
         if (recommendedMovieIds.length > 0) {
-          await fetchMoviesListByIds(
-            pageInfo.pageNumber,
-            pageInfo.pageSize,
+            fetchMoviesListByIds(
             recommendedMovieIds,
             setMovieList
           );
@@ -64,7 +64,28 @@ const RecommendMovieModule = ({movieId}:Props) => {
     };
 
     fetchData();
-  }, [movieId,pageInfo.pageNumber]);
+  }, [movieId, currentPage]);
+
+
+  const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
+    try {
+      setError(null);
+      if (isLiking) {
+        await LikeRecommendation(recommendationId); // Dodaj await
+      } else {
+        await DeleteLikeRecommendation(recommendationId);
+      }
+      // Dodaj odświeżenie danych lub aktualizację stanu
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
+      console.error("Error toggling like:", err);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    console.log(pageInfo);
+  };
 
   return (
     <div className="m-4">
@@ -81,9 +102,17 @@ const RecommendMovieModule = ({movieId}:Props) => {
 
       <Collapse in={open}>
         <div id="recommend-movie-list">
-          <RecommendListModule movieList={movieList} />
+          <RecommendListModule
+            movieList={movieList}
+            recommendations={recommendList}
+            onLikeToggle={onLikeToggle}
+          />
+          <PaginationModule
+            currentPage={pageInfo.pageNumber}
+            totalPages={pageInfo.totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
-        {/* Moduł do paginacji w tym miejscu */}
       </Collapse>
     </div>
   );

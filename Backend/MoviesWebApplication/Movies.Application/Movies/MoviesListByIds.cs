@@ -14,13 +14,13 @@ namespace Movies.Application.Movies
 {
     public class MoviesListByIds
     {
-        public class Query : IRequest<PagedResponse<MovieDto>>
+        public class Query : IRequest<List<MovieDto>>
         {
             public int PageNumber { get; set; }
             public int PageSize { get; set; }
             public List<Guid> moviesIds { get; set; }
         }
-        public class Handler : IRequestHandler<Query, PagedResponse<MovieDto>>
+        public class Handler : IRequestHandler<Query, List<MovieDto>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -28,35 +28,32 @@ namespace Movies.Application.Movies
                 _context = context;
             }
 
-            public async Task<PagedResponse<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<MovieDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                // Zabezbieczenie się przed brakiem podanych movieId
                 if (request.moviesIds == null || request.moviesIds.Count == 0)
                 {
-                    return new PagedResponse<MovieDto> { Data = new List<MovieDto>() };
+                    return new List<MovieDto>();
                 }
 
-                //Zapytanie o filmy
-                IQueryable<Movie> query = _context.Movies
+                // Pobierz filmy z bazy danych
+                var movies = await _context.Movies
                     .Include(m => m.Reviews)
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .Include(m => m.MoviePerson)
                     .ThenInclude(mp => mp.Person)
-                    .Where(m => request.moviesIds.Contains(m.MovieId)) // <- Tutaj dodane filtrowanie
-                    .Where(m => m.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director));
-
-                //Paginacja
-                var movies = await query
-                    .Skip((request.PageNumber - 1) * request.PageSize)
-                    .Take(request.PageSize)
+                    .Where(m => request.moviesIds.Contains(m.MovieId))
+                    .Where(m => m.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director))
                     .ToListAsync(cancellationToken);
 
-                //Obliczenie całkowitej liczby elementów
-                int totalItems = await query.CountAsync(cancellationToken);
+                // Posortuj filmy zgodnie z kolejnością w request.moviesIds
+                var orderedMovies = request.moviesIds
+                    .Select(id => movies.FirstOrDefault(m => m.MovieId == id))
+                    .Where(m => m != null)
+                    .ToList();
 
-                //Mapowanie na nowy obiekt
-                var movieDtos = movies.Select(m => new MovieDto
+                // Mapowanie na MovieDto
+                var movieDtos = orderedMovies.Select(m => new MovieDto
                 {
                     MovieId = m.MovieId,
                     Title = m.Title,
@@ -65,39 +62,32 @@ namespace Movies.Application.Movies
                     Description = m.Description,
                     Duration = m.Duration,
                     ReviewsNumber = m.Reviews.Count,
-                    ScoresNumber = m.Reviews.Count(r => r.Rating > 0), //Tylko z oceną większą od 0 (zakładając że 0 to brak oceny)
+                    ScoresNumber = m.Reviews.Count(r => r.Rating > 0),
                     AverageScore = m.Reviews.Any(r => r.Rating > 0) ? m.Reviews.Where(r => r.Rating > 0).Average(r => r.Rating) : 0,
-                    //Zwracanie kategorii (lista)
                     Categories = m.Categories.Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,
                         Name = c.Name
                     }).ToList(),
-                    //Zwracanie krajów (lista)
                     Countries = m.Countries.Select(c => new CountryDto
                     {
                         CountryId = c.CountryId,
                         Name = c.Name
                     }).ToList(),
-                    //Zwracanie reżyserów (lista)
-                    Directors = m.MoviePerson.Where(mp => mp.Role == MoviePerson.PersonRole.Director).Select(mp => new PersonDto
-                    {
-                        PersonId = mp.Person.PersonId,
-                        FirstName = mp.Person.FirstName,
-                        LastName = mp.Person.LastName,
-                        Bio = mp.Person.Bio,
-                        BirthDate = mp.Person.BirthDate,
-                        PhotoUrl = mp.Person.PhotoUrl
-                    }).ToList()
+                    Directors = m.MoviePerson
+                        .Where(mp => mp.Role == MoviePerson.PersonRole.Director)
+                        .Select(mp => new PersonDto
+                        {
+                            PersonId = mp.Person.PersonId,
+                            FirstName = mp.Person.FirstName,
+                            LastName = mp.Person.LastName,
+                            Bio = mp.Person.Bio,
+                            BirthDate = mp.Person.BirthDate,
+                            PhotoUrl = mp.Person.PhotoUrl
+                        }).ToList()
                 }).ToList();
 
-                return new PagedResponse<MovieDto>
-                {
-                    Data = movieDtos,
-                    TotalItems = totalItems,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
-                };
+                return movieDtos;
             }
         }
     }

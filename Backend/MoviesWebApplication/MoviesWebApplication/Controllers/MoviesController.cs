@@ -37,12 +37,10 @@ namespace MoviesWebApplication.Controllers
         }
         //Zwraca liste filmów, poprzez listę movieId tych filmów.
         [HttpGet("get-list-by-id")]
-        public async Task<ActionResult<PagedResponse<MovieDto>>> GetMovieListById(
-            [FromQuery] int pageNumber = 1, 
-            [FromQuery] int pageSize = 2, 
+        public async Task<ActionResult<List<MovieDto>>> GetMovieListById(
             [FromQuery] List<Guid> movieIdList = null) 
         {
-            var movies = await Mediator.Send(new MoviesListByIds.Query { PageNumber = pageNumber, PageSize = pageSize, moviesIds = movieIdList });
+            var movies = await Mediator.Send(new MoviesListByIds.Query { moviesIds = movieIdList });
             if (movies == null)
             {
                 return NotFound($"Nie odnaleziono filmów o podanych id {movieIdList}.");

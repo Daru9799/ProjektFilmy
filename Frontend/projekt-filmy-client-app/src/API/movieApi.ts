@@ -186,26 +186,19 @@ export const fetchMoviesByFilters = async (
 };
 
 export const fetchMoviesListByIds = async (
-  pageNumber: number,
-  pageSize: number,
   moviesIds: string[] | null,
   setMovies: React.Dispatch<React.SetStateAction<Movie[]>>
 ): Promise<void> => {
+  if (!moviesIds || moviesIds.length === 0) {
+    setMovies([]);
+    return;
+  }
+
   try {
-    const params: any = {
-      pageNumber,
-      pageSize,
-    };
-
-    // Dodaj movieIdList tylko jeśli istnieje i nie jest pusty
-    if (moviesIds && moviesIds.length > 0) {
-      params.movieIdList = moviesIds;
-    }
-
     const response = await axios.get(
       "https://localhost:7053/api/movies/get-list-by-id",
       {
-        params,
+        params: { movieIdList: moviesIds },
         paramsSerializer: (params) =>
           qs.stringify(params, { arrayFormat: "repeat" }),
         headers: {
@@ -214,10 +207,12 @@ export const fetchMoviesListByIds = async (
       }
     );
 
-    console.log("Pobrane filmy:", response.data.data.$values);
-    setMovies(response.data.data.$values);
+    // Przekształć odpowiedź API do oczekiwanego formatu
+    const moviesData = response.data.$values || [];
+    //console.log("Pobrane filmy:", moviesData);
+    setMovies(moviesData);
   } catch (error) {
     console.error("Error fetching movies:", error);
-    throw error; // Lepiej przekazać błąd wyżej
+    throw error;
   }
 };
