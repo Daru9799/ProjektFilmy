@@ -208,7 +208,8 @@ namespace MoviesWebApplication.Controllers
                 user = new User
                 {
                     Email = email,
-                    UserName = dto.UserName
+                    UserName = dto.UserName,
+                    IsGoogleUser = true
                 };
 
                 var result = await _userManager.CreateAsync(user);

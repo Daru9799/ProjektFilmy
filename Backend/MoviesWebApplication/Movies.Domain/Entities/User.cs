@@ -16,6 +16,7 @@ namespace Movies.Domain.Entities
             Mod     //Moderator
         }
         public Role UserRole { get; set; } = Role.User; //Ustawienie domyślnie roli user
+        public bool IsGoogleUser { get; set; } //Czy jest to konto zalozone przy pomocy Google
 
         //Kolekcje potrzebne do wygenerowania kluczy obcych (relacja 1:wielu)
         public ICollection<Review> Reviews { get; set; }
