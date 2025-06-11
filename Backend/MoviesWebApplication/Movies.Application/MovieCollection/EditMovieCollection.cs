@@ -18,6 +18,7 @@ namespace Movies.Application.MovieCollections
             public string? Title { get; set; }
             public string? Description { get; set; }
             public bool? AllowCopy { get; set; }
+            public int? LikesCounter { get; set; }
         }
 
         public class Handler : IRequestHandler<EditMovieCollectionCommand, MovieCollection>
@@ -57,6 +58,7 @@ namespace Movies.Application.MovieCollections
                 movieCollection.AllowCopy = request.AllowCopy ?? movieCollection.AllowCopy;
                 movieCollection.Type = request.Type ?? movieCollection.Type;
                 movieCollection.ShareMode = request.ShareMode ?? movieCollection.ShareMode;
+                movieCollection.LikesCounter = request.LikesCounter ?? movieCollection.LikesCounter;
 
                 await _context.SaveChangesAsync(cancellationToken);
 

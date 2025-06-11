@@ -4,14 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollections;
 using Movies.Domain;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {
     public class MovieCollectionController:BaseApiController
     {
-        [AllowAnonymous] 
-        [HttpGet("by-user-id/{userId}")]  // tylko Custom (2)
-        public async Task<ActionResult<List<MovieCollectionDto>>> GetMovieCollectionsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "likes", [FromQuery] string sortDirection = "desc")
+        [AllowAnonymous]
+        [HttpGet("by-user-id/{userId}")]
+        public async Task<ActionResult<List<MovieCollectionDto>>> GetMovieCollectionsByUserId(
+            Guid userId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 2,
+            [FromQuery] string orderBy = "likes",
+            [FromQuery] string sortDirection = "desc",
+            [FromQuery] List<MovieCollection.VisibilityMode> visibilityMode = null)
         {
             var query = new CollectionsByUserId.Query
             {
@@ -19,17 +26,20 @@ namespace MoviesWebApplication.Controllers
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 SortDirection = sortDirection,
-                OrderBy = orderBy
+                OrderBy = orderBy,
+                visibilityMode = visibilityMode
             };
+
             var reviews = await Mediator.Send(query);
 
             if (reviews.Data == null || !reviews.Data.Any())
             {
-                return NotFound($"Nie znaleziono listy filmów dla użytkowinka o ID '{userId}'.");
+                return NotFound($"Nie znaleziono listy filmów dla użytkownika o ID '{userId}'.");
             }
 
             return Ok(reviews);
         }
+
 
         [AllowAnonymous] // do testow
         [HttpGet("all")]

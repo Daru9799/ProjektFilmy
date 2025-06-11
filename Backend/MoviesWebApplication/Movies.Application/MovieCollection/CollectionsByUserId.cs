@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 using Movies.Infrastructure;
+using static Movies.Domain.Entities.MovieCollection;
 
 
 namespace Movies.Application.MovieCollections
@@ -16,6 +18,8 @@ namespace Movies.Application.MovieCollections
             public int PageSize { get; set; }
             public string OrderBy { get; set; }
             public string SortDirection { get; set; }
+            public List<MovieCollection.VisibilityMode> visibilityMode { get; set; }
+
         }
 
         public class Handler : IRequestHandler<Query, PagedResponse<MovieCollectionDto>>
@@ -34,6 +38,12 @@ namespace Movies.Application.MovieCollections
                     .Include(mc => mc.Movies)
                     .Include(mc => mc.User) 
                     .AsQueryable();
+
+                if (request.visibilityMode != null)
+                {
+                    query = query.Where(mc => request.visibilityMode.Contains(mc.ShareMode));
+                }
+
 
                 // Sortowanie
                 if (!string.IsNullOrEmpty(request.OrderBy))
