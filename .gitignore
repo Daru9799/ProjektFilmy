@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 Backend/MoviesWebApplication/MoviesWebApplication/appsettings.json
 Backend/MoviesWebApplication/MoviesWebApplication/appsettings.Development.json
+Frontend/projekt-filmy-client-app/env.download
