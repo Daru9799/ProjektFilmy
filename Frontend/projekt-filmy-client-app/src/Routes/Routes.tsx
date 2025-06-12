@@ -9,7 +9,6 @@ import ReviewsPage from '../components/review_components/ReviewsPage';
 import UserPage from '../components/User_componets/UserPage';
 import PersonPage from './PersonPage';
 import UserReviewsPage from '../components/User_componets/UserReviews';
-import NotificationTestPage from '../components/TEST_COMPONENTS/NotificationTestPage';
 import AllAchievements from '../components/Achievements_components/AllAchievements';
 import UserAchievements from '../components/Achievements_components/UserAchievements';
 import UserStatistics from '../components/User_componets/UserStatistics';
@@ -17,6 +16,7 @@ import FriendsPage from '../components/Friends_components/FriendsPage';
 import BlockedPage from '../components/Blocked_components/BlockedPage';
 import NotificationPage from '../components/Notifications_components/NotificationsPage';
 import CreateMovieCollection from '../components/CreateMovieCollection_components/CreateMovieCollection';
+import NotFoundPage from './NotFoundPage';
 
 
 
@@ -34,15 +34,18 @@ export const routes: RouteObject[] = [
       { path: "user/:userName", element: <UserPage /> },
       { path: "people/:id", element: <PersonPage /> },
       { path: "user/:userName/reviews", element: <UserReviewsPage /> },
-      { path: "notificationsTest", element: <NotificationTestPage/>}, //POTEM DO USUNIECIA DO TESTOW POWIADOMIEN!!!
       { path: "achievements", element:<AllAchievements/>},
       { path: "user/:userName/friends", element: <FriendsPage /> },
       { path: "user/achievements/:userName",element:<UserAchievements/>},
       { path: "users/statistics/:userName", element:<UserStatistics/>},
       { path: "user/:userName/moviecollection/create", element:<CreateMovieCollection/>},
       { path: "user/:userName/blocked", element:<BlockedPage/>},
-      { path: "notifications", element: <NotificationPage />}
+      { path: "notifications", element: <NotificationPage />},
+
+      //Strona 404
+      { path: "404", element: <NotFoundPage /> }, //Do przenoszenia w odpowiednich miejscach
+      { path: "*", element: <NotFoundPage /> } //Pod ścieżki typu /test/test/test
     ],
   },
 ];
-  export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(routes);

@@ -11,11 +11,12 @@ const FriendsPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
-
+    const navigate = useNavigate();
+    
     useEffect(() => {
         if (userName) {
         setLoading(true);
-        fetchRelationsData(userName, "Friend", setRelations, setError).finally(() => {
+        fetchRelationsData(userName, "Friend", setRelations, setError, navigate).finally(() => {
             setLoading(false);
       });
     }
@@ -39,7 +40,7 @@ const FriendsPage = () => {
 
       if (userName) {
         setLoading(true);
-        fetchRelationsData(userName, "Friend", setRelations, setError).finally(() => {
+        fetchRelationsData(userName, "Friend", setRelations, setError, navigate).finally(() => {
           setLoading(false);
         });
       }

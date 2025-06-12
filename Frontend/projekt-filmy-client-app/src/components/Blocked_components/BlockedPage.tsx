@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { UserRelation } from "../../models/UserRelation";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
@@ -11,11 +11,12 @@ const BlockedPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userName) {
       setLoading(true);
-      fetchRelationsData(userName, "Blocked", setRelations, setError).finally(() => {
+      fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
         setLoading(false);
       });
     }
@@ -39,7 +40,7 @@ const BlockedPage = () => {
 
       if (userName) {
         setLoading(true);
-        fetchRelationsData(userName, "Blocked", setRelations, setError).finally(() => {
+        fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
           setLoading(false);
         });
       }

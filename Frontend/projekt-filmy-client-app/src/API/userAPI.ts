@@ -4,7 +4,8 @@ export const fetchUserData = async (
   userName: string,
   setUser: React.Dispatch<React.SetStateAction<any>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  navigate: (path: string) => void
 ) => {
   try {
     setLoading(true);
@@ -23,7 +24,8 @@ export const fetchUserData = async (
       if (!err.response) {
         setError("Błąd sieci: nie można połączyć się z serwerem.");
       } else if (err.response.status === 404) {
-        setError(`Użytkownik o nazwie '${userName}' nie został znaleziony.`);
+        navigate("/404");
+        return;
       } else {
         setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
       }

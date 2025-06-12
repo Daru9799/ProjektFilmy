@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const fetchRelationsData = async (username: string, type: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
+export const fetchRelationsData = async (username: string, type: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>, navigate: (path: string) => void) => {
   try {
     const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`, {
       params: {
@@ -19,7 +19,8 @@ export const fetchRelationsData = async (username: string, type: string, setRela
         const errorMessage = "Nie masz uprawnień do przeglądania listy tego użytkownika.";
         setError(errorMessage);
       } else {
-        setError("Błąd podczas wczytywania danych");
+        navigate("/404");
+        return;
       }
     } else {
       setError("Nieoczekiwany błąd");

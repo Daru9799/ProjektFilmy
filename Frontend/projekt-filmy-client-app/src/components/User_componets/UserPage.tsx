@@ -59,10 +59,10 @@ const UserPage = () => {
   useEffect(() => {
     const loggedUserName = localStorage.getItem("logged_username");
     if (userName) {
-      fetchUserData(userName, setUser, setError, setLoading);
+      fetchUserData(userName, setUser, setError, setLoading, navigate);
       fetchUserReviews(userName, 3, setReviews, setError);
       if (loggedUserName) {
-        fetchRelationsData(loggedUserName, "", setRelations, setError);
+        fetchRelationsData(loggedUserName, "", setRelations, setError, navigate);
       }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
@@ -95,7 +95,7 @@ const UserPage = () => {
 
       // Odśwież dane z serwera
       if (userName) {
-        fetchUserData(userName, setUser, setError, setLoading);
+        fetchUserData(userName, setUser, setError, setLoading, navigate);
         fetchUserReviews(userName, 3, setReviews, setError);
       }
     } catch (err) {
@@ -226,7 +226,8 @@ const UserPage = () => {
       localStorage.getItem("logged_username")!,
       "",
       setRelations,
-      setError
+      setError, 
+      navigate
     );
     setIsInvitedByUser(false);
   };
@@ -252,7 +253,8 @@ const UserPage = () => {
       localStorage.getItem("logged_username")!,
       "",
       setRelations,
-      setError
+      setError, 
+      navigate
     );
   };
 

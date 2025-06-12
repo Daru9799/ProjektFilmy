@@ -54,7 +54,6 @@ const NavBar = () => {
             <NavTile link="search-movies">Filmy</NavTile>
             <NavTile link="search-directors">Reżyserzy</NavTile>
             <NavTile link="search-actors">Aktorzy</NavTile>
-            <NavTile link="notificationsTest">Test powiadomień</NavTile>
             <NavTile link="/achievements">Osiągnięcia</NavTile>
           </div>
 

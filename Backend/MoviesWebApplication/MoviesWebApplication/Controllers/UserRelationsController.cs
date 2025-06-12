@@ -38,9 +38,14 @@ namespace MoviesWebApplication.Controllers
 
                 var relations = await Mediator.Send(query);
 
-                if (relations == null || !relations.Any())
+                if (relations == null)
                 {
-                    return NotFound($"Nie znaleziono relacji dla użytkownika '{userName}'.");
+                    return NotFound($"Użytkownik '{userName}' nie istnieje.");
+                }
+
+                if (!relations.Any())
+                {
+                    return Ok(new List<UserRelationDto>());
                 }
 
                 return Ok(relations);
@@ -48,10 +53,6 @@ namespace MoviesWebApplication.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Forbid();
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
