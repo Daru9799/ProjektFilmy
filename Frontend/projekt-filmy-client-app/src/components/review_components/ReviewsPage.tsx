@@ -6,9 +6,10 @@ import ReviewCard from "./ReviewCard";
 import MovieListModule from "../SearchMovies_componets/MovieListModule"; 
 import { useParams } from "react-router-dom";
 import { Movie } from "../../models/Movie"; 
-import { fetchReviewsByMovieId } from "../../API/reviewApi";
+import { deleteReview, editReview, fetchReviewsByMovieId } from "../../API/reviewApi";
 import { fetchMovieData } from "../../API/movieApi";
 import PaginationModule from "../SharedModals/PaginationModule";
+import AddReviewModal from "./AddReviewPanel";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -21,13 +22,52 @@ const ReviewsPage = () => {
     pageSize: 5,
     totalPages: 1,
   });
-  const [sortOrder, setSortOrder] = useState<string>("rating"); // Domyślnie sortowanie po ocenie
+  const [sortOrder, setSortOrder] = useState<string>("rating"); 
   const [sortDirection, setSortDirection] = useState<string>("desc");
-  const [movie, setMovie] = useState<Movie | null>(null); // State for movie details
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+
+
+
+const handleDeleteReview = async (reviewId: string) => {
+  try {
+    await deleteReview(reviewId, setReviews);
+    await fetchReviewsByMovieId(
+      movieId,
+      pagination.pageNumber,
+      pagination.pageSize,
+      sortOrder,
+      sortDirection,
+      setReviews,
+      setPagination,
+      setError
+    );
+  } catch (err) {
+    console.error("Błąd podczas usuwania recenzji:", err);
+  }
+};
+
+  const handleEditReview = (review: Review) => {
+    setReviewToEdit(review); 
+    setShowModal(true); 
+  };
+
+  const handleModalSave = (reviewText: string, rating: number) => {
+    if (reviewToEdit) {
+      editReview(
+        reviewToEdit.reviewId,
+        { comment: reviewText, rating },
+        setReviews,
+        setError
+      );
+      setShowModal(false); 
+      setReviewToEdit(null); 
+    }
+  };
 
   useEffect(() => {
     try{
-      // Pobranie recenzji dla filmu
       fetchReviewsByMovieId(
         movieId,
         pagination.pageNumber,
@@ -38,7 +78,6 @@ const ReviewsPage = () => {
         setPagination,
         setError
       );
-      // Pobranie filmu dla którego są recenzje
       fetchMovieData(movieId, setMovie, setError);
     }
     finally{
@@ -96,6 +135,9 @@ const ReviewsPage = () => {
           <ReviewCard
             key={review.reviewId}
             review={review}
+            userPage={true} 
+            onDelete={() => handleDeleteReview(review.reviewId)}
+            onEdit={() => handleEditReview(review)} 
           />
         ))
       ) : (
@@ -103,13 +145,23 @@ const ReviewsPage = () => {
       )}
 
       {/* Komponent paginacji */}
-      <PaginationModule
-        currentPage={pagination.pageNumber}
-        totalPages={pagination.totalPages}
-        onPageChange={(page) =>
-          setPagination((prev) => ({ ...prev, pageNumber: page }))
-        }
-      />
+<PaginationModule
+  currentPage={pagination.pageNumber}
+  totalPages={pagination.totalPages}
+  onPageChange={(page) =>
+    setPagination((prev) => ({ ...prev, pageNumber: page }))
+  }
+/>
+
+{reviewToEdit && (
+  <AddReviewModal
+    show={showModal}
+    onClose={() => setShowModal(false)}
+    onAddReview={handleModalSave}
+    initialReviewText={reviewToEdit.comment}
+    initialReviewRating={reviewToEdit.rating}
+  />
+)}
     </div>
   );
 };
