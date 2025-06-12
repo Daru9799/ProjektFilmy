@@ -38,13 +38,6 @@ builder.Services.AddDbContext<DataContext>(opt =>
 //Autentykacja, logowanie, rejestracja 
 builder.Services.AddIdentityServices(builder.Configuration);
 
-builder.Services.AddAuthentication()
-    .AddGoogle(googleOptions =>
-    {
-        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    });
-
 //Rejestracja mediatora
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MoviesList.Handler).Assembly));
 
