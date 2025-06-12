@@ -20,7 +20,7 @@ import {
 } from "../../API/notificationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
 import { Modal, Button } from "react-bootstrap";
-import { decodeJWT } from "../../hooks/decodeJWT";
+import { isUserMod, getLoggedUserId } from "../../hooks/decodeJWT";
 import "../../styles/UserPage.css";
 import ChangeRoleModal from "./ChangeRoleModal";
 import InfoModal from "../../components/Modals/InfoModal"
@@ -68,24 +68,17 @@ const UserPage = () => {
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
 
     if (loggedUserName && userName) {
-      const token = localStorage.getItem("token");
+      const loggedUserId = getLoggedUserId();
 
-      if (!token) {
-        console.error("Token nie jest dostępny.");
+      if (!loggedUserId) {
+        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
 
-      //Dekodowanie tokenu
-      const decodedToken = decodeJWT(token);
-      const loggedUserId = decodedToken.nameid;
-
       //Sprawdzanie czy mod
-      decodedToken.role === "Mod"
-        ? setIsLoggedUserMod(true)
-        : setIsLoggedUserMod(false);
+      setIsLoggedUserMod(isUserMod());
 
       checkIsInvitedByUser(loggedUserId, userName).then(setIsInvitedByUser);
-      console.log(decodedToken);
     }
   }, [userName]);
 
@@ -179,10 +172,11 @@ const UserPage = () => {
         return;
       }
 
-      const decodedToken = decodeJWT(token);
-      const sourceUserId = decodedToken.nameid; //Id użytkownika, który wysyła zaproszenie
+      const sourceUserId = getLoggedUserId(); //Id użytkownika, który wysyła zaproszenie
       const sourceUserName = localStorage.getItem("logged_username");
       const targetUserId = user.id; //Id użytkownika docelowego
+
+      if (sourceUserId == null) return;
 
       try {
         await sendFriendInvitation(targetUserId, sourceUserId, sourceUserName, setNotification);
@@ -205,8 +199,7 @@ const UserPage = () => {
       return;
     }
 
-    const decodedToken = decodeJWT(token);
-    const loggedUserId = decodedToken.nameid;
+    const loggedUserId = getLoggedUserId();
 
     if (!user || !loggedUserId) return;
 
@@ -240,8 +233,7 @@ const UserPage = () => {
       return;
     }
 
-    const decodedToken = decodeJWT(token);
-    const loggedUserId = decodedToken.nameid;
+    const loggedUserId = getLoggedUserId();
 
     if (!user || !loggedUserId) return;
 
@@ -400,6 +392,7 @@ const UserPage = () => {
                 userPage={true}
                 onDelete={() => handleDeleteReview(review.reviewId)}
                 onEdit={() => handleEditReview(review)}
+                isLoggedUserMod={isLoggedUserMod}
               />
             ))
           ) : (

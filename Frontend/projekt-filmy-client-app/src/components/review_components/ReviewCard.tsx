@@ -11,9 +11,10 @@ interface ReviewCardProps {
   userRevieForMovie?:boolean;
   onDelete?: () => void; 
   onEdit?: () => void; 
+  isLoggedUserMod?: boolean;
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMovie, onDelete, onEdit }) => {
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMovie, onDelete, onEdit, isLoggedUserMod }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleDeleteClick = () => {
@@ -86,7 +87,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
         <p>{review.comment}</p>
 
         
-        {(review.isOwner && (userPage || userRevieForMovie)) && (
+        {((review.isOwner || isLoggedUserMod) && (userPage || userRevieForMovie)) && (
           <div className="d-flex" style={{ marginTop: "-10px" }}>
             <button
               className="btn btn-secondary me-2"

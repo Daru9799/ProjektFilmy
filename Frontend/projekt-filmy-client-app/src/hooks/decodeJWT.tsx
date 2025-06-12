@@ -7,3 +7,28 @@ export function decodeJWT(token: string) {
 
     return JSON.parse(jsonPayload);
 }
+
+//Funkcja do dekodowania tokenu
+export function getDecodedToken(): any {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    return decodeJWT(token);
+  } catch (error) {
+    console.error("Błąd dekodowania tokenu:", error);
+    return null;
+  }
+}
+
+//Funkcja do sprawdzania czy user jest modem
+export function isUserMod(): boolean {
+  const decoded = getDecodedToken();
+  return decoded?.role === "Mod" || false;
+}
+
+//Funkcja do zwracania ID zalogowanego usera z jego tokenu
+export function getLoggedUserId(): string | null {
+  const decoded = getDecodedToken();
+  return decoded?.nameid ?? null;
+}

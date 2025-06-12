@@ -5,7 +5,7 @@ import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
 import { fetchPersonById, fetchPersonMovies } from "../API/personApi";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
-import { decodeJWT } from "../hooks/decodeJWT";
+import { getLoggedUserId } from "../hooks/decodeJWT";
 import { addFollowPerson, removeFollowPerson } from "../API/userAPI";
 
 const PersonPage = () => {
@@ -25,13 +25,12 @@ const PersonPage = () => {
 
   const checkFollowing = () => {
     if (id && userName) {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("Token nie jest dostępny.");
+      const loggedUserId = getLoggedUserId();
+
+      if (!loggedUserId) {
+        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
-      const decodedToken = decodeJWT(token);
-      const loggedUserId = decodedToken.nameid;
 
       if (person?.followers?.$values.some((user) => user.id === loggedUserId)) {
         setIsFollowing(true);

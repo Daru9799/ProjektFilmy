@@ -43,6 +43,9 @@ namespace Movies.Application.MovieCollectionReviews
                     throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
                 }
 
+                var currentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
                 var review = await _context.MovieCollectionReviews
                     .Include(r => r.User)
                     .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.ReviewId, cancellationToken);
@@ -52,9 +55,13 @@ namespace Movies.Application.MovieCollectionReviews
                     return null;
                 }
 
-                if (review.User == null || review.User.Id != currentUserId)
+                //Sprawdzenie czy user jest właścicielem bądź moderatorem
+                bool isOwner = review.User != null && review.User.Id == currentUserId;
+                bool isMod = currentUser.UserRole == User.Role.Mod;
+
+                if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tej recenzji. Nie jesteś właścicielem tej recenzji.");
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej recenzji.");
                 }
 
                 if (request.Rating.HasValue)

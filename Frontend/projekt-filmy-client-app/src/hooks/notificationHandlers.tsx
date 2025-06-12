@@ -1,18 +1,16 @@
-import { decodeJWT } from "../hooks/decodeJWT";
+import { getLoggedUserId } from "../hooks/decodeJWT";
 import { createRelation } from "../API/relationApi";
 import { deleteNotification, markNotificationAsRead } from "../API/notificationApi";
 import { Notification } from "../models/Notification";
 
 
 export const handleAcceptInvitation = async (notification: Notification, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("Brak tokenu");
+  const loggedUserId = getLoggedUserId();
+  
+  if (!loggedUserId) {
+    console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
     return;
   }
-
-  const decodedToken = decodeJWT(token);
-  const loggedUserId = decodedToken.nameid;
 
   await createRelation(loggedUserId, notification.sourceUserId, 0, () => {}, setError);
   await deleteNotification(notification.notificationId, setError);

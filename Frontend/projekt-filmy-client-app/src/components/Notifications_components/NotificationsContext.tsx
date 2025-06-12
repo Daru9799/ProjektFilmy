@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { Notification } from "../../models/Notification";
 import { NotificationType } from "../../models/NotificationType";
 import { fetchNotificationsByUserId, deleteNotification } from "../../API/notificationApi";
-import { decodeJWT } from "../../hooks/decodeJWT";
+import { getLoggedUserId } from "../../hooks/decodeJWT";
 import * as signalR from "@microsoft/signalr";
 import { PaginationResponse } from "../../API/PaginationResponse";
 import { useRef } from "react";
@@ -47,8 +47,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const username = localStorage.getItem("logged_username");
     if (!token || !username) return;
 
-    const decodedToken = decodeJWT(token);
-    const userId = decodedToken.nameid;
+    const userId = getLoggedUserId();
+    if(!userId) return;
 
     try {
       const data: PaginationResponse<Notification> = await fetchNotificationsByUserId(userId, 1, 3, "date", "desc");
@@ -61,13 +61,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const fetchNotifications = useCallback(async (page: number = 1, orderBy = filters.orderBy, sortDirection = filters.sortDirection, isRead = filters.isRead, notificationType = filters.notificationType) => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("logged_username");
-    if (!token || !username) 
-    {
-        return;
-    }
+    if (!token || !username) return;
 
-    const decodedToken = decodeJWT(token);
-    const userId = decodedToken.nameid;
+    const userId = getLoggedUserId();
+    if(!userId) return;
 
     try {
       const data: PaginationResponse<Notification> = await fetchNotificationsByUserId(userId, page, pageInfo.pageSize, orderBy, sortDirection, isRead, notificationType);

@@ -11,7 +11,7 @@ import {
 } from "../API/movieApi";
 import { fetchUserReviewForMovie } from "../API/movieApi";
 import { editReview, deleteReview } from "../API/reviewApi";
-import { decodeJWT } from "./decodeJWT";
+import { getLoggedUserId } from "./decodeJWT";
 import { addFollowMovie, removeFollowMovie } from "../API/userAPI";
 
 export const useMoviePageLogic = () => {
@@ -151,13 +151,12 @@ export const useMoviePageLogic = () => {
 
   const checkFollowing = () => {
     if (movieId && userName) {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("Token nie jest dostępny.");
+      const loggedUserId = getLoggedUserId();
+
+      if (!loggedUserId) {
+        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
-      const decodedToken = decodeJWT(token);
-      const loggedUserId = decodedToken.nameid;
 
       if (movie?.followers?.$values.some((user) => user.id === loggedUserId)) {
         setIsFollowing(true);

@@ -9,6 +9,7 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import AddReviewModal from "../review_components/AddReviewPanel"; 
 import { deleteReview, editReview } from "../../API/reviewApi";
 import PaginationModule from "../SharedModals/PaginationModule";
+import { isUserMod } from "../../hooks/decodeJWT";
 
 const ReviewsPage = () => {
   const { userName } = useParams(); 
@@ -25,7 +26,12 @@ const ReviewsPage = () => {
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [showModal, setShowModal] = useState(false); 
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null); 
+  const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsLoggedUserMod(isUserMod());
+  }, []);
 
   const fetchReviewsByMovieId = async (page: number, pageS: number, sortOrder: string, sortDirection: string) => {
     try {
@@ -176,6 +182,7 @@ const ReviewsPage = () => {
             userPage={true}
             onDelete={() => handleDeleteReview(review.reviewId)}
             onEdit={() => handleEditReview(review)} 
+            isLoggedUserMod={isLoggedUserMod}
           />
         ))
       ) : (
