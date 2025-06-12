@@ -65,6 +65,43 @@ namespace Movies.Application.Notifications
                         }
                     }
 
+                    var existingRelation = await _context.UserRelations
+                        .FirstOrDefaultAsync(r =>
+                            (r.FirstUserId == request.SourceUserId && r.SecondUserId == request.TargetUserId ||
+                                r.FirstUserId == request.TargetUserId && r.SecondUserId == request.SourceUserId) &&
+                            r.Type == UserRelation.RelationType.Friend, cancellationToken);
+
+                    if (existingRelation != null)
+                    {
+                        throw new ValidationException("Użytkownik jest już Twoim znajomym!");
+                    }
+
+                    var reverseInvitation = await _context.Notifications
+                        .FirstOrDefaultAsync(n =>
+                            n.Type == Notification.NotificationType.Invitation &&
+                            n.SourceUserId == request.TargetUserId &&
+                            n.TargetUserId == request.SourceUserId, cancellationToken);
+
+                    if (reverseInvitation != null)
+                    {
+                        _context.Notifications.Remove(reverseInvitation);
+
+                        var relation = new UserRelation
+                        {
+                            UserRelationId = Guid.NewGuid(),
+                            FirstUserId = request.SourceUserId,
+                            SecondUserId = request.TargetUserId,
+                            Type = UserRelation.RelationType.Friend,
+                            FirstUser = sourceUser,
+                            SecondUser = targetUser
+                        };
+
+                        _context.UserRelations.Add(relation);
+                        await _context.SaveChangesAsync(cancellationToken);
+
+                        return null;
+                    }
+
                     var notification = new Notification
                     {
                         NotificationId = Guid.NewGuid(),

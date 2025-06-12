@@ -159,7 +159,7 @@ const UserPage = () => {
         return updatedRelations;
       });
       } catch (error) {
-        showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
+        window.location.reload();
       }
   };
 
@@ -174,7 +174,6 @@ const UserPage = () => {
     //Dekodowanie tokenu
     if (user) {
       const alreadyInvited = await checkIsInvited(user.id);
-
       if (alreadyInvited) {
         showInfoModal("Informacja", "Ten użytkownik został już zaproszony.", "danger");
         return;
@@ -185,14 +184,16 @@ const UserPage = () => {
       const sourceUserName = localStorage.getItem("logged_username");
       const targetUserId = user.id; //Id użytkownika docelowego
 
-      sendFriendInvitation(
-        targetUserId,
-        sourceUserId,
-        sourceUserName,
-        setNotification,
-        setError
-      );
-      showInfoModal("Informacja", "Pomyślnie wysłano zaproszenie do grona znajomych!", "success");
+      try {
+        await sendFriendInvitation(targetUserId, sourceUserId, sourceUserName, setNotification);
+        showInfoModal("Informacja", "Pomyślnie wysłano zaproszenie do grona znajomych!", "success");
+      } catch (error: any) {
+        if (error.response && error.response.status === 400) {
+          window.location.reload();
+        } else {
+          showInfoModal("Informacja", "Coś poszło nie tak. Spróbuj ponownie.", "danger");
+        }
+      }
     }
   };
 

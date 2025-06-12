@@ -8,9 +8,7 @@ export const sendFriendInvitation = async (
   sourceUserId: string,
   sourceUserName: string | null,
   setNotification: React.Dispatch<React.SetStateAction<any | null>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
-  try {
     const response = await axios.post(
       "https://localhost:7053/api/Notifications/add-notification",
       {
@@ -33,16 +31,6 @@ export const sendFriendInvitation = async (
     if (response.status === 200) {
       setNotification(response.data);
     }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      if (err.response?.status === 404) {
-        setError("Nie udało się znaleźć użytkownika docelowego");
-      } else {
-        setError("Wystąpił błąd podczas wysyłania zaproszenia.");
-      }
-    }
-    console.error(err);
-  }
 };
 
 //Sprawdzanie czy zalogowany A zaprosił już B (aby nie mógł zapraszać dwukrotnie)

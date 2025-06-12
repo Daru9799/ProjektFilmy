@@ -18,6 +18,7 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
   const handleAccept = async () => {
     await handleAcceptInvitation(notification, setError);
     removeNotification(notification.notificationId);
+    window.location.reload();
   };
 
   const handleDelete = async () => {
