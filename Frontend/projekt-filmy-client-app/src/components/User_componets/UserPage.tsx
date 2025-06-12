@@ -19,11 +19,11 @@ import {
   deleteNotification,
 } from "../../API/notificationApi";
 import { deleteReview, editReview } from "../../API/reviewApi";
-import { Modal, Button } from "react-bootstrap";
+import ConfirmationModal from "../SharedModals/ConfirmationModal";
 import { isUserMod, getLoggedUserId } from "../../hooks/decodeJWT";
 import "../../styles/UserPage.css";
 import ChangeRoleModal from "./ChangeRoleModal";
-import InfoModal from "../../components/Modals/InfoModal"
+import InfoModal from "../SharedModals/InfoModal"
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -449,22 +449,15 @@ const UserPage = () => {
           />
         )}
         {showDeleteModal && (
-          <Modal show={showDeleteModal} onHide={handleCancelDelete} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Czy na pewno chcesz usunąć tego użytkownika ze znajomych?
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCancelDelete}>
-                Anuluj
-              </Button>
-              <Button variant="danger" onClick={handleConfirmDelete}>
-                Usuń
-              </Button>
-            </Modal.Footer>
-          </Modal>
+          <ConfirmationModal
+            show={showDeleteModal}
+            onCancel={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            title="Potwierdzenie usunięcia"
+            message="Czy na pewno chcesz usunąć tego użytkownika ze znajomych?"
+            confirmButtonText="Usuń"
+            confirmButtonVariant="danger"
+          />
         )}
 
         <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>

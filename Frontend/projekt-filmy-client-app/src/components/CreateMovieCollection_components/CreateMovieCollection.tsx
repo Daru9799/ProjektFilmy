@@ -113,17 +113,21 @@ const navigate = useNavigate();
 
       <InfoModal
         show={showInfoModal}
+        title="Błąd"
         onClose={() => setShowInfoModal(false)}
         message="Tytuł kolekcji jest wymagany."
+        variant="danger"
       />
 
       <InfoModal
         show={showSuccessModal}
+        title="Sukces"
         onClose={() => {
           setShowSuccessModal(false);
           navigate("/");
         }}
         message="Kolekcja została pomyślnie utworzona!"
+        variant="success"
       />
 
       

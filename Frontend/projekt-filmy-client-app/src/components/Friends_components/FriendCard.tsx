@@ -1,7 +1,7 @@
 import { UserRelation } from "../../models/UserRelation";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import ConfirmationModal from "../SharedModals/ConfirmationModal";
 
 interface FriendCardProps {
   friend: UserRelation;
@@ -37,22 +37,15 @@ const FriendCard = ({ friend, onDelete }: FriendCardProps) => {
           </button>
       </div>
 
-      <Modal show={showModal} onHide={handleCancelDelete} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Czy na pewno chcesz usunąć {friend.relatedUserName} ze znajomych?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancelDelete}>
-            Anuluj
-          </Button>
-          <Button variant="danger" onClick={handleConfirmDelete}>
-            Usuń
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        show={showModal}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Potwierdzenie usunięcia"
+        message={`Czy na pewno chcesz usunąć ${friend.relatedUserName} ze znajomych?`}
+        confirmButtonText="Usuń"
+        confirmButtonVariant="danger"
+      />
     </div>
   );
 };

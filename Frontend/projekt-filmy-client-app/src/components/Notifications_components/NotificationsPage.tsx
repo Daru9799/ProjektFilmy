@@ -3,7 +3,7 @@ import NotificationCard from "../../components/Notifications_components/Notifica
 import PaginationModule from "../SharedModals/PaginationModule";
 import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import InfoModal from "../SharedModals/InfoModal";
 import SortNotificationModule from "../../components/Notifications_components/SortNotificationModule"
 import { readFilterMap, ReadFilterOption, NotificationTypeFilterOption } from "../../components/Notifications_components/SortNotificationModule";
 
@@ -81,21 +81,13 @@ const NotificationPage = () => {
       </div>
 
       {/* Modal informujący o braku zalogowania */}
-      <Modal show={showUnauthorizedModal} onHide={handleCloseUnauthorizedModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Brak dostępu</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div style={{ fontWeight: "bold", color: "red" }}>
-            Musisz być zalogowany, aby zobaczyć swoje powiadomienia.
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={handleCloseUnauthorizedModal}>
-            OK
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <InfoModal
+        show={showUnauthorizedModal}
+        onClose={handleCloseUnauthorizedModal}
+        title="Brak dostępu"
+        message="Musisz być zalogowany, aby zobaczyć swoje powiadomienia."
+        variant="danger"
+      />
     </div>
   );
 };

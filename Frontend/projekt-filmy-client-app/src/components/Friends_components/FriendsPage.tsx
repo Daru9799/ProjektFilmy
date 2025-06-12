@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { UserRelation } from "../../models/UserRelation";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
 import FriendCard from "../../components/Friends_components/FriendCard"
-import InfoModal from "../../components/Modals/InfoModal"
+import InfoModal from "../SharedModals/InfoModal"
 
 const FriendsPage = () => {
     const { userName } = useParams();
@@ -12,7 +12,7 @@ const FriendsPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         if (userName) {
         setLoading(true);

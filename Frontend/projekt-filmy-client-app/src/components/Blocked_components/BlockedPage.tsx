@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { UserRelation } from "../../models/UserRelation";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
 import BlockedCardProps from "../../components/Blocked_components/BlockedCard";
-import InfoModal from "../../components/Modals/InfoModal"
+import InfoModal from "../SharedModals/InfoModal"
 
 const BlockedPage = () => {
   const { userName } = useParams();

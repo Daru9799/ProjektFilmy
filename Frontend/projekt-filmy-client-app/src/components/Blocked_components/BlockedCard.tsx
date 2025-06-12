@@ -1,6 +1,6 @@
 import { UserRelation } from "../../models/UserRelation";
 import { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import ConfirmationModal from "../SharedModals/ConfirmationModal";
 
 interface BlockedCardProps {
   blockedUser: UserRelation;
@@ -31,23 +31,15 @@ const BlockedCard = ({ blockedUser, onUnblock }: BlockedCardProps) => {
           Odblokuj użytkownika
         </button>
       </div>
-
-      <Modal show={showModal} onHide={handleCancel} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Potwierdzenie odblokowania</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Czy na pewno chcesz odblokować użytkownika {blockedUser.relatedUserName}?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancel}>
-            Anuluj
-          </Button>
-          <Button variant="warning" onClick={handleConfirmUnblock}>
-            Odblokuj
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        show={showModal}
+        onCancel={handleCancel}
+        onConfirm={handleConfirmUnblock}
+        title="Potwierdzenie odblokowania"
+        message={`Czy na pewno chcesz odblokować użytkownika ${blockedUser.relatedUserName}?`}
+        confirmButtonText="Odblokuj"
+        confirmButtonVariant="warning"
+      />
     </div>
   );
 };

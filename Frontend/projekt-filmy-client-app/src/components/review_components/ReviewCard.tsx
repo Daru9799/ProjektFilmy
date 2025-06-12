@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import ConfirmationModal from "../SharedModals/ConfirmationModal";
 import { Review } from "../../models/Review";
 import { renderStars } from "../../hooks/RenderStars";
 import "../../styles/ReviewCard.css"
@@ -135,22 +135,15 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, userPage,userRevieForMo
       </div>
 
       {/* Potwierdzenie */}
-      <Modal show={showModal} onHide={handleCancelDelete} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Potwierdzenie usunięcia</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Czy na pewno chcesz usunąć tę recenzję?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancelDelete}>
-            Anuluj
-          </Button>
-          <Button variant="danger" onClick={handleConfirmDelete}>
-            Usuń
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationModal
+        show={showModal}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Potwierdzenie usunięcia"
+        message="Czy na pewno chcesz usunąć tę recenzję?"
+        confirmButtonText="Usuń"
+        confirmButtonVariant="danger"
+      />
     </div>
   );
 };

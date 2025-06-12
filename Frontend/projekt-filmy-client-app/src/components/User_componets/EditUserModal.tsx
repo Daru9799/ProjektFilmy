@@ -4,7 +4,7 @@ import { UserProfile } from "../../models/UserProfile";
 import axios from "axios";
 import ChangePasswordModal from "./EditUserPassword";
 import { useNavigate } from "react-router-dom";
-import InfoModal from "../../components/Modals/InfoModal"
+import InfoModal from "../SharedModals/InfoModal"
 
 interface Props {
   show: boolean;
