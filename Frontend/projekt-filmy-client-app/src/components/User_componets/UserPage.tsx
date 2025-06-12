@@ -23,6 +23,7 @@ import { Modal, Button } from "react-bootstrap";
 import { decodeJWT } from "../../hooks/decodeJWT";
 import "../../styles/UserPage.css";
 import ChangeRoleModal from "./ChangeRoleModal";
+import InfoModal from "../../components/Modals/InfoModal"
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -50,10 +51,9 @@ const UserPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showChangeRoleModal, setShowChangeRoleModal] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [showAlreadyInvitedModal, setShowAlreadyInvitedModal] = useState(false);
-  const [showInvitedModal, setShowInvitedModal] = useState(false);
   const [isInvitedByUser, setIsInvitedByUser] = useState(false);
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false); //działa, ale na inżynierkę przydałoby się coś lepszego wymyślić
+  const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -163,16 +163,16 @@ const UserPage = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("Token nie jest dostępny.");
+      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
       return;
     }
 
-    // Dekodowanie tokenu
+    //Dekodowanie tokenu
     if (user) {
       const alreadyInvited = await checkIsInvited(user.id);
 
       if (alreadyInvited) {
-        setShowAlreadyInvitedModal(true);
+        showInfoModal("Informacja", "Ten użytkownik został już zaproszony.", "danger");
         return;
       }
 
@@ -188,7 +188,7 @@ const UserPage = () => {
         setNotification,
         setError
       );
-      setShowInvitedModal(true);
+      showInfoModal("Informacja", "Pomyślnie wysłano zaproszenie do grona znajomych!", "success");
     }
   };
 
@@ -196,7 +196,7 @@ const UserPage = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("Token nie jest dostępny.");
+      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
       return;
     }
 
@@ -230,7 +230,7 @@ const UserPage = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("Token nie jest dostępny.");
+      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
       return;
     }
 
@@ -268,6 +268,10 @@ const UserPage = () => {
     navigate("/"); //W przypadku bloka przenosi na /
     return null;
   }
+
+  const showInfoModal = (title: string, message: string, variant: "success" | "danger" | "warning" = "danger") => {
+    setInfoModal({ show: true, title, message, variant });
+  };
 
   return (
     <>
@@ -463,65 +467,7 @@ const UserPage = () => {
           </Modal>
         )}
 
-        <Modal
-          show={showAlreadyInvitedModal}
-          onHide={() => setShowAlreadyInvitedModal(false)}
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Informacja</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                color: "red",
-                fontWeight: "bold",
-              }}
-            >
-              Ten użytkownik został już zaproszony.
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="danger"
-              onClick={() => setShowAlreadyInvitedModal(false)}
-            >
-              OK
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        <Modal
-          show={showInvitedModal}
-          onHide={() => setShowInvitedModal(false)}
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Informacja</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                color: "green",
-                fontWeight: "bold",
-              }}
-            >
-              Pomyślnie wysłano zaproszenie do grona znajomych!
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="success"
-              onClick={() => setShowInvitedModal(false)}
-            >
-              OK
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
       </div>
     </>
   );

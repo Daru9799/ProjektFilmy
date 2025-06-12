@@ -4,6 +4,7 @@ import { UserProfile } from "../../models/UserProfile";
 import axios from "axios";
 import ChangePasswordModal from "./EditUserPassword";
 import { useNavigate } from "react-router-dom";
+import InfoModal from "../../components/Modals/InfoModal"
 
 interface Props {
   show: boolean;
@@ -117,22 +118,7 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
       </Modal>
       
       {/* Modal informujący o koncie google gdy chcemy mu zmienić hasło */}
-      <Modal show={showGoogleInfoModal} onHide={() => setShowGoogleInfoModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Informacja</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div style={{ display: "flex", alignItems: "center", color: "#dc3545", fontWeight: "bold" }}>
-            To konto zostało utworzone przez logowanie Google OAuth i nie obsługuje zmiany hasła.
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={() => setShowGoogleInfoModal(false)}>
-            OK
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+      <InfoModal show={showGoogleInfoModal} onClose={() => setShowGoogleInfoModal(false)} title="Informacja" message="To konto zostało utworzone przez logowanie Google OAuth i nie obsługuje zmiany hasła." variant="danger"/>
       {/* Modal do zmiany hasła */}
       <ChangePasswordModal show={showPasswordModal} onClose={() => setShowPasswordModal(false)}/>
     </>
