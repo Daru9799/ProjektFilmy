@@ -10,6 +10,7 @@ import { deleteReview, editReview, fetchReviewsByMovieId } from "../../API/revie
 import { fetchMovieData } from "../../API/movieApi";
 import PaginationModule from "../SharedModals/PaginationModule";
 import AddReviewModal from "./AddReviewPanel";
+import { isUserMod } from "../../hooks/decodeJWT";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -27,8 +28,11 @@ const ReviewsPage = () => {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
 
-
+  useEffect(() => {
+    setIsLoggedUserMod(isUserMod());
+  }, []);
 
 const handleDeleteReview = async (reviewId: string) => {
   try {
@@ -138,6 +142,7 @@ const handleDeleteReview = async (reviewId: string) => {
             userPage={true} 
             onDelete={() => handleDeleteReview(review.reviewId)}
             onEdit={() => handleEditReview(review)} 
+            isLoggedUserMod={isLoggedUserMod}
           />
         ))
       ) : (

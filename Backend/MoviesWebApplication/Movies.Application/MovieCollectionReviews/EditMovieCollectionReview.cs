@@ -61,7 +61,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                 if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej recenzji.");
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tej recenzji.");
                 }
 
                 if (request.Rating.HasValue)

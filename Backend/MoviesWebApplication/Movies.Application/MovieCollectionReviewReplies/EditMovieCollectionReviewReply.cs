@@ -41,6 +41,9 @@ namespace Movies.Application.MovieCollectionReviewReplies
                     throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
                 }
 
+                var currentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
                 var reply = await _context.MovieCollectionReviewReplies
                     .Include(r => r.User)
                     .FirstOrDefaultAsync(r => r.ReplyId == request.ReplyId, cancellationToken);
@@ -50,10 +53,19 @@ namespace Movies.Application.MovieCollectionReviewReplies
                     return null;
                 }
 
-                if (reply.User == null || reply.User.Id != currentUserId)
+                //Sprawdzenie czy user jest właścicielem bądź moderatorem
+                bool isOwner = reply.User != null && reply.User.Id == currentUserId;
+                bool isMod = currentUser.UserRole == User.Role.Mod;
+
+                if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tego komentarza. Nie jesteś właścicielem tego komentarza.");
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tego komentarza.");
                 }
+
+                //if (reply.User == null || reply.User.Id != currentUserId)
+                //{
+                //    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tego komentarza. Nie jesteś właścicielem tego komentarza.");
+                //}
 
                 if (!string.IsNullOrEmpty(request.Comment))
                 {

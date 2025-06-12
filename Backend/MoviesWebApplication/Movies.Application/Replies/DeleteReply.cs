@@ -41,6 +41,9 @@ namespace Movies.Application.Replies
                     throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
                 }
 
+                var currentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
                 // Pobranie odpowiedzi z bazy wraz z użytkownikiem
                 var reply = await _context.Replies
                     .Include(r => r.User)
@@ -51,11 +54,20 @@ namespace Movies.Application.Replies
                     throw new ValidationException("Nie znaleziono odpowiedzi o podanym ID");
                 }
 
-                // Sprawdzenie czy użytkownik jest autorem odpowiedzi
-                if (reply.User == null || reply.User.Id != currentUserId)
+                //Sprawdzenie czy user jest właścicielem bądź moderatorem
+                bool isOwner = reply.User != null && reply.User.Id == currentUserId;
+                bool isMod = currentUser.UserRole == User.Role.Mod;
+
+                if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej odpowiedzi. Nie jesteś właścicielem tego komentarza.");
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego komentarza.");
                 }
+
+                // Sprawdzenie czy użytkownik jest autorem odpowiedzi
+                //if (reply.User == null || reply.User.Id != currentUserId)
+                //{
+                //    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej odpowiedzi. Nie jesteś właścicielem tego komentarza.");
+                //}
 
                 _context.Replies.Remove(reply);
                 await _context.SaveChangesAsync(cancellationToken);
