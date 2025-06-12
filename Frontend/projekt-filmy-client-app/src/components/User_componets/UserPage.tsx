@@ -149,14 +149,18 @@ const UserPage = () => {
   };
 
   const handleDeleteRelation = async (relationId: string) => {
-    await deleteRelation(relationId, setRelations, setError);
-    setRelations((prevRelations: any) => {
-      const updatedRelations = { ...prevRelations };
-      updatedRelations.$values = updatedRelations.$values.filter(
-        (relation: any) => relation.relationId !== relationId
-      );
-      return updatedRelations;
-    });
+    try {
+      await deleteRelation(relationId, setRelations);
+      setRelations((prevRelations: any) => {
+        const updatedRelations = { ...prevRelations };
+        updatedRelations.$values = updatedRelations.$values.filter(
+          (relation: any) => relation.relationId !== relationId
+        );
+        return updatedRelations;
+      });
+      } catch (error) {
+        showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
+      }
   };
 
   const sendInvitation = async () => {

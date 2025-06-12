@@ -28,26 +28,21 @@ export const fetchRelationsData = async (username: string, type: string, setRela
   }
 };
 
-export const deleteRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>
+export const deleteRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>
 ) => {
-  try {
-    await axios.delete(
-      `https://localhost:7053/api/UserRelations/delete-relation/${relationId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setRelations((prevRelations: any) => {
-      const updatedRelations = { ...prevRelations };
-      updatedRelations.$values = updatedRelations.$values.filter((relation: any) => relation.id !== relationId);
-      return updatedRelations;
-    });
-  } catch (err) {
-    console.error("Błąd podczas usuwania relacji:", err);
-    setError("Nie udało się usunąć relacji. Spróbuj ponownie.");
-  }
+  await axios.delete(
+    `https://localhost:7053/api/UserRelations/delete-relation/${relationId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  setRelations((prevRelations: any) => {
+    const updatedRelations = { ...prevRelations };
+    updatedRelations.$values = updatedRelations.$values.filter((relation: any) => relation.id !== relationId);
+    return updatedRelations;
+  });
 };
 
 export const createRelation = async (

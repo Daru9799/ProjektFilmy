@@ -63,14 +63,25 @@ namespace MoviesWebApplication.Controllers
         [HttpDelete("delete-relation/{id}")]
         public async Task<IActionResult> DeleteUserRelation(Guid id)
         {
-            var result = await Mediator.Send(new DeleteUserRelation(id));
-
-            if (result == null)
+            try
             {
-                return NotFound($"Nie znaleziono relacji o ID: {id}");
-            }
+                var result = await Mediator.Send(new DeleteUserRelation(id));
 
-            return Ok("Pomyślnie usunięto relacje.");
+                if (result == null)
+                {
+                    return NotFound($"Nie znaleziono relacji o ID: {id}");
+                }
+
+                return Ok("Pomyślnie usunięto relacje.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid("Nie masz uprawnień do usunięcia tej relacji.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Wystąpił błąd przy usuwaniu relacji: " + ex.Message);
+            }
         }
     }
 }

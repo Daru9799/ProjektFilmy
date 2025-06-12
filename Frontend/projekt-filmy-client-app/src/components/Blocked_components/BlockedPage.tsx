@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { UserRelation } from "../../models/UserRelation";
 import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
 import BlockedCardProps from "../../components/Blocked_components/BlockedCard";
+import InfoModal from "../../components/Modals/InfoModal"
 
 const BlockedPage = () => {
   const { userName } = useParams();
   const [relations, setRelations] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
 
   useEffect(() => {
     if (userName) {
@@ -22,24 +24,32 @@ const BlockedPage = () => {
   const blockedUsers = relations?.$values.filter((relation: UserRelation) => relation.type === "Blocked");
 
   const handleDeleteRelation = async (relationId: string) => {
-    await deleteRelation(relationId, setRelations, setError);
+    try {
+      await deleteRelation(relationId, setRelations);
 
-    setRelations((prev: any) => {
-      if (!prev) return null;
+      setRelations((prev: any) => {
+        if (!prev) return null;
 
-      const updated = {
-        ...prev,
-        $values: prev.$values.filter((r: UserRelation) => r.relationId !== relationId),
-      };
-      return updated;
-    });
-
-    if (userName) {
-      setLoading(true);
-      fetchRelationsData(userName, "Blocked", setRelations, setError).finally(() => {
-        setLoading(false);
+        const updated = {
+          ...prev,
+          $values: prev.$values.filter((r: UserRelation) => r.relationId !== relationId),
+        };
+        return updated;
       });
+
+      if (userName) {
+        setLoading(true);
+        fetchRelationsData(userName, "Blocked", setRelations, setError).finally(() => {
+          setLoading(false);
+        });
+      }
+    } catch (error) {
+      showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
     }
+  };
+
+  const showInfoModal = (title: string, message: string, variant: "success" | "danger" | "warning" = "danger") => {
+    setInfoModal({ show: true, title, message, variant });
   };
 
   if (loading) return <p>Ładowanie danych...</p>;
@@ -64,6 +74,7 @@ const BlockedPage = () => {
           <p>Brak zablokowanych użytkowników</p>
         )}
       </div>
+      <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
     </>
   );
 };

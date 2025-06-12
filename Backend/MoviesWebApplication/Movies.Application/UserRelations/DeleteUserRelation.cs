@@ -39,14 +39,14 @@ namespace Movies.Application.UserRelations
             var relation = await _context.UserRelations
                 .FirstOrDefaultAsync(r => r.UserRelationId == request.RelationId, cancellationToken);
 
-            if (string.IsNullOrEmpty(currentUserId) || (relation.FirstUserId != currentUserId && relation.SecondUserId != currentUserId))
-            {
-                throw new UnauthorizedAccessException("Nie masz uprawnień do usuwania tej relacji.");
-            }
-
             if (relation == null)
             {
                 return null;
+            }
+
+            if (string.IsNullOrEmpty(currentUserId) || (relation.FirstUserId != currentUserId && relation.SecondUserId != currentUserId))
+            {
+                throw new UnauthorizedAccessException("Nie masz uprawnień do usuwania tej relacji.");
             }
 
             _context.UserRelations.Remove(relation);
