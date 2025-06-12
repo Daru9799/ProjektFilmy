@@ -55,6 +55,52 @@ export const fetchRecommendByMovieId = async (
   }
 };
 
+export const CreateRecommendation = async (
+  movieId: string | undefined,
+  recommendMovieId: string | undefined
+) => {
+  try {
+    if (!movieId || !recommendMovieId) {
+      throw new Error("Both movie IDs are required");
+    }
+
+    const response = await axios.post(
+      `https://localhost:7053/api/Recommendations/${movieId}/add-recommend-with-like/${recommendMovieId}`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      // Błędy specyficzne z backendu
+      if (err.response) {
+        // Błędy walidacji (400)
+        if (err.response.status === 400) {
+          throw new Error(err.response.data || "Validation error occurred");
+        }
+        // Konflikty (409)
+        if (err.response.status === 409) {
+          throw new Error(err.response.data?.Error || "Conflict occurred");
+        }
+        // Inne błędy serwera
+        if (err.response.status >= 500) {
+          throw new Error(
+            err.response.data?.message || "Server error occurred"
+          );
+        }
+      }
+      // Błąd połączenia
+      throw new Error("Network error: Could not connect to server");
+    }
+    // Inne błędy (np. z walidacji przed wysłaniem)
+    throw err instanceof Error ? err : new Error("Unknown error occurred");
+  }
+};
+
 export const LikeRecommendation = async (recommendId: string) => {
   try {
     const response = await axios.post(

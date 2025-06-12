@@ -41,6 +41,11 @@ namespace Movies.Application.MovieRecommend
                     throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
                 }
 
+                if(request.MovieId == request.RecommendedMovieId)
+                {
+                    throw new ValidationException("Nie można rekomendować filmu tym samym filmem");
+                }
+
                 var movie = await _context.Movies
                     .FirstOrDefaultAsync(m => m.MovieId == request.MovieId, cancellationToken);
                 if (movie == null)
@@ -60,6 +65,7 @@ namespace Movies.Application.MovieRecommend
                     throw new InvalidOperationException("Nie można stworzyć rekomendacji, ponieważ rekomendacja już istnieje.");
                 }
 
+
                 var recommendation = new Domain.Entities.MovieRecommendation
                 {
                     RecommendationId = Guid.NewGuid(),
@@ -71,17 +77,6 @@ namespace Movies.Application.MovieRecommend
                     LikedByUsers = new List<User>()
                 };
 
-/*
-                // Dodaj rekomendację do listy filmu źródłowego
-                if (movie.Recommendations == null)
-                    movie.Recommendations = new List<Domain.Entities.MovieRecommendation>();
-                movie.Recommendations.Add(recommendation);
-
-                // Dodaj rekomendację do listy filmu polecanego
-                if (recommendMovie.RecommendedBy == null)
-                    recommendMovie.RecommendedBy = new List<Domain.Entities.MovieRecommendation>();
-                recommendMovie.RecommendedBy.Add(recommendation);
-*/
                 _context.MovieRecommendations.Add(recommendation);
 
                 await _context.SaveChangesAsync(cancellationToken);

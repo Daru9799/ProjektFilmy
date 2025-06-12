@@ -3,10 +3,12 @@ import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import { Movie } from "../../models/Movie";
 import { Recommendation } from "../../models/Recommendation";
-import { DeleteLikeRecommendation, fetchRecommendByMovieId, LikeRecommendation } from "../../API/MovieRecommendAPI";
+import { CreateRecommendation, DeleteLikeRecommendation, fetchRecommendByMovieId, LikeRecommendation } from "../../API/MovieRecommendAPI";
 import { fetchMoviesListByIds } from "../../API/movieApi";
 import RecommendListModule from "../MovieRecommend_componets/RecommendListModule";
 import PaginationModule from "../SharedModals/PaginationModule";
+import useMovieChoiceModule from "../../hooks/useMovieChoiceModule";
+import MovieSingleChoiceModal from "../MovieRecommend_componets/MovieSingleChoiceModal";
 
 interface Props {
   movieId: string | undefined,
@@ -27,6 +29,30 @@ const RecommendMovieModule = ({movieId}:Props) => {
   const staticPageSize = 2;
 
 	const [open, setOpen] = useState(false);
+  const [openMovieModal,setOpenMovieModal] = useState(false)
+
+  const {
+    choosenMovieId,
+    setChoosenMovieId,
+    showModal,
+    setShowModal,
+    movies,
+    tempSelectedMovie, // Zmienione na pojedynczy film
+    setTempSelectedMovie, // Zmienione na pojedynczy film
+    handleOpenModal,
+    handleToggleSelect,
+    handleConfirmSelection,
+    currentPageMC,
+    pageInfoMC,
+    handlePageChangeMC,
+    searchText,
+    setSearchText,
+    handleCloseModal,
+    handleSort,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+    setFilterList,
+  } = useMovieChoiceModule();
 
 	useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +92,8 @@ const RecommendMovieModule = ({movieId}:Props) => {
     fetchData();
   }, [movieId, currentPage]);
 
+  useEffect(()=>{},[])
+
 
   const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
     try {
@@ -87,9 +115,31 @@ const RecommendMovieModule = ({movieId}:Props) => {
     console.log(pageInfo);
   };
 
+  const handleCreateRecommendation= async()=> {
+    try {
+      const result = await CreateRecommendation(movieId, tempSelectedMovie?.movieId);
+      console.log('Success:', result);
+      // Możesz tu dodać przekierowanie lub odświeżenie danych
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+        console.log("ErrorMessage:" + err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+      
+    }
+  }
+
   return (
-    <div className="m-4">
-      <div className="d-grid gap-2 col-3 mx-auto my-2">
+    <div
+      className="p-2 w-75 m-auto"
+      style={{
+        backgroundColor: "#150021",
+        borderRadius: "15px",
+      }}
+    >
+      <div className="d-grid gap-2 col-5 mx-auto my-2">
         <Button
           onClick={() => setOpen(!open)}
           aria-controls="recommend-movie-list"
@@ -112,8 +162,42 @@ const RecommendMovieModule = ({movieId}:Props) => {
             totalPages={pageInfo.totalPages}
             onPageChange={handlePageChange}
           />
+          <div className="d-grid gap-2 col-4 mx-auto">
+            <Button
+              onClick={() => {
+                setOpenMovieModal(true);
+                handleOpenModal();}
+              }
+              className="btn btn-success"
+            >
+              Dodaj rekomendacje
+            </Button>
+          </div>
         </div>
       </Collapse>
+      <MovieSingleChoiceModal
+        show={openMovieModal}
+        onClose={() => {
+          setOpenMovieModal(false);
+        }}
+        movies={movies}
+        tempSelectedMovie={tempSelectedMovie}
+        onToggleSelect={handleToggleSelect}
+        onConfirm={() => {
+          handleConfirmSelection(); //raczej nie potrzebne
+          handleCreateRecommendation();
+          setOpenMovieModal(false);
+        }}
+        currentPage={currentPageMC}
+        totalPages={pageInfoMC.totalPages}
+        onPageChange={handlePageChangeMC}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        setFilterList={setFilterList}
+        handleSort={handleSort}
+        isNoMovieModalVisible={isNoMovieModalVisible}
+        setIsNoMovieModalVisible={setIsNoMovieModalVisible}
+      />
     </div>
   );
 }
