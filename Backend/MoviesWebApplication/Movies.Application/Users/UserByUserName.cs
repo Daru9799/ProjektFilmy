@@ -59,7 +59,8 @@ namespace Movies.Application.Users
                     Email = user.Email,
                     UserRole = user.UserRole,
                     ReviewsCount = user.Reviews?.Count ?? 0,
-                    IsOwner = isOwner
+                    IsOwner = isOwner,
+                    IsGoogleUser = user.IsGoogleUser
                 };
             }
         }

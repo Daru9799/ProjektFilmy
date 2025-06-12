@@ -5,6 +5,7 @@ export interface UserProfile {
   userRole: userRole;
   reviewsCount: number;
   isOwner: boolean; //Czy uzytkownik ktory to przeglada jest wlasicicielem profilu
+  isGoogleUser: boolean; //Czy user jest logowany przez konto google
 }
 
 export enum userRole {

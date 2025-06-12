@@ -17,5 +17,6 @@ namespace Movies.Domain.DTOs
         //Nowe pola
         public int ReviewsCount { get; set; } //Liczba dodanych recenzji
         public bool IsOwner { get; set; } //Pole czy user jest wlascicielem tego profilu
+        public bool IsGoogleUser { get; set; } //Pole czy user ma konto tworzone przez autentykacje google
     }
 }

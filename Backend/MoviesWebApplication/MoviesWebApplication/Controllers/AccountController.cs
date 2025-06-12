@@ -96,7 +96,11 @@ namespace MoviesWebApplication.Controllers
             {
                 return NotFound("Nie znaleziono użytkownika.");
             }
-                
+
+            if (user.IsGoogleUser && !string.IsNullOrEmpty(editUserDto.NewEmail) && !(user.Email == editUserDto.NewEmail))
+            {
+                return BadRequest("Nie można edytować adresu e-mail dla konta Google.");
+            }
 
             //Aktualizacja e-maila
             if (!string.IsNullOrEmpty(editUserDto.NewEmail))
@@ -162,6 +166,11 @@ namespace MoviesWebApplication.Controllers
                 return NotFound("Nie znaleziono użytkownika.");
             }
 
+            if (user.IsGoogleUser)
+            {
+                return BadRequest(new { Errors = new List<string> { "Nie można zmienić hasła dla konta Google." } });
+            }
+
             var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, changePasswordDto.NewPassword);
             if (passwordVerificationResult == PasswordVerificationResult.Success)
             {
@@ -203,6 +212,11 @@ namespace MoviesWebApplication.Controllers
                 if (string.IsNullOrWhiteSpace(dto.UserName))
                 {
                     return BadRequest("Brakuje nazwy użytkownika do rejestracji.");
+                }
+
+                if (await _userManager.Users.AnyAsync(x => x.UserName == dto.UserName))
+                {
+                    return BadRequest("Nazwa jest zajęta!");
                 }
 
                 user = new User

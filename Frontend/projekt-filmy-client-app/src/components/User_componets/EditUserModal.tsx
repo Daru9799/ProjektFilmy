@@ -17,6 +17,7 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
   const [username, setUsername] = useState(userData.userName);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showGoogleInfoModal, setShowGoogleInfoModal] = useState(false);
   const navigate = useNavigate();
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,25 +75,18 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
             {/* Pole edycji email */}
             <Form.Group className="mb-3" controlId="email">
               <Form.Label>Adres e-mail</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Wprowadź e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <Form.Control type="email" placeholder="Wprowadź e-mail" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={userData.isGoogleUser}/>
+              {userData.isGoogleUser && (
+                <Form.Text className="text-muted">
+                  Adres e-mail jest powiązany z kontem Google i nie może być zmieniony.
+                </Form.Text>
+              )}
             </Form.Group>
 
             {/* Pole edycji nazwy użytkownika */}
             <Form.Group className="mb-3" controlId="username">
               <Form.Label>Nazwa użytkownika</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Wprowadź nazwę użytkownika"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+              <Form.Control type="text" placeholder="Wprowadź nazwę użytkownika" value={username} onChange={(e) => setUsername(e.target.value)} required/>
             </Form.Group>
 
             {/* Komunikat o błędzie */}
@@ -108,18 +102,39 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
           <Button
             variant="outline-secondary"
             className="mt-3 w-100"
-            onClick={() => setShowPasswordModal(true)}
+            onClick={() => {
+              if (userData.isGoogleUser) {
+                setShowGoogleInfoModal(true);
+                return
+              }
+              console.log("tutaj" + userData.isGoogleUser)
+              setShowPasswordModal(true);
+            }}
           >
             Edytuj hasło
           </Button>
         </Modal.Body>
       </Modal>
+      
+      {/* Modal informujący o koncie google gdy chcemy mu zmienić hasło */}
+      <Modal show={showGoogleInfoModal} onHide={() => setShowGoogleInfoModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Informacja</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ display: "flex", alignItems: "center", color: "#dc3545", fontWeight: "bold" }}>
+            To konto zostało utworzone przez logowanie Google OAuth i nie obsługuje zmiany hasła.
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setShowGoogleInfoModal(false)}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal do zmiany hasła */}
-      <ChangePasswordModal
-        show={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-      />
+      <ChangePasswordModal show={showPasswordModal} onClose={() => setShowPasswordModal(false)}/>
     </>
   );
 };

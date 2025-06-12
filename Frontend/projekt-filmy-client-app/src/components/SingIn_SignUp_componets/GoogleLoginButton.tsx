@@ -50,8 +50,11 @@ const GoogleLoginButton = ({ onLoginSuccess, onError, onClose }: Props) => {
       onLoginSuccess(response.data.userName);
       setShowPrompt(false);
       onClose?.();
-    } catch (error) {
-      onError?.("Nie udało się ukończyć rejestracji przez Google.");
+    } catch (error: any) {
+      setShowPrompt(false);
+      console.error(error)
+      const message = error.response?.data ?? "Nie udało się ukończyć rejestracji przez Google.";
+      onError?.(message);
     }
   };
 
