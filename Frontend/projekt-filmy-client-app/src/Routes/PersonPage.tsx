@@ -16,19 +16,22 @@ const PersonPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [isLogged, setIsLogged] = useState<boolean>(false)
 
   useEffect(() => {
     fetchPersonById(id, setPerson, setError, setLoading);
-    if (id) fetchPersonMovies(id, setMovies, setError, setLoading);
+    if (id) fetchPersonMovies(id, setMovies, setError, setLoading);    
     checkFollowing();
   }, [id]);
 
   const checkFollowing = () => {
     if (id && userName) {
+      
       const loggedUserId = getLoggedUserId();
 
       if (!loggedUserId) {
         console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
+        setIsLogged(false);
         return;
       }
 
@@ -37,6 +40,7 @@ const PersonPage = () => {
       } else {
         setIsFollowing(false);
       }
+      setIsLogged(true);
     }
   };
 
@@ -95,7 +99,8 @@ const PersonPage = () => {
                 ? `${person.firstName} ${person.lastName}`
                 : "Imię i nazwisko niedostępne"}
             </h2>
-            <button
+            {/* Przycisk do obserwowania */}
+           {isLogged && <button
               className="btn btn-outline-light mt-3"
               style={{
                 width: "200px",
@@ -104,7 +109,7 @@ const PersonPage = () => {
               onClick={handleChangeFollowing}
             >
               {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
-            </button>
+            </button>}
           </div>
 
           {/* Data urodzenia */}
