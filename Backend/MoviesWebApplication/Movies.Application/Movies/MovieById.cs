@@ -35,7 +35,7 @@ namespace Movies.Application.Movies
                     .Include(m => m.Categories)
                     .Include(m => m.Countries)
                     .Include(m => m.MoviePerson)
-                        .ThenInclude(mp => mp.Person)
+                    .ThenInclude(mp => mp.Person)
                     .Where(m => m.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director))
                     .FirstOrDefaultAsync(m => m.MovieId == request.Id, cancellationToken);
 

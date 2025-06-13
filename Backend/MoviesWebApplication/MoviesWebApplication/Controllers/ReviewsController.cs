@@ -5,6 +5,7 @@ using Movies.Application.Movies;
 using Movies.Application.Reviews;
 using Movies.Domain;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -28,6 +29,22 @@ namespace MoviesWebApplication.Controllers
             return Ok(reviews);
         }
         //Zwracanie recenzji na podstawie ID filmu
+        
+        [AllowAnonymous]
+        [HttpGet("{reviewId}")]
+        public async Task<ActionResult<ReviewDto>> GetReviewById(Guid reviewId)
+        {
+            var querry = new GetReviewById.Query {Id = reviewId};
+            var result = await Mediator.Send(querry);
+
+            if (result == null)
+            {
+                return NotFound($"Nie znaleziono recenzji o podanym ID.");
+            }
+
+            return Ok(result);
+        }
+
         [AllowAnonymous]
         [HttpGet("by-movie-id/{movieId}")]
         public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")

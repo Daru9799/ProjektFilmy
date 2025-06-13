@@ -9,7 +9,7 @@ const SortReviewModule: React.FC<{ onSort: (category: string) => void }> = ({ on
   };
 
   return (
-    <Container className="mt-4">
+    <Container>
       <Row className="justify-content-left">
         <Col xs={12} md={6}>
           <Form className="d-flex">

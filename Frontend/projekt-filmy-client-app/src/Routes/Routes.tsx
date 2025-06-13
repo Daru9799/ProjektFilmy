@@ -17,6 +17,7 @@ import BlockedPage from '../components/Blocked_components/BlockedPage';
 import NotificationPage from '../components/Notifications_components/NotificationsPage';
 import CreateMovieCollection from '../components/CreateMovieCollection_components/CreateMovieCollection';
 import NotFoundPage from './NotFoundPage';
+import ReviewRepliesPage from './ReviewRepliesPage';
 
 
 
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: "search-actors", element: <SearchActorsPage /> },
       { path: "/:movieId", element: <MoviePage /> },
       { path: "/:movieId/reviews", element: <ReviewsPage /> },
+      { path: "/:reviewId/replies", element: <ReviewRepliesPage /> },
       { path: "user/:userName", element: <UserPage /> },
       { path: "people/:id", element: <PersonPage /> },
       { path: "user/:userName/reviews", element: <UserReviewsPage /> },

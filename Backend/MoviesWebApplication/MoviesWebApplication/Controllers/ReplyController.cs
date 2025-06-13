@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Replies;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 
 
 namespace MoviesWebApplication.Controllers
@@ -29,6 +30,21 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(replies);
         }
+
+        [AllowAnonymous]
+        [HttpGet("total-amount-by-review-id")]
+        public async Task<ActionResult<List<int>>> GetTotalAmountByReviewIds([FromQuery] List<Guid> reviewsIds = null) 
+        { 
+            var query = new GetNumberOfRepliesByReviewIds.Query { ReviewIds = reviewsIds };
+            var replies = await Mediator.Send(query);
+            if (replies == null || !replies.Any())
+            {
+                return NotFound($"Nie znaleziono komentarzy dla podanych ID");
+            }
+            return Ok(replies);
+        }
+
+
 
         [Authorize]
         [HttpPost("add-review-reply")]
