@@ -7,6 +7,7 @@ import { fetchPersonById, fetchPersonMovies } from "../API/personApi";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { addFollowPerson, removeFollowPerson } from "../API/userAPI";
+import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
@@ -17,6 +18,7 @@ const PersonPage = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [isLogged, setIsLogged] = useState<boolean>(false)
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   useEffect(() => {
     fetchPersonById(id, setPerson, setError, setLoading);
@@ -65,6 +67,16 @@ const PersonPage = () => {
       }
     }
   };
+
+    const handleLoginSuccess = async (username: string) => {
+    setShowLoginModal(false);
+    localStorage.setItem("logged_username", username);
+    window.dispatchEvent(
+      new CustomEvent("userUpdated", { detail: { username } })
+    );
+  }
+
+  
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
@@ -158,8 +170,17 @@ const PersonPage = () => {
       )}
 
       <MovieListModule movieList={movies} />
+
+              <LoginModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
+
+    
   );
+
 };
 
 export default PersonPage;

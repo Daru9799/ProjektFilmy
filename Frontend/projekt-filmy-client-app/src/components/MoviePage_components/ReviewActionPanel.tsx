@@ -27,9 +27,6 @@ const ReviewActionsPanel: React.FC<Props> = ({
   userReview,
   isFollowing,
 }) => {
-  const check = () => {
-    console.log(isFollowing);
-  };
 
   return (
     <>
@@ -53,15 +50,25 @@ const ReviewActionsPanel: React.FC<Props> = ({
         <p></p>
       )}
       {/* Dodaję przycisk do followania tutaj bo nie ma sensu zmieniać layoutu strony*/}
-      {
+      { isLoggedIn ?
         <button
           className="btn btn-outline-light mt-3 w-100"
           style={{ backgroundColor: !isFollowing ? "green" : "red" }}
           onClick={handleChangeFollowing}
         >
           {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
-        </button>
-      }
+        </button> : 
+        
+        <button
+          className="btn btn-outline-light mt-3 w-100"
+          style={{ backgroundColor: !isFollowing ? "green" : "red" }}
+          onClick={() => setShowLoginModal(true)}
+        >
+          Obserwuj
+        </button> 
+
+        } 
+      
 
       <AddReviewModal
         show={showReviewModal}
