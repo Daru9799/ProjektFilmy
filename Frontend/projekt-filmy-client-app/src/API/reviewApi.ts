@@ -2,6 +2,31 @@ import axios from "axios";
 import { Review } from "../models/Review";
 
 
+export const fetchReviewData = async (
+  reviewId: string | undefined,
+  setReview: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/Reviews/${reviewId}`
+    );
+    setReview(response.data);
+    console.log(response.data);
+  } catch (movieError) {
+    if (axios.isAxiosError(movieError)) {
+      if (movieError.response?.status === 404) {
+        setError("Nie znaleziono filmu");
+      } else {
+        setError("Błąd podczas wczytywaina danych");
+      }
+    } else {
+      setError("Nieoczekiwany błąd");
+    }
+    console.error(movieError);
+  }
+};
+
 // Delete user review
 export const deleteReview = async (
   reviewId: string,

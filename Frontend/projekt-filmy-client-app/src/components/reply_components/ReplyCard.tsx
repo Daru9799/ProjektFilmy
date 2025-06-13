@@ -1,31 +1,21 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ConfirmationModal from "../SharedModals/ConfirmationModal";
-import { Review } from "../../models/Review";
-import { renderStars } from "../../hooks/RenderStars";
 import "../../styles/ReviewCard.css";
+import { Reply } from "../../models/Reply";
 
-interface ReviewCardProps {
-  review: Review;
-  userPage?: boolean;
-  userRevieForMovie?: boolean;
+interface ReplyCardProps {
+  reply: Reply;
   onDelete?: () => void;
   onEdit?: () => void;
   isLoggedUserMod?: boolean;
-  commentCount?: number; // Dodaj nową prop dla liczby komentarzy
-  displayCommentCount?: boolean;
-  onNavigateToComments?: () => void; // Dodaj nową prop dla nawigacji do komentarzy
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({
-  review,
-  userPage,
-  userRevieForMovie,
+const ReplyCard: React.FC<ReplyCardProps> = ({
+  reply,
   onDelete,
   onEdit,
   isLoggedUserMod,
-  commentCount = 0, // Domyślna wartość 0
-  displayCommentCount = false,
 }) => {
   const [showModal, setShowModal] = useState(false);
 
@@ -44,12 +34,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
     setShowModal(false);
   };
 
-  const navigate = useNavigate();
-
-  const onNavigateToComments = () =>{
-    navigate(`/${review.reviewId}/replies`);
-  };
-
   return (
     <div
       className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
@@ -58,57 +42,35 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         padding: "20px",
         color: "black",
-        backgroundColor: review.isCritic ? "#CDC1FF" : "white",
+        backgroundColor: "white",
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
         {/* Username */}
         <div className="d-flex align-items-center justify-content-between mb-2">
           <p style={{ fontWeight: "bold", margin: 0 }}>
-            {review.isCritic && (
-              <span className="critic-badge">
-                ✔️
-                <span className="tooltip">Krytyk filmowy</span>
-              </span>
-            )}
             <Link
-              to={`/user/${review.username}`}
+              to={`/user/${reply.username}`}
               style={{
                 fontWeight: "bold",
                 textDecoration: "none",
                 color: "inherit",
               }}
             >
-              {review.username}
+              {reply.username}
             </Link>
           </p>
-          {userPage && (
-            <Link
-              to={`/${review.movieId}`}
-              style={{
-                fontWeight: "bold",
-                fontStyle: "italic",
-                textAlign: "center",
-                flex: 1,
-                textDecoration: "none",
-                color: "inherit",
-              }}
-            >
-              Film: {review.movieTitle}
-            </Link>
-          )}
         </div>
 
         {/* Comment */}
-        <p>{review.comment}</p>
+        <p>{reply.comment}</p>
 
         {/* Przyciski akcji i komentarze */}
         <div className="d-flex align-items-center" style={{ gap: "10px" }}>
-          {(review.isOwner || isLoggedUserMod) &&
-            (userPage || userRevieForMovie) && (
+          {(reply.isOwner || isLoggedUserMod) && (
               <>
                 <button
-                  className="btn btn-secondary"
+                  className="btn btn-secondary me-2"
                   style={{
                     background: "none",
                     border: "none",
@@ -121,7 +83,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                   <i className="fas fa-edit zoomIcons"></i>
                 </button>
                 <button
-                  className="btn btn-danger mx-1"
+                  className="btn btn-danger"
                   style={{
                     background: "none",
                     border: "none",
@@ -135,38 +97,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                 </button>
               </>
             )}
-          {/* Przycisk komentarzy */}
-          {displayCommentCount && (
-            <>
-              <button
-                onClick={onNavigateToComments}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#6c757d",
-                  marginRight: "auto",
-                }}
-                aria-label="Przejdź do komentarzy"
-              >
-                <i className="far fa-comment"></i>
-                <span>{commentCount}</span>
-              </button>
-            </>
-          )}
         </div>
       </div>
 
-      {/* Rating i Data */}
+      {/* Data */}
       <div style={{ textAlign: "right", color: "black" }}>
-        {renderStars(review.rating)}
-        <h4>{review.rating}/5</h4>
         <small>
-          {review?.date
-            ? new Date(review.date).toLocaleDateString("pl-PL", {
+          {reply?.date
+            ? new Date(reply.date).toLocaleDateString("pl-PL", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -189,4 +127,4 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   );
 };
 
-export default ReviewCard;
+export default ReplyCard;

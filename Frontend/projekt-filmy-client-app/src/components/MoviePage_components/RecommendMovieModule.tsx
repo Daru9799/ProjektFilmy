@@ -92,9 +92,6 @@ const RecommendMovieModule = ({movieId}:Props) => {
     fetchData();
   }, [movieId, currentPage]);
 
-  useEffect(()=>{},[])
-
-
   const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
     try {
       setError(null);
@@ -157,17 +154,19 @@ const RecommendMovieModule = ({movieId}:Props) => {
             recommendations={recommendList}
             onLikeToggle={onLikeToggle}
           />
-          <PaginationModule
-            currentPage={pageInfo.pageNumber}
-            totalPages={pageInfo.totalPages}
-            onPageChange={handlePageChange}
-          />
+          {recommendList.length > 0 && (
+            <PaginationModule
+              currentPage={pageInfo.pageNumber}
+              totalPages={pageInfo.totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
           <div className="d-grid gap-2 col-4 mx-auto">
             <Button
               onClick={() => {
                 setOpenMovieModal(true);
-                handleOpenModal();}
-              }
+                handleOpenModal();
+              }}
               className="btn btn-success"
             >
               Dodaj rekomendacje

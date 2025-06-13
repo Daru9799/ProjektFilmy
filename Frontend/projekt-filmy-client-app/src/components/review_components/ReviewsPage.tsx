@@ -11,10 +11,12 @@ import { fetchMovieData } from "../../API/movieApi";
 import PaginationModule from "../SharedModals/PaginationModule";
 import AddReviewModal from "./AddReviewPanel";
 import { isUserMod } from "../../hooks/decodeJWT";
+import { fetchReplyCountsByReviewIds } from "../../API/ReplyReviewAPI";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState({
@@ -90,6 +92,24 @@ const handleDeleteReview = async (reviewId: string) => {
 
   }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection, movieId]);
 
+  useEffect(() => {
+    try {
+      const reviewsListIds = reviews.map((r) => r.reviewId);
+      if (reviewsListIds.length > 0) {
+        fetchReplyCountsByReviewIds(reviewsListIds, setRepliesAmount, setError);
+      }
+    } catch (err) {
+      console.error("Błąd podczas pobierania ilości odpowiedzi:", err);
+    }
+  }, [reviews]);
+
+  const getReplyCountForReview = (reviewId: string) => {
+    const index = reviews.findIndex((r) => r.reviewId === reviewId);
+    return index !== -1 && repliesAmount[index] !== undefined
+      ? repliesAmount[index]
+      : 0;
+  };
+
   const handleSortChange = (category: string) => {
     switch (category) {
       case "highRaiting":
@@ -122,26 +142,28 @@ const handleDeleteReview = async (reviewId: string) => {
   }
 
   return (
-    <div className="container my-4">
-      <h2 className="mb-4" style={{ color: "white" }}>
-        Recenzje filmu:
-      </h2>
-  
-    {/* Komponent sortowania */}
-    <SortReviewModule onSort={handleSortChange} />
+    <div className="container my-2">
+      <div className="m-4">
+        <h2 style={{ color: "white" }}>Recenzje filmu:</h2>
+        <div style={{ marginTop: "2%" }}>
+          {movie && <MovieListModule movieList={movie ? [movie] : []} />}
+        </div>
+      </div>
+      {/* Komponent sortowania */}
+      <div style={{ marginLeft: "3%" }}>
+        <SortReviewModule onSort={handleSortChange} />
+      </div>
 
-
-<div style={{marginTop:"5%"}}>
-  {movie && <MovieListModule movieList={movie ? [movie] : []} />}
-</div>
       {reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard
             key={review.reviewId}
             review={review}
-            userPage={true} 
+            userPage={true}
             onDelete={() => handleDeleteReview(review.reviewId)}
-            onEdit={() => handleEditReview(review)} 
+            onEdit={() => handleEditReview(review)}
+            commentCount={getReplyCountForReview(review.reviewId)}
+            displayCommentCount = {true}
             isLoggedUserMod={isLoggedUserMod}
           />
         ))
@@ -150,23 +172,23 @@ const handleDeleteReview = async (reviewId: string) => {
       )}
 
       {/* Komponent paginacji */}
-<PaginationModule
-  currentPage={pagination.pageNumber}
-  totalPages={pagination.totalPages}
-  onPageChange={(page) =>
-    setPagination((prev) => ({ ...prev, pageNumber: page }))
-  }
-/>
+      <PaginationModule
+        currentPage={pagination.pageNumber}
+        totalPages={pagination.totalPages}
+        onPageChange={(page) =>
+          setPagination((prev) => ({ ...prev, pageNumber: page }))
+        }
+      />
 
-{reviewToEdit && (
-  <AddReviewModal
-    show={showModal}
-    onClose={() => setShowModal(false)}
-    onAddReview={handleModalSave}
-    initialReviewText={reviewToEdit.comment}
-    initialReviewRating={reviewToEdit.rating}
-  />
-)}
+      {reviewToEdit && (
+        <AddReviewModal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+          onAddReview={handleModalSave}
+          initialReviewText={reviewToEdit.comment}
+          initialReviewRating={reviewToEdit.rating}
+        />
+      )}
     </div>
   );
 };
