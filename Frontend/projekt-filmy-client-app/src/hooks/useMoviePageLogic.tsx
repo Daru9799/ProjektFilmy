@@ -36,11 +36,27 @@ export const useMoviePageLogic = () => {
       fetchActorsData(movieId, setPeople, setError);
       fetchMovieReviews(movieId, setReviews, setError, setLoading);
       fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
-      checkFollowing();
     } else {
       setError("Nieoczekiwany błąd");
     }
   }, [movieId]);
+
+  useEffect(() => {
+    if (movieId && userName) {
+      const loggedUserId = getLoggedUserId();
+
+      if (!loggedUserId) {
+        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
+        return;
+      }
+
+      if (movie?.followers?.$values.some((user) => user.id === loggedUserId)) {
+        setIsFollowing(true);
+      } else {
+        setIsFollowing(false);
+      }
+    }
+  }, [movie]);
 
   const handleEditReview = (review: Review) => {
     setReviewToEdit(review);
@@ -148,23 +164,6 @@ export const useMoviePageLogic = () => {
   };
 
   // sprawdzanie czy użytkownik followuje
-
-  const checkFollowing = () => {
-    if (movieId && userName) {
-      const loggedUserId = getLoggedUserId();
-
-      if (!loggedUserId) {
-        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
-        return;
-      }
-
-      if (movie?.followers?.$values.some((user) => user.id === loggedUserId)) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
-    }
-  };
 
   const handleChangeFollowing = async () => {
     if (isFollowing === false) {

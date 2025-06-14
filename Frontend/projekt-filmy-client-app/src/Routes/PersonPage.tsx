@@ -17,18 +17,16 @@ const PersonPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [isLogged, setIsLogged] = useState<boolean>(false)
+  const [isLogged, setIsLogged] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   useEffect(() => {
     fetchPersonById(id, setPerson, setError, setLoading);
-    if (id) fetchPersonMovies(id, setMovies, setError, setLoading);    
-    checkFollowing();
+    if (id) fetchPersonMovies(id, setMovies, setError, setLoading);
   }, [id]);
 
-  const checkFollowing = () => {
+  useEffect(() => {
     if (id && userName) {
-      
       const loggedUserId = getLoggedUserId();
 
       if (!loggedUserId) {
@@ -44,8 +42,9 @@ const PersonPage = () => {
       }
       setIsLogged(true);
     }
-  };
+  }, [person]);
 
+  console.log(isLogged);
   const handleChangeFollowing = async () => {
     if (isFollowing === false) {
       try {
@@ -68,15 +67,23 @@ const PersonPage = () => {
     }
   };
 
-    const handleLoginSuccess = async (username: string) => {
+  const handleLoginSuccess = async (username: string) => {
     setShowLoginModal(false);
     localStorage.setItem("logged_username", username);
     window.dispatchEvent(
       new CustomEvent("userUpdated", { detail: { username } })
     );
-  }
+    setIsLogged(true);
 
-  
+    if (id) {
+      try {
+        await fetchPersonById(id, setPerson, setError, setLoading);
+        if (id) await fetchPersonMovies(id, setMovies, setError, setLoading);
+      } catch (err) {
+        console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
+      }
+    }
+  };
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
@@ -112,16 +119,29 @@ const PersonPage = () => {
                 : "Imię i nazwisko niedostępne"}
             </h2>
             {/* Przycisk do obserwowania */}
-           {isLogged && <button
-              className="btn btn-outline-light mt-3"
-              style={{
-                width: "200px",
-                backgroundColor: !isFollowing ? "green" : "red",
-              }}
-              onClick={handleChangeFollowing}
-            >
-              {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
-            </button>}
+            {isLogged ? (
+              <button
+                className="btn btn-outline-light mt-3"
+                style={{
+                  backgroundColor: !isFollowing ? "green" : "red",
+                  width: "200px",
+                }}
+                onClick={handleChangeFollowing}
+              >
+                {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
+              </button>
+            ) : (
+              <button
+                className="btn btn-outline-light mt-3"
+                style={{
+                  backgroundColor: !isFollowing ? "green" : "red",
+                  width: "200px",
+                }}
+                onClick={() => setShowLoginModal(true)}
+              >
+                Obserwuj
+              </button>
+            )}
           </div>
 
           {/* Data urodzenia */}
@@ -171,16 +191,13 @@ const PersonPage = () => {
 
       <MovieListModule movieList={movies} />
 
-              <LoginModal
+      <LoginModal
         show={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
     </div>
-
-    
   );
-
 };
 
 export default PersonPage;

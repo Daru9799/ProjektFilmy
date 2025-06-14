@@ -18,3 +18,7 @@ export interface Movie {
   directors?: PeopleResponse;
   followers?: UserResponse;
 }
+
+export interface MovieResponse {
+  $values: Movie[]
+} 

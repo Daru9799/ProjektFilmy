@@ -23,7 +23,7 @@ import ConfirmationModal from "../SharedModals/ConfirmationModal";
 import { isUserMod, getLoggedUserId } from "../../hooks/decodeJWT";
 import "../../styles/UserPage.css";
 import ChangeRoleModal from "./ChangeRoleModal";
-import InfoModal from "../SharedModals/InfoModal"
+import InfoModal from "../SharedModals/InfoModal";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -52,8 +52,13 @@ const UserPage = () => {
   const [showChangeRoleModal, setShowChangeRoleModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [isInvitedByUser, setIsInvitedByUser] = useState(false);
-  const [isLoggedUserMod, setIsLoggedUserMod] = useState(false); //działa, ale na inżynierkę przydałoby się coś lepszego wymyślić
-  const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
+  const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
+  const [infoModal, setInfoModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    variant: "success" | "danger" | "warning";
+  }>({ show: false, title: "", message: "", variant: "danger" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +67,13 @@ const UserPage = () => {
       fetchUserData(userName, setUser, setError, setLoading, navigate);
       fetchUserReviews(userName, 3, setReviews, setError);
       if (loggedUserName) {
-        fetchRelationsData(loggedUserName, "", setRelations, setError, navigate);
+        fetchRelationsData(
+          loggedUserName,
+          "",
+          setRelations,
+          setError,
+          navigate
+        );
       }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
@@ -151,16 +162,20 @@ const UserPage = () => {
         );
         return updatedRelations;
       });
-      } catch (error) {
-        window.location.reload();
-      }
+    } catch (error) {
+      window.location.reload();
+    }
   };
 
   const sendInvitation = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
+      showInfoModal(
+        "Błąd",
+        "Musisz być zalogowany, aby wykonać tę akcję.",
+        "danger"
+      );
       return;
     }
 
@@ -168,7 +183,11 @@ const UserPage = () => {
     if (user) {
       const alreadyInvited = await checkIsInvited(user.id);
       if (alreadyInvited) {
-        showInfoModal("Informacja", "Ten użytkownik został już zaproszony.", "danger");
+        showInfoModal(
+          "Informacja",
+          "Ten użytkownik został już zaproszony.",
+          "danger"
+        );
         return;
       }
 
@@ -179,13 +198,26 @@ const UserPage = () => {
       if (sourceUserId == null) return;
 
       try {
-        await sendFriendInvitation(targetUserId, sourceUserId, sourceUserName, setNotification);
-        showInfoModal("Informacja", "Pomyślnie wysłano zaproszenie do grona znajomych!", "success");
+        await sendFriendInvitation(
+          targetUserId,
+          sourceUserId,
+          sourceUserName,
+          setNotification
+        );
+        showInfoModal(
+          "Informacja",
+          "Pomyślnie wysłano zaproszenie do grona znajomych!",
+          "success"
+        );
       } catch (error: any) {
         if (error.response && error.response.status === 400) {
           window.location.reload();
         } else {
-          showInfoModal("Informacja", "Coś poszło nie tak. Spróbuj ponownie.", "danger");
+          showInfoModal(
+            "Informacja",
+            "Coś poszło nie tak. Spróbuj ponownie.",
+            "danger"
+          );
         }
       }
     }
@@ -195,7 +227,11 @@ const UserPage = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
+      showInfoModal(
+        "Błąd",
+        "Musisz być zalogowany, aby wykonać tę akcję.",
+        "danger"
+      );
       return;
     }
 
@@ -219,7 +255,7 @@ const UserPage = () => {
       localStorage.getItem("logged_username")!,
       "",
       setRelations,
-      setError, 
+      setError,
       navigate
     );
     setIsInvitedByUser(false);
@@ -229,7 +265,11 @@ const UserPage = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      showInfoModal("Błąd", "Musisz być zalogowany, aby wykonać tę akcję.", "danger");
+      showInfoModal(
+        "Błąd",
+        "Musisz być zalogowany, aby wykonać tę akcję.",
+        "danger"
+      );
       return;
     }
 
@@ -245,7 +285,7 @@ const UserPage = () => {
       localStorage.getItem("logged_username")!,
       "",
       setRelations,
-      setError, 
+      setError,
       navigate
     );
   };
@@ -268,7 +308,11 @@ const UserPage = () => {
     return null;
   }
 
-  const showInfoModal = (title: string, message: string, variant: "success" | "danger" | "warning" = "danger") => {
+  const showInfoModal = (
+    title: string,
+    message: string,
+    variant: "success" | "danger" | "warning" = "danger"
+  ) => {
     setInfoModal({ show: true, title, message, variant });
   };
 
@@ -460,7 +504,13 @@ const UserPage = () => {
           />
         )}
 
-        <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
+        <InfoModal
+          show={infoModal.show}
+          onClose={() => setInfoModal({ ...infoModal, show: false })}
+          title={infoModal.title}
+          message={infoModal.message}
+          variant={infoModal.variant}
+        />
       </div>
     </>
   );

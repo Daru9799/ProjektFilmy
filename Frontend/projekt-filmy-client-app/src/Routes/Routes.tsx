@@ -18,6 +18,7 @@ import NotificationPage from '../components/Notifications_components/Notificatio
 import CreateMovieCollection from '../components/CreateMovieCollection_components/CreateMovieCollection';
 import NotFoundPage from './NotFoundPage';
 import ReviewRepliesPage from './ReviewRepliesPage';
+import MovieCollectionPage from './MovieCollectionPage';
 
 
 
@@ -43,6 +44,7 @@ export const routes: RouteObject[] = [
       { path: "user/:userName/moviecollection/create", element:<CreateMovieCollection/>},
       { path: "user/:userName/blocked", element:<BlockedPage/>},
       { path: "notifications", element: <NotificationPage />},
+      { path: "user/:userName/movieCollection/:id", element: <MovieCollectionPage />},
 
       //Strona 404
       { path: "404", element: <NotFoundPage /> }, //Do przenoszenia w odpowiednich miejscach
