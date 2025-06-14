@@ -18,7 +18,6 @@ namespace Movies.Application.MovieCollectionReviewReplies
         public class CreateMovieCollectionReviewReplyCommand : IRequest<MovieCollectionReviewReply>
         {
             public string Comment { get; set; }
-            public DateTime Date { get; set; }
             public Guid MovieCollectionReviewId { get; set; }
             public string UserName { get; set; }
 
@@ -71,7 +70,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
                     {
                         ReplyId = Guid.NewGuid(),
                         Comment = request.Comment,
-                        Date = request.Date,
+                        Date = DateTime.Now,
                         Review = review,
                         User = user
                     };

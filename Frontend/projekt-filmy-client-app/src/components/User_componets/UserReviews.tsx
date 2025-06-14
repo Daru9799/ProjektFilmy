@@ -6,7 +6,7 @@ import SortReviewModule from "../review_components/SortReviewsModle";
 import ReviewCard from "../review_components/ReviewCard"; 
 import { useParams, useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import AddReviewModal from "../review_components/AddReviewPanel"; 
+import AddReviewModal from "../review_components/AddReviewModal"; 
 import { deleteReview, editReview } from "../../API/reviewApi";
 import PaginationModule from "../SharedModals/PaginationModule";
 import { isUserMod } from "../../hooks/decodeJWT";

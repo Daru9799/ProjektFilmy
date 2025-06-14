@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollectionReviewReplies;
+using Movies.Application.Replies;
 using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
@@ -10,7 +11,7 @@ namespace MoviesWebApplication.Controllers
     {
         //Zwracanie odpowiedzi dla podanej recenzji listy filmowej
         [AllowAnonymous]
-        [HttpGet("by-movie-collection-review-id/{reviewId}")]
+        [HttpGet("by-review-id/{reviewId}")]
         public async Task<ActionResult<List<MovieCollectionReviewReplyDto>>> GetRepliesByMovieCollectionReviewId(Guid reviewId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
             var query = new RepliesByMovieCollectionReviewId.Query
@@ -29,6 +30,20 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(replies);
         }
+
+        [AllowAnonymous]
+        [HttpGet("total-amount-by-review-ids")]
+        public async Task<ActionResult<List<int>>> GetTotalAmountByReviewIds([FromQuery] List<Guid> reviewsIds = null)
+        {
+            var query = new GetNumberOfRepliesByReviewIds.Query { ReviewIds = reviewsIds };
+            var replies = await Mediator.Send(query);
+            if (replies == null || !replies.Any())
+            {
+                return NotFound($"Nie znaleziono komentarzy dla podanych ID");
+            }
+            return Ok(replies);
+        }
+
         //Dodawanie nowego komentarza do recenzji listy filmowej
         [Authorize]
         [HttpPost("add-review-reply")]

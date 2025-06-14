@@ -70,6 +70,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
                 if (!string.IsNullOrEmpty(request.Comment))
                 {
                     reply.Comment = request.Comment;
+                    reply.Date = DateTime.Now;
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);

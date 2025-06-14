@@ -74,6 +74,7 @@ namespace Movies.Application.Replies
                 if (!string.IsNullOrEmpty(request.Comment))
                 {
                     reply.Comment = request.Comment;
+                    reply.Date = DateTime.Now;
                 }
 
                 //Zapis zmian w bazie danych

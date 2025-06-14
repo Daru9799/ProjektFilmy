@@ -9,9 +9,9 @@ import { Movie } from "../../models/Movie";
 import { deleteReview, editReview, fetchReviewsByMovieId } from "../../API/reviewApi";
 import { fetchMovieData } from "../../API/movieApi";
 import PaginationModule from "../SharedModals/PaginationModule";
-import AddReviewModal from "./AddReviewPanel";
+import AddReviewModal from "./AddReviewModal";
 import { isUserMod } from "../../hooks/decodeJWT";
-import { fetchReplyCountsByReviewIds } from "../../API/ReplyReviewAPI";
+import { fetchReplyCountsByReviewIds } from "../../API/ReplyUniwersalAPI";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -96,7 +96,7 @@ const handleDeleteReview = async (reviewId: string) => {
     try {
       const reviewsListIds = reviews.map((r) => r.reviewId);
       if (reviewsListIds.length > 0) {
-        fetchReplyCountsByReviewIds(reviewsListIds, setRepliesAmount, setError);
+        fetchReplyCountsByReviewIds("Reply",reviewsListIds, setRepliesAmount, setError);
       }
     } catch (err) {
       console.error("Błąd podczas pobierania ilości odpowiedzi:", err);

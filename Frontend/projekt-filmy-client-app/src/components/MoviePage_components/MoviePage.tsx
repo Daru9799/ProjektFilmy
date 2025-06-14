@@ -1,7 +1,7 @@
 import ImageModal from "../../components/SharedModals/ImageModal";
 import MovieTabs from "./MovieTabs";
 import ReviewsSection from "./ReviewsSection";
-import AddReviewModal from "../review_components/AddReviewPanel";
+import AddReviewModal from "../review_components/AddReviewModal";
 import MovieHeader from "./MovieHeader";
 import LoginModal from "../SingIn_SignUp_componets/LoginModal";
 import { useMoviePageLogic } from "../../hooks/useMoviePageLogic";

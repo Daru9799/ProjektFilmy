@@ -1,5 +1,5 @@
 import React from "react";
-import AddReviewModal from "../review_components/AddReviewPanel";
+import AddReviewModal from "../review_components/AddReviewModal";
 import LoginModal from "../SingIn_SignUp_componets/LoginModal";
 
 interface Props {

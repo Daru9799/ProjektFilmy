@@ -19,7 +19,6 @@ namespace Movies.Application.Replies
         public class CreateReplyCommand : IRequest<Reply>
         {
             public string Comment { get; set; }
-            public DateTime Date { get; set; }
             public Guid ReviewId { get; set; }
         }
         public class Handler : IRequestHandler<CreateReplyCommand, Reply>
@@ -67,7 +66,7 @@ namespace Movies.Application.Replies
                 {
                     ReplyId = Guid.NewGuid(),
                     Comment = request.Comment,
-                    Date = request.Date,
+                    Date = DateTime.Now,
                     User = user,
                     Review = review
                 };

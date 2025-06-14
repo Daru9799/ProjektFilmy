@@ -42,6 +42,17 @@ namespace Movies.Application.Replies
                     .Include(r => r.Review)
                     .OrderByDescending(r => r.Date); //Sortowanie po dacie
 
+                if (!await query.AnyAsync(cancellationToken))
+                {
+                    return new PagedResponse<ReplyDto>
+                    {
+                        Data = new List<ReplyDto>(),
+                        TotalItems = 0,
+                        PageNumber = request.PageNumber,
+                        PageSize = request.PageSize
+                    };
+                }
+
                 var replies = await query
                     .Skip((request.PageNumber - 1) * request.PageSize)
                     .Take(request.PageSize)

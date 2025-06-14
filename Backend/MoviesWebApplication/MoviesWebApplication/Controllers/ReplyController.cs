@@ -23,16 +23,11 @@ namespace MoviesWebApplication.Controllers
 
             var replies = await Mediator.Send(query);
 
-            if (replies.Data == null || !replies.Data.Any())
-            {
-                return NotFound($"Nie znaleziono komentarzy dla recenzji o ID '{reviewId}'.");
-            }
-
             return Ok(replies);
         }
 
         [AllowAnonymous]
-        [HttpGet("total-amount-by-review-id")]
+        [HttpGet("total-amount-by-review-ids")]
         public async Task<ActionResult<List<int>>> GetTotalAmountByReviewIds([FromQuery] List<Guid> reviewsIds = null) 
         { 
             var query = new GetNumberOfRepliesByReviewIds.Query { ReviewIds = reviewsIds };
@@ -45,7 +40,6 @@ namespace MoviesWebApplication.Controllers
         }
 
 
-
         [Authorize]
         [HttpPost("add-review-reply")]
         public async Task<IActionResult> CreateReviewReply([FromBody] CreateReply.CreateReplyCommand command)
@@ -53,7 +47,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var reply = await Mediator.Send(command);
-                return Ok("Pomyślnie dodano komentarz.");
+                return Ok(reply);
             }
             catch (ValidationException ex)
             {

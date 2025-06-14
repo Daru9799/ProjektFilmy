@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { UserProfile, userRole } from "../../models/UserProfile";
 import { Review } from "../../models/Review";
 import ReviewCard from "../review_components/ReviewCard";
-import AddReviewModal from "../review_components/AddReviewPanel";
+import AddReviewModal from "../review_components/AddReviewModal";
 import EditUserModal from "./EditUserModal";
 import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
 import {

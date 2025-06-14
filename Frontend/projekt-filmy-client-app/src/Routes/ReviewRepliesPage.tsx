@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import { isUserMod } from "../hooks/decodeJWT";
-import { deleteReply, fetchRepliesByReviewId, fetchReplyCountsByReviewIds } from "../API/ReplyReviewAPI";
+import { createReply, deleteReply, editReply, fetchRepliesByReviewId, fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 import PaginationModule from "../components/SharedModals/PaginationModule";
-import AddReviewModal from "../components/review_components/AddReviewPanel";
+import AddReviewModal from "../components/review_components/AddReviewModal";
 import { Reply } from "../models/Reply";
 import ReplyCard from "../components/reply_components/ReplyCard";
 import { Review } from "../models/Review";
 import { fetchReviewData } from "../API/reviewApi";
 import ReviewCard from "../components/review_components/ReviewCard";
+import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 
 const ReviewsPage = () => {
   const { reviewId } = useParams<{ reviewId: string }>();
@@ -34,8 +35,9 @@ const ReviewsPage = () => {
 
   const handleDeleteReview = async (replyId: string) => {
     try {
-      await deleteReply(replyId, setReplies);
+      await deleteReply("Reply", replyId, setReplies);
       await fetchRepliesByReviewId(
+        "Reply",
         reviewId,
         pagination.pageNumber,
         pagination.pageSize,
@@ -53,14 +55,34 @@ const ReviewsPage = () => {
     setShowModal(true);
   };
 
-  const handleModalSave = (reviewText: string, rating: number) => {
-    if (replyToEdit) {
-    //   editReview(
-    //     replyToEdit.reviewId,
-    //     { comment: reviewText, rating },
-    //     setReplies,
-    //     setError
-    //   );
+  const handleCreateReply = async(comment:string) =>{
+    if (!review?.reviewId) return;
+    await createReply("Reply", review.reviewId, comment, setReplies, setError);
+    await fetchRepliesByReviewId(
+      "Reply",
+      reviewId,
+      pagination.pageNumber,
+      pagination.pageSize,
+      setReplies,
+      setPagination,
+      setError
+    );
+  }
+
+  const handleModalSave = async (replyText: string) => {
+    try {
+      if (replyToEdit) {
+        await editReply(
+          "Reply",
+          replyToEdit.replyId,
+          replyText,
+          setReplies,
+          setError
+        );
+      } else {
+        await handleCreateReply(replyText);
+      }
+    } finally {
       setShowModal(false);
       setReviewToEdit(null);
     }
@@ -69,6 +91,7 @@ const ReviewsPage = () => {
   useEffect(() => {
     try {
         fetchRepliesByReviewId(
+          "Reply",
           reviewId,
           pagination.pageNumber,
           pagination.pageSize,
@@ -104,38 +127,46 @@ const ReviewsPage = () => {
           {review && <ReviewCard review={review} />}
         </div>
       </div>
+      <div>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          Dodaj odpowiedź
+        </button>
+      </div>
 
       {replies.length > 0 ? (
         replies.map((reply) => (
           <ReplyCard
             key={reply.replyId}
             reply={reply}
-            onDelete={() => handleDeleteReview(reply.reviewId)}
+            onDelete={() => handleDeleteReview(reply.replyId)}
             onEdit={() => handleEditReply(reply)}
             isLoggedUserMod={isLoggedUserMod}
           />
         ))
       ) : (
-        <p>Brak recenzji dla tego filmu.</p>
+        <p>Brak komentarzy dla tej recenzji.</p>
       )}
 
       {/* Komponent paginacji */}
-      <PaginationModule
-        currentPage={pagination.pageNumber}
-        totalPages={pagination.totalPages}
-        onPageChange={(page) =>
-          setPagination((prev) => ({ ...prev, pageNumber: page }))
-        }
-      />
-
-      {/* {replyToEdit && (
-        <AddReviewModal
-          show={showModal}
-          onClose={() => setShowModal(false)}
-          onAddReview={handleModalSave}
-          initialReviewText={replyToEdit.comment}
+      {replies.length > 0 && (
+        <PaginationModule
+          currentPage={pagination.pageNumber}
+          totalPages={pagination.totalPages}
+          onPageChange={(page) =>
+            setPagination((prev) => ({ ...prev, pageNumber: page }))
+          }
         />
-      )} */}
+      )}
+
+      <ReplyFormModal
+        show={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setReviewToEdit(null); // Resetuj edycję przy zamknięciu
+        }}
+        onAddReview={handleModalSave}
+        initialReviewText={replyToEdit?.comment} // Optional chaining
+      />
     </div>
   );
 };
