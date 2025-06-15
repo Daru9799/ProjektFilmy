@@ -12,7 +12,7 @@ using Movies.Application.Interfaces;
 using MoviesWebApplication.SignalR;
 using Hangfire;
 using Hangfire.MySql;
-using HangFire;
+using MoviesWebApplication.Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
