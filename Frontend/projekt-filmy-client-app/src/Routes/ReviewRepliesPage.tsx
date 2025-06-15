@@ -1,18 +1,28 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import { isUserMod } from "../hooks/decodeJWT";
-import { createReply, deleteReply, editReply, fetchRepliesByReviewId, fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
+import {
+  createReply,
+  deleteReply,
+  editReply,
+  fetchRepliesByReviewId,
+} from "../API/ReplyUniwersalAPI";
 import PaginationModule from "../components/SharedModals/PaginationModule";
-import AddReviewModal from "../components/review_components/AddReviewModal";
 import { Reply } from "../models/Reply";
 import ReplyCard from "../components/reply_components/ReplyCard";
 import { Review } from "../models/Review";
-import { fetchReviewData } from "../API/reviewApi";
 import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
+import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
+import { fetchCollectionReviewData } from "../API/CollectionReviewAPI";
+import { fetchReviewData } from "../API/reviewApi";
 
-const ReviewsPage = () => {
+interface ReviewRepliesPageProps {
+  endpointPrefix: ReplyEndpointType;
+}
+
+const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   const { reviewId } = useParams<{ reviewId: string }>();
   const [replies, setReplies] = useState<Reply[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -33,11 +43,11 @@ const ReviewsPage = () => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
-  const handleDeleteReview = async (replyId: string) => {
+  const handleDeleteReply = async (replyId: string) => {
     try {
-      await deleteReply("Reply", replyId, setReplies);
+      await deleteReply(endpointPrefix, replyId, setReplies);
       await fetchRepliesByReviewId(
-        "Reply",
+        endpointPrefix,
         reviewId,
         pagination.pageNumber,
         pagination.pageSize,
@@ -46,7 +56,7 @@ const ReviewsPage = () => {
         setError
       );
     } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
+      console.error("Błąd podczas usuwania odpowiedzi:", err);
     }
   };
 
@@ -55,11 +65,17 @@ const ReviewsPage = () => {
     setShowModal(true);
   };
 
-  const handleCreateReply = async(comment:string) =>{
-    if (!review?.reviewId) return;
-    await createReply("Reply", review.reviewId, comment, setReplies, setError);
+  const handleCreateReply = async (comment: string) => {
+    //if (reviewId) return;
+    await createReply(
+      endpointPrefix,
+      reviewId,
+      comment,
+      setReplies,
+      setError
+    );
     await fetchRepliesByReviewId(
-      "Reply",
+      endpointPrefix,
       reviewId,
       pagination.pageNumber,
       pagination.pageSize,
@@ -67,20 +83,22 @@ const ReviewsPage = () => {
       setPagination,
       setError
     );
-  }
+  };
 
   const handleModalSave = async (replyText: string) => {
     try {
       if (replyToEdit) {
         await editReply(
-          "Reply",
+          endpointPrefix,
           replyToEdit.replyId,
           replyText,
           setReplies,
           setError
         );
+        console.log("Zapisuję edycje reply:", replyText, "dla endpointu:", endpointPrefix);
       } else {
         await handleCreateReply(replyText);
+        console.log("Zapisuję reply:", replyText, "dla endpointu:", endpointPrefix);
       }
     } finally {
       setShowModal(false);
@@ -89,9 +107,10 @@ const ReviewsPage = () => {
   };
 
   useEffect(() => {
-    try {
-        fetchRepliesByReviewId(
-          "Reply",
+    const fetchData = async () => {
+      try {
+        await fetchRepliesByReviewId(
+          endpointPrefix,
           reviewId,
           pagination.pageNumber,
           pagination.pageSize,
@@ -99,18 +118,22 @@ const ReviewsPage = () => {
           setPagination,
           setError
         );
-      fetchReviewData(reviewId, setReview, setError);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    pagination.pageNumber,
-    pagination.pageSize,
-    reviewId,
-  ]);
+
+        if (endpointPrefix === "Reply") {
+          await fetchReviewData(reviewId, setReview, setError);
+        } else {
+          await fetchCollectionReviewData(reviewId, setReview, setError);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pagination.pageNumber, pagination.pageSize, reviewId, endpointPrefix]);
 
   if (loading) {
-    return <div className="text-center">Ładowanie recenzji...</div>;
+    return <div className="text-center">Ładowanie komentarzy..</div>;
   }
 
   if (error) {
@@ -120,10 +143,12 @@ const ReviewsPage = () => {
   return (
     <div className="container my-2">
       <div className="m-4">
-        <h2 style={{ color: "white" }}>Recenzje filmu:</h2>
+        <h2 style={{ color: "white" }}>
+          {endpointPrefix === "Reply"
+            ? "Recenzja filmu:"
+            : "Recenzja kolekcji:"}
+        </h2>
         <div style={{ marginTop: "2%" }}>
-          {/* {review && <MovieListModule movieList={review ? [review] : []} />} */}
-          {/* Tutaj wstawienie kafelka z recenzją */}
           {review && <ReviewCard review={review} />}
         </div>
       </div>
@@ -138,7 +163,7 @@ const ReviewsPage = () => {
           <ReplyCard
             key={reply.replyId}
             reply={reply}
-            onDelete={() => handleDeleteReview(reply.replyId)}
+            onDelete={() => handleDeleteReply(reply.replyId)}
             onEdit={() => handleEditReply(reply)}
             isLoggedUserMod={isLoggedUserMod}
           />
@@ -147,7 +172,6 @@ const ReviewsPage = () => {
         <p>Brak komentarzy dla tej recenzji.</p>
       )}
 
-      {/* Komponent paginacji */}
       {replies.length > 0 && (
         <PaginationModule
           currentPage={pagination.pageNumber}
@@ -162,13 +186,14 @@ const ReviewsPage = () => {
         show={showModal}
         onClose={() => {
           setShowModal(false);
-          setReviewToEdit(null); // Resetuj edycję przy zamknięciu
+          setReviewToEdit(null);
         }}
         onAddReview={handleModalSave}
-        initialReviewText={replyToEdit?.comment} // Optional chaining
+        initialReviewText={replyToEdit?.comment}
       />
     </div>
   );
 };
 
-export default ReviewsPage;
+export default ReviewRepliesPage;
+

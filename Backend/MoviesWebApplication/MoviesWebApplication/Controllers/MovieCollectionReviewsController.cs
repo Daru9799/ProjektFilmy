@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollectionReviews;
+using Movies.Application.Reviews;
 using Movies.Domain.DTOs;
 
 namespace MoviesWebApplication.Controllers
@@ -31,6 +32,22 @@ namespace MoviesWebApplication.Controllers
 
             return Ok(reviews);
         }
+
+        [AllowAnonymous]
+        [HttpGet("{reviewId}")]
+        public async Task<ActionResult<MovieCollectionReviewDto>> GetCollectionReviewById(Guid reviewId)
+        {
+            var querry = new GetCollectionReviewById.Query { Id = reviewId };
+            var result = await Mediator.Send(querry);
+
+            if (result == null)
+            {
+                return NotFound($"Nie znaleziono recenzji o podanym ID.");
+            }
+
+            return Ok(result);
+        }
+
         //Dodawanie recenzji listy filmowej
         [Authorize]
         [HttpPost("add-movie-collection-review")]

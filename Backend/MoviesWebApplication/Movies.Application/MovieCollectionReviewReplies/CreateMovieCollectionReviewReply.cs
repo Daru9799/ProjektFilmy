@@ -18,8 +18,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
         public class CreateMovieCollectionReviewReplyCommand : IRequest<MovieCollectionReviewReply>
         {
             public string Comment { get; set; }
-            public Guid MovieCollectionReviewId { get; set; }
-            public string UserName { get; set; }
+            public Guid ReviewId { get; set; }
 
             public class Handler : IRequestHandler<CreateMovieCollectionReviewReplyCommand, MovieCollectionReviewReply>
             {
@@ -44,20 +43,20 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                     //Sprawdzenie istnienia recenzji
                     var review = await _context.MovieCollectionReviews
-                        .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.MovieCollectionReviewId, cancellationToken);
+                        .FirstOrDefaultAsync(r => r.MovieCollectionReviewId == request.ReviewId, cancellationToken);
 
                     if (review == null)
                     {
-                        throw new ValidationException($"Nie znaleziono recenzji o ID: {request.MovieCollectionReviewId}");
+                        throw new ValidationException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
                     }
 
                     //Sprawdzenie istnienia użytkownika
                     var user = await _context.Users
-                        .FirstOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken);
+                        .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
 
                     if (user == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
+                        throw new ValidationException($"Nie znaleziono użytkownika");
                     }
 
                     if (user.Id != currentUserId)

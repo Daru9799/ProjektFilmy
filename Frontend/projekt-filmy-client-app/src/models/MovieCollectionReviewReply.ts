@@ -4,6 +4,6 @@ export interface MovieCollectionReviewReply {
     date: string,
     userName: string,
     userId: string,
-    movieCollectionReviewId: string
+    reviewId: string
 
 }

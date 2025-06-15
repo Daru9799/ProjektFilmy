@@ -23,10 +23,10 @@ namespace MoviesWebApplication.Controllers
 
             var replies = await Mediator.Send(query);
 
-            if (replies.Data == null || !replies.Data.Any())
+            /*if (replies.Data == null || !replies.Data.Any())
             {
                 return NotFound($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{reviewId}'.");
-            }
+            }*/
 
             return Ok(replies);
         }
@@ -52,7 +52,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var reply = await Mediator.Send(command);
-                return Ok("Pomyślnie dodano komentarz.");
+                return Ok(reply);
             }
             catch (ValidationException ex)
             {

@@ -2,7 +2,7 @@ import axios from "axios";
 import qs from "qs";
 import { Reply } from "../models/Reply";
 
-type ReplyEndpointType = "Reply" | "MovieCollectionReviewReplies";
+export type ReplyEndpointType = "Reply" | "MovieCollectionReviewReplies";
 
 const getEndpointUrl = (endpointPrefix: ReplyEndpointType, path: string) => {
   return `https://localhost:7053/api/${endpointPrefix}/${path}`;
@@ -93,6 +93,8 @@ export const createReply = async (
     if (response.data) {
       setReplies((prev) => [...prev, response.data]);
     }
+    console.log("Stworzono Reply")
+    console.log(response.data)
   } catch (err) {
     handleApiError(err, setError);
     console.error("Błąd dodawania odpowiedzi:", err);

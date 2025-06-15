@@ -33,22 +33,37 @@ export const routes: RouteObject[] = [
       { path: "search-actors", element: <SearchActorsPage /> },
       { path: "/:movieId", element: <MoviePage /> },
       { path: "/:movieId/reviews", element: <ReviewsPage /> },
-      { path: "/:reviewId/replies", element: <ReviewRepliesPage /> },
+      {
+        path: "/:reviewId/replies",
+        element: <ReviewRepliesPage endpointPrefix="Reply" />,
+      },
+      {
+        path: "/movie-collection/:reviewId/replies",
+        element: (
+          <ReviewRepliesPage endpointPrefix="MovieCollectionReviewReplies" />
+        ),
+      },
       { path: "user/:userName", element: <UserPage /> },
       { path: "people/:id", element: <PersonPage /> },
       { path: "user/:userName/reviews", element: <UserReviewsPage /> },
-      { path: "achievements", element:<AllAchievements/>},
+      { path: "achievements", element: <AllAchievements /> },
       { path: "user/:userName/friends", element: <FriendsPage /> },
-      { path: "user/achievements/:userName",element:<UserAchievements/>},
-      { path: "users/statistics/:userName", element:<UserStatistics/>},
-      { path: "user/:userName/moviecollection/create", element:<CreateMovieCollection/>},
-      { path: "user/:userName/blocked", element:<BlockedPage/>},
-      { path: "notifications", element: <NotificationPage />},
-      { path: "user/:userName/movieCollection/:id", element: <MovieCollectionPage />},
+      { path: "user/achievements/:userName", element: <UserAchievements /> },
+      { path: "users/statistics/:userName", element: <UserStatistics /> },
+      {
+        path: "user/:userName/moviecollection/create",
+        element: <CreateMovieCollection />,
+      },
+      { path: "user/:userName/blocked", element: <BlockedPage /> },
+      { path: "notifications", element: <NotificationPage /> },
+      {
+        path: "user/:userName/movieCollection/:id",
+        element: <MovieCollectionPage />,
+      },
 
       //Strona 404
       { path: "404", element: <NotFoundPage /> }, //Do przenoszenia w odpowiednich miejscach
-      { path: "*", element: <NotFoundPage /> } //Pod ścieżki typu /test/test/test
+      { path: "*", element: <NotFoundPage /> }, //Pod ścieżki typu /test/test/test
     ],
   },
 ];
