@@ -170,3 +170,67 @@ export const markNotificationAsRead = async (notificationId: string): Promise<vo
     throw error;
   }
 };
+
+//Wysłanie powiadomienia po dodaniu komentarza do recenzji filmu
+export const sendMovieReviewCommentedNotification = async (
+  reviewId: string,
+  targetUserId: string,
+  sourceUserId: string,
+  sourceUserName: string | null,
+  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
+) => {
+  const response = await axios.post(
+    "https://localhost:7053/api/Notifications/add-notification",
+    {
+      title: `Komentarz do Twojej recenzji filmu`,
+      description: `${sourceUserName} skomentował(a) Twoją recenzję filmu.`,
+      type: "ReviewCommented",
+      date: new Date().toISOString(),
+      isRead: false,
+      resource: `/${reviewId}/replies`,
+      sourceUserId,
+      targetUserId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  if (response.status === 200) {
+    setNotification(response.data);
+  }
+};
+
+//Wysłanie powiadomienia po dodaniu komentarza do recenzji kolekcji filmowej
+export const sendCollectionReviewCommentedNotification = async (
+  collectionId: string,
+  targetUserId: string,
+  sourceUserId: string,
+  sourceUserName: string | null,
+  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
+) => {
+  const response = await axios.post(
+    "https://localhost:7053/api/Notifications/add-notification",
+    {
+      title: `Komentarz do Twojej recenzji kolekcji`,
+      description: `${sourceUserName} skomentował(a) Twoją recenzję kolekcji filmów.`,
+      type: "ReviewCommented",
+      date: new Date().toISOString(),
+      isRead: false,
+      resource: `/movie-collection/${collectionId}/replies`,
+      sourceUserId,
+      targetUserId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  if (response.status === 200) {
+    setNotification(response.data);
+  }
+};

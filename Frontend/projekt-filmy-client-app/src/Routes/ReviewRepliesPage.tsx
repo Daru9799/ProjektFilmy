@@ -17,6 +17,11 @@ import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
 import { fetchCollectionReviewData } from "../API/CollectionReviewAPI";
 import { fetchReviewData } from "../API/reviewApi";
+import { 
+  sendMovieReviewCommentedNotification, 
+  sendCollectionReviewCommentedNotification 
+} from "../API/notificationApi"
+import { getLoggedUserId } from "../hooks/decodeJWT";
 
 interface ReviewRepliesPageProps {
   endpointPrefix: ReplyEndpointType;
@@ -66,7 +71,8 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   };
 
   const handleCreateReply = async (comment: string) => {
-    //if (reviewId) return;
+    if (!reviewId || !review) return;
+
     await createReply(
       endpointPrefix,
       reviewId,
@@ -74,6 +80,33 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
       setReplies,
       setError
     );
+
+    //Generowanie powiadomienia
+    const reviewAuthorId = review.userId;
+    const loggedUserId = getLoggedUserId(); //Id użytkownika, który dodaje komentarz
+    const loggedUserName = localStorage.getItem("logged_username");
+
+    if (loggedUserId && loggedUserId !== reviewAuthorId) {
+    if (endpointPrefix === "Reply") {
+      await sendMovieReviewCommentedNotification(
+        reviewId,
+        reviewAuthorId,
+        loggedUserId,
+        loggedUserName,
+        () => {}
+      );
+    } else {
+        await sendCollectionReviewCommentedNotification(
+          reviewId,
+          reviewAuthorId,
+          loggedUserId,
+          loggedUserName,
+          () => {}
+        );
+      }
+    }
+
+    //Ponowne zaciągnięcie danych z API
     await fetchRepliesByReviewId(
       endpointPrefix,
       reviewId,
