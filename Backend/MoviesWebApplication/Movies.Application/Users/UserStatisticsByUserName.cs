@@ -4,30 +4,38 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using static Movies.Domain.Entities.MovieCollection;
 using static Movies.Domain.Entities.MoviePerson;
+using Microsoft.AspNetCore.Http;
 
 namespace Movies.Application.Users
 {
     public class UserStatisticsByUserName
     {
-        public class Query : IRequest<StatisticsDto> 
+        public class Query : IRequest<StatisticsDto>
         {
             public string userName { get; set; }
         }
 
-
         public class Handler : IRequestHandler<Query, StatisticsDto>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
-
 
             public async Task<StatisticsDto> Handle(Query request, CancellationToken cancellationToken)
             {
-            
+                var currentUserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+                if (string.IsNullOrEmpty(currentUserName) ||
+                    !string.Equals(currentUserName, request.userName, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new UnauthorizedAccessException("Nie masz dostępu do tej strony");
+                }
+
                 var watchedMovieIds = await _context.MovieCollections
                     .Where(mc => mc.User.UserName == request.userName && mc.Type == CollectionType.Watched)
                     .SelectMany(mc => mc.Movies.Select(mmc => mmc.MovieId))

@@ -3,6 +3,7 @@ using Movies.Domain.DTOs;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 public class AchievementsByUserName
 {
@@ -18,14 +19,23 @@ public class AchievementsByUserName
     public class Handler : IRequestHandler<Query, PagedResponse<UserAchievementDto>>
     {
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public Handler(DataContext context)
+        public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<PagedResponse<UserAchievementDto>> Handle(Query request, CancellationToken cancellationToken)
         {
+            var currentUserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+            if (currentUserName == null || !string.Equals(currentUserName, request.UserName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Nie masz dostępu do tej strony");
+            }
+
             var query = _context.UserAchievements
                 .Include(ua => ua.User)
                 .Include(ua => ua.Achievement)
@@ -54,7 +64,6 @@ public class AchievementsByUserName
                 .ToListAsync(cancellationToken);
 
             int totalItems = await query.CountAsync(cancellationToken);
-
 
             var userAchievementDtos = data.Select(ua => new UserAchievementDto
             {

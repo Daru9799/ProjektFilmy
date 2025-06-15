@@ -1,0 +1,7 @@
+CREATE DATABASE IF NOT EXISTS hangfiredb;
+
+CREATE USER IF NOT EXISTS 'hangfire'@'%' IDENTIFIED BY 'Zaq12wsx';
+
+GRANT ALL PRIVILEGES ON hangfiredb.* TO 'hangfire'@'%';
+
+FLUSH PRIVILEGES;

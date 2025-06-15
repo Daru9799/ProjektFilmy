@@ -25,7 +25,7 @@ namespace MoviesWebApplication.Controllers
 
 
         [AllowAnonymous]
-        [HttpGet("by-user-id/{userName}")]
+        [HttpGet("by-user-name/{userName}")]
         public async Task<ActionResult<List<UserAchievementDto>>> GetAchievementsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
         {
             var query = new AchievementsByUserName.Query

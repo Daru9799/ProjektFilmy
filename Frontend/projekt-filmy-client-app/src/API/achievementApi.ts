@@ -89,8 +89,12 @@ export const fetchUserAchievements = async (
 
   try {
     const response: AxiosResponse<PaginationResponse<UserAchievement>> = await axios.get(
-      `https://localhost:7053/api/Achievement/by-user-id/${userName}`,
+      `https://localhost:7053/api/Achievement/by-user-name/${userName}`,
       {
+
+          headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         params: {
           pageNumber: page,
           pageSize,

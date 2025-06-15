@@ -10,6 +10,9 @@ using Movies.Domain.Entities;
 using MoviesWebApplication.Hubs;
 using Movies.Application.Interfaces;
 using MoviesWebApplication.SignalR;
+using Hangfire;
+using Hangfire.MySql;
+using HangFire;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,16 @@ builder.Services.AddSwaggerGen();
 //HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
+// HangFire - dane w appsettings.json
+builder.Services.AddHangfire(configuration =>
+    configuration.UseStorage(new MySqlStorage(
+        builder.Configuration.GetConnectionString("HangfireConnection"),
+        new MySqlStorageOptions()
+    )));
+
+builder.Services.AddHangfireServer();
+
+
 //SingnalR
 builder.Services.AddSignalR(options =>
 {
@@ -27,6 +40,7 @@ builder.Services.AddSignalR(options =>
 });
 
 builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
+builder.Services.AddScoped<DailyPremiereNotificationJob>();
 
 //Kontekst bazy danych
 builder.Services.AddDbContext<DataContext>(opt =>
@@ -74,6 +88,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHangfireDashboard(); // https://localhost:7053/hangfire
+
+RecurringJob.AddOrUpdate<DailyPremiereNotificationJob>(
+    "daily-premiere-job",
+    job => job.ExecuteAsync(),
+    "0 1 * * *", // codziennie o 01:00
+    TimeZoneInfo.Local
+);
+
 
 app.UseHttpsRedirection();
 
