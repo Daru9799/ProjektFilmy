@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { UserRelation } from "../../models/UserRelation";
-import { fetchRelationsData, deleteRelation } from "../../API/relationApi";
-import FriendCard from "../../components/Friends_components/FriendCard"
-import InfoModal from "../SharedModals/InfoModal"
+import { UserRelation } from "../models/UserRelation";
+import { fetchRelationsData, deleteRelation } from "../API/relationApi";
+import FriendCard from "../components/Friends_components/FriendCard"
+import InfoModal from "../components/SharedModals/InfoModal"
 
 const FriendsPage = () => {
     const { userName } = useParams();

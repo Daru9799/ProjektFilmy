@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Review } from "../../models/Review";
-import SortReviewModule from "./SortReviewsModle"; 
-import ReviewCard from "./ReviewCard"; 
-import MovieListModule from "../SearchMovies_componets/MovieListModule"; 
+import { Review } from "../models/Review";
+import SortReviewModule from "../components/review_components/SortReviewsModle"; 
+import ReviewCard from "../components/review_components/ReviewCard"; 
+import MovieListModule from "../components/SearchMovies_componets/MovieListModule"; 
 import { useParams } from "react-router-dom";
-import { Movie } from "../../models/Movie"; 
-import { deleteReview, editReview, fetchReviewsByMovieId } from "../../API/reviewApi";
-import { fetchMovieData } from "../../API/movieApi";
-import PaginationModule from "../SharedModals/PaginationModule";
-import AddReviewModal from "./AddReviewModal";
-import { isUserMod } from "../../hooks/decodeJWT";
-import { fetchReplyCountsByReviewIds } from "../../API/ReplyUniwersalAPI";
+import { Movie } from "../models/Movie"; 
+import { deleteReview, editReview, fetchReviewsByMovieId } from "../API/reviewApi";
+import { fetchMovieData } from "../API/movieApi";
+import PaginationModule from "../components/SharedModals/PaginationModule";
+import AddReviewModal from "../components/review_components/AddReviewModal";
+import { isUserMod } from "../hooks/decodeJWT";
+import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();

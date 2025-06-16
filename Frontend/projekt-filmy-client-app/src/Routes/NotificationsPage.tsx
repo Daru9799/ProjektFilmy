@@ -1,11 +1,11 @@
 import { ReactNode, useEffect, useState } from "react";
-import NotificationCard from "../../components/Notifications_components/NotificationCard"
-import PaginationModule from "../SharedModals/PaginationModule";
-import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
+import NotificationCard from "../components/Notifications_components/NotificationCard"
+import PaginationModule from "../components/SharedModals/PaginationModule";
+import { useNotificationContext } from "../components/Notifications_components/NotificationsContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import InfoModal from "../SharedModals/InfoModal";
-import SortNotificationModule from "../../components/Notifications_components/SortNotificationModule"
-import { readFilterMap, ReadFilterOption, NotificationTypeFilterOption } from "../../components/Notifications_components/SortNotificationModule";
+import InfoModal from "../components/SharedModals/InfoModal";
+import SortNotificationModule from "../components/Notifications_components/SortNotificationModule"
+import { readFilterMap, ReadFilterOption, NotificationTypeFilterOption } from "../components/Notifications_components/SortNotificationModule";
 
 const NotificationPage = () => {
     const { notifications, fetchNotifications, pageInfo, filters, setFilters } = useNotificationContext();

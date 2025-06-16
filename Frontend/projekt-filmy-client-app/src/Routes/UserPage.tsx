@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { UserProfile, userRole } from "../../models/UserProfile";
-import { Review } from "../../models/Review";
-import ReviewCard from "../review_components/ReviewCard";
-import AddReviewModal from "../review_components/AddReviewModal";
-import EditUserModal from "./EditUserModal";
-import { fetchUserData, fetchUserReviews } from "../../API/userAPI";
+import { UserProfile, userRole } from "../models/UserProfile";
+import { Review } from "../models/Review";
+import ReviewCard from "../components/review_components/ReviewCard";
+import AddReviewModal from "../components/review_components/AddReviewModal";
+import EditUserModal from "../components/User_componets/EditUserModal";
+import { fetchUserData, fetchUserReviews } from "../API/userAPI";
 import {
   fetchRelationsData,
   deleteRelation,
   createRelation,
-} from "../../API/relationApi";
+} from "../API/relationApi";
 import {
   sendFriendInvitation,
   checkIsInvited,
   checkIsInvitedByUser,
   getInvitationFromUser,
   deleteNotification,
-} from "../../API/notificationApi";
-import { deleteReview, editReview } from "../../API/reviewApi";
-import ConfirmationModal from "../SharedModals/ConfirmationModal";
-import { isUserMod, getLoggedUserId } from "../../hooks/decodeJWT";
-import "../../styles/UserPage.css";
-import ChangeRoleModal from "./ChangeRoleModal";
-import InfoModal from "../SharedModals/InfoModal";
+} from "../API/notificationApi";
+import { deleteReview, editReview } from "../API/reviewApi";
+import ConfirmationModal from "../components/SharedModals/ConfirmationModal";
+import { isUserMod, getLoggedUserId } from "../hooks/decodeJWT";
+import "../styles/UserPage.css";
+import ChangeRoleModal from "../components/User_componets/ChangeRoleModal";
+import InfoModal from "../components/SharedModals/InfoModal";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {

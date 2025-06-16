@@ -1,11 +1,11 @@
-import ImageModal from "../../components/SharedModals/ImageModal";
-import MovieTabs from "./MovieTabs";
-import ReviewsSection from "./ReviewsSection";
-import AddReviewModal from "../review_components/AddReviewModal";
-import MovieHeader from "./MovieHeader";
-import LoginModal from "../SingIn_SignUp_componets/LoginModal";
-import { useMoviePageLogic } from "../../hooks/useMoviePageLogic";
-import RecommendMovieModule from "./RecommendMovieModule";
+import ImageModal from "../components/SharedModals/ImageModal";
+import MovieTabs from "../components/MoviePage_components/MovieTabs";
+import ReviewsSection from "../components/MoviePage_components/ReviewsSection";
+import AddReviewModal from "../components/review_components/AddReviewModal";
+import MovieHeader from "../components/MoviePage_components/MovieHeader";
+import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
+import { useMoviePageLogic } from "../hooks/useMoviePageLogic";
+import RecommendMovieModule from "../components/MoviePage_components/RecommendMovieModule";
 
 const MoviePage = () => {
   const {

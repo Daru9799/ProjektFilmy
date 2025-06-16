@@ -1,10 +1,10 @@
-import FilterMovieModule from "./FilterMovieModule";
-import SortMovieModule from "./SortMovieModule";
-import MovieListModule from "./MovieListModule";
-import NoMoviesModal from "./NoMoviesModal";
-import { useSearchMovies } from "../../hooks/useMovieSearch";
-import SearchModule from "../SharedModals/SearchModule";
-import PaginationModule from "../SharedModals/PaginationModule";
+import FilterMovieModule from "../components/SearchMovies_componets/FilterMovieModule";
+import SortMovieModule from "../components/SearchMovies_componets/SortMovieModule";
+import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
+import NoMoviesModal from "../components/SearchMovies_componets/NoMoviesModal";
+import { useSearchMovies } from "../hooks/useMovieSearch";
+import SearchModule from "../components/SharedModals/SearchModule";
+import PaginationModule from "../components/SharedModals/PaginationModule";
 
 
 const SearchMoviesPage = () => {

@@ -14,12 +14,12 @@ const GoogleLoginButton = ({ onLoginSuccess, onError, onClose }: Props) => {
   const [idToken, setIdToken] = useState("");
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
-    const token = credentialResponse.credential;
-    setIdToken(token!);
+    const googleToken = credentialResponse.credential;
+    setIdToken(googleToken!);
 
     try {
       const response = await axios.post("https://localhost:7053/api/Account/google-login", {
-        idToken: token,
+        idToken: googleToken,
       });
 
       localStorage.setItem("token", response.data.token);

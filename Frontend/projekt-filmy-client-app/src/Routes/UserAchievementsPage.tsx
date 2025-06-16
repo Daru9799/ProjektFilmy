@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { UserAchievement } from "../../models/UserAchievement";
-import { fetchUserAchievements } from "../../API/achievementApi";
-import "../../styles/AchievementCard.css";
+import { UserAchievement } from "../models/UserAchievement";
+import { fetchUserAchievements } from "../API/achievementApi";
+import "../styles/AchievementCard.css";
 import { useParams, useNavigate } from "react-router-dom";
-import PaginationModule from "../SharedModals/PaginationModule";
+import PaginationModule from "../components/SharedModals/PaginationModule";
 
-const UserAchievements = () => {
+const UserAchievementsPage = () => {
   const { userName } = useParams();
   const navigate = useNavigate();
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
@@ -113,4 +113,4 @@ if (error) {
   );
 };
 
-export default UserAchievements;
+export default UserAchievementsPage;
