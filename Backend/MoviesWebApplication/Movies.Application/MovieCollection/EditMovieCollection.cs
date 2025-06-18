@@ -19,6 +19,7 @@ namespace Movies.Application.MovieCollections
             public string? Description { get; set; }
             public bool? AllowCopy { get; set; }
             public int? LikesCounter { get; set; }
+            public List<Guid>? MovieIds { get; set; }
         }
 
         public class Handler : IRequestHandler<EditMovieCollectionCommand, MovieCollection>
@@ -37,22 +38,18 @@ namespace Movies.Application.MovieCollections
                 var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (string.IsNullOrEmpty(currentUserId))
-                {
                     throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
-                }
 
                 var movieCollection = await _context.MovieCollections
                     .Include(m => m.User)
+                    .Include(m => m.Movies) // Załaduj powiązane filmy
                     .FirstOrDefaultAsync(m => m.MovieCollectionId == request.MovieCollectionId, cancellationToken)
                     ?? throw new InvalidOperationException("Nie znaleziono listy filmów.");
 
-                // Sprawdzenie właściciela
                 if (movieCollection.User.Id != currentUserId)
-                {
                     throw new UnauthorizedAccessException("Nie masz uprawnień do edytowania tej kolekcji.");
-                }
 
-                // Aktualizacja pól tylko jeśli są podane
+                // Aktualizacja pól
                 movieCollection.Title = string.IsNullOrWhiteSpace(request.Title) ? movieCollection.Title : request.Title;
                 movieCollection.Description = request.Description ?? movieCollection.Description;
                 movieCollection.AllowCopy = request.AllowCopy ?? movieCollection.AllowCopy;
@@ -60,8 +57,24 @@ namespace Movies.Application.MovieCollections
                 movieCollection.ShareMode = request.ShareMode ?? movieCollection.ShareMode;
                 movieCollection.LikesCounter = request.LikesCounter ?? movieCollection.LikesCounter;
 
-                await _context.SaveChangesAsync(cancellationToken);
+                // Aktualizacja listy filmów
+                if (request.MovieIds != null)
+                {
+                    // Wyczyść obecną listę
+                    movieCollection.Movies.Clear();
 
+                    // Pobierz nowe filmy
+                    var movies = await _context.Movies
+                        .Where(m => request.MovieIds.Contains(m.MovieId))
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var movie in movies)
+                    {
+                        movieCollection.Movies.Add(movie);
+                    }
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
                 return movieCollection;
             }
         }

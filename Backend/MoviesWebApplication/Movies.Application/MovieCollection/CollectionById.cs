@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
 using Movies.Infrastructure;
 
 namespace Movies.Application.MovieCollections
@@ -10,6 +11,8 @@ namespace Movies.Application.MovieCollections
         public class Query : IRequest<MovieCollectionDto>
         {
             public Guid Id { get; set; }
+            public int PageNumber { get; set; } = 1;
+            public int PageSize { get; set; } = 10;
         }
 
         public class Handler : IRequestHandler<Query, MovieCollectionDto>
@@ -26,12 +29,33 @@ namespace Movies.Application.MovieCollections
                 var collection = await _context.MovieCollections
                     .Include(mc => mc.User)
                     .Include(mc => mc.Movies)
+                        .ThenInclude(m => m.Reviews) 
                     .FirstOrDefaultAsync(mc => mc.MovieCollectionId == request.Id, cancellationToken);
+
 
                 if (collection == null)
                 {
                     return null;
                 }
+
+                // Paginacja filmów
+                var pagedMovies = collection.Movies
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .Select(m => new MovieDto
+                    {
+                        MovieId = m.MovieId,
+                        Title = m.Title,
+                        PosterUrl = m.PosterUrl,
+                        Description= m.Description,
+                        ReviewsNumber =m.Reviews?.Count ?? 0,
+                        ScoresNumber = m.Reviews?.Count(r => r.Rating > 0) ?? 0,
+                        AverageScore = m.Reviews != null && m.Reviews.Any(r => r.Rating > 0)
+                            ? m.Reviews.Where(r => r.Rating > 0).Average(r => r.Rating)
+                            : 0,
+
+                    })
+                .ToList();
 
                 var collectionDto = new MovieCollectionDto
                 {
@@ -43,12 +67,7 @@ namespace Movies.Application.MovieCollections
                     CollectionType = collection.Type.ToString(),
                     LikesCounter = collection.LikesCounter,
                     UserName = collection.User.UserName,
-                    Movies = collection.Movies.Select(m => new MovieDto
-                    {
-                        MovieId = m.MovieId,
-                        Title = m.Title,
-                        PosterUrl=m.PosterUrl,
-                    }).ToList()
+                    Movies = pagedMovies
                 };
 
                 return collectionDto;

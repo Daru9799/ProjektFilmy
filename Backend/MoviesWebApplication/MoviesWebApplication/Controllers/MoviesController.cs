@@ -89,17 +89,26 @@ namespace MoviesWebApplication.Controllers
         }
 
         [HttpGet("by-collectionId/{collectionId}")]
-        public async Task<ActionResult<MovieDto>> GetMoviesByCollectionId(Guid collectionId)
+        public async Task<ActionResult<List<MovieDto>>> GetMoviesByCollectionId(
+            Guid collectionId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var movie = await Mediator.Send(new MovieByCollectionId.Query { CollectionId = collectionId });
-
-            if (movie == null)
+            var movies = await Mediator.Send(new MovieByCollectionId.Query
             {
-                return NotFound($"Nie odnaleziono filmu dla kolekcji z id {collectionId}.");
+                CollectionId = collectionId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
+
+            if (movies == null || !movies.Any())
+            {
+                return NotFound($"Nie odnaleziono filmów dla kolekcji z id {collectionId}.");
             }
 
-            return Ok(movie);
+            return Ok(movies);
         }
+
 
         [Authorize]
         [HttpPost("{collectionId}/add-movie/{movieId}")]

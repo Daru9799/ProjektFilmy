@@ -54,13 +54,22 @@ namespace MoviesWebApplication.Controllers
             var pagedReviews = await Mediator.Send(query);
 
             return Ok(pagedReviews);
+
         }
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<ActionResult<MovieCollectionDto>> GetMovieCollection(Guid id)
+        public async Task<ActionResult<MovieCollectionDto>> GetMovieCollection(
+            Guid id,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var movie = await Mediator.Send(new CollectionById.Query { Id = id });
+            var movie = await Mediator.Send(new CollectionById.Query
+            {
+                Id = id,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
 
             if (movie == null)
             {
