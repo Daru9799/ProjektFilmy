@@ -19,8 +19,7 @@ namespace Movies.Application.MovieCollections
             public string OrderBy { get; set; }
             public string SortDirection { get; set; }
             public List<MovieCollection.VisibilityMode> visibilityMode { get; set; }
-
-        }
+                }
 
         public class Handler : IRequestHandler<Query, PagedResponse<MovieCollectionDto>>
         {
@@ -80,7 +79,7 @@ namespace Movies.Application.MovieCollections
                     CollectionType = mc.Type.ToString(),
                     LikesCounter = mc.LikesCounter,
                     UserName = mc.User.UserName,
-                    Movies = mc.Movies.Select(m => new MovieDto
+                    Movies = mc.Movies.Take(5).Select(m => new MovieDto // bierze 5 filmów
                     {
                         MovieId = m.MovieId,
                         Title = m.Title,
