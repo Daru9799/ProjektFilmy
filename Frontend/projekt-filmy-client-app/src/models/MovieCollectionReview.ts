@@ -8,8 +8,10 @@ export interface MovieCollectionReview {
   likesCounter: number;
   spoilers: boolean;
   movieCollection: MovieCollection;
-  userName: string;
+  username: string;
   userId: string;
+  isCritic: boolean;
+  isOwner: boolean;
 }
 
 export interface MovieCollectionReviewResponse {

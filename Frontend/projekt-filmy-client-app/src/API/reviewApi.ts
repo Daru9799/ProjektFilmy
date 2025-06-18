@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Review } from "../models/Review";
 
-
 export const fetchReviewData = async (
   reviewId: string | undefined,
   setReview: React.Dispatch<React.SetStateAction<any>>,
@@ -37,11 +36,14 @@ export const deleteReview = async (
     await axios.delete(
       `https://localhost:7053/api/Reviews/delete-review/${reviewId}`,
       {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
-    });
-    setReviews((prevReviews) => prevReviews.filter((review) => review.reviewId !== reviewId));
+    );
+    setReviews((prevReviews) =>
+      prevReviews.filter((review) => review.reviewId !== reviewId)
+    );
   } catch (err) {
     console.error("Błąd podczas usuwania recenzji:", err);
     alert("Nie udało się usunąć recenzji. Spróbuj ponownie.");
@@ -67,7 +69,9 @@ export const editReview = async (
     if (response.status === 200) {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review.reviewId === reviewId ? { ...review, ...updatedReview } : review
+          review.reviewId === reviewId
+            ? { ...review, ...updatedReview }
+            : review
         )
       );
     }
@@ -96,8 +100,9 @@ export const fetchReviewsByMovieId = async (
       pageNumber: number;
       pageSize: number;
       totalPages: number;
-    }>>,
-    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    }>
+  >,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
     const reviewResponse = await axios.get(
@@ -110,17 +115,21 @@ export const fetchReviewsByMovieId = async (
           sortDirection: sortDirection,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,  // Dodanie nagłówka z tokenem
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
         },
       }
     );
-    const { data, totalItems, pageNumber, pageSize, totalPages } = reviewResponse.data;
+    const { data, totalItems, pageNumber, pageSize, totalPages } =
+      reviewResponse.data;
     setReviews(data.$values);
     setPagination({ totalItems, pageNumber, pageSize, totalPages });
-  }
-  catch (err) {
+  } catch (err) {
     if (axios.isAxiosError(err)) {
-      setError(err.response ? `${err.response.status} - ${err.response.statusText}` : "Błąd sieci.");
+      setError(
+        err.response
+          ? `${err.response.status} - ${err.response.statusText}`
+          : "Błąd sieci."
+      );
     } else {
       setError("Nieoczekiwany błąd.");
     }

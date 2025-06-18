@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../models/Review";
-import SortReviewModule from "../components/review_components/SortReviewsModle"; 
-import ReviewCard from "../components/review_components/ReviewCard"; 
-import MovieListModule from "../components/SearchMovies_componets/MovieListModule"; 
+import SortReviewModule from "../components/review_components/SortReviewsModle";
+import ReviewCard from "../components/review_components/ReviewCard";
+import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { useParams } from "react-router-dom";
-import { Movie } from "../models/Movie"; 
-import { deleteReview, editReview, fetchReviewsByMovieId } from "../API/reviewApi";
+import { Movie } from "../models/Movie";
+import {
+  deleteReview,
+  editReview,
+  fetchReviewsByMovieId,
+} from "../API/reviewApi";
 import { fetchMovieData } from "../API/movieApi";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";
@@ -25,7 +29,7 @@ const ReviewsPage = () => {
     pageSize: 5,
     totalPages: 1,
   });
-  const [sortOrder, setSortOrder] = useState<string>("rating"); 
+  const [sortOrder, setSortOrder] = useState<string>("rating");
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [movie, setMovie] = useState<Movie | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -36,27 +40,27 @@ const ReviewsPage = () => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
-const handleDeleteReview = async (reviewId: string) => {
-  try {
-    await deleteReview(reviewId, setReviews);
-    await fetchReviewsByMovieId(
-      movieId,
-      pagination.pageNumber,
-      pagination.pageSize,
-      sortOrder,
-      sortDirection,
-      setReviews,
-      setPagination,
-      setError
-    );
-  } catch (err) {
-    console.error("Błąd podczas usuwania recenzji:", err);
-  }
-};
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      await deleteReview(reviewId, setReviews);
+      await fetchReviewsByMovieId(
+        movieId,
+        pagination.pageNumber,
+        pagination.pageSize,
+        sortOrder,
+        sortDirection,
+        setReviews,
+        setPagination,
+        setError
+      );
+    } catch (err) {
+      console.error("Błąd podczas usuwania recenzji:", err);
+    }
+  };
 
   const handleEditReview = (review: Review) => {
-    setReviewToEdit(review); 
-    setShowModal(true); 
+    setReviewToEdit(review);
+    setShowModal(true);
   };
 
   const handleModalSave = (reviewText: string, rating: number) => {
@@ -67,13 +71,13 @@ const handleDeleteReview = async (reviewId: string) => {
         setReviews,
         setError
       );
-      setShowModal(false); 
-      setReviewToEdit(null); 
+      setShowModal(false);
+      setReviewToEdit(null);
     }
   };
 
   useEffect(() => {
-    try{
+    try {
       fetchReviewsByMovieId(
         movieId,
         pagination.pageNumber,
@@ -85,18 +89,27 @@ const handleDeleteReview = async (reviewId: string) => {
         setError
       );
       fetchMovieData(movieId, setMovie, setError);
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
-
-  }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection, movieId]);
+  }, [
+    pagination.pageNumber,
+    pagination.pageSize,
+    sortOrder,
+    sortDirection,
+    movieId,
+  ]);
 
   useEffect(() => {
     try {
       const reviewsListIds = reviews.map((r) => r.reviewId);
       if (reviewsListIds.length > 0) {
-        fetchReplyCountsByReviewIds("Reply",reviewsListIds, setRepliesAmount, setError);
+        fetchReplyCountsByReviewIds(
+          "Reply",
+          reviewsListIds,
+          setRepliesAmount,
+          setError
+        );
       }
     } catch (err) {
       console.error("Błąd podczas pobierania ilości odpowiedzi:", err);
@@ -163,7 +176,7 @@ const handleDeleteReview = async (reviewId: string) => {
             onDelete={() => handleDeleteReview(review.reviewId)}
             onEdit={() => handleEditReview(review)}
             commentCount={getReplyCountForReview(review.reviewId)}
-            displayCommentCount = {true}
+            displayCommentCount={true}
             isLoggedUserMod={isLoggedUserMod}
           />
         ))

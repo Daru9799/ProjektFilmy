@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmationModal from "../SharedModals/ConfirmationModal";
-import { Review } from "../../models/Review";
 import { renderStars } from "../../hooks/RenderStars";
 import "../../styles/ReviewCard.css";
+import { MovieCollectionReview } from "../../models/MovieCollectionReview";
 
-interface ReviewCardProps {
-  review: Review;
+interface MovieCollectionReviewCardProps {
+  movieCollectionReview: MovieCollectionReview;
   userPage?: boolean;
   userRevieForMovie?: boolean;
   onDelete?: () => void;
@@ -17,8 +17,8 @@ interface ReviewCardProps {
   onNavigateToComments?: () => void; // Dodaj nową prop dla nawigacji do komentarzy
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({
-  review,
+const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
+  movieCollectionReview,
   userPage,
   userRevieForMovie,
   onDelete,
@@ -47,7 +47,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   const navigate = useNavigate();
 
   const onNavigateToComments = () => {
-    navigate(`/${review.reviewId}/replies`);
+    navigate(`/${movieCollectionReview.movieCollectionReviewId}/replies`);
   };
 
   return (
@@ -58,33 +58,34 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         padding: "20px",
         color: "black",
-        backgroundColor: review.isCritic ? "#CDC1FF" : "white",
+        backgroundColor: movieCollectionReview.isCritic ? "#CDC1FF" : "white",
       }}
     >
       <div style={{ flex: 1, textAlign: "left" }}>
         {/* Username */}
         <div className="d-flex align-items-center justify-content-between mb-2">
           <p style={{ fontWeight: "bold", margin: 0 }}>
-            {review.isCritic && (
+            {movieCollectionReview.isCritic && (
               <span className="critic-badge">
                 ✔️
                 <span className="tooltip">Krytyk filmowy</span>
               </span>
             )}
             <Link
-              to={`/user/${review.username}`}
+              to={`/user/${movieCollectionReview.username}`}
               style={{
                 fontWeight: "bold",
                 textDecoration: "none",
                 color: "inherit",
               }}
             >
-              {review.username}
+              {movieCollectionReview.username}
             </Link>
           </p>
-          {userPage && (
+          {/*
+          userPage && (
             <Link
-              to={`/${review.movieId}`}
+              to={`/${movieCollectionReview.movieCollectionReviewId}`}
               style={{
                 fontWeight: "bold",
                 fontStyle: "italic",
@@ -94,17 +95,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                 color: "inherit",
               }}
             >
-              Film: {review.movieTitle}
+              Kolekcja {movieCollectionReview.movieCollection.title}
             </Link>
-          )}
+          )*/}
         </div>
 
         {/* Comment */}
-        <p>{review.comment}</p>
+        <p>{movieCollectionReview.comment}</p>
 
         {/* Przyciski akcji i komentarze */}
         <div className="d-flex align-items-center" style={{ gap: "10px" }}>
-          {(review.isOwner || isLoggedUserMod) &&
+          {(movieCollectionReview.isOwner || isLoggedUserMod) &&
             (userPage || userRevieForMovie) && (
               <>
                 <button
@@ -162,11 +163,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
 
       {/* Rating i Data */}
       <div style={{ textAlign: "right", color: "black" }}>
-        {renderStars(review.rating)}
-        <h4>{review.rating}/5</h4>
+        {renderStars(movieCollectionReview.rating)}
+        <h4>{movieCollectionReview.rating}/5</h4>
         <small>
-          {review?.date
-            ? new Date(review.date).toLocaleDateString("pl-PL", {
+          {movieCollectionReview?.date
+            ? new Date(movieCollectionReview.date).toLocaleDateString("pl-PL", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -189,4 +190,4 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   );
 };
 
-export default ReviewCard;
+export default MovieCollectionReviewCard;

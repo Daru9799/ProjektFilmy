@@ -38,8 +38,7 @@ export const fetchMovieCollectionById = async (
   setMovieCollection: React.Dispatch<
     React.SetStateAction<MovieCollection | null>
   >,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean | null>>
+  setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
     const response = await axios.get(
@@ -60,6 +59,97 @@ export const fetchMovieCollectionById = async (
       setError("Wystąpił nieoczekiwany błąd.");
     }
     console.error(error);
+  }
+};
+
+export const addMovieCollectionReview = async (
+  review: string,
+  rating: number,
+  isSpoiler: boolean,
+  userName: string,
+  movieCollectionId: string | undefined
+) => {
+  if (!movieCollectionId) {
+    console.log("Brak movieCollectionId");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.log("Brak tokenu");
+    return;
+  }
+
+  await axios.post(
+    "https://localhost:7053/api/MovieCollectionReviews/add-movie-collection-review",
+    {
+      Rating: rating,
+      Comment: review,
+      Date: new Date().toISOString(),
+      MovieCollectionId: movieCollectionId,
+      UserName: userName,
+      Spoilers: isSpoiler,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  console.log("wysłano recenzję");
+};
+
+export const fetchMovieCollectionReviews = async (
+  movieCollectionId: string | undefined,
+  setReviews: React.Dispatch<React.SetStateAction<any[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      totalItems: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+    }>
+  >,
+  sortOrder: string | null,
+  sortDirection: string | null,
+  page: number | null,
+  pageS: number | null
+) => {
+  try {
+    const reviewsResponse = await axios.get(
+      `https://localhost:7053/api/MovieCollectionReviews/by-movie-collection-id/${movieCollectionId}`,
+      {
+        params: {
+          pageNumber: page,
+          pageSize: pageS,
+          orderBy: sortOrder,
+          sortDirection: sortDirection,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
+        },
+      }
+    );
+
+    if (reviewsResponse.status === 200) {
+      const { data, totalItems, pageNumber, pageSize, totalPages } =
+        reviewsResponse.data;
+      setReviews(data.$values);
+      setPagination({ totalItems, pageNumber, pageSize, totalPages });
+    }
+  } catch (reviewsError) {
+    if (
+      axios.isAxiosError(reviewsError) &&
+      reviewsError.response?.status === 404
+    ) {
+      setReviews([]);
+      console.log("Nie znaleznio recenzji dla tej listy");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(reviewsError);
+    }
   } finally {
     setLoading(false);
   }

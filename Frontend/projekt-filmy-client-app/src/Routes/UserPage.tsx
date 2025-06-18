@@ -60,8 +60,10 @@ const UserPage = () => {
     variant: "success" | "danger" | "warning";
   }>({ show: false, title: "", message: "", variant: "danger" });
   const navigate = useNavigate();
+  const [reload, setReload] = useState<boolean>(false);
 
   useEffect(() => {
+    setReload(false);
     const loggedUserName = localStorage.getItem("logged_username");
     if (userName) {
       fetchUserData(userName, setUser, setError, setLoading, navigate);
@@ -91,7 +93,7 @@ const UserPage = () => {
 
       checkIsInvitedByUser(loggedUserId, userName).then(setIsInvitedByUser);
     }
-  }, [userName]);
+  }, [userName, reload]);
 
   const handleDeleteReview = async (reviewId: string) => {
     try {
@@ -366,10 +368,12 @@ const UserPage = () => {
             <button
               className="edit-button"
               style={{
-                display: isLoggedUserMod ? "flex" : "none",
-              }} // pokazuje przycisk tylko jeżeli zalogowany user to mod
+                display: isLoggedUserMod && !user?.isOwner ? "flex" : "none",
+              }} // pokazuje przycisk tylko jeżeli zalogowany user to mod i nie jest na swoim profilu
               onClick={() =>
-                (isLoggedUserMod && setShowChangeRoleModal(true)) ||
+                (isLoggedUserMod &&
+                  !user?.isOwner &&
+                  setShowChangeRoleModal(true)) ||
                 console.log(user)
               }
             >
@@ -476,6 +480,9 @@ const UserPage = () => {
             onSave={(updatedUser) => {
               setUser(updatedUser);
               setShowChangeRoleModal(false);
+              if (userName) {
+                fetchUserReviews(userName, 3, setReviews, setError);
+              }
             }}
           />
         )}

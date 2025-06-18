@@ -5,7 +5,7 @@ export interface MovieCollection {
   movieCollectionId: string;
   title: string;
   description?: string;
-  shareMode: VisibilityMode;
+  shareMode: "Private" | "Friends" | "Public";
   allowCopy: Boolean;
   type: CollectionType;
   likesCounter: number;
@@ -16,9 +16,9 @@ export interface MovieCollection {
 }
 
 export enum VisibilityMode {
-  private,
-  friends,
-  public,
+  Private,
+  Friends,
+  Public,
 }
 
 export enum CollectionType {
