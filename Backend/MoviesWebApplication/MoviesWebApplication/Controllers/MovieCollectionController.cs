@@ -18,7 +18,8 @@ namespace MoviesWebApplication.Controllers
             [FromQuery] int pageSize = 2,
             [FromQuery] string orderBy = "likes",
             [FromQuery] string sortDirection = "desc",
-            [FromQuery] List<MovieCollection.VisibilityMode> visibilityMode = null)
+            [FromQuery] List<MovieCollection.VisibilityMode> visibilityMode = null,
+            [FromQuery] List<MovieCollection.CollectionType> collectionType = null)
         {
             var query = new CollectionsByUserId.Query
             {
@@ -27,7 +28,8 @@ namespace MoviesWebApplication.Controllers
                 PageSize = pageSize,
                 SortDirection = sortDirection,
                 OrderBy = orderBy,
-                visibilityMode = visibilityMode
+                visibilityMode = visibilityMode,
+                collectionType = collectionType
             };
 
             var reviews = await Mediator.Send(query);

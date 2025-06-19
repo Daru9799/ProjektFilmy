@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
 using Google.Apis.Auth;
+using Movies.Infrastructure;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -14,11 +15,13 @@ namespace MoviesWebApplication.Controllers
     public class AccountController : BaseApiController
     {
         private readonly UserManager<User> _userManager;
+        private readonly DataContext _context;
         private readonly TokenService _tokenService;
-        public AccountController(UserManager<User> userManager, TokenService tokenService)
+        public AccountController(UserManager<User> userManager, TokenService tokenService, DataContext context)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _context = context;
         }
         [AllowAnonymous]
         [HttpPost("login")]
@@ -32,6 +35,8 @@ namespace MoviesWebApplication.Controllers
 
             if (result)
             {
+                await EnsureDefaultCollections(user); //Opcjonalnie dodaje listy objerzanych/planowanych jeśli nie ma
+
                 return new UserSessionDto
                 {
                     UserName = user.UserName,
@@ -66,6 +71,33 @@ namespace MoviesWebApplication.Controllers
 
             if (result.Succeeded)
             {
+                //Dodanie domyślnych kolekcji obejrzanych i planowanych
+                var watchedCollection = new MovieCollection
+                {
+                    Title = "Obejrzane",
+                    Description = "Lista obejrzanych filmów",
+                    ShareMode = MovieCollection.VisibilityMode.Private,
+                    AllowCopy = false,
+                    Type = MovieCollection.CollectionType.Watched,
+                    User = user
+                };
+
+                var plannedCollection = new MovieCollection
+                {
+                    Title = "Planowane",
+                    Description = "Lista filmów do obejrzenia",
+                    ShareMode = MovieCollection.VisibilityMode.Private,
+                    AllowCopy = false,
+                    Type = MovieCollection.CollectionType.Planned,
+                    User = user
+                };
+
+                //Zapis do bazy
+                _context.MovieCollections.Add(watchedCollection);
+                _context.MovieCollections.Add(plannedCollection);
+                await _context.SaveChangesAsync();
+
+                //Zwrócenie tokenu na front
                 return new UserSessionDto
                 {
                     UserName = user.UserName,
@@ -227,18 +259,93 @@ namespace MoviesWebApplication.Controllers
                 };
 
                 var result = await _userManager.CreateAsync(user);
-                if (!result.Succeeded)
+
+                if (result.Succeeded)
+                {
+                    //Dodanie domyślnych kolekcji obejrzanych i planowanych
+                    var watchedCollection = new MovieCollection
+                    {
+                        Title = "Obejrzane",
+                        Description = "Lista obejrzanych filmów",
+                        ShareMode = MovieCollection.VisibilityMode.Private,
+                        AllowCopy = false,
+                        Type = MovieCollection.CollectionType.Watched,
+                        User = user
+                    };
+
+                    var plannedCollection = new MovieCollection
+                    {
+                        Title = "Planowane",
+                        Description = "Lista filmów do obejrzenia",
+                        ShareMode = MovieCollection.VisibilityMode.Private,
+                        AllowCopy = false,
+                        Type = MovieCollection.CollectionType.Planned,
+                        User = user
+                    };
+
+                    //Zapis do bazy
+                    _context.MovieCollections.Add(watchedCollection);
+                    _context.MovieCollections.Add(plannedCollection);
+                    await _context.SaveChangesAsync();
+                }
+                else
                 {
                     return BadRequest("Nie udało się utworzyć konta.");
                 }
             }
 
             //Logowanie i przekazanie JWT
+            await EnsureDefaultCollections(user);
             return new UserSessionDto
             {
                 UserName = user.UserName,
                 Token = _tokenService.CreateToken(user)
             };
+        }
+
+
+        //Metoda pomocnicza zapewiająca że konta utworzone przed listami je otrzymają (obejrzane i planowane)
+        private async Task EnsureDefaultCollections(User user)
+        {
+            var existingCollections = await _context.MovieCollections
+                .Include(mc => mc.User)
+                .Where(mc => mc.User.Id == user.Id)
+                .Select(mc => mc.Type)
+                .ToListAsync();
+
+            if (!existingCollections.Contains(MovieCollection.CollectionType.Watched))
+            {
+                var watchedCollection = new MovieCollection
+                {
+                    Title = "Obejrzane",
+                    Description = "Lista obejrzanych filmów",
+                    ShareMode = MovieCollection.VisibilityMode.Private,
+                    AllowCopy = false,
+                    Type = MovieCollection.CollectionType.Watched,
+                    User = user
+                };
+                _context.MovieCollections.Add(watchedCollection);
+            }
+
+            if (!existingCollections.Contains(MovieCollection.CollectionType.Planned))
+            {
+                var plannedCollection = new MovieCollection
+                {
+                    Title = "Planowane",
+                    Description = "Lista filmów do obejrzenia",
+                    ShareMode = MovieCollection.VisibilityMode.Private,
+                    AllowCopy = false,
+                    Type = MovieCollection.CollectionType.Planned,
+                    User = user
+                };
+                _context.MovieCollections.Add(plannedCollection);
+            }
+
+            // Jeżeli coś dodaliśmy — zapisujemy zmiany
+            if (_context.ChangeTracker.HasChanges())
+            {
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

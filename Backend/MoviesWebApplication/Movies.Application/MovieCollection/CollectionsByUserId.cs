@@ -19,7 +19,8 @@ namespace Movies.Application.MovieCollections
             public string OrderBy { get; set; }
             public string SortDirection { get; set; }
             public List<MovieCollection.VisibilityMode> visibilityMode { get; set; }
-                }
+            public List<MovieCollection.CollectionType> collectionType { get; set; }
+        }
 
         public class Handler : IRequestHandler<Query, PagedResponse<MovieCollectionDto>>
         {
@@ -33,7 +34,7 @@ namespace Movies.Application.MovieCollections
             public async Task<PagedResponse<MovieCollectionDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var query = _context.MovieCollections
-                    .Where(mc => mc.User.Id == request.UserId.ToString() && mc.Type == Domain.Entities.MovieCollection.CollectionType.Custom)
+                    .Where(mc => mc.User.Id == request.UserId.ToString())
                     .Include(mc => mc.Movies)
                     .Include(mc => mc.User) 
                     .AsQueryable();
@@ -43,6 +44,10 @@ namespace Movies.Application.MovieCollections
                     query = query.Where(mc => request.visibilityMode.Contains(mc.ShareMode));
                 }
 
+                if (request.collectionType != null)
+                {
+                    query = query.Where(mc => request.collectionType.Contains(mc.Type));
+                }
 
                 // Sortowanie
                 if (!string.IsNullOrEmpty(request.OrderBy))
