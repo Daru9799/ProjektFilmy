@@ -235,11 +235,12 @@ namespace MoviesWebApplication.Controllers
         }
 
         [Authorize]
-        [HttpPost("check-if-in-list")]
-        public async Task<IActionResult> CheckIfInList([FromBody] CheckIfMovieInList.Query query)
+        [HttpGet("check-if-in-list/{listType}/{movieId}")]
+        public async Task<IActionResult> CheckIfInList(string listType, Guid movieId)
         {
             try
             {
+                var query = new CheckIfMovieInList.Query(movieId, listType);
                 var isInList = await Mediator.Send(query);
                 return Ok(isInList);
             }

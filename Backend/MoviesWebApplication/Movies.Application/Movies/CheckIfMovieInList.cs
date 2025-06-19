@@ -16,7 +16,13 @@ namespace Movies.Application.Movies
         public class Query : IRequest<bool>
         {
             public Guid MovieId { get; set; }
-            public string ListType { get; set; } //"planned" lub "watched"
+            public string ListType { get; set; }
+
+            public Query(Guid movieId, string listType)
+            {
+                MovieId = movieId;
+                ListType = listType;
+            }
         }
 
         public class Handler : IRequestHandler<Query, bool>
