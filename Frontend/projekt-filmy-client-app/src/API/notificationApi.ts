@@ -234,3 +234,36 @@ export const sendCollectionReviewCommentedNotification = async (
     setNotification(response.data);
   }
 };
+
+//Wysłanie powiadomienia po zrecenzowaniu kolekcji filmowej
+export const sendCollectionReviewedNotification = async (
+  collectionId: string,
+  targetUserId: string,
+  sourceUserId: string,
+  sourceUserName: string | null,
+  targetUserName: string | null,
+  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
+) => {
+  const response = await axios.post(
+    "https://localhost:7053/api/Notifications/add-notification",
+    {
+      title: `Twoja kolekcja filmowa została zrecenzowana`,
+      description: `${sourceUserName} napisał(a) recenzję Twojej kolekcji filmów.`,
+      type: "CollectionReviewed",
+      date: new Date().toISOString(),
+      isRead: false,
+      resource: `user/${targetUserName}/movieCollection/${collectionId}/reviews`,
+      sourceUserId,
+      targetUserId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  if (response.status === 200) {
+    setNotification(response.data);
+  }
+};

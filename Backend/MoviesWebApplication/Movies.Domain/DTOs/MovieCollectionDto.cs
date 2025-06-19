@@ -12,5 +12,6 @@ namespace Movies.Domain.DTOs
         public bool AllowCopy { get; set; }
         public string CollectionType { get; set; }  // Może być typu string, aby zwrócić nazwę wartości enum
         public int LikesCounter { get; set; } = 0;
+        public string UserId { get; set; }
     }
 }

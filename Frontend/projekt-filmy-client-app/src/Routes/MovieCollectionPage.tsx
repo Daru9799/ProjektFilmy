@@ -13,6 +13,7 @@ import "../styles/Zoom.css";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
+import { sendCollectionReviewedNotification } from "../API/notificationApi";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -27,6 +28,7 @@ const MovieCollectionPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
   const [reviews, setReviews] = useState<MovieCollectionReview[]>([]);
+  const [notification, setNotification] = useState<any | null>(null);
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
@@ -86,6 +88,18 @@ const MovieCollectionPage = () => {
         loggedUserName,
         movieCollection?.movieCollectionId
       );
+
+      const loggedUserId = getLoggedUserId();
+      if (movieCollection && loggedUserId && movieCollection.userId !== loggedUserId) {
+        await sendCollectionReviewedNotification(
+          movieCollection.movieCollectionId,
+          movieCollection.userId,
+          loggedUserId,
+          loggedUserName,
+          movieCollection.userName,
+          setNotification
+        );
+      }
 
       await fetchMovieCollectionById(id, setMovieCollection, setError);
       await fetchMovieCollectionReviews(

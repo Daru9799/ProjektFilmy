@@ -47,7 +47,8 @@ namespace Movies.Application.MovieCollections
                     AllowCopy = mc.AllowCopy,
                     CollectionType = mc.Type.ToString(),
                     LikesCounter = mc.LikesCounter,
-                    UserName = mc.User.UserName, 
+                    UserName = mc.User.UserName,
+                    UserId = mc.User.Id,
                     Movies = mc.Movies.Select(m => new MovieDto
                     {
                         MovieId = m.MovieId, 

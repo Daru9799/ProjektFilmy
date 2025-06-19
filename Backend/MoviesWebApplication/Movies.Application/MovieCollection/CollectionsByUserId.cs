@@ -84,6 +84,7 @@ namespace Movies.Application.MovieCollections
                     CollectionType = mc.Type.ToString(),
                     LikesCounter = mc.LikesCounter,
                     UserName = mc.User.UserName,
+                    UserId = mc.User.Id,
                     Movies = mc.Movies.Take(5).Select(m => new MovieDto // bierze 5 filmów
                     {
                         MovieId = m.MovieId,

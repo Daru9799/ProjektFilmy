@@ -67,7 +67,8 @@ namespace Movies.Application.MovieCollections
                     CollectionType = collection.Type.ToString(),
                     LikesCounter = collection.LikesCounter,
                     UserName = collection.User.UserName,
-                    Movies = pagedMovies
+                    Movies = pagedMovies,
+                    UserId = collection.User.Id
                 };
 
                 return collectionDto;
