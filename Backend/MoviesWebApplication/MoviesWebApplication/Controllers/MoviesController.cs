@@ -4,6 +4,8 @@ using Movies.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using static Movies.Application.Movies.AddMovieToPlanned;
+using static Movies.Application.Movies.AddMovieToWatched;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -152,6 +154,103 @@ namespace MoviesWebApplication.Controllers
             }
 
             return Ok("Pomyślnie usunięto film z kolekcji.");
+        }
+        //Dodawanie do listy planowanych
+        [Authorize]
+        [HttpPost("planned/add-movie")]
+        public async Task<IActionResult> AddMovieToPlanned([FromBody] AddMovieToPlannedCommand command)
+        {
+            try
+            {
+                var updatedCollection = await Mediator.Send(command);
+                return Ok("Pomyślnie dodano film do planowanych.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        //Dodawanie do listy obejrzanych
+        [Authorize]
+        [HttpPost("watched/add-movie")]
+        public async Task<IActionResult> AddMovieToWatched([FromBody] AddMovieToWatchedCommand command)
+        {
+            try
+            {
+                var updatedCollection = await Mediator.Send(command);
+                return Ok("Pomyślnie dodano film do obejrzanych.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message );
+            }
+        }
+        // Usuwanie z listy planowanych
+        [Authorize]
+        [HttpDelete("planned/delete-from-planned/{movieId}")]
+        public async Task<IActionResult> DeleteMovieFromPlanned(Guid movieId)
+        {
+            try
+            {
+                var command = new DeleteMovieFromPlanned.DeleteMovieFromPlannedCommand { MovieId = movieId };
+                var updatedCollection = await Mediator.Send(command);
+                return Ok("Pomyślnie usunięto film z listy planowanych.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        // Usuwanie z listy obejrzanych
+        [Authorize]
+        [HttpDelete("watched/delete-from-watched/{movieId}")]
+        public async Task<IActionResult> DeleteMovieFromWatched(Guid movieId)
+        {
+            try
+            {
+                var command = new DeleteMovieFromWatched.DeleteMovieFromWatchedCommand { MovieId = movieId };
+                var updatedCollection = await Mediator.Send(command);
+                return Ok("Pomyślnie usunięto film z listy obejrzanych.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("check-if-in-list")]
+        public async Task<IActionResult> CheckIfInList([FromBody] CheckIfMovieInList.Query query)
+        {
+            try
+            {
+                var isInList = await Mediator.Send(query);
+                return Ok(isInList);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
