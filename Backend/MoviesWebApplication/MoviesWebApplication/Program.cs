@@ -24,13 +24,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
 // HangFire - dane w appsettings.json
-builder.Services.AddHangfire(configuration =>
+/*builder.Services.AddHangfire(configuration =>
     configuration.UseStorage(new MySqlStorage(
         builder.Configuration.GetConnectionString("HangfireConnection"),
         new MySqlStorageOptions()
     )));
 
-builder.Services.AddHangfireServer();
+builder.Services.AddHangfireServer();*/
 
 
 //SingnalR
@@ -89,14 +89,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHangfireDashboard(); // https://localhost:7053/hangfire
+/*app.UseHangfireDashboard(); // https://localhost:7053/hangfire
 
 RecurringJob.AddOrUpdate<DailyPremiereNotificationJob>(
     "daily-premiere-job",
     job => job.ExecuteAsync(),
     "0 1 * * *", // codziennie o 01:00
     TimeZoneInfo.Local
-);
+);*/
 
 
 app.UseHttpsRedirection();

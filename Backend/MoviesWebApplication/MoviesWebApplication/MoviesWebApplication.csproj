@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HangFire\HangFire.csproj" />
     <ProjectReference Include="..\Movies.Application\Movies.Application.csproj" />
   </ItemGroup>
 

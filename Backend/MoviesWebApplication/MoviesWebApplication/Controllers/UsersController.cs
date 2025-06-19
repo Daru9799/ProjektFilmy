@@ -77,6 +77,31 @@ namespace MoviesWebApplication.Controllers
                 return Unauthorized("Nie masz uprawnień do zmiany roli.");
             }    
         }
+        [Authorize]
+        [HttpGet("get-follow-person/{personId}")]
+        public async Task<IActionResult> GetFollowPerson(Guid personId)
+        {
+            try
+            {
+                var command = new GetFollowByPersonId.Query
+                {
+                    PersonId = personId,
+                };
+
+                bool isUserFollowing = await Mediator.Send(command);
+
+                return Ok(isUserFollowing);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
 
         [Authorize]
         [HttpPost("add-follow-person/{personId}")]
@@ -144,6 +169,32 @@ namespace MoviesWebApplication.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
+        }
+
+        [Authorize]
+        [HttpGet("get-follow-movie/{movieId}")]
+        public async Task<IActionResult> GetFollowMovie(Guid movieId)
+        {
+            try
+            {
+                var command = new GetFollowByMovieId.Query
+                {
+                    MovieId = movieId,
+                };
+
+                bool isUserFollowing = await Mediator.Send(command);
+
+                return Ok(isUserFollowing);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
         }
 
         [Authorize]

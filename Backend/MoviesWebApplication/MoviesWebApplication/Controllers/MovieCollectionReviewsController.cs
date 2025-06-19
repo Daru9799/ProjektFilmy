@@ -48,6 +48,26 @@ namespace MoviesWebApplication.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpGet("by-userid-and-moviecollection-id")]
+        public async Task<ActionResult<ReviewDto>> GetReviewByUserNameAndMovieId([FromQuery] string userId, [FromQuery] Guid movieCollectionId)
+        {
+            var query = new GetMCReviewByUserIdAndMCId.Query
+            {
+                UserId = userId,
+                MovieCollectionId = movieCollectionId
+            };
+
+            var review = await Mediator.Send(query);
+
+            if (review == null)
+            {
+                return NotFound($"Nie znaleziono recenzji dla użytkownika '{userId}' i filmu o ID '{movieCollectionId}'.");
+            }
+
+            return Ok(review);
+        }
+
         //Dodawanie recenzji listy filmowej
         [Authorize]
         [HttpPost("add-movie-collection-review")]
