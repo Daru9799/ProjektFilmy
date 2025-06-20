@@ -42,7 +42,12 @@ export const fetchMovieCollectionById = async (
 ) => {
   try {
     const response = await axios.get(
-      `https://localhost:7053/api/MovieCollection/${movieCollectionId}`
+      `https://localhost:7053/api/MovieCollection/${movieCollectionId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
+        },
+      }
     );
     setMovieCollection(response.data);
     console.log(response.data);
@@ -149,6 +154,58 @@ export const fetchMovieCollectionReviews = async (
     } else {
       setError("Błąd podczas wczytywania danych");
       console.error(reviewsError);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+export const fetchMovieCollectionsByUser = async (
+  userId: string | undefined,
+  page: number,
+  pageS: number,
+  sortOrder: string,
+  sortDirection: string,
+  setMovieCollection: React.Dispatch<React.SetStateAction<MovieCollection[]>>,
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      totalItems: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+    }>
+  >,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    const movieCollectionResponse = await axios.get(
+      `https://localhost:7053/api/MovieCollection/by-user-id/${userId}`,
+      {
+        params: {
+          pageNumber: page,
+          pageSize: pageS,
+          orderBy: sortOrder,
+          sortDirection: sortDirection,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
+        },
+      }
+    );
+    const { data, totalItems, pageNumber, pageSize, totalPages } =
+      movieCollectionResponse.data;
+    setMovieCollection(data.$values);
+    setPagination({ totalItems, pageNumber, pageSize, totalPages });
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      setError(
+        err.response
+          ? `${err.response.status} - ${err.response.statusText}`
+          : "Błąd sieci."
+      );
+    } else {
+      setError("Nieoczekiwany błąd.");
     }
   } finally {
     setLoading(false);

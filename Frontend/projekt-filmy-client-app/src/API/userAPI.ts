@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const fetchUserData = async (
-  userName: string,
+  userName: string | undefined,
   setUser: React.Dispatch<React.SetStateAction<any>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,

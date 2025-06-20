@@ -8,6 +8,7 @@ import MovieListModule from "../components/SearchMovies_componets/MovieListModul
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { addFollowPerson, removeFollowPerson } from "../API/userAPI";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
+import axios from "axios";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
@@ -35,11 +36,7 @@ const PersonPage = () => {
         return;
       }
 
-      if (person?.followers?.$values.some((user) => user.id === loggedUserId)) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
+      checkFollowing(id);
       setIsLogged(true);
     }
   }, [person]);
@@ -67,6 +64,28 @@ const PersonPage = () => {
     }
   };
 
+  const checkFollowing = async (personId: string) => {
+    try {
+      const response = await axios.get(
+        `https://localhost:7053/api/Users/get-follow-person/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log("Odpowiedź: " + response.data);
+
+      if (response.data === true) {
+        setIsFollowing(true);
+      } else {
+        setIsFollowing(false);
+      }
+    } catch (err) {
+      console.error("Błąd po stronie sieci/axios:", err);
+    }
+  };
+
   const handleLoginSuccess = async (username: string) => {
     setShowLoginModal(false);
     localStorage.setItem("logged_username", username);
@@ -77,6 +96,7 @@ const PersonPage = () => {
 
     if (id) {
       try {
+        checkFollowing(id);
         await fetchPersonById(id, setPerson, setError, setLoading);
         if (id) await fetchPersonMovies(id, setMovies, setError, setLoading);
       } catch (err) {

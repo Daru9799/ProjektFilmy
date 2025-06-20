@@ -162,7 +162,7 @@ const MovieCollectionReviewsPage = () => {
               className="d-flex align-items-center ms-3"
               style={{ gap: "1rem" }}
             >
-              <div className="d-flex align-items-center">
+              {/* <div className="d-flex align-items-center">
                 <Form.Check
                   type="checkbox"
                   id="spoiler-check"
@@ -173,7 +173,7 @@ const MovieCollectionReviewsPage = () => {
                 <label htmlFor="spoiler-check" className="mb-0 text-white">
                   Spoilery
                 </label>
-              </div>
+              </div>  */}
               <SortReviewModule onSort={handleSortChange} />
             </div>
 

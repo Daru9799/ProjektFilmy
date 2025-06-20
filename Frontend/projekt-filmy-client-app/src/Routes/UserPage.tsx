@@ -323,8 +323,16 @@ const UserPage = () => {
       <div style={{ minHeight: "90vh" }}>
         <div className="header">
           <p className="user-name">{user?.userName}</p>
+          <div
+            className="relation-buttons"
+            onClick={() => {
+              navigate(`movieCollection`);
+            }}
+          >
+            <button className="btn btn-primary">Kolekcje</button>
+          </div>
 
-          <div className="relation-buttons">
+          <div className="relation-buttons ms-2">
             {!user?.isOwner && (
               <>
                 {isInvitedByUser ? (

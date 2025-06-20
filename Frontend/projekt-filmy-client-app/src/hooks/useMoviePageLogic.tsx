@@ -41,22 +41,38 @@ export const useMoviePageLogic = () => {
     }
   }, [movieId]);
 
+  const checkFollowing = async (movieId: string) => {
+    try {
+      const response = await axios.get(
+        `https://localhost:7053/api/Users/get-follow-movie/${movieId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.data === true) {
+        setIsFollowing(true);
+      } else {
+        setIsFollowing(false);
+      }
+    } catch (err) {
+      console.error("Błąd po stronie sieci/axios:", err);
+    }
+  };
+
   useEffect(() => {
     if (movieId && userName) {
       const loggedUserId = getLoggedUserId();
+      checkFollowing(movieId);
 
       if (!loggedUserId) {
         console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
-
-      if (movie?.followers?.$values.some((user) => user.id === loggedUserId)) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
     }
-  }, [movie]);
+  }, [movieId]);
 
   const handleEditReview = (review: Review) => {
     setReviewToEdit(review);
@@ -114,6 +130,7 @@ export const useMoviePageLogic = () => {
 
     if (movieId) {
       try {
+        checkFollowing(movieId);
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
         await fetchUserReviewForMovie(

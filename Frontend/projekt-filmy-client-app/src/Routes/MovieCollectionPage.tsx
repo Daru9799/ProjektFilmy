@@ -90,7 +90,11 @@ const MovieCollectionPage = () => {
       );
 
       const loggedUserId = getLoggedUserId();
-      if (movieCollection && loggedUserId && movieCollection.userId !== loggedUserId) {
+      if (
+        movieCollection &&
+        loggedUserId &&
+        movieCollection.userId !== loggedUserId
+      ) {
         await sendCollectionReviewedNotification(
           movieCollection.movieCollectionId,
           movieCollection.userId,

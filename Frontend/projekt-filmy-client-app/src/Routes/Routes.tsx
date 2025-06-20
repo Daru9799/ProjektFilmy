@@ -20,6 +20,7 @@ import NotFoundPage from "./NotFoundPage";
 import ReviewRepliesPage from "./ReviewRepliesPage";
 import MovieCollectionPage from "./MovieCollectionPage";
 import MovieCollectionReviewsPage from "./MovieCollectionReviewsPage";
+import MovieCollectionByUserPage from "./MovieCollectionsByUserPage";
 
 export const routes: RouteObject[] = [
   {
@@ -63,6 +64,10 @@ export const routes: RouteObject[] = [
       {
         path: "user/:userName/movieCollection/:id/reviews",
         element: <MovieCollectionReviewsPage />,
+      },
+      {
+        path: "user/:userName/movieCollection",
+        element: <MovieCollectionByUserPage />,
       },
 
       //Strona 404
