@@ -4,11 +4,13 @@ import ConfirmationModal from "../SharedModals/ConfirmationModal";
 import { renderStars } from "../../hooks/RenderStars";
 import "../../styles/ReviewCard.css";
 import { MovieCollectionReview } from "../../models/MovieCollectionReview";
+import { MovieCollection } from "../../models/MovieCollection";
 
 interface MovieCollectionReviewCardProps {
   movieCollectionReview: MovieCollectionReview;
+  movieCollection?: MovieCollection | null;
   userPage?: boolean;
-  userRevieForMovie?: boolean;
+  userReviewForCollection?: boolean;
   onDelete?: () => void;
   onEdit?: () => void;
   isLoggedUserMod?: boolean;
@@ -19,8 +21,9 @@ interface MovieCollectionReviewCardProps {
 
 const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
   movieCollectionReview,
+  movieCollection,
   userPage,
-  userRevieForMovie,
+  userReviewForCollection,
   onDelete,
   onEdit,
   isLoggedUserMod,
@@ -47,7 +50,9 @@ const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
   const navigate = useNavigate();
 
   const onNavigateToComments = () => {
-    navigate(`/${movieCollectionReview.movieCollectionReviewId}/replies`);
+    navigate(
+      `/movie-collection/${movieCollectionReview.movieCollectionReviewId}/replies`
+    );
   };
 
   return (
@@ -82,10 +87,9 @@ const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
               {movieCollectionReview.username}
             </Link>
           </p>
-          {/*
-          userPage && (
+          {userPage && (
             <Link
-              to={`/${movieCollectionReview.movieCollectionReviewId}`}
+              to={`/user/${movieCollection?.userName}/movieCollection/${movieCollectionReview.movieCollectionId}`}
               style={{
                 fontWeight: "bold",
                 fontStyle: "italic",
@@ -95,9 +99,9 @@ const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
                 color: "inherit",
               }}
             >
-              Kolekcja {movieCollectionReview.movieCollection.title}
+              Kolekcja {movieCollection?.title}
             </Link>
-          )*/}
+          )}
         </div>
 
         {/* Comment */}
@@ -106,7 +110,7 @@ const MovieCollectionReviewCard: React.FC<MovieCollectionReviewCardProps> = ({
         {/* Przyciski akcji i komentarze */}
         <div className="d-flex align-items-center" style={{ gap: "10px" }}>
           {(movieCollectionReview.isOwner || isLoggedUserMod) &&
-            (userPage || userRevieForMovie) && (
+            (userPage || userReviewForCollection) && (
               <>
                 <button
                   className="btn btn-secondary"

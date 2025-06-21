@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { MovieCollection, VisibilityMode } from "../models/MovieCollection";
 import { useNavigate, useParams } from "react-router-dom";
-import { getLoggedUserId } from "../hooks/decodeJWT";
+import { getLoggedUserId, isUserMod } from "../hooks/decodeJWT";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import {
   addMovieCollectionReview,
   fetchMovieCollectionById,
   fetchMovieCollectionReviews,
+  fetchUserReviewForMC,
 } from "../API/movieCollectionApi";
 import { Card } from "react-bootstrap";
 import "../styles/Zoom.css";
@@ -14,15 +15,17 @@ import AddMovieCollectionReviewModal from "../components/review_components/AddMo
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { sendCollectionReviewedNotification } from "../API/notificationApi";
+import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
   const { id } = useParams();
   const { userName } = useParams();
+  const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [movieCollection, setMovieCollection] =
     useState<MovieCollection | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [reviewExist, setReviewExist] = useState<boolean>(false);
+  const [loggedOWner, setLoggedOwner] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,11 +35,81 @@ const MovieCollectionPage = () => {
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
-    pageSize: 99,
+    pageSize: 2,
     totalPages: 1,
   });
+  const [userReview, setUserReview] = useState<MovieCollectionReview | null>(
+    null
+  );
+  const [reviewToEdit, setReviewToEdit] =
+    useState<MovieCollectionReview | null>();
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  const onEditReview = (review: MovieCollectionReview | null) => {
+    setReviewToEdit(review);
+    setShowEditModal(true);
+  };
+
+  const onDeleteReview = async (reviewId: string | undefined) => {
+    try {
+      await deleteReviewMC(reviewId, setReviews);
+      setUserReview(null);
+      if (id) {
+        await fetchMovieCollectionReviews(
+          id,
+          setReviews,
+          setError,
+          setLoading,
+          setPagination,
+          null,
+          null,
+          null,
+          pagination.pageSize
+        );
+        fetchMovieCollectionById(id, setMovieCollection, setError);
+      }
+    } catch (err) {
+      console.error("Błąd podczas usuwania recenzji:", err);
+    }
+  };
+
+  const handleSaveEditedReview = async (reviewText: string, rating: number) => {
+    if (reviewToEdit) {
+      const loggedUserId = getLoggedUserId();
+      try {
+        await editReviewMC(
+          reviewToEdit.movieCollectionReviewId,
+          { comment: reviewText, rating },
+          setReviews,
+          setError
+        );
+        if (id && loggedUserId) {
+          await fetchMovieCollectionReviews(
+            id,
+            setReviews,
+            setError,
+            setLoading,
+            setPagination,
+            null,
+            null,
+            null,
+            pagination.pageSize
+          );
+
+          fetchMovieCollectionById(id, setMovieCollection, setError);
+          fetchUserReviewForMC(loggedUserId, id, setUserReview, setError);
+        }
+      } catch (err) {
+        console.error("Błąd podczas edycji recenzji:", err);
+        setError("Nie udało się edytować recenzji.");
+      } finally {
+        setShowEditModal(false);
+        setReviewToEdit(null);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchMovieCollectionById(id, setMovieCollection, setError);
@@ -59,21 +132,17 @@ const MovieCollectionPage = () => {
       if (!loggedUserId) {
         console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         setIsLoggedIn(false);
-        setReviewExist(false);
         return;
       }
-
-      if (
-        reviews.some((user) => user.username === loggedUserName) ||
-        movieCollection?.userName === loggedUserName
-      ) {
-        setReviewExist(true);
-      } else {
-        setReviewExist(false);
-      }
+      fetchUserReviewForMC(loggedUserId, id, setUserReview, setError);
       setIsLoggedIn(true);
+      setLoggedOwner(movieCollection?.userId === loggedUserId);
     }
   }, [reviews, movieCollection]);
+
+  useEffect(() => {
+    setIsLoggedUserMod(isUserMod());
+  }, []);
 
   const handleAddReview = async (
     reviewText: string,
@@ -89,21 +158,21 @@ const MovieCollectionPage = () => {
         movieCollection?.movieCollectionId
       );
 
-      const loggedUserId = getLoggedUserId();
-      if (
-        movieCollection &&
-        loggedUserId &&
-        movieCollection.userId !== loggedUserId
-      ) {
-        await sendCollectionReviewedNotification(
-          movieCollection.movieCollectionId,
-          movieCollection.userId,
-          loggedUserId,
-          loggedUserName,
-          movieCollection.userName,
-          setNotification
-        );
-      }
+      // const loggedUserId = getLoggedUserId();
+      // if (
+      //   movieCollection &&
+      //   loggedUserId &&
+      //   movieCollection.userId !== loggedUserId
+      // ) {
+      //   await sendCollectionReviewedNotification(
+      //     movieCollection.movieCollectionId,
+      //     movieCollection.userId,
+      //     loggedUserId,
+      //     loggedUserName,
+      //     movieCollection.userName,
+      //     setNotification
+      //   );
+      // }
 
       await fetchMovieCollectionById(id, setMovieCollection, setError);
       await fetchMovieCollectionReviews(
@@ -139,22 +208,17 @@ const MovieCollectionPage = () => {
     }
   };
 
-  const mapShareMode = (value: string): VisibilityMode => {
-    switch (value) {
-      case "Private":
-        return VisibilityMode.Private;
-      case "Friends":
-        return VisibilityMode.Friends;
-      case "Public":
-        return VisibilityMode.Public;
-      default:
-        throw new Error("Unknown share mode: " + value);
-    }
-  };
-
-  if (movieCollection?.shareMode === "Private" && loggedUserName != userName)
+  if (
+    movieCollection?.shareMode === "Private" &&
+    loggedUserName != userName &&
+    !isLoggedUserMod
+  )
     return <p>Ta kolekcja jest prywatna</p>;
-  if (movieCollection?.shareMode === "Friends" && loggedUserName != userName)
+  if (
+    movieCollection?.shareMode === "Friends" &&
+    loggedUserName != userName &&
+    !isLoggedUserMod
+  )
     return (
       <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${userName}`}</p>
     );
@@ -172,7 +236,9 @@ const MovieCollectionPage = () => {
       {/* Header */}
       <div
         className={`d-flex align-items-center ${
-          reviewExist ? "justify-content-center" : "justify-content-between"
+          loggedOWner || userReview
+            ? "justify-content-center"
+            : "justify-content-between"
         }`}
       >
         <h4 className="mt-3 ms-4" style={{ color: "white" }}>
@@ -184,7 +250,7 @@ const MovieCollectionPage = () => {
             przcyisk i po wciśnięciu modal do logowania.
         */}
         {isLoggedIn ? (
-          !reviewExist && (
+          !loggedOWner && !userReview ? (
             <button
               className="btn btn-outline-light mt-3"
               style={{ width: "200px" }}
@@ -192,7 +258,7 @@ const MovieCollectionPage = () => {
             >
               Dodaj recenzję
             </button>
-          )
+          ) : null
         ) : (
           <button
             className="btn btn-outline-light mt-3"
@@ -285,24 +351,36 @@ const MovieCollectionPage = () => {
         className="container pt-3 text-center"
         style={{ marginTop: "10px", marginBottom: "40px" }}
       >
+        {userReview && (
+          <div>
+            <h3 className="mb-4">Twoja recenzja: </h3>
+            <MovieCollectionReviewCard
+              key={userReview.movieCollectionReviewId}
+              movieCollectionReview={userReview}
+              userReviewForCollection={true}
+              onEdit={() => onEditReview(userReview)}
+              onDelete={() =>
+                onDeleteReview(userReview?.movieCollectionReviewId)
+              }
+            />
+          </div>
+        )}
+
         <h3 className="mb-4">Recenzje:</h3>
 
         {reviews.length > 0 ? (
           (console.log(reviews),
-          reviews
-            .filter((review) => review.spoilers === false)
-            .slice(0, 2)
-            .map((review) => (
-              <MovieCollectionReviewCard
-                key={review.movieCollectionReviewId}
-                movieCollectionReview={review}
-              />
-            )))
+          reviews.map((review) => (
+            <MovieCollectionReviewCard
+              key={review.movieCollectionReviewId}
+              movieCollectionReview={review}
+            />
+          )))
         ) : (
           <p>Brak recenzji dla tej kolekcji.</p>
         )}
       </div>
-      {reviews.length > 2 && id && (
+      {reviews.length === 2 && id && (
         <button
           className="btn btn-outline-light mb-3"
           onClick={() => navigate(`reviews`)}
@@ -321,6 +399,16 @@ const MovieCollectionPage = () => {
         onClose={() => setShowReviewModal(false)}
         onAddReview={handleAddReview}
       />
+
+      {reviewToEdit && (
+        <AddMovieCollectionReviewModal
+          show={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onAddReview={handleSaveEditedReview}
+          initialReviewText={reviewToEdit.comment}
+          initialReviewRating={reviewToEdit.rating}
+        />
+      )}
     </div>
   );
 };

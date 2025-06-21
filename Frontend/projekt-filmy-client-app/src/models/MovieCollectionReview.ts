@@ -7,7 +7,7 @@ export interface MovieCollectionReview {
   date: string;
   likesCounter: number;
   spoilers: boolean;
-  movieCollection: MovieCollection;
+  movieCollectionId: string;
   username: string;
   userId: string;
   isCritic: boolean;

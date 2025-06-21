@@ -11,6 +11,9 @@ import MovieCollectionReviewCard from "../components/review_components/MovieColl
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
+import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
+import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
+import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 
 const MovieCollectionReviewsPage = () => {
   const navigate = useNavigate();
@@ -32,10 +35,71 @@ const MovieCollectionReviewsPage = () => {
 
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [areSpoilersOn, setAreSpoilersOn] = useState(false);
+  const [reviewToEdit, setReviewToEdit] =
+    useState<MovieCollectionReview | null>();
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
 
-  useEffect(() => {
-    setIsLoggedUserMod(isUserMod());
-  }, []);
+  const onEditReview = (review: MovieCollectionReview | null) => {
+    setReviewToEdit(review);
+    setShowEditModal(true);
+  };
+
+  const onDeleteReview = async (reviewId: string | undefined) => {
+    try {
+      await deleteReviewMC(reviewId, setReviews);
+      if (id) {
+        await fetchMovieCollectionReviews(
+          id,
+          setReviews,
+          setError,
+          setLoading,
+          setPagination,
+          sortOrder,
+          sortDirection,
+          pagination.pageNumber,
+          pagination.pageSize
+        );
+        fetchMovieCollectionById(id, setMovieCollection, setError);
+      }
+    } catch (err) {
+      console.error("Błąd podczas usuwania recenzji:", err);
+    }
+  };
+
+  const handleSaveEditedReview = async (reviewText: string, rating: number) => {
+    if (reviewToEdit) {
+      try {
+        await editReviewMC(
+          reviewToEdit.movieCollectionReviewId,
+          { comment: reviewText, rating },
+          setReviews,
+          setError
+        );
+        if (id) {
+          await fetchMovieCollectionReviews(
+            id,
+            setReviews,
+            setError,
+            setLoading,
+            setPagination,
+            sortOrder,
+            sortDirection,
+            pagination.pageNumber,
+            pagination.pageSize
+          );
+
+          fetchMovieCollectionById(id, setMovieCollection, setError);
+        }
+      } catch (err) {
+        console.error("Błąd podczas edycji recenzji:", err);
+        setError("Nie udało się edytować recenzji.");
+      } finally {
+        setShowEditModal(false);
+        setReviewToEdit(null);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchMovieCollectionById(id, setMovieCollection, setError);
@@ -58,7 +122,37 @@ const MovieCollectionReviewsPage = () => {
     pagination.pageSize,
   ]);
 
+  useEffect(() => {
+    setIsLoggedUserMod(isUserMod());
+  }, []);
+
+  useEffect(() => {
+    try {
+      const reviewsListIds = reviews.map((r) => r.movieCollectionReviewId);
+      if (reviewsListIds.length > 0) {
+        fetchReplyCountsByReviewIds(
+          "MovieCollectionReviewReplies",
+          reviewsListIds,
+          setRepliesAmount,
+          setError
+        );
+      }
+    } catch (err) {
+      console.error("Błąd podczas pobierania ilości odpowiedzi:", err);
+    }
+  }, [reviews]);
+
+  const getReplyCountForReview = (reviewId: string) => {
+    const index = reviews.findIndex(
+      (r) => r.movieCollectionReviewId === reviewId
+    );
+    return index !== -1 && repliesAmount[index] !== undefined
+      ? repliesAmount[index]
+      : 0;
+  };
+
   const handleSortChange = (category: string) => {
+    console.log(repliesAmount);
     switch (category) {
       case "highRaiting":
         setSortOrder("rating");
@@ -184,8 +278,17 @@ const MovieCollectionReviewsPage = () => {
                   <MovieCollectionReviewCard
                     key={review.movieCollectionReviewId}
                     movieCollectionReview={review}
+                    movieCollection={movieCollection}
                     isLoggedUserMod={isLoggedUserMod}
                     userPage={true}
+                    onEdit={() => onEditReview(review)}
+                    onDelete={() =>
+                      onDeleteReview(review?.movieCollectionReviewId)
+                    }
+                    commentCount={getReplyCountForReview(
+                      review.movieCollectionReviewId
+                    )}
+                    displayCommentCount
                   />
                 ))
             ) : (
@@ -201,6 +304,15 @@ const MovieCollectionReviewsPage = () => {
           />
         </div>
       </div>
+      {reviewToEdit && (
+        <AddMovieCollectionReviewModal
+          show={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onAddReview={handleSaveEditedReview}
+          initialReviewText={reviewToEdit.comment}
+          initialReviewRating={reviewToEdit.rating}
+        />
+      )}
     </div>
   );
 };

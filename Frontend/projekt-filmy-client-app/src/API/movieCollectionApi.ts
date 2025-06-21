@@ -1,5 +1,6 @@
 import axios from "axios";
 import { MovieCollection } from "../models/MovieCollection";
+import { MovieCollectionReview } from "../models/MovieCollectionReview";
 
 export const createMovieCollection = async (
   collectionData: {
@@ -209,5 +210,50 @@ export const fetchMovieCollectionsByUser = async (
     }
   } finally {
     setLoading(false);
+  }
+};
+
+export const fetchUserReviewForMC = async (
+  userId: string,
+  Id: string,
+  setReview: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/MovieCollectionReviews/by-userid-and-moviecollection-id`,
+      {
+        params: {
+          userId: userId,
+          movieCollectionId: Id,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      const reviewsData = response.data;
+      setReview(reviewsData);
+    }
+  } catch (reviewsError) {
+    if (
+      axios.isAxiosError(reviewsError) &&
+      reviewsError.response?.status === 404
+    ) {
+      setReview(null);
+      console.log("Nie znaleznio recenzji użytkownika dla tej kolekcji");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(reviewsError);
+    }
   }
 };

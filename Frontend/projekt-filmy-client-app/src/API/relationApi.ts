@@ -1,22 +1,32 @@
 import axios from "axios";
 
-export const fetchRelationsData = async (username: string, type: string, setRelations: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string | null>>, navigate: (path: string) => void) => {
+export const fetchRelationsData = async (
+  username: string,
+  type: string,
+  setRelations: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  navigate: (path: string) => void
+) => {
   try {
-    const relationsResponse = await axios.get(`https://localhost:7053/api/UserRelations/by-username/${username}`, {
-      params: {
-        type: type
+    const relationsResponse = await axios.get(
+      `https://localhost:7053/api/UserRelations/by-username/${username}`,
+      {
+        params: {
+          type: type,
         },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     setRelations(relationsResponse.data);
   } catch (relationsError) {
     if (axios.isAxiosError(relationsError)) {
       if (relationsError.response?.status === 404) {
         return;
       } else if (relationsError.response?.status === 403) {
-        const errorMessage = "Nie masz uprawnień do przeglądania listy tego użytkownika.";
+        const errorMessage =
+          "Nie masz uprawnień do przeglądania listy tego użytkownika.";
         setError(errorMessage);
       } else {
         navigate("/404");
@@ -29,7 +39,9 @@ export const fetchRelationsData = async (username: string, type: string, setRela
   }
 };
 
-export const deleteRelation = async (relationId: string, setRelations: React.Dispatch<React.SetStateAction<any>>
+export const deleteRelation = async (
+  relationId: string,
+  setRelations: React.Dispatch<React.SetStateAction<any>>
 ) => {
   await axios.delete(
     `https://localhost:7053/api/UserRelations/delete-relation/${relationId}`,
@@ -41,7 +53,9 @@ export const deleteRelation = async (relationId: string, setRelations: React.Dis
   );
   setRelations((prevRelations: any) => {
     const updatedRelations = { ...prevRelations };
-    updatedRelations.$values = updatedRelations.$values.filter((relation: any) => relation.id !== relationId);
+    updatedRelations.$values = updatedRelations.$values.filter(
+      (relation: any) => relation.id !== relationId
+    );
     return updatedRelations;
   });
 };
@@ -59,7 +73,7 @@ export const createRelation = async (
       {
         firstUserId,
         secondUserId,
-        type
+        type,
       },
       {
         headers: {

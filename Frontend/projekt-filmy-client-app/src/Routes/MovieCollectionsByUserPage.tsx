@@ -9,6 +9,7 @@ import { MovieCollection } from "../models/MovieCollection";
 import { Card } from "react-bootstrap";
 
 const MovieCollectionByUserPage = () => {
+  const loggedUserName = localStorage.getItem("logged_username") || "";
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
@@ -94,59 +95,74 @@ const MovieCollectionByUserPage = () => {
               width: "80%",
             }}
           >
-            <div
-              style={{ width: "100%" }}
-              className="d-flex justify-content-center"
-            >
-              <h5 className="text-dark mb-1" style={{ margin: 0 }}>
-                {movieCollection.title}
-              </h5>
-            </div>
-
-            {movieCollection?.movies ? (
-              movieCollection.movies.$values.length > 0 ? (
-                <div className="d-flex gap-3 align-items-stretch h-100 w-100">
-                  {movieCollection.movies.$values.slice(0, 5).map((movie) => (
-                    <Card
-                      key={movie.movieId}
-                      className="zoomCard"
-                      style={{
-                        height: "90%",
-                        width: "150px",
-                        cursor: "pointer",
-                      }}
-                      title={movie.title}
-                      onClick={() => navigate(`/${movie.movieId}`)}
-                    >
-                      <Card.Img
-                        variant="top"
-                        style={{ height: "80%", objectFit: "cover" }}
-                        src={movie.posterUrl}
-                      />
-                      <Card.Body className="d-flex flex-column justify-content-between">
-                        <Card.Text
-                          className="text-center"
-                          style={{
-                            fontSize: "0.9rem",
-                            maxHeight: "2.7rem", // 2 linijki * 1.35rem
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {movie.title}
-                        </Card.Text>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-dark">Brak filmów do wyświetlenia</p>
-              )
+            {" "}
+            {movieCollection.shareMode === "Private" &&
+            movieCollection.userName !== loggedUserName &&
+            !isLoggedUserMod ? (
+              <h5 className="text-dark mb-1">Prywatne</h5>
+            ) : movieCollection.shareMode === "Friends" &&
+              movieCollection.userName !== loggedUserName &&
+              !isLoggedUserMod ? (
+              <h5 className="text-dark mb-1">Tylko dla znajomych</h5>
             ) : (
-              <p className="text-dark">
-                Błąd podczas ładownia zawartości listy
-              </p>
+              <>
+                <div
+                  style={{ width: "100%" }}
+                  className="d-flex justify-content-center"
+                >
+                  <h5 className="text-dark mb-1" style={{ margin: 0 }}>
+                    {movieCollection.title}
+                  </h5>
+                </div>
+
+                {movieCollection?.movies ? (
+                  movieCollection.movies.$values.length > 0 ? (
+                    <div className="d-flex gap-3 align-items-stretch h-100 w-100">
+                      {movieCollection.movies.$values
+                        .slice(0, 5)
+                        .map((movie) => (
+                          <Card
+                            key={movie.movieId}
+                            className="zoomCard"
+                            style={{
+                              height: "90%",
+                              width: "150px",
+                              cursor: "pointer",
+                            }}
+                            title={movie.title}
+                            onClick={() => navigate(`/${movie.movieId}`)}
+                          >
+                            <Card.Img
+                              variant="top"
+                              style={{ height: "80%", objectFit: "cover" }}
+                              src={movie.posterUrl}
+                            />
+                            <Card.Body className="d-flex flex-column justify-content-between">
+                              <Card.Text
+                                className="text-center"
+                                style={{
+                                  fontSize: "0.9rem",
+                                  maxHeight: "2.7rem",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {movie.title}
+                              </Card.Text>
+                            </Card.Body>
+                          </Card>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-dark">Brak filmów do wyświetlenia</p>
+                  )
+                ) : (
+                  <p className="text-dark">
+                    Błąd podczas ładowania zawartości listy
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>
