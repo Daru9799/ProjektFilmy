@@ -21,6 +21,7 @@ const MoviePage = () => {
     error,
     isLoggedIn,
     isFollowing,
+    inList,
     setShowReviewModal,
     setShowLoginModal,
     setShowEditModal,
@@ -31,6 +32,9 @@ const MoviePage = () => {
     handleLoginSuccess,
     handleSaveEditedReview,
     handleChangeFollowing,
+    setInList,
+    handleChangePlanned,
+    handleChangeWatched,
   } = useMoviePageLogic();
 
   if (loading) return <p>Ładowanie danych...</p>;
@@ -62,6 +66,10 @@ const MoviePage = () => {
             userReview={userReview}
             isFollowing={isFollowing}
             handleChangeFollowing={handleChangeFollowing}
+            inList={inList}
+            setInList={setInList}
+            handleChangePlanned={handleChangePlanned}
+            handleChangeWatched={handleChangeWatched}
           />
 
           <MovieTabs movie={movie} people={people} />

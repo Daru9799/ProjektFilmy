@@ -157,6 +157,166 @@ export const fetchUserReviewForMovie = async (
   }
 };
 
+export const checkIfInPlanned = async (
+  movieId: string | undefined,
+  setList: React.Dispatch<React.SetStateAction<string | null>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
+    return; //Jeśli brak tokenu nie zaciąga danych z API
+  }
+
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/Movies/check-if-in-list/Planned/${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      if (response.data === true) {
+        setList("Planowany");
+      }
+      console.log("Pomyślnie sprawdzono czy film planowany.");
+    }
+  } catch (err: any) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      setList(null);
+      console.log("Ten film nie istnieje");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(err);
+    }
+  }
+};
+
+export const checkIfInWatched = async (
+  movieId: string | undefined,
+  setList: React.Dispatch<React.SetStateAction<string | null>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
+    return; //Jeśli brak tokenu nie zaciąga danych z API
+  }
+
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/Movies/check-if-in-list/Watched/${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      if (response.data === true) {
+        setList("Obejrzany");
+      }
+      console.log("Pomyślnie sprawdzono czy film obejrzany.");
+    }
+  } catch (err: any) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      setList(null);
+      console.log("Ten film nie istnieje.");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(err);
+    }
+  }
+};
+
+export const addToPlanned = async (
+  movieId: string | undefined,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    await axios.post(
+      "https://localhost:7053/api/Movies/planned/add-movie",
+      {
+        movieId: movieId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (err: any) {
+    setError(err);
+    console.log("Błąd podczas dodawania do planowanych.");
+  }
+};
+
+export const addToWatched = async (
+  movieId: string | undefined,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    await axios.post(
+      "https://localhost:7053/api/Movies/watched/add-movie",
+      {
+        movieId: movieId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (err: any) {
+    setError(err);
+    console.log("Błąd podczas dodawania do obejrzanych.");
+  }
+};
+
+export const deleteFromWatched = async (
+  movieId: string | undefined,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    await axios.delete(
+      `https://localhost:7053/api/Movies/watched/delete-from-watched/${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (err: any) {
+    setError(err);
+    console.log("Błąd podczas usuwania z obejrzanych.");
+  }
+};
+
+export const deleteFromPlanned = async (
+  movieId: string | undefined,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  try {
+    await axios.delete(
+      `https://localhost:7053/api/Movies/planned/delete-from-planned/${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (err: any) {
+    setError(err);
+    console.log("Błąd podczas usuwania z planowanych.");
+  }
+};
+
 interface PaginationResponse {
   data: {
     $values: Movie[];

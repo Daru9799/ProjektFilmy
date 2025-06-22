@@ -5,6 +5,12 @@ import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
 import { Review } from "../models/Review";
 import {
+  addToPlanned,
+  addToWatched,
+  checkIfInPlanned,
+  checkIfInWatched,
+  deleteFromPlanned,
+  deleteFromWatched,
   fetchActorsData,
   fetchMovieData,
   fetchMovieReviews,
@@ -29,6 +35,7 @@ export const useMoviePageLogic = () => {
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [inList, setInList] = useState<string | null>(null);
 
   useEffect(() => {
     if (movieId) {
@@ -64,13 +71,26 @@ export const useMoviePageLogic = () => {
 
   useEffect(() => {
     if (movieId && userName) {
-      const loggedUserId = getLoggedUserId();
-      checkFollowing(movieId);
+      const fetchData = async () => {
+        const loggedUserId = getLoggedUserId();
+        checkFollowing(movieId);
+        console.log("jajko");
+        try {
+          await Promise.all([
+            checkIfInPlanned(movieId, setInList, setError),
+            checkIfInWatched(movieId, setInList, setError),
+          ]);
+        } catch (error) {
+          console.log("Nie udało się pobrac informacji o zawartości list.");
+        }
 
-      if (!loggedUserId) {
-        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
-        return;
-      }
+        if (!loggedUserId) {
+          console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
+          return;
+        }
+      };
+
+      fetchData();
     }
   }, [movieId]);
 
@@ -131,6 +151,10 @@ export const useMoviePageLogic = () => {
     if (movieId) {
       try {
         checkFollowing(movieId);
+        await Promise.all([
+          checkIfInPlanned(movieId, setInList, setError),
+          checkIfInWatched(movieId, setInList, setError),
+        ]);
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
         await fetchMovieData(movieId, setMovie, setError);
         await fetchUserReviewForMovie(
@@ -204,6 +228,56 @@ export const useMoviePageLogic = () => {
     }
   };
 
+  const handleChangePlanned = async () => {
+    if (inList === "Planowany") {
+      try {
+        const data = await deleteFromPlanned(movieId, setError);
+        console.log("Odpowiedz: " + data);
+        setInList(null);
+      } catch (error: any) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const data = await addToPlanned(movieId, setError);
+        console.log("Odpowiedz: " + data);
+        setInList("Planowany");
+      } catch (error: any) {
+        console.error(error);
+      }
+    }
+
+    await Promise.all([
+      checkIfInPlanned(movieId, setInList, setError),
+      checkIfInWatched(movieId, setInList, setError),
+    ]);
+  };
+
+  const handleChangeWatched = async () => {
+    if (inList === "Obejrzany") {
+      try {
+        const data = await deleteFromWatched(movieId, setError);
+        console.log("Odpowiedz: " + data);
+        setInList(null);
+      } catch (error: any) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const data = await addToWatched(movieId, setError);
+        console.log("Odpowiedz: " + data);
+        setInList("Obejrzany");
+      } catch (error: any) {
+        console.error(error);
+      }
+    }
+
+    await Promise.all([
+      checkIfInPlanned(movieId, setInList, setError),
+      checkIfInWatched(movieId, setInList, setError),
+    ]);
+  };
+
   return {
     movie,
     people,
@@ -217,6 +291,7 @@ export const useMoviePageLogic = () => {
     error,
     isLoggedIn: !!localStorage.getItem("token"),
     isFollowing,
+    inList,
     setShowReviewModal,
     setShowLoginModal,
     setShowEditModal,
@@ -227,5 +302,8 @@ export const useMoviePageLogic = () => {
     handleLoginSuccess,
     handleSaveEditedReview,
     handleChangeFollowing,
+    setInList,
+    handleChangePlanned,
+    handleChangeWatched,
   };
 };
