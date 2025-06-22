@@ -14,6 +14,7 @@ import { isUserMod } from "../hooks/decodeJWT";
 import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
+import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 
 const MovieCollectionReviewsPage = () => {
   const navigate = useNavigate();
@@ -209,59 +210,14 @@ const MovieCollectionReviewsPage = () => {
         >{`Recenzje kolekcji ${movieCollection?.title}`}</h2>
         <div style={{ marginTop: "2%" }}>
           <div className="d-flex justify-content-center">
-            <div
-              className="mt-4  bg-white p-3 shadow-sm d-flex gap-3 align-items-stretch"
-              style={{
-                height: "30vh",
-                paddingRight: "10px",
-                borderRadius: "20px",
-                width: "80%",
-              }}
-            >
-              {/*Sprawdza czy kolekcja poprawnie pobrała infomrację o filmach, nastepnie czy w kolekcji znajdują się jakieś filmy i
-          wyświetla odpowiedni komunikat */}
-              {movieCollection?.movies ? (
-                movieCollection.movies.$values.length > 0 ? (
-                  <div className="d-flex gap-3 align-items-stretch h-100 w-100">
-                    {movieCollection.movies.$values.slice(0, 5).map((movie) => (
-                      <Card
-                        key={movie.movieId}
-                        className="h-100 zoomCard"
-                        style={{ width: "150px", cursor: "pointer" }}
-                        title={movie.title}
-                        onClick={() => navigate(`/${movie.movieId}`)}
-                      >
-                        <Card.Img
-                          variant="top"
-                          style={{ height: "80%", objectFit: "cover" }}
-                          src={movie.posterUrl}
-                        />
-                        <Card.Body className="d-flex flex-column justify-content-between">
-                          <Card.Text
-                            className="text-center"
-                            style={{
-                              fontSize: "0.9rem",
-                              maxHeight: "2.7rem", // 2 linijki * 1.35rem
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {movie.title}
-                          </Card.Text>
-                        </Card.Body>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-dark">Brak filmów do wyświetlenia</p>
-                )
-              ) : (
-                <p className="text-dark">
-                  Błąd podczas ładownia zawartości listy
-                </p>
-              )}
-            </div>
+            <MovieCollectionCard
+              movieCollection={movieCollection}
+              loggedUserName={userName}
+              isLoggedUserMod={isLoggedUserMod}
+              userPage={false}
+              setError={setError}
+              setLoading={setLoading}
+            />
           </div>
           <div
             className="container pt-3 text-center"

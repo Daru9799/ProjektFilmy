@@ -29,8 +29,6 @@ const MovieCollectionByUserPage = () => {
     []
   );
   const placeholder = () => {};
-  const navigate = useNavigate();
-  const collectionNavigate = useNavigate();
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());

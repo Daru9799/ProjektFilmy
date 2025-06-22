@@ -392,7 +392,7 @@ export const fetchMoviesListByIds = async (
 };
 
 export const fetchMoviesByCollectionId = async (
-  movieCollectionId: string,
+  movieCollectionId: string | null,
   pageNumber: number,
   pageSize: number,
   setMovies: React.Dispatch<React.SetStateAction<Movie[]>>,
