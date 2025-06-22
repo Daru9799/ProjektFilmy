@@ -7,6 +7,7 @@ import { fetchUserData } from "../API/userAPI";
 import { fetchMovieCollectionsByUser } from "../API/movieCollectionApi";
 import { MovieCollection } from "../models/MovieCollection";
 import { Card } from "react-bootstrap";
+import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 
 const MovieCollectionByUserPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -77,94 +78,21 @@ const MovieCollectionByUserPage = () => {
       {/*////////////////////////////////////////////////////////////////////////////////
       // Do przerzucenia do osobnego modułu
       // */}
+
       {movieCollections.map((movieCollection) => (
         <div
-          style={{ cursor: "pointer" }}
           key={movieCollection.movieCollectionId}
-          className="d-flex justify-content-center zoomCard"
-          onClick={() => {
-            collectionNavigate(`${movieCollection.movieCollectionId}`);
-          }}
+          className="d-flex justify-content-center"
         >
-          <div
-            className="mt-4 bg-white p-3 shadow-sm gap-3"
-            style={{
-              height: "32vh",
-              paddingRight: "10px",
-              borderRadius: "20px",
-              width: "80%",
-            }}
-          >
-            {" "}
-            {movieCollection.shareMode === "Private" &&
-            movieCollection.userName !== loggedUserName &&
-            !isLoggedUserMod ? (
-              <h5 className="text-dark mb-1">Prywatne</h5>
-            ) : movieCollection.shareMode === "Friends" &&
-              movieCollection.userName !== loggedUserName &&
-              !isLoggedUserMod ? (
-              <h5 className="text-dark mb-1">Tylko dla znajomych</h5>
-            ) : (
-              <>
-                <div
-                  style={{ width: "100%" }}
-                  className="d-flex justify-content-center"
-                >
-                  <h5 className="text-dark mb-1" style={{ margin: 0 }}>
-                    {movieCollection.title}
-                  </h5>
-                </div>
-
-                {movieCollection?.movies ? (
-                  movieCollection.movies.$values.length > 0 ? (
-                    <div className="d-flex gap-3 align-items-stretch h-100 w-100">
-                      {movieCollection.movies.$values
-                        .slice(0, 5)
-                        .map((movie) => (
-                          <Card
-                            key={movie.movieId}
-                            className="zoomCard"
-                            style={{
-                              height: "90%",
-                              width: "150px",
-                              cursor: "pointer",
-                            }}
-                            title={movie.title}
-                            onClick={() => navigate(`/${movie.movieId}`)}
-                          >
-                            <Card.Img
-                              variant="top"
-                              style={{ height: "80%", objectFit: "cover" }}
-                              src={movie.posterUrl}
-                            />
-                            <Card.Body className="d-flex flex-column justify-content-between">
-                              <Card.Text
-                                className="text-center"
-                                style={{
-                                  fontSize: "0.9rem",
-                                  maxHeight: "2.7rem",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {movie.title}
-                              </Card.Text>
-                            </Card.Body>
-                          </Card>
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-dark">Brak filmów do wyświetlenia</p>
-                  )
-                ) : (
-                  <p className="text-dark">
-                    Błąd podczas ładowania zawartości listy
-                  </p>
-                )}
-              </>
-            )}
-          </div>
+          <MovieCollectionCard
+            key={movieCollection.movieCollectionId}
+            movieCollection={movieCollection}
+            loggedUserName={loggedUserName}
+            isLoggedUserMod={isLoggedUserMod}
+            userPage={true}
+            setError={setError}
+            setLoading={setLoading}
+          />
         </div>
       ))}
 

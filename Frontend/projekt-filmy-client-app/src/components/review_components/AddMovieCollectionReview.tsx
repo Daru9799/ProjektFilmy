@@ -117,7 +117,7 @@ const AddMovieCollectionReviewModal: React.FC<
               borderRadius: "8px",
             }}
           />
-          <label
+          {/* <label
             htmlFor="reviewRating"
             className="form-label mt-2"
             style={{ color: "white", display: "block" }}
@@ -129,7 +129,7 @@ const AddMovieCollectionReviewModal: React.FC<
             checked={isSpoiler}
             onChange={handleSpoilerChange}
             style={{ display: "block", marginTop: "0", marginLeft: "40%" }}
-          />
+          /> */}
         </div>
       </div>
       <Modal.Footer style={{ justifyContent: "center" }}>

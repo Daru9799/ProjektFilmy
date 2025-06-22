@@ -247,10 +247,10 @@ export const useMoviePageLogic = () => {
       }
     }
 
-    await Promise.all([
-      checkIfInPlanned(movieId, setInList, setError),
-      checkIfInWatched(movieId, setInList, setError),
-    ]);
+    // await Promise.all([
+    //   checkIfInPlanned(movieId, setInList, setError),
+    //   checkIfInWatched(movieId, setInList, setError),
+    // ]);
   };
 
   const handleChangeWatched = async () => {
@@ -272,10 +272,10 @@ export const useMoviePageLogic = () => {
       }
     }
 
-    await Promise.all([
-      checkIfInPlanned(movieId, setInList, setError),
-      checkIfInWatched(movieId, setInList, setError),
-    ]);
+    // await Promise.all([
+    //   checkIfInPlanned(movieId, setInList, setError),
+    //   checkIfInWatched(movieId, setInList, setError),
+    // ]);
   };
 
   return {

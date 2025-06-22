@@ -175,6 +175,21 @@ const MovieCollectionReviewsPage = () => {
     }
   };
 
+  if (
+    movieCollection?.shareMode === "Private" &&
+    userName != movieCollection.userName &&
+    !isLoggedUserMod
+  )
+    return <p>Ta kolekcja jest prywatna</p>;
+  if (
+    movieCollection?.shareMode === "Friends" &&
+    userName != movieCollection.userName &&
+    !isLoggedUserMod
+  )
+    return (
+      <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${movieCollection.userName}`}</p>
+    );
+
   if (loading) {
     return <div className="text-center">Ładowanie recenzji...</div>;
   }

@@ -390,3 +390,55 @@ export const fetchMoviesListByIds = async (
     throw error;
   }
 };
+
+export const fetchMoviesByCollectionId = async (
+  movieCollectionId: string,
+  pageNumber: number,
+  pageSize: number,
+  setMovies: React.Dispatch<React.SetStateAction<Movie[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      totalItems: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+    }>
+  >
+) => {
+  try {
+    const response = await axios.get(
+      `https://localhost:7053/api/Movies/by-collectionId/${movieCollectionId}`,
+      {
+        params: {
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      const { data, totalItems, pageNumber, pageSize, totalPages } =
+        response.data;
+      setMovies(response.data.$values);
+      setPagination({ totalItems, pageNumber, pageSize, totalPages });
+    }
+  } catch (reviewsError) {
+    if (
+      axios.isAxiosError(reviewsError) &&
+      reviewsError.response?.status === 404
+    ) {
+      setMovies([]);
+      console.log("Nie znaleznio filmów w tej kolekcji");
+    } else {
+      setError("Błąd podczas wczytywania danych");
+      console.error(reviewsError);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
