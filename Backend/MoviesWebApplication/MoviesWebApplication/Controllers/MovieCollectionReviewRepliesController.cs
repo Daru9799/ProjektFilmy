@@ -35,7 +35,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("total-amount-by-review-ids")]
         public async Task<ActionResult<List<int>>> GetTotalAmountByReviewIds([FromQuery] List<Guid> reviewsIds = null)
         {
-            var query = new GetNumberOfRepliesByReviewIds.Query { ReviewIds = reviewsIds };
+            var query = new GetNumberOfRepliesByMCReviewIds.Query { ReviewIds = reviewsIds };
             var replies = await Mediator.Send(query);
             if (replies == null || !replies.Any())
             {

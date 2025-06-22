@@ -40,6 +40,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
                         cancellationToken);
 
                 // Zwróć listę liczb odpowiedzi w tej samej kolejności co ReviewIds
+
                 return request.ReviewIds
                     .Select(reviewId => replyCounts.TryGetValue(reviewId, out var count) ? count : 0)
                     .ToList();
