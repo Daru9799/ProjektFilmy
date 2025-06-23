@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
-using Movies.Domain;
 using Movies.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Movies.Application.Notifications
 {
@@ -31,14 +33,29 @@ namespace Movies.Application.Notifications
         public class Handler : IRequestHandler<Query, PagedResponse<NotificationDto>>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
             public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<PagedResponse<NotificationDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                //Sprawdzenie czy user jest zalogowany
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                }
+
+                if (request.UserId != currentUserId)
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do przeglądania powiadomień tego użytkownika!");
+                }
+
                 IQueryable<Notification> query = _context.Notifications
                     .Where(n => n.TargetUserId == request.UserId)
                     .Include(n => n.SourceUser);

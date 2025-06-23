@@ -79,9 +79,7 @@ namespace MoviesWebApplication.Controllers
         //Edycja komentarza do recenzji listy filmowej
         [Authorize]
         [HttpPut("edit-review-reply/{replyId}")]
-        public async Task<IActionResult> EditReviewReply(
-                                        [FromRoute] Guid replyId,
-                                        [FromBody] EditReplyRequestLocalDto request)
+        public async Task<IActionResult> EditReviewReply([FromRoute] Guid replyId, [FromBody] EditReplyRequestLocalDto request)
         {
             try
             {

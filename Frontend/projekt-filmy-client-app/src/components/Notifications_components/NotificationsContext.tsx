@@ -38,7 +38,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]); //Lista dla strony z powiadomieniami
   const [latestNotifications, setLatestNotifications] = useState<Notification[]>([]); //Lista dla navbaru
   const [hasNew, setHasNew] = useState(false);
-  const [pageInfo, setPageInfo] = useState({totalItems: 0, pageNumber: 1, pageSize: 2, totalPages: 1});
+  const [pageInfo, setPageInfo] = useState({totalItems: 0, pageNumber: 1, pageSize: 6, totalPages: 1});
   const [filters, setFilters] = useState<{orderBy: "date" | "type"; sortDirection: "asc" | "desc"; isRead?: boolean; notificationType?: NotificationType;}>({orderBy: "date", sortDirection: "desc",});
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 

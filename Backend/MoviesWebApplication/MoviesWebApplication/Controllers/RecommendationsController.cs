@@ -17,9 +17,7 @@ namespace MoviesWebApplication.Controllers
 {
     public class RecommendationsController : BaseApiController
     {
-        // DataContext wymagana dla transakcji
         private readonly DataContext _context;
-        // Wstrzyknij DataContext przez konstruktor
         public RecommendationsController(DataContext context)
         {
             _context = context;

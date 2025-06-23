@@ -9,7 +9,7 @@ namespace MoviesWebApplication.Controllers
     public class NotificationsController : BaseApiController
     {
         //Zwracanie powiadomień na podstawie id usera
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("by-user-id/{userId}")]
         public async Task<ActionResult<List<NotificationDto>>> GetNotificationsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc", [FromQuery] bool? isRead = null, [FromQuery] string type = null, [FromQuery] bool noPagination = false, [FromQuery] string sourceUserName = null)
         {
@@ -52,7 +52,7 @@ namespace MoviesWebApplication.Controllers
             }
         }
         //Usuwanie powiadomień z bazy
-        [AllowAnonymous]
+        [Authorize]
         [HttpDelete("delete-notification/{id}")]
         public async Task<IActionResult> DeleteNotification(Guid id)
         {
@@ -67,7 +67,7 @@ namespace MoviesWebApplication.Controllers
         }
 
         //Nadpisanie czy powiadomienie zostało odczytane
-        [AllowAnonymous]
+        [Authorize]
         [HttpPatch("update-isread/{id}")]
         public async Task<IActionResult> UpdateIsRead(Guid id, [FromBody] UpdateNotificationReadStatus.Command command)
         {

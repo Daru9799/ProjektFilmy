@@ -49,6 +49,9 @@ export const checkIsInvited = async (targetUserId: string): Promise<boolean> => 
         disablePagination: true,
         sourceUserName: loggedUserName,
       },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
     });
 
     const notifications: Notification[] = response.data.data?.$values ?? [];
@@ -69,6 +72,9 @@ export const checkIsInvitedByUser = async (loggedUserId: string, profileUserName
         noPagination: true,
         sourceUserName: profileUserName,  //Nazwa profilu który jest przeglądany
       },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
     });
 
     const notifications: Notification[] = response.data.data?.$values ?? [];
@@ -91,6 +97,9 @@ export const getInvitationFromUser = async (
         noPagination: true,
         sourceUserName: profileUserName,
       },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
     const notifications: Notification[] = response.data.data?.$values ?? [];
@@ -106,6 +115,11 @@ export const deleteNotification = async (notificationId: string, setError: React
   try {
     await axios.delete(
       `https://localhost:7053/api/Notifications/delete-notification/${notificationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
   } catch (err) {
     console.error("Błąd podczas usuwania powiadomienia:", err);
@@ -132,6 +146,9 @@ export const fetchNotificationsByUserId = async (
         sortDirection,
         isRead,
         type,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
 

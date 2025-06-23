@@ -23,8 +23,7 @@ namespace MoviesWebApplication.Controllers
             return Ok(pagedReviews);
         }
 
-
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("by-user-name/{userName}")]
         public async Task<ActionResult<List<UserAchievementDto>>> GetAchievementsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc")
         {
