@@ -29,7 +29,15 @@ namespace MoviesWebApplication.Controllers
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
-            if (user == null) return Unauthorized();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (user.IsGoogleUser)
+            {
+                return Unauthorized("Użytkownik z kontem Google nie może logować się w ten sposób!");
+            }
 
             var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
@@ -121,7 +129,7 @@ namespace MoviesWebApplication.Controllers
             {
                 return Unauthorized("Nie można zweryfikować użytkownika.");
             }
-                
+
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
@@ -190,7 +198,7 @@ namespace MoviesWebApplication.Controllers
             {
                 return Unauthorized("Nie można zweryfikować użytkownika.");
             }
-                
+
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
