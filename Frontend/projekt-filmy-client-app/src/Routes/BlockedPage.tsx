@@ -57,7 +57,7 @@ const BlockedPage = () => {
   if (error) return <h1 className="error" style={{ color: 'white' }}>{error}</h1>;
 
   return (
-    <>
+    <div style={{ minHeight: "90vh"}}>
       <h2 style={{ color: "white", textAlign: "center", margin: 0 }} className="text-center mb-4">
         Zablokowani użytkownicy <strong>{userName}</strong>
       </h2>
@@ -76,7 +76,7 @@ const BlockedPage = () => {
         )}
       </div>
       <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
-    </>
+    </div>
   );
 };
 

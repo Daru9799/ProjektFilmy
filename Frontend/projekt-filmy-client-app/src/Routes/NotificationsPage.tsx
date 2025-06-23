@@ -55,7 +55,7 @@ const NotificationPage = () => {
     };
 
   return (
-    <div className="container my-4">
+    <div className="container my-4" style={{ minHeight: "90vh"}}>
       <h2 className="mb-4" style={{ color: "white" }}>
         Twoje powiadomienia
       </h2>

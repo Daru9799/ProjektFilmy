@@ -174,7 +174,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   }
 
   return (
-    <div className="container my-2">
+    <div className="container my-2" style={{ minHeight: "90vh"}}>
       <div className="m-4">
         <h2 style={{ color: "white" }}>
           {endpointPrefix === "Reply"

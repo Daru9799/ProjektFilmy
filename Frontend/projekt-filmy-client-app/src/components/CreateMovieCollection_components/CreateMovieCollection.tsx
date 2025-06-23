@@ -6,6 +6,7 @@ import useCreateMovieCollection from '../../hooks/useCreateMovieCollection';
 import InfoModal from "../SharedModals/InfoModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 
 const CreateMovieCollection = () => {
@@ -45,10 +46,28 @@ const {
   const [showInfoModal, setShowInfoModal] = useState(false);
 const [showSuccessModal, setShowSuccessModal] = useState(false);
 const navigate = useNavigate();
+const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
+
+  const renderTooltip = (props: any) => (
+    <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
+  );
 
   return (
     <div className="create-collection-container">
+
       <h2 style={{ marginTop: "2%", marginBottom: "5%" }}>Utwórz nową kolekcję filmów</h2>
+ 
+        <OverlayTrigger
+        placement="top" // Pozycja dymka (można zmienić na "bottom", "right", "left")
+        overlay={renderTooltip}
+      >
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate(`/user/${loggedUsername}`)}
+        >
+          <i className="fas fa-arrow-left"></i>
+        </button>
+      </OverlayTrigger>
 
       <CollectionForm
         title={title}
@@ -124,7 +143,7 @@ const navigate = useNavigate();
         title="Sukces"
         onClose={() => {
           setShowSuccessModal(false);
-          navigate("/");
+          navigate( `/user/${loggedUsername}/movieCollection`);
         }}
         message="Kolekcja została pomyślnie utworzona!"
         variant="success"

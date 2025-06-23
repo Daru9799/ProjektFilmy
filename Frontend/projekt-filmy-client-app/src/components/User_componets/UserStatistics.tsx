@@ -4,6 +4,9 @@ import { fetchUserStatistics } from "../../API/userAPI";
 import { UserStats } from "../../models/UserStats";
 import "../../styles/UserPage.css";
 import AccordionChart from "./AccordionChart";
+import { Tooltip } from "recharts";
+import { useNavigate } from "react-router-dom";
+import { OverlayTrigger } from "react-bootstrap";
 
 const UserStatistics = () => {
   const { userName } = useParams();
@@ -11,6 +14,10 @@ const UserStatistics = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const loggedUserName = localStorage.getItem("logged_username");
+  const navigate = useNavigate();
+      const renderTooltip = (props: any) => (
+    <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
+  );
   
   useEffect(() => {
     if (userName) {
@@ -22,15 +29,30 @@ const UserStatistics = () => {
   if (error) return <p className="text-danger text-center">{error}</p>;
   if (!userStats) return <p>Brak danych.</p>;
 
-  
-
   return (
-    <div className="container text-white my-4" style={{ minHeight: "90vh" }}>
-      <h2 className="text-center mb-4">
+  <div className="container text-white my-4" style={{ minHeight: "90vh" }}>
+    <div className="d-flex align-items-center justify-content-between mb-4">
+      <OverlayTrigger
+        placement="top"
+        overlay={renderTooltip}
+      >
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate(`/user/${userName}`)}
+        >
+          <i className="fas fa-arrow-left"></i>
+        </button>
+      </OverlayTrigger>
+
+      <h2 className="mb-0 mx-auto text-center">
         {loggedUserName === userName
-      ? "Twoje osiągnięcia:"
-      : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
+          ? "Twoje osiągnięcia:"
+          : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
       </h2>
+
+      {/* Niewidoczny element do zbalansowania przestrzeni po prawej */}
+      <div style={{ width: "40px" }} />
+    </div>
 
       {/* Górne 4 karty */}
       <div className="row text-center g-4 mb-5" style={{ marginTop: "5%" }}>

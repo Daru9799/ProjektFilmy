@@ -9,6 +9,7 @@ const NotFoundPage = () => {
     <Container className="text-center mt-4 mb-4">
       <Row>
         <Col>
+        <div style={{ minHeight: "90vh"}}>
           <h1 className="display-1 text-light">404</h1>
           <p className="lead text-light mb-4">
             Nie znaleziono strony, której szukasz.
@@ -16,6 +17,7 @@ const NotFoundPage = () => {
           <Button variant="primary" onClick={() => navigate("/")}>
             Wróć na stronę główną
           </Button>
+          </div>
         </Col>
       </Row>
     </Container>

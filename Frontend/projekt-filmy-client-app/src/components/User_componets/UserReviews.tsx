@@ -97,9 +97,6 @@ const ReviewsPage = () => {
       }
     };
     
-
-
-
   const handleSortChange = (category: string) => {
     switch (category) {
       case "highRaiting":
