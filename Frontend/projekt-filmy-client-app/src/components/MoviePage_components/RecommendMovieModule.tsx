@@ -26,7 +26,7 @@ const RecommendMovieModule = ({movieId}:Props) => {
 		totalPages: 2,
 	});
   const[currentPage,setCurrentPage] = useState(1)
-  const staticPageSize = 2;
+  const staticPageSize = 3;
 
 	const [open, setOpen] = useState(false);
   const [openMovieModal,setOpenMovieModal] = useState(false)
