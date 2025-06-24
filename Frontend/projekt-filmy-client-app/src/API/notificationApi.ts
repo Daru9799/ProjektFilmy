@@ -269,7 +269,7 @@ export const sendCollectionReviewedNotification = async (
       type: "CollectionReviewed",
       date: new Date().toISOString(),
       isRead: false,
-      resource: `user/${targetUserName}/movieCollection/${collectionId}/reviews`,
+      resource: `/user/${targetUserName}/movieCollection/${collectionId}/reviews`,
       sourceUserId,
       targetUserId,
     },

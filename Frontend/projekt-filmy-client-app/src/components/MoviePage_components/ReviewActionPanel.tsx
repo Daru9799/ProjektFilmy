@@ -78,7 +78,7 @@ const ReviewActionsPanel: React.FC<Props> = ({
       {inList ? (
         <h5 className="mt-3">{`Stan filmu: ${inList}`} </h5>
       ) : (
-        <h5 className="mt-3">Stan filmu: Nie objerzany</h5>
+        <h5 className="mt-3">Stan filmu: Nie obejrzany</h5>
       )}
       {isLoggedIn ? (
         <button
