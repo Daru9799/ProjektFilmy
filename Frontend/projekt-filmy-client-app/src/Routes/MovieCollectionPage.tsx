@@ -124,7 +124,6 @@ const MovieCollectionPage = () => {
         navigate
       );
     }
-
     fetchMovieCollectionById(id, setMovieCollection, setError);
     fetchMovieCollectionReviews(
       id,
@@ -139,6 +138,10 @@ const MovieCollectionPage = () => {
     );
   }, [id]);
   useEffect(() => {
+    if (movieCollection && movieCollection?.userName !== userName) {
+      navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
+    }
+
     if (id && loggedUserName) {
       const loggedUserId = getLoggedUserId();
 
@@ -180,21 +183,21 @@ const MovieCollectionPage = () => {
         movieCollection?.movieCollectionId
       );
 
-      // const loggedUserId = getLoggedUserId();
-      // if (
-      //   movieCollection &&
-      //   loggedUserId &&
-      //   movieCollection.userId !== loggedUserId
-      // ) {
-      //   await sendCollectionReviewedNotification(
-      //     movieCollection.movieCollectionId,
-      //     movieCollection.userId,
-      //     loggedUserId,
-      //     loggedUserName,
-      //     movieCollection.userName,
-      //     setNotification
-      //   );
-      // }
+      const loggedUserId = getLoggedUserId();
+      if (
+        movieCollection &&
+        loggedUserId &&
+        movieCollection.userId !== loggedUserId
+      ) {
+        await sendCollectionReviewedNotification(
+          movieCollection.movieCollectionId,
+          movieCollection.userId,
+          loggedUserId,
+          loggedUserName,
+          movieCollection.userName,
+          setNotification
+        );
+      }
 
       await fetchMovieCollectionById(id, setMovieCollection, setError);
       await fetchMovieCollectionReviews(
@@ -229,11 +232,6 @@ const MovieCollectionPage = () => {
       }
     }
   };
-
-  if (movieCollection?.userName !== userName) {
-    navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
-    return null;
-  }
 
   if (isBlocked) {
     navigate("/"); //W przypadku bloka przenosi na /

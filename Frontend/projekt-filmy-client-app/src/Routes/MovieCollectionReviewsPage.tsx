@@ -136,6 +136,12 @@ const MovieCollectionReviewsPage = () => {
   ]);
 
   useEffect(() => {
+    if (movieCollection && movieCollection?.userName !== userName) {
+      navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
+    }
+  }, [movieCollection]);
+
+  useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
