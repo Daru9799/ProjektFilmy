@@ -43,13 +43,16 @@ const MovieCollectionByUserPage = () => {
 
   useEffect(() => {
     if (user?.id) {
-      fetchRelationsData(
-        localStorage.getItem("logged_username")!,
-        "",
-        setRelations,
-        setError,
-        navigate
-      );
+      if (loggedUserName) {
+        fetchRelationsData(
+          localStorage.getItem("logged_username")!,
+          "",
+          setRelations,
+          setError,
+          navigate
+        );
+      }
+
       fetchMovieCollectionsByUser(
         user.id,
         pagination.pageNumber,

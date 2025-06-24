@@ -115,13 +115,16 @@ const MovieCollectionPage = () => {
   };
 
   useEffect(() => {
-    fetchRelationsData(
-      localStorage.getItem("logged_username")!,
-      "",
-      setRelations,
-      setError,
-      navigate
-    );
+    if (loggedUserName) {
+      fetchRelationsData(
+        localStorage.getItem("logged_username")!,
+        "",
+        setRelations,
+        setError,
+        navigate
+      );
+    }
+
     fetchMovieCollectionById(id, setMovieCollection, setError);
     fetchMovieCollectionReviews(
       id,
