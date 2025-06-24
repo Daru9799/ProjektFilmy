@@ -8,6 +8,7 @@ import { fetchMovieCollectionsByUser } from "../API/movieCollectionApi";
 import { MovieCollection } from "../models/MovieCollection";
 import { Card } from "react-bootstrap";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
+import { fetchRelationsData } from "../API/relationApi";
 
 const MovieCollectionByUserPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -28,7 +29,9 @@ const MovieCollectionByUserPage = () => {
   const [movieCollections, setMovieCollections] = useState<MovieCollection[]>(
     []
   );
+  const [relations, setRelations] = useState<any>(null);
   const placeholder = () => {};
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
@@ -40,6 +43,13 @@ const MovieCollectionByUserPage = () => {
 
   useEffect(() => {
     if (user?.id) {
+      fetchRelationsData(
+        localStorage.getItem("logged_username")!,
+        "",
+        setRelations,
+        setError,
+        navigate
+      );
       fetchMovieCollectionsByUser(
         user.id,
         pagination.pageNumber,
@@ -53,6 +63,20 @@ const MovieCollectionByUserPage = () => {
       );
     }
   }, [user, pagination.pageNumber, pagination.pageSize]);
+
+  const isFriend = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Friend" && relation.relatedUserName === user?.userName
+  );
+  const isBlocked = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Blocked" && relation.relatedUserName === user?.userName
+  );
+
+  if (isBlocked) {
+    navigate("/"); //W przypadku bloka przenosi na /
+    return null;
+  }
 
   if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
@@ -88,6 +112,7 @@ const MovieCollectionByUserPage = () => {
             loggedUserName={loggedUserName}
             isLoggedUserMod={isLoggedUserMod}
             userPage={true}
+            isFriend={isFriend}
             setError={setError}
             setLoading={setLoading}
           />

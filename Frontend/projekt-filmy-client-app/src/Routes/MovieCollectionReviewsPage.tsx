@@ -15,11 +15,12 @@ import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
+import { fetchRelationsData } from "../API/relationApi";
 
 const MovieCollectionReviewsPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const userName = localStorage.getItem("logged_username") || "";
+  const { id, userName } = useParams();
+  const loggedUser = localStorage.getItem("logged_username") || "";
   const [movieCollection, setMovieCollection] =
     useState<MovieCollection | null>(null);
   const [reviews, setReviews] = useState<MovieCollectionReview[]>([]);
@@ -40,6 +41,7 @@ const MovieCollectionReviewsPage = () => {
     useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
+  const [relations, setRelations] = useState<any>(null);
 
   const onEditReview = (review: MovieCollectionReview | null) => {
     setReviewToEdit(review);
@@ -103,6 +105,13 @@ const MovieCollectionReviewsPage = () => {
   };
 
   useEffect(() => {
+    fetchRelationsData(
+      localStorage.getItem("logged_username")!,
+      "",
+      setRelations,
+      setError,
+      navigate
+    );
     fetchMovieCollectionById(id, setMovieCollection, setError);
     fetchMovieCollectionReviews(
       id,
@@ -176,16 +185,38 @@ const MovieCollectionReviewsPage = () => {
     }
   };
 
+  const isFriend = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Friend" &&
+      relation.relatedUserName === movieCollection?.userName
+  );
+  const isBlocked = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Blocked" &&
+      relation.relatedUserName === movieCollection?.userName
+  );
+
+  if (movieCollection?.userName !== userName) {
+    navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
+    return null;
+  }
+
+  if (isBlocked) {
+    navigate("/"); //W przypadku bloka przenosi na /
+    return null;
+  }
+
   if (
     movieCollection?.shareMode === "Private" &&
-    userName != movieCollection.userName &&
+    loggedUser != movieCollection.userName &&
     !isLoggedUserMod
   )
     return <p>Ta kolekcja jest prywatna</p>;
   if (
     movieCollection?.shareMode === "Friends" &&
-    userName != movieCollection.userName &&
-    !isLoggedUserMod
+    loggedUser != movieCollection.userName &&
+    !isLoggedUserMod &&
+    !isFriend
   )
     return (
       <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${movieCollection.userName}`}</p>
@@ -212,8 +243,9 @@ const MovieCollectionReviewsPage = () => {
           <div className="d-flex justify-content-center">
             <MovieCollectionCard
               movieCollection={movieCollection}
-              loggedUserName={userName}
+              loggedUserName={loggedUser}
               isLoggedUserMod={isLoggedUserMod}
+              isFriend={isFriend}
               userPage={false}
               setError={setError}
               setLoading={setLoading}

@@ -16,6 +16,7 @@ import MovieCollectionReviewCard from "../components/review_components/MovieColl
 import { sendCollectionReviewedNotification } from "../API/notificationApi";
 import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
+import { fetchRelationsData } from "../API/relationApi";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -45,6 +46,7 @@ const MovieCollectionPage = () => {
     useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [moviesLoading, setMoviesLoading] = useState<boolean>(true);
+  const [relations, setRelations] = useState<any>(null);
 
   const navigate = useNavigate();
 
@@ -113,6 +115,13 @@ const MovieCollectionPage = () => {
   };
 
   useEffect(() => {
+    fetchRelationsData(
+      localStorage.getItem("logged_username")!,
+      "",
+      setRelations,
+      setError,
+      navigate
+    );
     fetchMovieCollectionById(id, setMovieCollection, setError);
     fetchMovieCollectionReviews(
       id,
@@ -144,6 +153,15 @@ const MovieCollectionPage = () => {
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
+
+  const isFriend = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Friend" && relation.relatedUserName === userName
+  );
+  const isBlocked = relations?.$values.some(
+    (relation: any) =>
+      relation.type === "Blocked" && relation.relatedUserName === userName
+  );
 
   const handleAddReview = async (
     reviewText: string,
@@ -209,6 +227,16 @@ const MovieCollectionPage = () => {
     }
   };
 
+  if (movieCollection?.userName !== userName) {
+    navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
+    return null;
+  }
+
+  if (isBlocked) {
+    navigate("/"); //W przypadku bloka przenosi na /
+    return null;
+  }
+
   if (
     movieCollection?.shareMode === "Private" &&
     loggedUserName != userName &&
@@ -218,7 +246,8 @@ const MovieCollectionPage = () => {
   if (
     movieCollection?.shareMode === "Friends" &&
     loggedUserName != userName &&
-    !isLoggedUserMod
+    !isLoggedUserMod &&
+    !isFriend
   )
     return (
       <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${userName}`}</p>
@@ -300,6 +329,7 @@ const MovieCollectionPage = () => {
         loggedUserName={loggedUserName}
         isLoggedUserMod={isLoggedUserMod}
         userPage={false}
+        isFriend={isFriend}
         setError={setError}
         setLoading={setMoviesLoading}
       />

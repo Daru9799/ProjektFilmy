@@ -10,6 +10,7 @@ interface MovieCollectionCardProps {
   loggedUserName: string;
   isLoggedUserMod: boolean;
   userPage: boolean;
+  isFriend: boolean;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -19,6 +20,7 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
   loggedUserName,
   isLoggedUserMod,
   userPage,
+  isFriend,
   setError,
   setLoading,
 }) => {
@@ -66,7 +68,8 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
         <h5 className="text-dark mb-1">Prywatne</h5>
       ) : movieCollection?.shareMode === "Friends" &&
         movieCollection.userName !== loggedUserName &&
-        !isLoggedUserMod ? (
+        !isLoggedUserMod &&
+        !isFriend ? (
         <h5 className="text-dark mb-1">Tylko dla znajomych</h5>
       ) : (
         <>
