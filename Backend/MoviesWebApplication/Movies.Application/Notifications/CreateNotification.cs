@@ -71,7 +71,7 @@ namespace Movies.Application.Notifications
                                 r.FirstUserId == request.TargetUserId && r.SecondUserId == request.SourceUserId) &&
                             r.Type == UserRelation.RelationType.Friend, cancellationToken);
 
-                    if (existingRelation != null)
+                    if ((existingRelation != null) && request.Type == Notification.NotificationType.Invitation.ToString())
                     {
                         throw new ValidationException("Użytkownik jest już Twoim znajomym!");
                     }
