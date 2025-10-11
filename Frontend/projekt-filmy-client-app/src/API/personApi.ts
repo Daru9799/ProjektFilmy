@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Person } from "../models/Person";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
 import { Movie } from "../models/Movie";
 
@@ -47,6 +47,7 @@ export const usePeopleByRole = (page: number, pageSize: number, role: number, se
       };
     },
     retry: false,
+    placeholderData: keepPreviousData
   });
 };
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Achievement} from "../models/Achievement";
 import { UserAchievement } from "../models/UserAchievement";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData  } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
 
 //to do: OBSLUGA BLEDOW
@@ -18,7 +18,8 @@ export const useAchievements = (page: number, pageSize: number, sortOrder: strin
         achievements: data.data.$values,
         totalPages: data.totalPages
       };
-    }
+    },
+    placeholderData: keepPreviousData
   });
 };
 
@@ -46,6 +47,7 @@ export const useUserAchievements = ( userName: string, page: number, pageSize: n
         totalPages: data.totalPages,
       };
     },
-    retry: false
+    retry: false,
+    placeholderData: keepPreviousData
   });
 };
