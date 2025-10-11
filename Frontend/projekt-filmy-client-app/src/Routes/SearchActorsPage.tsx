@@ -1,49 +1,26 @@
-import { useEffect, useState } from "react";
-import { Person } from "../models/Person";
-import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
+import { useState } from "react";
+import { usePeopleByRole } from "../API/PersonApi";
 import SearchModule from "../components/SharedModals/SearchModule";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import PeopleListModule from "../components/People_componets/PeopleListModule";
 import NoPeopleFoundModal from "../components/SharedModals/NoPeopleFoundModal";
-
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const SearchActorsPage = () => {
     const [searchText, setSearchText] = useState<string>("");
-    const [person, setPerson] = useState<Person[]>([]);
     const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
-    const [pageInfo, setPageInfo] = useState({
-        totalItems: 0,
-        pageNumber: 1,
-        pageSize: 2,
-        totalPages: 1,
-      });
-
-    // setError i loading trzeba jeszcze zaimplementować
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    
     const [currentPage, setCurrentPage] = useState(1);
     const staticPageSize = 4;
-    const totalPages = pageInfo.totalPages;
 
-    useEffect(() => {
-        fetchPeopleByRole(
-          currentPage,
-          staticPageSize,
-          "",
-          1,
-          setPerson,
-          setPageInfo,
-          setError,
-          setLoading
-        );
-      }, [currentPage]);
+    //API hook
+    const { data: paginatedActors, isLoading, error } = usePeopleByRole(currentPage, staticPageSize, 1, searchText);
+    const actors = paginatedActors?.people ?? [];
+    const totalPages = paginatedActors?.totalPages ?? 1;
 
     const handleSearchSubmit = async () => {
-        setCurrentPage(1);
-        await fetchByPersonSearchAndRole(currentPage, staticPageSize, searchText, 1, setPerson, setPageInfo);
-        if(person.length === 0) setIsNoPeopleFoundVisable(true);
-      };
+      setCurrentPage(1);
+      if (actors.length === 0) setIsNoPeopleFoundVisable(true);
+    };
 
     const handlePageChange = (page: number) => {
       setCurrentPage(page);
@@ -65,7 +42,11 @@ const SearchActorsPage = () => {
           onPageChange={handlePageChange}
         />
 
-        <PeopleListModule peopleList={person} type={"actor"} />
+        {isLoading ? (
+          <SpinnerLoader />
+        ) : (
+          <PeopleListModule peopleList={actors} type={"actor"} />
+        )}
 
         <div className="mt-auto">
           <PaginationModule

@@ -1,17 +1,16 @@
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { Category } from "../models/Category";
+import { API_BASE_URL } from "../constants/api"
 
-export const fetchAllCategories = async (
-    setCategoryData:React.Dispatch<React.SetStateAction<any[]>>
-    ) => {
-    await axios
-      .get("https://localhost:7053/api/Categories/all")
-      .then((response) => {
-        if (response.data && response.data.$values) {
-          setCategoryData(response.data.$values);
-          console.log(response.data.$values);
-        } else {
-          setCategoryData([]);
-        }
-      })
-      .catch((error) => console.error("Error fetching categories:", error));
+//to do: OBSLUGA BLEDOW
+export const useCategories = () => {
+  return useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_BASE_URL}/Categories/all`);
+      const data = res.data?.$values ?? [];
+      return data;
+    },
+  });
 };

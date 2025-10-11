@@ -1,30 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ImageModal from "../components/SharedModals/ImageModal";
-import { Movie } from "../models/Movie";
-import { Person } from "../models/Person";
-import { fetchPersonById, fetchPersonMovies } from "../API/personApi";
+import { usePersonById, usePersonMovies } from "../API/PersonApi";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { addFollowPerson, removeFollowPerson } from "../API/userAPI";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import axios from "axios";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
   const { id } = useParams();
-  const [person, setPerson] = useState<Person | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [movies, setMovies] = useState<Movie[]>([]);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetchPersonById(id, setPerson, setError, setLoading);
-    if (id) fetchPersonMovies(id, setMovies, setError, setLoading);
-  }, [id]);
+  //API hook
+  const { data: person, isLoading: personLoading, error: personError } = usePersonById(id);
+  const { data: moviesData, isLoading: moviesLoading } = usePersonMovies(id);
+  const movies = moviesData ?? [];
 
   useEffect(() => {
     if (id && userName) {
@@ -97,15 +93,14 @@ const PersonPage = () => {
     if (id) {
       try {
         checkFollowing(id);
-        await fetchPersonById(id, setPerson, setError, setLoading);
-        if (id) await fetchPersonMovies(id, setMovies, setError, setLoading);
       } catch (err) {
         console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
       }
     }
   };
 
-  if (loading) return <p>Ładowanie danych...</p>;
+  if (personLoading || moviesLoading) return <SpinnerLoader />;
+  
   if (error) return <p>{error}</p>;
 
   return (
@@ -126,13 +121,11 @@ const PersonPage = () => {
           </div>
         </div>
 
-        {/* Middle Column (Details) */}
         <div
           className="col-8"
           style={{ textAlign: "left", marginLeft: "50px", marginTop: "20px" }}
         >
           <div className="d-flex align-items-center justify-content-between">
-            {/* Title (Actor's Name) */}
             <h2 className="mb-0" style={{ fontSize: "4rem" }}>
               {person?.firstName && person?.lastName
                 ? `${person.firstName} ${person.lastName}`

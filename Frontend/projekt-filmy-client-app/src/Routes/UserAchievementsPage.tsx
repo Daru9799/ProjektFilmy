@@ -1,83 +1,68 @@
-import { useEffect, useState } from "react";
-import { UserAchievement } from "../models/UserAchievement";
-import { fetchUserAchievements } from "../API/achievementApi";
+import { useState } from "react";
 import "../styles/AchievementCard.css";
 import { useParams, useNavigate } from "react-router-dom";
 import PaginationModule from "../components/SharedModals/PaginationModule";
+import { useUserAchievements } from "../API/AchievementApi";
+import SpinnerLoader from "../components/SpinnerLoader";
+import axios from "axios";
 
 const UserAchievementsPage = () => {
   const { userName } = useParams();
   const navigate = useNavigate();
-  const [achievements, setAchievements] = useState<UserAchievement[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [pagination, setPagination] = useState({
-    totalItems: 1,
-    pageNumber: 1,
-    pageSize: 9,
-    totalPages: 1,
-  });
+  const [pagination, setPagination] = useState({ totalItems: 1, pageNumber: 1, pageSize: 9, totalPages: 1 });
 
-  const [sortOrder] = useState<string>("date");
-  const [sortDirection] = useState<string>("desc");
+  //Ustawiam domyslnie bez useState bo i tak nie ma tutaj zadnego sortowania (potem mozna zmienic)
+  const sortOrder = "date";
+  const sortDirection = "desc";
 
-const loggedUserName = localStorage.getItem("logged_username");
-  
+  //API hook
+  const { data: paginatedAchievements, isLoading, error } = useUserAchievements(
+    userName ?? "",
+    pagination.pageNumber,
+    pagination.pageSize,
+    sortOrder,
+    sortDirection
+  );
 
-  useEffect(() => {
-    if (!userName) {
-      setError("Brak identyfikatora użytkownika.");
-      setLoading(false);
-      return;
+  const achievements = paginatedAchievements?.achievements ?? [];
+  const totalPages = paginatedAchievements?.totalPages ?? 1;
+
+  const loggedUserName = localStorage.getItem("logged_username");
+
+  if (isLoading) return <SpinnerLoader />;
+
+  //TRZEBA BY TUTAJ OBSLUZYC BRAK OSIAGNIEC DLA DANEGO UZYTKOWNIKA!
+  if (error) {
+    //Tymczasowe rozwiązanie (zostawiona stara wersja zeby sie nie rozjezdzalo)
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return (
+        <div className="text-center text-warning" style={{ marginTop: "20vh", minHeight: "90vh" }}>
+          <h2>404 - Nie znaleziono osiągnięć</h2>
+          <p>Nie znaleziono użytkownika lub jego osiągnięć.</p>
+        </div>
+      );
     }
-
-    fetchUserAchievements(
-      pagination.pageNumber,
-      pagination.pageSize,
-      sortOrder,
-      sortDirection,
-      setAchievements,
-      setPagination,
-      setError,
-      setLoading,
-      userName
-    );
-  }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection, userName, navigate]);
-
-  if (loading) {
-    return <div className="text-center">Ładowanie osiągnięć...</div>;
+    return <div className="text-danger text-center">Wystąpił błąd</div>;
   }
-
-if (error) {
-  if (error.includes("404")) {
-    return (
-      <div className="text-center text-warning" style={{ marginTop: "20vh",  minHeight:'90vh'}}>
-        <h2>404 - Nie znaleziono osiągnięć</h2>
-        <p>Nie znaleziono użytkownika lub jego osiągnięć.</p>
-      </div>
-    );
-  }
-  return <div className="text-danger text-center">{error}</div>;
-}
 
   return (
     <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
       <div className="flex-grow-1">
-<div style={{ position: "relative", marginBottom: "5%", marginTop: "3%" }}>
-  <button
-    className="btn btn-secondary"
-    style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)" }}
-    onClick={() => navigate(`/user/${userName}`)}
-  >
-    <i className="fas fa-arrow-left"></i>
-  </button>
+        <div style={{ position: "relative", marginBottom: "5%", marginTop: "3%" }}>
+          <button
+            className="btn btn-secondary"
+            style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)" }}
+            onClick={() => navigate(`/user/${userName}`)}
+          >
+            <i className="fas fa-arrow-left"></i>
+          </button>
 
-  <h2 style={{ color: "white", textAlign: "center", margin: 0 }}>
-    {loggedUserName === userName
-      ? "Twoje osiągnięcia:"
-      : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
-  </h2>
-</div>
+          <h2 style={{ color: "white", textAlign: "center", margin: 0 }}>
+            {loggedUserName === userName
+              ? "Twoje osiągnięcia:"
+              : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
+          </h2>
+        </div>
 
         <div className="row">
           {achievements.length > 0 ? (
@@ -103,7 +88,7 @@ if (error) {
       <div className="mt-auto">
         <PaginationModule
           currentPage={pagination.pageNumber}
-          totalPages={pagination.totalPages}
+          totalPages={totalPages}
           onPageChange={(page) =>
             setPagination((prev) => ({ ...prev, pageNumber: page }))
           }

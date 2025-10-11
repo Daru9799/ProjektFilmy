@@ -4,7 +4,7 @@ import { NotificationType } from "../../models/NotificationType";
 import { fetchNotificationsByUserId, deleteNotification } from "../../API/notificationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import * as signalR from "@microsoft/signalr";
-import { PaginationResponse } from "../../API/PaginationResponse";
+import { PaginationResponse } from "../../models/PaginationResponse";
 import { useRef } from "react";
 
 interface NotificationContextProps {

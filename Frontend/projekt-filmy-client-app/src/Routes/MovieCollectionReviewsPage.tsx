@@ -11,7 +11,7 @@ import MovieCollectionReviewCard from "../components/review_components/MovieColl
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
-import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
+import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewApi";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";

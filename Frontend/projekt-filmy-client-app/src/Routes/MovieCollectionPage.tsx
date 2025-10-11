@@ -14,7 +14,7 @@ import AddMovieCollectionReviewModal from "../components/review_components/AddMo
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { sendCollectionReviewedNotification } from "../API/notificationApi";
-import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewAPI";
+import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/relationApi";
 

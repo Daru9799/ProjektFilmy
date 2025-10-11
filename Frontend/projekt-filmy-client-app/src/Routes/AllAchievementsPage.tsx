@@ -1,46 +1,36 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Achievement } from "../models/Achievement";
-import { fetchAchievements } from "../API/achievementApi";
+import { useAchievements } from "../API/AchievementApi";
 import "../styles/AchievementCard.css";
 import PaginationModule from "../components/SharedModals/PaginationModule";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const AllAchievementsPage = () => {
   const navigate = useNavigate();
-
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [pagination, setPagination] = useState({
-    totalItems: 1,
-    pageNumber: 1,
-    pageSize: 9,
-    totalPages: 1,
-  });
-  const [sortOrder] = useState<string>("date");
-  const [sortDirection] = useState<string>("desc");
-
+  const [pagination, setPagination] = useState({ totalItems: 1, pageNumber: 1, pageSize: 9, totalPages: 1 });
   const loggedUserName = localStorage.getItem("logged_username");
 
-  useEffect(() => {
-    fetchAchievements(
-      pagination.pageNumber,
-      pagination.pageSize,
-      sortOrder,
-      sortDirection,
-      setAchievements,
-      setPagination,
-      setError,
-      setLoading
-    );
-  }, [pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection]);
+  //Ustawiam domyslnie bez useState bo i tak nie ma tutaj zadnego sortowania (potem mozna zmienic)
+  const sortOrder = "date";
+  const sortDirection = "desc";
 
-  if (loading) {
-    return <div className="text-center">Ładowanie osiągnięć...</div>;
+  //API hook
+  const { data: paginatedAchievements, isLoading: loadingAchievements, error: achievementsError } = useAchievements(
+    pagination.pageNumber,
+    pagination.pageSize,
+    sortOrder,
+    sortDirection
+  );
+
+  const achievements = paginatedAchievements?.achievements ?? [];
+  const totalPages = paginatedAchievements?.totalPages ?? 1;
+
+  if (loadingAchievements) {
+    return <SpinnerLoader />;
   }
 
-  if (error) {
-    return <div className="text-danger text-center">{error}</div>;
+  if (achievementsError) {
+    return <div className="text-danger text-center">Wystąpił błąd</div>;
   }
 
   return (
@@ -93,7 +83,7 @@ const AllAchievementsPage = () => {
       <div className="mt-auto">
         <PaginationModule
           currentPage={pagination.pageNumber}
-          totalPages={pagination.totalPages}
+          totalPages={totalPages}
           onPageChange={(page) =>
             setPagination((prev) => ({ ...prev, pageNumber: page }))
           }

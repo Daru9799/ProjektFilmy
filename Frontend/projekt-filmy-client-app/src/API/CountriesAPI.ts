@@ -1,16 +1,16 @@
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { Country } from "../models/Country";
+import { API_BASE_URL } from "../constants/api";
 
-export const fetchAllCountries = async (
-  setCountryData: React.Dispatch<React.SetStateAction<any[]>>) => {
-  await axios
-    .get("https://localhost:7053/api/Countries/all")
-    .then((response) => {
-      if (response.data && response.data.$values) {
-        setCountryData(response.data.$values);
-        console.log(response.data.$values);
-      } else {
-        setCountryData([]);
-      }
-    })
-    .catch((error) => console.error("Error fetching countries:", error));
+//to do: OBSLUGA BLEDOW
+export const useCountries = () => {
+  return useQuery<Country[]>({
+    queryKey: ["countries"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_BASE_URL}/Countries/all`);
+      const data = res.data?.$values ?? [];
+      return data;
+    },
+  });
 };

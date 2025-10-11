@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Notification } from "../models/Notification";
-import { PaginationResponse } from "../API/PaginationResponse"
+import { PaginationResponse } from "../models/PaginationResponse"
 import { NotificationType } from "../models/NotificationType";
 
 export const sendFriendInvitation = async (

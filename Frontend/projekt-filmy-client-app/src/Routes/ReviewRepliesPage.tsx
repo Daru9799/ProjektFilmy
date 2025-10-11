@@ -15,7 +15,7 @@ import { Review } from "../models/Review";
 import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
-import { fetchCollectionReviewData } from "../API/CollectionReviewAPI";
+import { fetchCollectionReviewData } from "../API/CollectionReviewApi";
 import { fetchReviewData } from "../API/reviewApi";
 import { 
   sendMovieReviewCommentedNotification, 

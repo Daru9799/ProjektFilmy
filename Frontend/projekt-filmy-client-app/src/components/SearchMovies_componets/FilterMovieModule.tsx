@@ -1,24 +1,19 @@
 import { useState, useEffect } from "react";
 import { Button, Row, Col, Form } from "react-bootstrap";
-import { Category } from "../../models/Category";
-import { Country } from "../../models/Country";
 import { Person } from "../../models/Person";
-import { fetchAllCategories } from "../../API/CategoriesAPI";
-import { fetchAllCountries } from "../../API/CountriesAPI";
-import { fetchByPersonSearchAndRoleNoPgnt } from "../../API/personApi";
+import { useCategories } from "../../API/CategoriesApi";
+import { useCountries } from "../../API/CountriesApi";
+import { usePeopleByRoleNoPgnt } from "../../API/PersonApi";
+import SpinnerLoader from "../SpinnerLoader" 
 
 interface Props {
   // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako string[], Reżyserów jako string[]
   getFilters: (list: [string[], string[], string[], string[]]) => void;
 }
 
-
 const FilterMovieModule = ({ getFilters }: Props) => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [categoryData, setCategoryData] = useState<Category[]>([]);
-  const [countryData, setCountryData] = useState<Country[]>([]);
 
-  const [dataToShow, setDataToShow] = useState<Country[] | Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
@@ -27,6 +22,14 @@ const FilterMovieModule = ({ getFilters }: Props) => {
 
   const [directorName, setDirectorName] = useState<string>("");
   const [selectedDirectors, setSelectedDirectors] = useState<Person[]>([]);
+
+  // -------------------
+  // API hooks
+  // -------------------
+  const { data: categoryData = [], isLoading: loadingCategories, error: categoriesError } = useCategories();
+  const { data: countryData = [], isLoading: loadingCountries, error: countriesError} = useCountries();
+  const { data: allActors = [], isLoading: loadingActors } = usePeopleByRoleNoPgnt(1, actorName);
+  const { data: allDirectors = [], isLoading: loadingDirectors } = usePeopleByRoleNoPgnt(0, directorName);
 
   useEffect(() => {
     const selectedActorsStrings = selectedActors.map(
@@ -42,7 +45,7 @@ const FilterMovieModule = ({ getFilters }: Props) => {
       selectedActorsStrings,
       selectedDirectorsStrings,
     ]);
-    console.log("getFilter się wykonał");
+    
   }, [selectedCategories, selectedCountries, selectedActors, selectedDirectors]);
 
   const tabs = [
@@ -52,19 +55,11 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     { key: "aktorzy", label: "Aktorzy" },
   ];
 
-  // Pobranie wszystkich kategorii i krajów
-  useEffect(() => {
-    fetchAllCategories(setCategoryData);
-    fetchAllCountries(setCountryData);
-  }, []);
-
   const handleTabClick = (tabKey: string) => {
     if (activeTab === tabKey) {
       setActiveTab(null);
     } else {
       setActiveTab(tabKey);
-      if (tabKey === "gatunki") setDataToShow(categoryData);
-      if (tabKey === "kraje") setDataToShow(countryData);
     }
   };
 
@@ -85,36 +80,22 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   };
 
   const handleActorSearch = async() => {
-    const response = await fetchByPersonSearchAndRoleNoPgnt(actorName, 1);
-    if (response.length === 0) return;
-
-    // Znajdź pierwszego aktora, którego nie ma w selectedActors
-    const actorToAdd = response.find(
-      (actor) =>
-        !selectedActors.some((selectedActor) => selectedActor.personId === actor.personId)
+    const actorToAdd = allActors.find(
+      (actor) => !selectedActors.some((selected) => selected.personId === actor.personId)
     );
 
     if (actorToAdd) {
       setSelectedActors((prev) => [...prev, actorToAdd]);
       setActorName("");
     } else {
-      // Wszyscy znalezieni aktorzy są już na liście
+      // Wszyscy znalezieni aktorzy są już na liście (komunikat?)
       console.log("Wszyscy znalezieni aktorzy są już dodani.");
-      // Możesz też ustawić komunikat dla użytkownika:
-      // setError("Wszyscy pasujący aktorzy są już dodani.");
     }
   };
 
   const handleDirectorSearch = async () => {
-    const response = await fetchByPersonSearchAndRoleNoPgnt(directorName, 0);
-    if (response.length === 0) return;
-
-    // Znajdź pierwszego aktora, którego nie ma w selectedActors
-    const directorToAdd = response.find(
-      (director) =>
-        !selectedActors.some(
-          (selectedDirector) => selectedDirector.personId === director.personId
-        )
+    const directorToAdd = allDirectors.find(
+      (director) => !selectedDirectors.some((selected) => selected.personId === director.personId)
     );
 
     if (directorToAdd) {
@@ -123,8 +104,6 @@ const FilterMovieModule = ({ getFilters }: Props) => {
     } else {
       // Wszyscy znalezieni aktorzy są już na liście
       console.log("Wszyscy znalezieni aktorzy są już dodani.");
-      // Możesz też ustawić komunikat dla użytkownika:
-      // setError("Wszyscy pasujący reżyserzy są już dodani.");
     }
   };
 
@@ -154,43 +133,47 @@ const FilterMovieModule = ({ getFilters }: Props) => {
 
       {/* Gatunki i Kraje */}
       {["gatunki", "kraje"].includes(activeTab || "") && (
-        <div
-          className="checkbox-list"
-          style={{
-            maxHeight: "300px",
-            height: "300px",
-            overflowY: "auto",
-            border: "1px solid #ccc",
-            padding: "10px",
-            borderRadius: "5px",
-          }}
+        <div 
+          className="checkbox-list overflow-auto border border-secondary p-2 rounded"
+          style={{ maxHeight: '300px', height: '300px' }}
         >
-          <Row className="mx-1">
-            {dataToShow.map((item, index) => (
-              <Col key={index} md={4} className="mb-2">
-                <Form.Check
-                  type="checkbox"
-                  id={`${item.name}`}
-                  className="text-white text-start"
-                  label={item.name}
-                  checked={
-                    activeTab === "gatunki"
-                      ? selectedCategories.includes(item.name)
-                      : activeTab === "kraje"
-                      ? selectedCountries.includes(item.name)
-                      : false
-                  }
-                  onChange={(e) =>
-                    handleCheckboxChange(
-                      item.name,
-                      e.target.checked,
-                      activeTab === "gatunki" ? "gatunki" : "kraje"
-                    )
-                  }
-                />
-              </Col>
-            ))}
-          </Row>
+          
+          {activeTab === "gatunki" && loadingCategories && <SpinnerLoader />}
+          {activeTab === "kraje" && loadingCountries && <SpinnerLoader />}
+          
+          {activeTab === "gatunki" && !loadingCategories && (
+            <Row className="mx-1">
+              {categoryData.map((item) => (
+                <Col key={item.name} md={4} className="mb-2">
+                  <Form.Check
+                    type="checkbox"
+                    id={item.name}
+                    className="text-white text-start"
+                    label={item.name}
+                    checked={selectedCategories.includes(item.name)}
+                    onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "gatunki")}
+                  />
+                </Col>
+              ))}
+            </Row>
+          )}
+
+          {activeTab === "kraje" && !loadingCountries && (
+            <Row className="mx-1">
+              {countryData.map((item) => (
+                <Col key={item.name} md={4} className="mb-2">
+                  <Form.Check
+                    type="checkbox"
+                    id={item.name}
+                    className="text-white text-start"
+                    label={item.name}
+                    checked={selectedCountries.includes(item.name)}
+                    onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "kraje")}
+                  />
+                </Col>
+              ))}
+            </Row>
+          )}
         </div>
       )}
 

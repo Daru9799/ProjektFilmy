@@ -1,53 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PeopleListModule from "../components/People_componets/PeopleListModule";
-import { Person } from "../models/Person";
-import { fetchByPersonSearchAndRole, fetchPeopleByRole } from "../API/personApi";
+import { usePeopleByRole } from "../API/PersonApi";
 import SearchModule from "../components/SharedModals/SearchModule";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import NoPeopleFoundModal from "../components/SharedModals/NoPeopleFoundModal";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
-  const [person, setPerson] = useState<Person[]>([]);
   const [isNoPeopleFoundVisable, setIsNoPeopleFoundVisable] = useState(false);
-  const [pageInfo, setPageInfo] = useState({
-    totalItems: 0,
-    pageNumber: 1,
-    pageSize: 2,
-    totalPages: 1,
-  });
-
-  // setError i loading trzeba jeszcze zaimplementować
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState(1);
   const staticPageSize = 4;
-  const totalPages = pageInfo.totalPages;
 
-  useEffect(() => {
-    fetchPeopleByRole(
-      currentPage,
-      staticPageSize,
-      "",
-      0,
-      setPerson,
-      setPageInfo,
-      setError,
-      setLoading
-    );
-  }, [currentPage]);
+  //API hook
+  const { data: paginatedDirectors, isLoading, error } = usePeopleByRole(currentPage, staticPageSize, 0, searchText);
+  const directors = paginatedDirectors?.people ?? [];
+  const totalPages = paginatedDirectors?.totalPages ?? 1;
 
   const handleSearchSubmit = async () => {
     setCurrentPage(1);
-    const results = await fetchByPersonSearchAndRole(
-      currentPage,
-      staticPageSize,
-      searchText,
-      0,
-      setPerson,
-      setPageInfo
-    );
-    setIsNoPeopleFoundVisable(results.length === 0);
+    if (directors.length === 0) setIsNoPeopleFoundVisable(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -69,8 +41,12 @@ const SearchDirectorsPage = () => {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-
-      <PeopleListModule peopleList={person} type={"director"} />
+      
+      {isLoading ? (
+        <SpinnerLoader />
+      ) : (
+        <PeopleListModule peopleList={directors} type={"director"} />
+      )}
 
       <div className="mt-auto">
         <PaginationModule
