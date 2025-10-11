@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollections;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -36,7 +38,7 @@ namespace MoviesWebApplication.Controllers
 
             if (reviews.Data == null || !reviews.Data.Any())
             {
-                return NotFound($"Nie znaleziono listy filmów dla użytkownika o ID '{userId}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono listy filmów dla użytkownika o ID '{userId}'."));
             }
 
             return Ok(reviews);
@@ -52,6 +54,11 @@ namespace MoviesWebApplication.Controllers
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
+
+            if (pageNumber < 1 || pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(ApiResponse.BadRequest("Nieprawidłowe parametry paginacji. PageNumber i PageSize muszą być większe od 0, a PageSize nie może przekraczać 100."));
+            }
 
             var pagedReviews = await Mediator.Send(query);
 
@@ -75,7 +82,7 @@ namespace MoviesWebApplication.Controllers
 
             if (movie == null)
             {
-                return NotFound($"Nie odnaleziono listy filmów z id {id}.");
+                return NotFound(ApiResponse.NotFound($"Nie odnaleziono listy filmów z id {id}."));
             }
 
             return Ok(movie);
@@ -96,7 +103,19 @@ namespace MoviesWebApplication.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ApiResponse.BadRequest("Nieprawidłowe wprowadzone dane."));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się stworzyć kolekcji filmów. \n{ex.Message}"));
             }
         }
 
@@ -112,18 +131,22 @@ namespace MoviesWebApplication.Controllers
 
                 if (result == null)
                 {
-                    return NotFound($"Nie znaleziono listy filmów z ID: {id}");
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono listy filmów z ID: {id}"));
                 }
 
                 return Ok("Pomyślnie usunięto kolekcje.");
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { message = $"Nie znaleziono kolekcji filmów z ID: {id}", exceptionMessage = ex.Message });
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = $"Wystąpił błąd: {ex.Message}", exceptionMessage = ex.ToString() });
+                return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy usuwaniu kolekcji filmów. \n{ex.Message}"));
             }
         }
 
@@ -143,11 +166,15 @@ namespace MoviesWebApplication.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { message = $"Nie znaleziono kolekcji filmów z ID: {id}", exceptionMessage = ex.Message });
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = $"Wystąpił błąd: {ex.Message}", exceptionMessage = ex.ToString() });
+                return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy edycji kolekcji filmów. \n{ex.Message}"));
             }
         }
     }

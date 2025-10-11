@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Countries;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -12,7 +13,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("all")]
         public async Task<ActionResult<List<Country>>> GetCountries()
         {
-            return await Mediator.Send(new CountriesList.Query());
+            return Ok(await Mediator.Send(new CountriesList.Query()));
         }
         //Zwracanie krajów na podstawie ID filmu
         [HttpGet("by-movie-id/{movieId}")]
@@ -23,7 +24,7 @@ namespace MoviesWebApplication.Controllers
 
             if (countries == null || !countries.Any())
             {
-                return NotFound($"Nie znaleziono krajów dla filmu o ID '{movieId}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono krajów dla filmu o ID '{movieId}'."));
             }
 
             return Ok(countries);

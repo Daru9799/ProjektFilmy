@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.Domain;
 using Movies.Application.Achievements;
 using Movies.Domain.DTOs;
+using MoviesWebApplication.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -17,6 +18,11 @@ namespace MoviesWebApplication.Controllers
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
+
+            if (pageNumber < 1 || pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(ApiResponse.BadRequest("Nieprawidłowe parametry paginacji. PageNumber i PageSize muszą być większe od 0, a PageSize nie może przekraczać 100."));
+            }
 
             var pagedReviews = await Mediator.Send(query);
 
@@ -35,14 +41,14 @@ namespace MoviesWebApplication.Controllers
                 SortDirection = sortDirection,
                 OrderBy = orderBy
             };
-            var reviews = await Mediator.Send(query);
+            var request = await Mediator.Send(query);
 
-            if (reviews.Data == null || !reviews.Data.Any())
+            if (request.Data == null || !request.Data.Any())
             {
-                return NotFound($"Nie znaleziono osiągnięć dla użytkowinka z ID '{userName}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono osiągnięć dla użytkowinka z ID '{userName}'."));
             }
 
-            return Ok(reviews);
+            return Ok(request);
         }
 
 

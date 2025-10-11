@@ -7,6 +7,10 @@ using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
 using Google.Apis.Auth;
 using Movies.Infrastructure;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using MoviesWebApplication.Responses;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -31,12 +35,7 @@ namespace MoviesWebApplication.Controllers
 
             if (user == null)
             {
-                return Unauthorized();
-            }
-
-            if (user.IsGoogleUser)
-            {
-                return Unauthorized("Użytkownik z kontem Google nie może logować się w ten sposób!");
+                return Unauthorized(ApiResponse.Unauthorized("Błędny adres email lub hasło."));
             }
 
             var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
@@ -45,14 +44,14 @@ namespace MoviesWebApplication.Controllers
             {
                 await EnsureDefaultCollections(user); //Opcjonalnie dodaje listy objerzanych/planowanych jeśli nie ma
 
-                return new UserSessionDto
+                return Ok( new UserSessionDto
                 {
                     UserName = user.UserName,
                     Token = _tokenService.CreateToken(user) //Generowanie tokenu
-                };
+                });
             }
 
-            return Unauthorized();
+            return Unauthorized(ApiResponse.Unauthorized("Błędny adres email lub hasło."));
         }
 
         [AllowAnonymous]
@@ -61,12 +60,13 @@ namespace MoviesWebApplication.Controllers
         {
             if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
             {
-                return BadRequest("Nazwa jest zajęta!");
+                
+                return Conflict(ApiResponse.Conflict("Nazwa urzytkownika jest już zajęta."));
             }
 
             if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
-                return BadRequest("Email jest już przypisany do innego konta!");
+                return Conflict(ApiResponse.Conflict("Już istnieje konto o podanym adresie email"));
             }
 
             var user = new User
@@ -106,17 +106,21 @@ namespace MoviesWebApplication.Controllers
                 await _context.SaveChangesAsync();
 
                 //Zwrócenie tokenu na front
-                return new UserSessionDto
+                return Ok(new UserSessionDto
                 {
                     UserName = user.UserName,
                     Token = _tokenService.CreateToken(user)
-                };
+                });
             }
+
+            string errorsDescriptions = "";
             foreach (var error in result.Errors)
             {
-                Console.WriteLine(error.Description);
+                errorsDescriptions += error.Description+'\n';
             }
-            return BadRequest("Problem z zarejestrowaniem użytkownika");
+            
+            return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy rejestracji użytkownika.\n{errorsDescriptions}")
+            );
         }
         [Authorize]
         [HttpPatch("edit")]
@@ -127,19 +131,19 @@ namespace MoviesWebApplication.Controllers
 
             if (userId == null)
             {
-                return Unauthorized("Nie można zweryfikować użytkownika.");
+                return Unauthorized(ApiResponse.Unauthorized("Nie można zweryfikować użytkownika."));
             }
 
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
             {
-                return NotFound("Nie znaleziono użytkownika.");
+                return NotFound(ApiResponse.NotFound("Nie znaleziono użytkownika."));
             }
 
             if (user.IsGoogleUser && !string.IsNullOrEmpty(editUserDto.NewEmail) && !(user.Email == editUserDto.NewEmail))
             {
-                return BadRequest("Nie można edytować adresu e-mail dla konta Google.");
+                return BadRequest(ApiResponse.BadRequest("Nie można edytować adresu e-mail dla konta Google."));
             }
 
             //Aktualizacja e-maila
@@ -147,7 +151,7 @@ namespace MoviesWebApplication.Controllers
             {
                 if (await _userManager.Users.AnyAsync(u => u.Email == editUserDto.NewEmail && u.Id.ToString() != userId))
                 {
-                    return BadRequest("Podany adres e-mail jest już używany przez innego użytkownika.");
+                    return Conflict(ApiResponse.Conflict("Podany adres e-mail jest już używany przez innego użytkownika."));
                 }
 
                 user.Email = editUserDto.NewEmail;
@@ -155,7 +159,12 @@ namespace MoviesWebApplication.Controllers
 
                 if (!emailResult.Succeeded)
                 {
-                    return BadRequest("Nie udało się zaktualizować adresu e-mail.");
+                    string errorsDescriptions = "";
+                    foreach (var error in emailResult.Errors)
+                    {
+                        errorsDescriptions += error.Description + '\n';
+                    }
+                    return StatusCode(500,ApiResponse.InternalServerError($"Nie udało się zaktualizować adresu e-mail. \n{errorsDescriptions}"));
                 }
             }
 
@@ -164,7 +173,7 @@ namespace MoviesWebApplication.Controllers
             {
                 if (await _userManager.Users.AnyAsync(u => u.UserName == editUserDto.NewLogin && u.Id.ToString() != userId))
                 {
-                    return BadRequest("Podana nazwa użytkownika jest już zajęta.");
+                    return Conflict(ApiResponse.Conflict("Podana nazwa użytkownika jest już zajęta."));
                 }
 
                 user.UserName = editUserDto.NewLogin;
@@ -172,20 +181,16 @@ namespace MoviesWebApplication.Controllers
 
                 if (!loginResult.Succeeded)
                 {
-                    return BadRequest("Nie udało się zaktualizować nazwy użytkownika.");
+                    string errorsDescriptions = "";
+                    foreach (var error in loginResult.Errors)
+                    {
+                        errorsDescriptions += error.Description + '\n';
+                    }
+                    return StatusCode(500,ApiResponse.InternalServerError($"Nie udało się zaktualizować nazwy użytkownika.\n{errorsDescriptions}"));
                 }
             }
 
-            return Ok(new
-            {
-                Message = "Dane użytkownika zostały zaktualizowane.",
-                User = new
-                {
-                    user.Id,
-                    user.Email,
-                    user.UserName
-                }
-            });
+            return Ok(ApiResponse.Success());
         }
         [Authorize]
         [HttpPatch("change-password")]
@@ -196,25 +201,26 @@ namespace MoviesWebApplication.Controllers
 
             if (userId == null)
             {
-                return Unauthorized("Nie można zweryfikować użytkownika.");
+                return Unauthorized(ApiResponse.Unauthorized("Nie można zweryfikować użytkownika."));
             }
 
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
             {
-                return NotFound("Nie znaleziono użytkownika.");
+                return NotFound(ApiResponse.NotFound("Nie znaleziono użytkownika."));
             }
 
             if (user.IsGoogleUser)
             {
-                return BadRequest(new { Errors = new List<string> { "Nie można zmienić hasła dla konta Google." } });
+                return BadRequest(ApiResponse.BadRequest("Nie można zmienić hasła dla konta Google."));
             }
 
             var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, changePasswordDto.NewPassword);
+
             if (passwordVerificationResult == PasswordVerificationResult.Success)
             {
-                return BadRequest(new { Errors = new List<string> { "Nowe hasło musi się różnić od aktualnego." } });
+                return BadRequest(ApiResponse.BadRequest("Nowe hasło musi się różnić od aktualnego."));
             }
 
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
@@ -225,13 +231,17 @@ namespace MoviesWebApplication.Controllers
 
                 if (result.Errors.Any(e => e.Code == "PasswordMismatch"))
                 {
-                    return BadRequest(new { Errors = new List<string> { "Podano nieprawidłowe aktualne hasło." } });
+                    return BadRequest(ApiResponse.BadRequest("Podano nieprawidłowe obecne hasło."));
                 }
-
-                return BadRequest(new { Errors = errors });
+                string errorsDescriptions = "";
+                foreach (var error in result.Errors)
+                {
+                    errorsDescriptions += error.Description + '\n';
+                }
+                return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy próbie zmiany hasła. \n{errorsDescriptions}"));
             }
 
-            return Ok("Hasło zostało zmienione pomyślnie.");
+            return Ok(ApiResponse.Success());
         }
 
         //Autentykacja przy użyciu google
@@ -251,12 +261,12 @@ namespace MoviesWebApplication.Controllers
             {
                 if (string.IsNullOrWhiteSpace(dto.UserName))
                 {
-                    return BadRequest("Brakuje nazwy użytkownika do rejestracji.");
+                    return BadRequest(ApiResponse.BadRequest("Brakuje nazwy użytkownika do rejestracji."));
                 }
 
                 if (await _userManager.Users.AnyAsync(x => x.UserName == dto.UserName))
                 {
-                    return BadRequest("Nazwa jest zajęta!");
+                    return Conflict(ApiResponse.Conflict("Nazwa użytkownika jest już zajęta!"));
                 }
 
                 user = new User
@@ -298,19 +308,23 @@ namespace MoviesWebApplication.Controllers
                 }
                 else
                 {
-                    return BadRequest("Nie udało się utworzyć konta.");
+                    string errorsDescriptions = "";
+                    foreach (var error in result.Errors)
+                    {
+                        errorsDescriptions += error.Description + '\n';
+                    }
+                    return StatusCode(500,ApiResponse.InternalServerError($"Nie udało się utworzyć konta. {errorsDescriptions}"));
                 }
             }
 
             //Logowanie i przekazanie JWT
             await EnsureDefaultCollections(user);
-            return new UserSessionDto
+            return Ok (new UserSessionDto
             {
                 UserName = user.UserName,
                 Token = _tokenService.CreateToken(user)
-            };
+            });
         }
-
 
         //Metoda pomocnicza zapewiająca że konta utworzone przed listami je otrzymają (obejrzane i planowane)
         private async Task EnsureDefaultCollections(User user)

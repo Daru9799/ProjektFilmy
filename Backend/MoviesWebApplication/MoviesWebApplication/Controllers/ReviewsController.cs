@@ -96,7 +96,7 @@ namespace MoviesWebApplication.Controllers
             try
             {
                 var review = await Mediator.Send(command);
-                return Ok("Pomyślnie dodano recenzje."); 
+                return Ok("Pomyślnie dodano recenzje.");
             }
             catch (ValidationException ex)
             {
