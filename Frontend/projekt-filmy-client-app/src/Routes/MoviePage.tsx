@@ -6,11 +6,12 @@ import MovieHeader from "../components/MoviePage_components/MovieHeader";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import { useMoviePageLogic } from "../hooks/useMoviePageLogic";
 import RecommendMovieModule from "../components/MoviePage_components/RecommendMovieModule";
+import { useMovieById, useActorsByMovieId  } from "../API/movieApi";
+import { useParams } from "react-router-dom";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const MoviePage = () => {
   const {
-    movie,
-    people,
     reviews,
     userReview,
     reviewToEdit,
@@ -37,7 +38,15 @@ const MoviePage = () => {
     handleChangeWatched,
   } = useMoviePageLogic();
 
-  if (loading) return <p>Ładowanie danych...</p>;
+  ///////////Tutaj zaczynamy
+  const { movieId } = useParams();
+  const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
+  const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
+  
+  if (movieLoading || peopleLoading) return <SpinnerLoader />;
+
+  if (!movie) return <p>Nie znaleziono filmu.</p>; //Tymczasowe rozwiązanie zeby nie przeszkadzalo w debbugowaniu
+  
   if (error) return <p>{error}</p>;
 
   return (
@@ -72,7 +81,7 @@ const MoviePage = () => {
             handleChangeWatched={handleChangeWatched}
           />
 
-          <MovieTabs movie={movie} people={people} />
+          <MovieTabs movie={movie} people={people ?? []} />
         </div>
       </div>
 

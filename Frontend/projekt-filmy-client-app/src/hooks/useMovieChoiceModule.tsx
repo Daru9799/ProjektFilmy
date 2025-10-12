@@ -17,26 +17,20 @@ export const useMovieChoiceModule = () => {
   const [currentPageMC, setCurrentPageMC] = useState(1);
   const [searchText, setSearchText] = useState<string>("");
 
-  const {
-    movies,
-    pageInfo: pageInfoMC,
-    isNoMovieModalVisible,
-    setIsNoMovieModalVisible,
-    loadMovies,
-  } = useMovieLoader(6);
+  const { data, isLoading, error: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch, } = useMovieLoader( currentPageMC, 6, searchText, sortCategory, sortDirection, filterList );
+
+  const movies = data?.movies ?? [];
+  const pageInfoMC = {
+    pageNumber: currentPageMC,
+    pageSize: 6,
+    totalPages: data?.totalPages ?? 1,
+  };
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleOpenModal = async () => {
-    await loadMovies({
-      page: currentPageMC,
-      searchText,
-      pageSize: 6,
-      sortCategory: "title",
-      sortDirection,
-      filterList,
-    });
+    refetch();
     setShowModal(true);
   };
 
@@ -52,14 +46,7 @@ export const useMovieChoiceModule = () => {
 
   const handlePageChangeMC = async (page: number) => {
     setCurrentPageMC(page);
-    await loadMovies({
-      page,
-      searchText,
-      pageSize: 6,
-      sortCategory: "title",
-      sortDirection,
-      filterList,
-    });
+    refetch();
   };
 
   const handleCloseModal = async () => {
@@ -71,14 +58,7 @@ export const useMovieChoiceModule = () => {
     setFilterList([[], [], [], []]);
     setTempSelectedMovie(null);
 
-    await loadMovies({
-      page: 1,
-      searchText: "",
-      pageSize: 6,
-      sortCategory: "title",
-      sortDirection: "asc",
-      filterList: [[], [], [], []],
-    });
+    refetch();
   };
 
   const handleConfirmSelection = () => {
@@ -94,14 +74,7 @@ export const useMovieChoiceModule = () => {
     setSortDirection(direction);
     setCurrentPageMC(1);
 
-    await loadMovies({
-      page: 1,
-      searchText,
-      pageSize: 6,
-      sortCategory: category,
-      sortDirection: direction,
-      filterList,
-    });
+    refetch();
   };
 
   return {

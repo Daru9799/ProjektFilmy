@@ -10,24 +10,7 @@ export const useSearchMovies = () => {
   const [sortDirection, setSortDirection] = useState<string>("asc");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {
-    movies,
-    pageInfo,
-    isNoMovieModalVisible,
-    setIsNoMovieModalVisible,
-    loadMovies,
-  } = useMovieLoader(staticPageSize);
-
-  useEffect(() => {
-    loadMovies({
-      page: currentPage,
-      searchText,
-      filterList,
-      sortCategory,
-      sortDirection,
-      pageSize: staticPageSize,
-    });
-  }, [currentPage, searchText, filterList, sortCategory, sortDirection]);
+  const { data, isLoading, isNoMovieModalVisible, setIsNoMovieModalVisible } = useMovieLoader( currentPage, staticPageSize, searchText, sortCategory, sortDirection, filterList);
 
   const handleSearchSubmit = () => {
     setCurrentPage(1); 
@@ -51,13 +34,14 @@ export const useSearchMovies = () => {
     setFilterList,
     sortCategory,
     sortDirection,
-    movies,
-    pageInfo,
+    movies: data?.movies ?? [],
+    pageInfo: { totalPages: data?.totalPages ?? 0 },
     currentPage,
     handlePageChange,
     handleSearchSubmit,
     handleSort,
     isNoMovieModalVisible,
     setIsNoMovieModalVisible,
+    isLoading
   };
 };

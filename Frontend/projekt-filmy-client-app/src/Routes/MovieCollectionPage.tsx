@@ -332,7 +332,6 @@ const MovieCollectionPage = () => {
         userPage={false}
         isFriend={isFriend}
         setError={setError}
-        setLoading={setMoviesLoading}
       />
       <div
         className="container pt-3 text-center"

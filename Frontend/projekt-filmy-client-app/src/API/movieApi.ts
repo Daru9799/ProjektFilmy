@@ -1,43 +1,28 @@
 import axios from "axios";
-import qs from "qs";
 import { Movie } from "../models/Movie";
+import { Person } from "../models/Person";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { API_BASE_URL } from "../constants/api";
+import qs from "qs";
 
-// Fetch movie data
-export const fetchMovieData = async (
-  movieId: string | undefined,
-  setMovie: React.Dispatch<React.SetStateAction<any>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    const movieResponse = await axios.get(
-      `https://localhost:7053/api/Movies/${movieId}`
-    );
-    setMovie(movieResponse.data);
-    console.log(movieResponse.data);
-  } catch (movieError) {
-    if (axios.isAxiosError(movieError)) {
-      if (movieError.response?.status === 404) {
-        setError("Nie znaleziono filmu");
-      } else {
-        setError("Błąd podczas wczytywaina danych");
-      }
-    } else {
-      setError("Nieoczekiwany błąd");
-    }
-    console.error(movieError);
-  }
+//to do: OBSLUGA BLEDOW
+export const useMovieById = (id: string | undefined) => {
+  return useQuery<Movie>({
+    queryKey: ["movie", id],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/Movies/${id}`);
+      return data;
+    },
+    retry: false,
+  });
 };
-// https://localhost:7053/api/People/by-filters?pageNumber=1&pageSize=2&noPagination=true&role=1&movieId=08dd7b57-97ba-4c79-852b-164b472a2b02
-// Fetch actors data   -- !!!!!  DO ZMIANY
-export const fetchActorsData = async (
-  movieId: string,
-  setActors: React.Dispatch<React.SetStateAction<any[]>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    const response = await axios.get(
-      "https://localhost:7053/api/People/by-filters",
-      {
+
+//to do: OBSLUGA BLEDOW
+export const useActorsByMovieId = (movieId: string | undefined) => {
+  return useQuery<Person[]>({
+    queryKey: ["actors", movieId],
+    queryFn: async () => {
+      const response = await axios.get(`${API_BASE_URL}/People/by-filters`, {
         params: {
           pageNumber: 1,
           pageSize: 2,
@@ -45,31 +30,92 @@ export const fetchActorsData = async (
           role: 1,
           movieId: movieId,
         },
-      }
-    );
+      });
 
-    const actorsArray = response.data?.data?.$values;
-
-    if (Array.isArray(actorsArray) && actorsArray.length > 0) {
-      setActors(actorsArray);
-    } else {
-      setActors([]);
-      console.log("Nie znaleziono aktorów dla tego filmu");
-    }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) {
-        setActors([]);
-        console.log("No actors found for this movie.");
+      const actorsArray = response.data?.data?.$values;
+      if (Array.isArray(actorsArray)) {
+        return actorsArray;
       } else {
-        setError("Błąd podczas wczytywania danych");
+        return [];
       }
-    } else {
-      setError("Nieoczekiwany błąd");
-    }
-    console.error(error);
-  }
+    },
+    retry: false,
+  });
 };
+
+//to do: OBSLUGA BLEDOW (jest niepełna zrobiona zeby modal dzialał poprawnie)
+export const useMoviesByFilters = (page: number, pageSize: number, titleSearch?: string, orderBy?: string, sortDirection?: string, categoryNames?: string[], countryNames?: string[], actorsList?: string[], directorsList?: string[]) => {
+  return useQuery<{ movies: Movie[]; totalPages: number }>({
+    queryKey: ["movies", page, pageSize, titleSearch, orderBy, sortDirection, categoryNames, countryNames, actorsList, directorsList],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/Movies/by-filters`, {
+          params: {
+            pageNumber: page,
+            pageSize,
+            titleSearch,
+            orderBy,
+            sortDirection,
+            categoryNames,
+            countryNames,
+            actorsList,
+            directorsList,
+          },
+            paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
+        });
+
+        return {
+          movies: data.data?.$values ?? [],
+          totalPages: data.totalPages ?? 0,
+        };
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          return { movies: [], totalPages: 1 };
+        }
+        throw err;
+      }
+    },
+    retry: false,
+    placeholderData: keepPreviousData
+  });
+};
+
+//to do: OBSLUGA BLEDOW
+export const useMoviesByCollectionId = (movieCollectionId: string | null, page: number, pageSize: number) => {
+  return useQuery<{ movies: Movie[]; totalPages: number }>({
+    queryKey: ["moviesByCollection", movieCollectionId, page, pageSize],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/Movies/by-collectionId/${movieCollectionId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          params: {
+            pageNumber: page,
+            pageSize,
+          },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
+        });
+
+        return {
+          movies: data?.$values ?? [],
+          totalPages: data.totalPages ?? 1,
+        };
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          return { movies: [], totalPages: 1 };
+        }
+        throw err;
+      }
+    },
+    retry: false,
+    placeholderData: { movies: [], totalPages: 1 },
+  });
+};
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 // Fetch movie reviews
 export const fetchMovieReviews = async (
@@ -317,48 +363,6 @@ export const deleteFromPlanned = async (
   }
 };
 
-interface PaginationResponse {
-  data: {
-    $values: Movie[];
-  };
-  totalItems: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-interface FetchMoviesParams {
-  pageNumber: number;
-  pageSize: number;
-  titleSearch?: string;
-  orderBy?: string;
-  sortDirection?: string;
-  categoryNames?: string[];
-  countryNames?: string[];
-  actorsList?: string[];
-  directorsList?: string[];
-}
-
-// Zwraca listę filmów
-export const fetchMoviesByFilters = async (
-  params: FetchMoviesParams
-): Promise<PaginationResponse> => {
-  try {
-    const response = await axios.get<PaginationResponse>(
-      "https://localhost:7053/api/Movies/by-filters",
-      {
-        params,
-        paramsSerializer: (params) =>
-          qs.stringify(params, { arrayFormat: "repeat" }),
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-    throw error;
-  }
-};
-
 export const fetchMoviesListByIds = async (
   moviesIds: string[] | null,
   setMovies: React.Dispatch<React.SetStateAction<Movie[]>>
@@ -388,57 +392,5 @@ export const fetchMoviesListByIds = async (
   } catch (error) {
     console.error("Error fetching movies:", error);
     throw error;
-  }
-};
-
-export const fetchMoviesByCollectionId = async (
-  movieCollectionId: string | null,
-  pageNumber: number,
-  pageSize: number,
-  setMovies: React.Dispatch<React.SetStateAction<Movie[]>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setPagination: React.Dispatch<
-    React.SetStateAction<{
-      totalItems: number;
-      pageNumber: number;
-      pageSize: number;
-      totalPages: number;
-    }>
-  >
-) => {
-  try {
-    const response = await axios.get(
-      `https://localhost:7053/api/Movies/by-collectionId/${movieCollectionId}`,
-      {
-        params: {
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Dodanie nagłówka z tokenem
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      const { data, totalItems, pageNumber, pageSize, totalPages } =
-        response.data;
-      setMovies(response.data.$values);
-      setPagination({ totalItems, pageNumber, pageSize, totalPages });
-    }
-  } catch (reviewsError) {
-    if (
-      axios.isAxiosError(reviewsError) &&
-      reviewsError.response?.status === 404
-    ) {
-      setMovies([]);
-      console.log("Nie znaleznio filmów w tej kolekcji");
-    } else {
-      setError("Błąd podczas wczytywania danych");
-      console.error(reviewsError);
-    }
-  } finally {
-    setLoading(false);
   }
 };

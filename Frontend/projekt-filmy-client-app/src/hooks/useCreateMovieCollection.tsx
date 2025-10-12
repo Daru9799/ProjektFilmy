@@ -21,28 +21,20 @@ export const useCreateMovieCollection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState<string>("");
 
-  const {
-    movies,
-    pageInfo,
-    isNoMovieModalVisible,
-    setIsNoMovieModalVisible,
-    loadMovies,
-  } = useMovieLoader(6);
+  const { data, isLoading, error: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch } = useMovieLoader(currentPage, 6, searchText, sortCategory, sortDirection, filterList);
+  const movies = data?.movies ?? [];
+  const pageInfo = {
+    pageNumber: currentPage,
+    pageSize: 6,
+    totalPages: data?.totalPages ?? 1,
+  };
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   
   const handleOpenModal = async () => {
-        await loadMovies({
-      page: currentPage,
-      searchText,
-      pageSize: 6,
-      sortCategory: "title",
-      sortDirection,
-      filterList,
-    });
-
+    refetch();
     setTempSelectedMovies([...selectedMovies]);
     setShowModal(true);
   };
@@ -57,14 +49,7 @@ export const useCreateMovieCollection = () => {
 
   const handlePageChange = async (page: number) => {
     setCurrentPage(page);
-    await loadMovies({
-      page,
-      searchText,
-      pageSize: 6,
-      sortCategory: "title",
-      sortDirection,
-      filterList,
-    });
+    refetch();
   };
 
 const handleCloseModal = async () => {
@@ -76,14 +61,7 @@ const handleCloseModal = async () => {
   setSortDirection("asc");
   setFilterList([[], [], [], []]);
 
-  await loadMovies({
-    page: 1,
-    searchText: "",
-    pageSize: 6,
-    sortCategory: "title",
-    sortDirection: "asc",
-    filterList: [[], [], [], []],
-  });
+  refetch();
 };
 
 
@@ -100,14 +78,7 @@ const handleSort = async (type: string) => {
   setSortDirection(direction);
   setCurrentPage(1);
 
-  await loadMovies({
-    page: 1,
-    searchText,
-    pageSize: 6,
-    sortCategory: category,
-    sortDirection: direction,
-    filterList,
-  });
+  refetch();
 };
 
   const handleCreateCollection = async () => {

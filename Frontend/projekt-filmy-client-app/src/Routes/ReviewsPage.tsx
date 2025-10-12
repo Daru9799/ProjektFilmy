@@ -11,11 +11,12 @@ import {
   editReview,
   fetchReviewsByMovieId,
 } from "../API/reviewApi";
-import { fetchMovieData } from "../API/movieApi";
+import { useMovieById } from "../API/movieApi";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import { isUserMod } from "../hooks/decodeJWT";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -31,10 +32,12 @@ const ReviewsPage = () => {
   });
   const [sortOrder, setSortOrder] = useState<string>("rating");
   const [sortDirection, setSortDirection] = useState<string>("desc");
-  const [movie, setMovie] = useState<Movie | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
+
+  //Api hook
+  const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
@@ -88,7 +91,6 @@ const ReviewsPage = () => {
         setPagination,
         setError
       );
-      fetchMovieData(movieId, setMovie, setError);
     } finally {
       setLoading(false);
     }
@@ -158,8 +160,16 @@ const ReviewsPage = () => {
     <div className="container my-2">
       <div className="m-4">
         <h2 style={{ color: "white" }}>Recenzje filmu:</h2>
-        <div style={{ marginTop: "2%" }}>
-          {movie && <MovieListModule movieList={movie ? [movie] : []} />}
+        <div style={{ marginTop: "2%", minHeight: "200px" }}>
+          {movieLoading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+              <SpinnerLoader />
+            </div>
+          ) : movie ? (
+            <MovieListModule movieList={[movie]} />
+          ) : (
+            <p className="text-light text-center">Nie znaleziono filmu.</p>
+          )}
         </div>
       </div>
       {/* Komponent sortowania */}

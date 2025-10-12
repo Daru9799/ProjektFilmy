@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Movie } from "../models/Movie";
-import { Person } from "../models/Person";
 import { Review } from "../models/Review";
 import {
   addToPlanned,
@@ -11,8 +9,6 @@ import {
   checkIfInWatched,
   deleteFromPlanned,
   deleteFromWatched,
-  fetchActorsData,
-  fetchMovieData,
   fetchMovieReviews,
 } from "../API/movieApi";
 import { fetchUserReviewForMovie } from "../API/movieApi";
@@ -24,8 +20,6 @@ export const useMoviePageLogic = () => {
   const { movieId } = useParams();
   const userName = localStorage.getItem("logged_username") || "";
 
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [people, setPeople] = useState<Person[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,8 +33,6 @@ export const useMoviePageLogic = () => {
 
   useEffect(() => {
     if (movieId) {
-      fetchMovieData(movieId, setMovie, setError);
-      fetchActorsData(movieId, setPeople, setError);
       fetchMovieReviews(movieId, setReviews, setError, setLoading);
       fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
     } else {
@@ -105,7 +97,6 @@ export const useMoviePageLogic = () => {
       setUserReview(null);
       if (movieId) {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        await fetchMovieData(movieId, setMovie, setError);
       }
     } catch (err) {
       console.error("Błąd podczas usuwania recenzji:", err);
@@ -123,7 +114,6 @@ export const useMoviePageLogic = () => {
         );
         if (movieId) {
           await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-          await fetchMovieData(movieId, setMovie, setError);
           await fetchUserReviewForMovie(
             userName,
             movieId,
@@ -156,7 +146,6 @@ export const useMoviePageLogic = () => {
           checkIfInWatched(movieId, setInList, setError),
         ]);
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        await fetchMovieData(movieId, setMovie, setError);
         await fetchUserReviewForMovie(
           username,
           movieId,
@@ -189,7 +178,6 @@ export const useMoviePageLogic = () => {
 
       if (response.status === 200 && movieId) {
         await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        await fetchMovieData(movieId, setMovie, setError);
         await fetchUserReviewForMovie(
           userName,
           movieId,
@@ -209,7 +197,7 @@ export const useMoviePageLogic = () => {
   const handleChangeFollowing = async () => {
     if (isFollowing === false) {
       try {
-        const data = await addFollowMovie(movie?.movieId);
+        const data = await addFollowMovie(movieId);
         console.log("Odpowiedz: ", data);
         setIsFollowing(true);
       } catch (error: any) {
@@ -218,7 +206,7 @@ export const useMoviePageLogic = () => {
       }
     } else {
       try {
-        const data = await removeFollowMovie(movie?.movieId);
+        const data = await removeFollowMovie(movieId);
         console.log("Odpowiedz: ", data);
         setIsFollowing(false);
       } catch (error: any) {
@@ -279,8 +267,6 @@ export const useMoviePageLogic = () => {
   };
 
   return {
-    movie,
-    people,
     reviews,
     userReview,
     reviewToEdit,

@@ -1,9 +1,9 @@
 import { Card } from "react-bootstrap";
 import { MovieCollection } from "../../models/MovieCollection";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Movie } from "../../models/Movie";
-import { fetchMoviesByCollectionId } from "../../API/movieApi";
+import { useState } from "react";
+import { useMoviesByCollectionId } from "../../API/movieApi";
+import SpinnerLoader from "../SpinnerLoader";
 
 interface MovieCollectionCardProps {
   movieCollection: MovieCollection | null;
@@ -12,7 +12,6 @@ interface MovieCollectionCardProps {
   userPage: boolean;
   isFriend: boolean;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
@@ -21,10 +20,7 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
   isLoggedUserMod,
   userPage,
   isFriend,
-  setError,
-  setLoading,
 }) => {
-  const [movies, setMovies] = useState<Movie[]>([]);
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
@@ -33,23 +29,11 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
   });
 
   const navigate = useNavigate();
+  const collectionId = movieCollection?.movieCollectionId ?? null;
+  const { data, isLoading, error } = useMoviesByCollectionId(collectionId, pagination.pageNumber, pagination.pageSize);
+  const movies = data?.movies ?? [];
 
-  useEffect(() => {
-    if (movieCollection)
-      try {
-        fetchMoviesByCollectionId(
-          movieCollection.movieCollectionId,
-          pagination.pageNumber,
-          pagination.pageSize,
-          setMovies,
-          setError,
-          setLoading,
-          setPagination
-        );
-      } catch (err: any) {
-        console.log(err);
-      }
-  }, [movieCollection]);
+  if(isLoading) return <SpinnerLoader />
 
   return (
     <div

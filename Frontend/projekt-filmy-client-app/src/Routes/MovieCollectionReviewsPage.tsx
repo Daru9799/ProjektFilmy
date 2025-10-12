@@ -257,7 +257,6 @@ const MovieCollectionReviewsPage = () => {
               isFriend={isFriend}
               userPage={false}
               setError={setError}
-              setLoading={setLoading}
             />
           </div>
           <div

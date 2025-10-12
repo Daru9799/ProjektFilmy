@@ -5,6 +5,7 @@ import NoMoviesModal from "../components/SearchMovies_componets/NoMoviesModal";
 import { useSearchMovies } from "../hooks/useMovieSearch";
 import SearchModule from "../components/SharedModals/SearchModule";
 import PaginationModule from "../components/SharedModals/PaginationModule";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 
 const SearchMoviesPage = () => {
@@ -19,6 +20,7 @@ const SearchMoviesPage = () => {
     handleSort,
     isNoMovieModalVisible,
     setIsNoMovieModalVisible,
+    isLoading
   } = useSearchMovies();
 
   return (
@@ -39,7 +41,11 @@ const SearchMoviesPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <MovieListModule movieList={movies} />
+      {isLoading ? (
+        <SpinnerLoader />
+      ) : (
+        <MovieListModule movieList={movies} />
+      )}
 
       <div className="mt-auto">
         <PaginationModule

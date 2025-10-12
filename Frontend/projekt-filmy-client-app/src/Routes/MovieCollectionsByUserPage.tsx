@@ -117,7 +117,6 @@ const MovieCollectionByUserPage = () => {
             userPage={true}
             isFriend={isFriend}
             setError={setError}
-            setLoading={setLoading}
           />
         </div>
       ))}
