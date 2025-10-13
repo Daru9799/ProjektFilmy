@@ -28,7 +28,6 @@ export const useUserAchievements = ( userName: string, page: number, pageSize: n
   return useQuery<{ achievements: UserAchievement[]; totalPages: number }>({
     queryKey: ['userAchievements', userName, page, pageSize, sortOrder, sortDirection],
     queryFn: async () => {
-      if (!userName) throw new Error("Brak identyfikatora użytkownika");
       const { data } = await axios.get(`${API_BASE_URL}/Achievement/by-user-name/${userName}`,
         {
           headers: {

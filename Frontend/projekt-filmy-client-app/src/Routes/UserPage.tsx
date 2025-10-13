@@ -5,7 +5,8 @@ import { Review } from "../models/Review";
 import ReviewCard from "../components/review_components/ReviewCard";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import EditUserModal from "../components/User_componets/EditUserModal";
-import { fetchUserData, fetchUserReviews } from "../API/userAPI";
+import { fetchUserData } from "../API/userAPI";
+import { useUserReviews } from "../API/userAPI";
 import {
   fetchRelationsData,
   deleteRelation,
@@ -18,12 +19,14 @@ import {
   getInvitationFromUser,
   deleteNotification,
 } from "../API/notificationApi";
-import { deleteReview, editReview } from "../API/reviewApi";
+import { useDeleteReview, useEditReview } from "../API/ReviewApi";
 import ConfirmationModal from "../components/SharedModals/ConfirmationModal";
 import { isUserMod, getLoggedUserId } from "../hooks/decodeJWT";
 import "../styles/UserPage.css";
 import ChangeRoleModal from "../components/User_componets/ChangeRoleModal";
 import InfoModal from "../components/SharedModals/InfoModal";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -43,7 +46,6 @@ const UserPage = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [relations, setRelations] = useState<any>(null);
@@ -62,12 +64,19 @@ const UserPage = () => {
   const navigate = useNavigate();
   const [reload, setReload] = useState<boolean>(false);
 
+  //Api hooks
+  const { data: reviewData, isLoading: reviewlLoading, error: reviewsError, refetch: refetchReviews } = useUserReviews(userName, 1, 5);
+  const reviews = reviewData?.reviews ?? [];
+  //Mutacje
+  const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
+
   useEffect(() => {
     setReload(false);
     const loggedUserName = localStorage.getItem("logged_username");
     if (userName) {
       fetchUserData(userName, setUser, setError, setLoading, navigate);
-      fetchUserReviews(userName, 3, setReviews, setError);
+      //fetchUserReviews(userName, 3, setReviews, setError);
       if (loggedUserName) {
         fetchRelationsData(
           loggedUserName,
@@ -97,12 +106,12 @@ const UserPage = () => {
 
   const handleDeleteReview = async (reviewId: string) => {
     try {
-      await deleteReview(reviewId, setReviews);
+      deleteReview(reviewId);
 
       // Odśwież dane z serwera
       if (userName) {
         fetchUserData(userName, setUser, setError, setLoading, navigate);
-        fetchUserReviews(userName, 3, setReviews, setError);
+        //fetchUserReviews(userName, 3, setReviews, setError);
       }
     } catch (err) {
       console.error("Błąd podczas usuwania recenzji:", err);
@@ -123,13 +132,10 @@ const UserPage = () => {
       reviewText !== undefined &&
       rating !== undefined
     ) {
-      // Zapisz edytowaną recenzję
-      editReview(
-        reviewToEdit.reviewId,
-        { comment: reviewText, rating },
-        setReviews,
-        setError
-      );
+      editReview({
+        reviewId: reviewToEdit.reviewId,
+        updatedReview: { comment: reviewText, rating },
+      });
       setShowModal(false);
       setReviewToEdit(null);
     }
@@ -440,7 +446,11 @@ const UserPage = () => {
 
         <div className="reviews">
           <h3 style={{ color: "white" }}>Ostatnie recenzje:</h3>
-          {reviews.length > 0 ? (
+          {reviewlLoading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "100px" }}>
+              <SpinnerLoader />
+            </div>
+          ) : reviews.length > 0 ? (
             reviews.map((review) => (
               <ReviewCard
                 key={review.reviewId}
@@ -489,7 +499,7 @@ const UserPage = () => {
               setUser(updatedUser);
               setShowChangeRoleModal(false);
               if (userName) {
-                fetchUserReviews(userName, 3, setReviews, setError);
+                refetchReviews();
               }
             }}
           />
@@ -526,6 +536,9 @@ const UserPage = () => {
           message={infoModal.message}
           variant={infoModal.variant}
         />
+
+        <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+        <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
       </div>
     </>
   );

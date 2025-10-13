@@ -9,10 +9,7 @@ import {
   checkIfInWatched,
   deleteFromPlanned,
   deleteFromWatched,
-  fetchMovieReviews,
 } from "../API/movieApi";
-import { fetchUserReviewForMovie } from "../API/movieApi";
-import { editReview, deleteReview } from "../API/reviewApi";
 import { getLoggedUserId } from "./decodeJWT";
 import { addFollowMovie, removeFollowMovie } from "../API/userAPI";
 
@@ -20,25 +17,12 @@ export const useMoviePageLogic = () => {
   const { movieId } = useParams();
   const userName = localStorage.getItem("logged_username") || "";
 
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
-  const [userReview, setUserReview] = useState<Review | null>(null);
-  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
-  const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [inList, setInList] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (movieId) {
-      fetchMovieReviews(movieId, setReviews, setError, setLoading);
-      fetchUserReviewForMovie(userName, movieId, setUserReview, setError);
-    } else {
-      setError("Nieoczekiwany błąd");
-    }
-  }, [movieId]);
 
   const checkFollowing = async (movieId: string) => {
     try {
@@ -86,51 +70,6 @@ export const useMoviePageLogic = () => {
     }
   }, [movieId]);
 
-  const handleEditReview = (review: Review) => {
-    setReviewToEdit(review);
-    setShowEditModal(true);
-  };
-
-  const handleDeleteReview = async (reviewId: string) => {
-    try {
-      await deleteReview(reviewId, setReviews);
-      setUserReview(null);
-      if (movieId) {
-        await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-      }
-    } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
-    }
-  };
-
-  const handleSaveEditedReview = async (reviewText: string, rating: number) => {
-    if (reviewToEdit) {
-      try {
-        await editReview(
-          reviewToEdit.reviewId,
-          { comment: reviewText, rating },
-          setReviews,
-          setError
-        );
-        if (movieId) {
-          await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-          await fetchUserReviewForMovie(
-            userName,
-            movieId,
-            setUserReview,
-            setError
-          );
-        }
-      } catch (err) {
-        console.error("Błąd podczas edycji recenzji:", err);
-        setError("Nie udało się edytować recenzji.");
-      } finally {
-        setShowEditModal(false);
-        setReviewToEdit(null);
-      }
-    }
-  };
-
   const handleLoginSuccess = async (username: string) => {
     setShowLoginModal(false);
     localStorage.setItem("logged_username", username);
@@ -145,13 +84,12 @@ export const useMoviePageLogic = () => {
           checkIfInPlanned(movieId, setInList, setError),
           checkIfInWatched(movieId, setInList, setError),
         ]);
-        await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        await fetchUserReviewForMovie(
-          username,
-          movieId,
-          setUserReview,
-          setError
-        );
+        // await fetchUserReviewForMovie(
+        //   username,
+        //   movieId,
+        //   setUserReview,
+        //   setError
+        // );
       } catch (err) {
         console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
       }
@@ -177,13 +115,12 @@ export const useMoviePageLogic = () => {
       );
 
       if (response.status === 200 && movieId) {
-        await fetchMovieReviews(movieId, setReviews, setError, setLoading);
-        await fetchUserReviewForMovie(
-          userName,
-          movieId,
-          setUserReview,
-          setError
-        );
+        // await fetchUserReviewForMovie(
+        //   userName,
+        //   movieId,
+        //   setUserReview,
+        //   setError
+        // );
         setShowReviewModal(false);
       }
     } catch (error) {
@@ -267,10 +204,6 @@ export const useMoviePageLogic = () => {
   };
 
   return {
-    reviews,
-    userReview,
-    reviewToEdit,
-    showEditModal,
     showReviewModal,
     showLoginModal,
     loading,
@@ -280,13 +213,9 @@ export const useMoviePageLogic = () => {
     inList,
     setShowReviewModal,
     setShowLoginModal,
-    setShowEditModal,
     setIsFollowing,
-    handleEditReview,
-    handleDeleteReview,
     handleAddReview,
     handleLoginSuccess,
-    handleSaveEditedReview,
     handleChangeFollowing,
     setInList,
     handleChangePlanned,

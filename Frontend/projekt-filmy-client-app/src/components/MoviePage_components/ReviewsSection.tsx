@@ -22,6 +22,13 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  console.log('🎬 ReviewsSection rendering:', { 
+    reviewsCount: reviews.length, 
+    reviews,
+    hasUserReview: !!userReview,
+    userReview 
+  });
+
   return (
     <>
       {userReview && (
@@ -53,7 +60,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <p>Brak recenzji dla tego filmu.</p>
         )}
 
-      {totalReviewsCount > 2 && movieId && (
+      {movieId && (
         <button 
           className="btn btn-outline-light mt-3"
           onClick={() => navigate(`/${movieId}/reviews`)}

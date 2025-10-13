@@ -1,4 +1,45 @@
 import axios from "axios";
+import { API_BASE_URL } from "../constants/api";
+import { Review } from "../models/Review";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+
+//to do: OBSLUGA BLEDOW
+export const useUserReviews = (userName: string | undefined, page: number, pageSize: number, sortOrder: string = "desc", sortDirection: string = "year") => {
+  return useQuery<{ reviews: Review[]; totalPages: number }>({
+    queryKey: ["userReviews", userName, page, pageSize, sortOrder, sortDirection],
+    queryFn: async () => {
+      if (!userName) return { reviews: [], totalPages: 0 };
+
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/Reviews/by-username/${userName}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          params: {
+            pageNumber: page,
+            pageSize,
+            orderBy: sortOrder,
+            sortDirection: sortDirection,
+          },
+        });
+
+        return {
+          reviews: data.data?.$values ?? [],
+          totalPages: data.totalPages ?? 1,
+        };
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
+          return { reviews: [], totalPages: 1 };
+        }
+        throw err;
+      }
+    },
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
+};
+
+/////////////////////////////////////////////////////////////////////
 
 export const fetchUserData = async (
   userName: string | undefined,
@@ -35,46 +76,6 @@ export const fetchUserData = async (
     console.error(err);
   } finally {
     setLoading(false);
-  }
-};
-
-// Fetch user reviews
-export const fetchUserReviews = async (
-  userName: string,
-  pageSize: number,
-  setReviews: React.Dispatch<React.SetStateAction<any[]>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    const reviewsResponse = await axios.get(
-      `https://localhost:7053/api/Reviews/by-username/${userName}`,
-      {
-        params: {
-          pageNumber: 1,
-          pageSize,
-          orderBy: "desc",
-          sortDirection: "year",
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    const { data } = reviewsResponse.data;
-    if (data && data.$values) {
-      setReviews(data.$values);
-    } else {
-      setReviews([]);
-    }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      if (err.response?.status === 404) {
-        setReviews([]);
-      } else {
-        setError("Wystąpił błąd podczas pobierania recenzji.");
-      }
-    }
-    console.error(err);
   }
 };
 

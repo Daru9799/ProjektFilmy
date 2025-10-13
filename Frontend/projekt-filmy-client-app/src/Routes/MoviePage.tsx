@@ -7,15 +7,15 @@ import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import { useMoviePageLogic } from "../hooks/useMoviePageLogic";
 import RecommendMovieModule from "../components/MoviePage_components/RecommendMovieModule";
 import { useMovieById, useActorsByMovieId  } from "../API/movieApi";
+import { useAddReview, useDeleteReview, useEditReview, useReviewsByMovieId, useUserReviewForMovie } from "../API/ReviewApi";
 import { useParams } from "react-router-dom";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import { useState } from "react";
+import { Review } from "../models/Review";
 
 const MoviePage = () => {
   const {
-    reviews,
-    userReview,
-    reviewToEdit,
-    showEditModal,
     showReviewModal,
     showLoginModal,
     loading,
@@ -25,13 +25,8 @@ const MoviePage = () => {
     inList,
     setShowReviewModal,
     setShowLoginModal,
-    setShowEditModal,
     setIsFollowing,
-    handleEditReview,
-    handleDeleteReview,
-    handleAddReview,
     handleLoginSuccess,
-    handleSaveEditedReview,
     handleChangeFollowing,
     setInList,
     handleChangePlanned,
@@ -40,13 +35,59 @@ const MoviePage = () => {
 
   ///////////Tutaj zaczynamy
   const { movieId } = useParams();
+  const loggedUserName = localStorage.getItem("logged_username") || "";
+  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  //Api hooks
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
   const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
+  const { data: userReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForMovie(loggedUserName, movieId);
+  const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
+  const reviews = reviewData?.reviews ?? [];
+  //Mutacje
+  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
+  const { mutate: addReview, isPending: isAddingReview, error: addError } = useAddReview();
+
+  //Funkcje
+  const handleDeleteReview = async (reviewId: string) => {
+    deleteReview(reviewId)
+  };
+
+  const handleEditReview = (review: Review) => {
+    setReviewToEdit(review);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditedReview = (reviewText: string, rating: number) => {
+    if (reviewToEdit) {
+      editReview({
+        reviewId: reviewToEdit.reviewId,
+        updatedReview: { comment: reviewText, rating },
+      });
+      setShowEditModal(false);
+      setReviewToEdit(null);
+    }
+  };
+
+  const handleAddReview = (review: string, rating: number) => {
+    if (!movieId || !loggedUserName) return;
+    addReview({ rating, comment: review, movieId, userName: loggedUserName }, 
+      {
+        onSuccess: () => {
+          setShowReviewModal(false);
+        },
+        onError: (error) => {
+          console.error("Błąd podczas dodawania recenzji:", error); //ERROR HANDLING BY SIE PRZYDAL
+        },
+      }
+    );
+  };
   
-  if (movieLoading || peopleLoading) return <SpinnerLoader />;
+  if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading) return <SpinnerLoader />;
 
   if (!movie) return <p>Nie znaleziono filmu.</p>; //Tymczasowe rozwiązanie zeby nie przeszkadzalo w debbugowaniu
-  
+
   if (error) return <p>{error}</p>;
 
   return (
@@ -72,7 +113,7 @@ const MoviePage = () => {
             setShowLoginModal={setShowLoginModal}
             handleAddReview={handleAddReview}
             handleLoginSuccess={handleLoginSuccess}
-            userReview={userReview}
+            userReview={userReview ?? null}
             isFollowing={isFollowing}
             handleChangeFollowing={handleChangeFollowing}
             inList={inList}
@@ -99,7 +140,7 @@ const MoviePage = () => {
 
       <ReviewsSection
         reviews={reviews}
-        userReview={userReview}
+        userReview={userReview ?? null}
         onEditReview={handleEditReview}
         onDeleteReview={handleDeleteReview}
         movieId={movie?.movieId}
@@ -111,6 +152,10 @@ const MoviePage = () => {
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
+
+      <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+      <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
+      <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..." />
     </div>
   );
 };

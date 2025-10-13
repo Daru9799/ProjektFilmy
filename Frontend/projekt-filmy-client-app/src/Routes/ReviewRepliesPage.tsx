@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import { isUserMod } from "../hooks/decodeJWT";
@@ -16,12 +16,13 @@ import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
 import { fetchCollectionReviewData } from "../API/CollectionReviewApi";
-import { fetchReviewData } from "../API/reviewApi";
 import { 
   sendMovieReviewCommentedNotification, 
   sendCollectionReviewCommentedNotification 
 } from "../API/notificationApi"
 import { getLoggedUserId } from "../hooks/decodeJWT";
+import { useReviewById } from "../API/ReviewApi";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 interface ReviewRepliesPageProps {
   endpointPrefix: ReplyEndpointType;
@@ -39,10 +40,12 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
     totalPages: 1,
   });
 
-  const [review, setReview] = useState<Review | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [replyToEdit, setReviewToEdit] = useState<Reply | null>(null);
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
+
+  //API
+  const { data: review, isLoading: reviewLoading, error: reviewError } = useReviewById(reviewId);
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
@@ -153,9 +156,9 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
         );
 
         if (endpointPrefix === "Reply") {
-          await fetchReviewData(reviewId, setReview, setError);
+          //await fetchReviewData(reviewId, setReview, setError);
         } else {
-          await fetchCollectionReviewData(reviewId, setReview, setError);
+          //await fetchCollectionReviewData(reviewId, setReview, setError);
         }
       } finally {
         setLoading(false);
@@ -165,9 +168,9 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
     fetchData();
   }, [pagination.pageNumber, pagination.pageSize, reviewId, endpointPrefix]);
 
-  if (loading) {
-    return <div className="text-center">Ładowanie komentarzy..</div>;
-  }
+  // if (loading) {
+  //   return <div className="text-center">Ładowanie komentarzy..</div>;
+  // }
 
   if (error) {
     return <div className="text-danger text-center">{error}</div>;
@@ -182,7 +185,15 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
             : "Recenzja kolekcji:"}
         </h2>
         <div style={{ marginTop: "2%" }}>
-          {review && <ReviewCard review={review} />}
+          {reviewLoading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+              <SpinnerLoader />
+            </div>
+          ) : review ? (
+            <ReviewCard review={review} />
+          ) : (
+            <p className="text-light text-center">Nie znaleziono recenzji.</p>
+          )}
         </div>
       </div>
       <div>

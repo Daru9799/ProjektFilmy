@@ -5,29 +5,23 @@ import SortReviewModule from "../components/review_components/SortReviewsModle";
 import ReviewCard from "../components/review_components/ReviewCard";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { useParams } from "react-router-dom";
-import { Movie } from "../models/Movie";
-import {
-  deleteReview,
-  editReview,
-  fetchReviewsByMovieId,
-} from "../API/reviewApi";
 import { useMovieById } from "../API/movieApi";
+import { useReviewsByMovieId, useDeleteReview, useEditReview } from "../API/ReviewApi";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import { isUserMod } from "../hooks/decodeJWT";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
-    pageSize: 5,
+    pageSize: 2,
     totalPages: 1,
   });
   const [sortOrder, setSortOrder] = useState<string>("rating");
@@ -36,29 +30,27 @@ const ReviewsPage = () => {
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
 
-  //Api hook
+  //Api hooks
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
+  const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(
+    movieId,
+    pagination.pageNumber,
+    pagination.pageSize,
+    sortOrder,
+    sortDirection
+  );
+  const reviews = reviewData?.reviews ?? [];
+  const totalPages = reviewData?.totalPages ?? 1;
+  //Mutacje
+  const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
   const handleDeleteReview = async (reviewId: string) => {
-    try {
-      await deleteReview(reviewId, setReviews);
-      await fetchReviewsByMovieId(
-        movieId,
-        pagination.pageNumber,
-        pagination.pageSize,
-        sortOrder,
-        sortDirection,
-        setReviews,
-        setPagination,
-        setError
-      );
-    } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
-    }
+    deleteReview(reviewId);
   };
 
   const handleEditReview = (review: Review) => {
@@ -68,39 +60,14 @@ const ReviewsPage = () => {
 
   const handleModalSave = (reviewText: string, rating: number) => {
     if (reviewToEdit) {
-      editReview(
-        reviewToEdit.reviewId,
-        { comment: reviewText, rating },
-        setReviews,
-        setError
-      );
+      editReview({
+        reviewId: reviewToEdit.reviewId,
+        updatedReview: { comment: reviewText, rating },
+      });
       setShowModal(false);
       setReviewToEdit(null);
     }
   };
-
-  useEffect(() => {
-    try {
-      fetchReviewsByMovieId(
-        movieId,
-        pagination.pageNumber,
-        pagination.pageSize,
-        sortOrder,
-        sortDirection,
-        setReviews,
-        setPagination,
-        setError
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    pagination.pageNumber,
-    pagination.pageSize,
-    sortOrder,
-    sortDirection,
-    movieId,
-  ]);
 
   useEffect(() => {
     try {
@@ -148,14 +115,6 @@ const ReviewsPage = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center">Ładowanie recenzji...</div>;
-  }
-
-  if (error) {
-    return <div className="text-danger text-center">{error}</div>;
-  }
-
   return (
     <div className="container my-2">
       <div className="m-4">
@@ -177,7 +136,11 @@ const ReviewsPage = () => {
         <SortReviewModule onSort={handleSortChange} />
       </div>
 
-      {reviews.length > 0 ? (
+      {reviewsLoading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+          <SpinnerLoader />
+        </div>
+      ) : reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard
             key={review.reviewId}
@@ -197,7 +160,7 @@ const ReviewsPage = () => {
       {/* Komponent paginacji */}
       <PaginationModule
         currentPage={pagination.pageNumber}
-        totalPages={pagination.totalPages}
+        totalPages={totalPages}
         onPageChange={(page) =>
           setPagination((prev) => ({ ...prev, pageNumber: page }))
         }
@@ -212,6 +175,9 @@ const ReviewsPage = () => {
           initialReviewRating={reviewToEdit.rating}
         />
       )}
+
+      <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+      <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
     </div>
   );
 };

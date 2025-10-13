@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { useUserAchievements } from "../API/AchievementApi";
 import SpinnerLoader from "../components/SpinnerLoader";
-import axios from "axios";
+import { useApiError } from "../hooks/useApiError";
 
 const UserAchievementsPage = () => {
   const { userName } = useParams();
@@ -26,23 +26,26 @@ const UserAchievementsPage = () => {
 
   const achievements = paginatedAchievements?.achievements ?? [];
   const totalPages = paginatedAchievements?.totalPages ?? 1;
+  const apiError = useApiError(error);
 
   const loggedUserName = localStorage.getItem("logged_username");
 
   if (isLoading) return <SpinnerLoader />;
 
-  //TRZEBA BY TUTAJ OBSLUZYC BRAK OSIAGNIEC DLA DANEGO UZYTKOWNIKA!
-  if (error) {
-    //Tymczasowe rozwiązanie (zostawiona stara wersja zeby sie nie rozjezdzalo)
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return (
-        <div className="text-center text-warning" style={{ marginTop: "20vh", minHeight: "90vh" }}>
-          <h2>404 - Nie znaleziono osiągnięć</h2>
-          <p>Nie znaleziono użytkownika lub jego osiągnięć.</p>
-        </div>
-      );
+  if (apiError) {
+    switch (apiError.statusCode) {
+      case 404:
+        return (
+          <div className="text-center text-warning mt-20 min-h-[90vh]">
+            <h2>Nie posiadasz jeszcze osiągnięć!</h2>
+            <p>{apiError.statusCode} {apiError.message} {apiError.time} {apiError.type}</p>
+          </div>
+        );
+      case 401:
+        return <div className="text-center text-red-500">Brak autoryzacji</div>;
+      default:
+        return <div className="text-center text-red-500">{apiError.message}</div>;
     }
-    return <div className="text-danger text-center">Wystąpił błąd</div>;
   }
 
   return (
