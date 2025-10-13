@@ -46,7 +46,7 @@ namespace Movies.Application.Movies
 
                 if (plannedCollection == null)
                 {
-                    throw new Exception("Nie znaleziono listy planowanych.");
+                    throw new KeyNotFoundException("Nie znaleziono listy planowanych filmów.");
                 }
 
                 if (plannedCollection.Movies.Any(m => m.MovieId == request.MovieId))
@@ -72,7 +72,7 @@ namespace Movies.Application.Movies
 
                 if (movie == null)
                 {
-                    throw new Exception("Nie znaleziono filmu.");
+                    throw new KeyNotFoundException("Nie znaleziono filmu.");
                 }
 
                 //Dodanie filmu do listy planowanych

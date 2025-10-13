@@ -46,7 +46,7 @@ namespace Movies.Application.Movies
 
                 if (watchedCollection == null)
                 {
-                    throw new Exception("Nie znaleziono listy obejrzanych.");
+                    throw new KeyNotFoundException("Nie znaleziono listy obejrzanych.");
                 }
 
                 if (watchedCollection.Movies.Any(m => m.MovieId == request.MovieId))
@@ -72,7 +72,7 @@ namespace Movies.Application.Movies
 
                 if (movie == null)
                 {
-                    throw new Exception("Nie znaleziono filmu.");
+                    throw new KeyNotFoundException("Nie znaleziono filmu.");
                 }
 
                 //Dodanie do obejrzanych

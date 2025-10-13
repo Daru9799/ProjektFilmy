@@ -51,7 +51,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                     if (collection == null)
                     {
-                        throw new ValidationException($"Nie znaleziono kolekcji filmowej o ID: {request.MovieCollectionId}");
+                        throw new KeyNotFoundException($"Nie znaleziono kolekcji filmowej o ID: {request.MovieCollectionId}");
                     }
 
                     //Sprawdzenie istnienia użytkownika
@@ -60,7 +60,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                     if (user == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
+                        throw new KeyNotFoundException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
                     }
 
                     if (user.Id != currentUserId)

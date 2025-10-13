@@ -40,7 +40,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
             if (string.IsNullOrEmpty(currentUserId))
             {
-                throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
             }
 
             var currentUser = await _context.Users

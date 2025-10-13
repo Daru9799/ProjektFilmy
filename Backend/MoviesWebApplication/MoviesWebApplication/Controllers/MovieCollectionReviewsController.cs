@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollectionReviews;
+using Movies.Application.Movies;
 using Movies.Application.Reviews;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
+using MoviesWebApplication.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -27,7 +30,7 @@ namespace MoviesWebApplication.Controllers
 
             if (reviews.Data == null || !reviews.Data.Any())
             {
-                return NotFound($"Nie znaleziono recenzji dla listy filmowej o ID '{movieCollectionId}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono recenzji dla listy filmowej o ID '{movieCollectionId}'."));
             }
 
             return Ok(reviews);
@@ -42,7 +45,7 @@ namespace MoviesWebApplication.Controllers
 
             if (result == null)
             {
-                return NotFound($"Nie znaleziono recenzji o podanym ID.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono recenzji o ID: {reviewId}."));
             }
 
             return Ok(result);
@@ -62,7 +65,7 @@ namespace MoviesWebApplication.Controllers
 
             if (review == null)
             {
-                return NotFound($"Nie znaleziono recenzji dla użytkownika '{userId}' i filmu o ID '{movieCollectionId}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono recenzji dla użytkownika o ID '{userId}' i filmu o ID '{movieCollectionId}'."));
             }
 
             return Ok(review);
@@ -78,9 +81,17 @@ namespace MoviesWebApplication.Controllers
                 var review = await Mediator.Send(command);
                 return Ok("Pomyślnie dodano recenzje.");
             }
-            catch (ValidationException ex)
+            catch (KeyNotFoundException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać recenzji do listy filmowej.\n{ex.Message}"));
             }
         }
         //Usuwanie recenzji listy filmowej
@@ -88,14 +99,27 @@ namespace MoviesWebApplication.Controllers
         [HttpDelete("delete-movie-collection-review/{id}")]
         public async Task<IActionResult> DeleteMovieCollectionReview(Guid id)
         {
-            var result = await Mediator.Send(new DeleteMovieCollectionReview(id));
-
-            if (result == null)
+            try
             {
-                return NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}");
+                var result = await Mediator.Send(new DeleteMovieCollectionReview(id));
+
+                if (result == null)
+                {
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}"));
+                }
+
+                return Ok("Pomyślnie usunięto recenzje.");
+
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się usunąć recenzji listy filmowej.\n{ex.Message}"));
             }
 
-            return Ok("Pomyślnie usunięto recenzje.");
         }
         //Edycja recenzji listy filmowej
         [Authorize]
@@ -109,18 +133,18 @@ namespace MoviesWebApplication.Controllers
                 var review = await Mediator.Send(command);
                 if (review == null)
                 {
-                    return NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}");
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono recenzji kolekcji o ID: {id}"));
                 }
 
                 return Ok("Pomyślnie zmieniono recenzje.");
             }
-            catch (ValidationException ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dokonać edycji recenzji. \n{ex.Message}"));
             }
         }
     }

@@ -42,7 +42,7 @@ namespace Movies.Application.Movies
                     .FirstOrDefaultAsync(mc => mc.MovieCollectionId == request.MovieCollectionId, cancellationToken);
 
                 if (collection == null)
-                    throw new Exception("Nie znaleziono kolekcji.");
+                    throw new KeyNotFoundException("Nie znaleziono kolekcji.");
 
                 // Sprawdzenie właściciela kolekcji
                 if (collection.User.Id != currentUserId)

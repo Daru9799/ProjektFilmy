@@ -46,14 +46,14 @@ namespace Movies.Application.Movies
 
                 if (collection == null)
                 {
-                    throw new Exception("Nie znaleziono listy obejrzanych.");
+                    throw new KeyNotFoundException("Nie znaleziono listy obejrzanych filmów.");
                 }
                     
                 var movie = collection.Movies.FirstOrDefault(m => m.MovieId == request.MovieId);
 
                 if (movie == null)
                 {
-                    throw new InvalidOperationException("Film nie znajduje się na liście obejrzanych.");
+                    throw new KeyNotFoundException("Nie znaleziono filmu na liście objerzanych filmów.");
                 }
                     
                 collection.Movies.Remove(movie);

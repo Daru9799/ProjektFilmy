@@ -46,14 +46,14 @@ namespace Movies.Application.Movies
 
                 if (collection == null)
                 {
-                    throw new Exception("Nie znaleziono listy planowanych.");
+                    throw new KeyNotFoundException("Nie znaleziono listy planowanych.");
                 }
 
                 var movie = collection.Movies.FirstOrDefault(m => m.MovieId == request.MovieId);
 
                 if (movie == null)
                 {
-                    throw new InvalidOperationException("Film nie znajduje się na liście planowanych.");
+                    throw new KeyNotFoundException("Nie znaleziono filmu na liście planowanych filmów.");
                 }
 
                 collection.Movies.Remove(movie);

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.Application.MovieCollectionReviewReplies;
 using Movies.Application.Replies;
 using Movies.Domain.DTOs;
+using Movies.Domain.Entities;
+using MoviesWebApplication.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -23,10 +25,10 @@ namespace MoviesWebApplication.Controllers
 
             var replies = await Mediator.Send(query);
 
-            /*if (replies.Data == null || !replies.Data.Any())
+            if (replies.Data == null || !replies.Data.Any())
             {
-                return NotFound($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{reviewId}'.");
-            }*/
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{reviewId}'."));
+            }
 
             return Ok(replies);
         }
@@ -39,7 +41,7 @@ namespace MoviesWebApplication.Controllers
             var replies = await Mediator.Send(query);
             if (replies == null || !replies.Any())
             {
-                return NotFound($"Nie znaleziono komentarzy dla podanych ID");
+                return NotFound(ApiResponse.NotFound("Nie znaleziono komentarzy dla podanych ID"));
             }
             return Ok(replies);
         }
@@ -56,7 +58,19 @@ namespace MoviesWebApplication.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ApiResponse.BadRequest(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (KeyNotFoundException ex) 
+            {
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać komentarza do recenzji listy filmowej.\n{ex.Message}"));
             }
         }
         //Usuwanie komentarza do recenzji listy filmowej
@@ -64,15 +78,27 @@ namespace MoviesWebApplication.Controllers
         [HttpDelete("delete-review-reply/{id}")]
         public async Task<IActionResult> DeleteReviewReply(Guid id)
         {
-            var result = await Mediator.Send(new DeleteMovieCollectionReviewReply(id));
-
-            if (result == null)
+            try
             {
-                return NotFound($"Nie znaleziono komentarza o ID: {id}");
-            }
+                var result = await Mediator.Send(new DeleteMovieCollectionReviewReply(id));
 
-            return Ok("Pomyślnie usunięto komentarz.");
+                if (result == null)
+                {
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarza o ID: {id}"));
+                }
+
+                return Ok("Pomyślnie usunięto komentarz.");
+            }
+            catch (UnauthorizedAccessException ex) 
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError(ex.Message));
+            }
         }
+
         //Edycja komentarza do recenzji listy filmowej
         [Authorize]
         [HttpPut("edit-review-reply/{id}")]
@@ -83,20 +109,21 @@ namespace MoviesWebApplication.Controllers
                 command.ReplyId = id;
 
                 var reply = await Mediator.Send(command);
+
                 if (reply == null)
                 {
-                    return NotFound($"Nie znaleziono komentarza o ID: {id}");
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarza o ID: {id}"));
                 }
 
-                return Ok("Pomyślnie zmieniono komentarz.");
+                return Ok(ApiResponse.Success());
             }
-            catch (ValidationException ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dokonać edycji komentarza. \n{ex.Message}"));
             }
         }
     }
