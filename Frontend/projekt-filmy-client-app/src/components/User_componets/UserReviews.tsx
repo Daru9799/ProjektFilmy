@@ -11,7 +11,7 @@ import { useDeleteReview, useEditReview } from "../../API/ReviewApi";
 import PaginationModule from "../SharedModals/PaginationModule";
 import { isUserMod } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
-import { useUserReviews } from "../../API/userAPI";
+import { useUserReviews } from "../../API/UserAPI";
 import SpinnerLoader from "../SpinnerLoader";
 
 const ReviewsPage = () => {

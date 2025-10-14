@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { UserProfile, userRole } from "../models/UserProfile";
+import { userRole } from "../models/UserProfile";
 import { Review } from "../models/Review";
 import ReviewCard from "../components/review_components/ReviewCard";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import EditUserModal from "../components/User_componets/EditUserModal";
-import { fetchUserData } from "../API/userAPI";
-import { useUserReviews } from "../API/userAPI";
+import { useUserReviews, useUserData } from "../API/UserAPI";
 import {
   fetchRelationsData,
   deleteRelation,
@@ -43,9 +42,7 @@ function getUserRoleName(role: userRole): string {
 
 const UserPage = () => {
   const { userName } = useParams();
-  const [user, setUser] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [relations, setRelations] = useState<any>(null);
@@ -67,6 +64,7 @@ const UserPage = () => {
   //Api hooks
   const { data: reviewData, isLoading: reviewlLoading, error: reviewsError, refetch: refetchReviews } = useUserReviews(userName, 1, 5);
   const reviews = reviewData?.reviews ?? [];
+  const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
   //Mutacje
   const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
@@ -75,7 +73,7 @@ const UserPage = () => {
     setReload(false);
     const loggedUserName = localStorage.getItem("logged_username");
     if (userName) {
-      fetchUserData(userName, setUser, setError, setLoading, navigate);
+      //fetchUserData(userName, setUser, setError, setLoading, navigate);
       //fetchUserReviews(userName, 3, setReviews, setError);
       if (loggedUserName) {
         fetchRelationsData(
@@ -110,7 +108,7 @@ const UserPage = () => {
 
       // Odśwież dane z serwera
       if (userName) {
-        fetchUserData(userName, setUser, setError, setLoading, navigate);
+        refetchUser();
         //fetchUserReviews(userName, 3, setReviews, setError);
       }
     } catch (err) {
@@ -308,7 +306,6 @@ const UserPage = () => {
       relation.type === "Blocked" && relation.relatedUserName === user?.userName
   );
 
-  if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p className="error">{error}</p>;
 
   if (isBlocked) {
@@ -323,6 +320,8 @@ const UserPage = () => {
   ) => {
     setInfoModal({ show: true, title, message, variant });
   };
+
+  if(userLoading) return <SpinnerLoader />
 
   return (
     <>
@@ -495,13 +494,6 @@ const UserPage = () => {
             show={showChangeRoleModal}
             onClose={() => setShowChangeRoleModal(false)}
             userData={user}
-            onSave={(updatedUser) => {
-              setUser(updatedUser);
-              setShowChangeRoleModal(false);
-              if (userName) {
-                refetchReviews();
-              }
-            }}
           />
         )}
 
@@ -512,7 +504,7 @@ const UserPage = () => {
             onClose={() => setShowEditUserModal(false)}
             userData={user}
             onSave={(updatedUser) => {
-              setUser(updatedUser);
+              refetchUser();
               setShowEditUserModal(false);
             }}
           />

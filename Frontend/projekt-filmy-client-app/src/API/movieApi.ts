@@ -67,7 +67,7 @@ export const useMoviesByFilters = (page: number, pageSize: number, titleSearch?:
 
         return {
           movies: data.data?.$values ?? [],
-          totalPages: data.totalPages ?? 0,
+          totalPages: data.totalPages ?? 1,
         };
       } catch (err: any) {
         if (err.response?.status === 404) {

@@ -13,6 +13,7 @@ import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import { useState } from "react";
 import { Review } from "../models/Review";
+import { useAddFollowMovie, useIsFollowingMovie, useRemoveFollowMovie } from "../API/UserAPI";
 
 const MoviePage = () => {
   const {
@@ -21,13 +22,10 @@ const MoviePage = () => {
     loading,
     error,
     isLoggedIn,
-    isFollowing,
     inList,
     setShowReviewModal,
     setShowLoginModal,
-    setIsFollowing,
     handleLoginSuccess,
-    handleChangeFollowing,
     setInList,
     handleChangePlanned,
     handleChangeWatched,
@@ -42,12 +40,15 @@ const MoviePage = () => {
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
   const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
   const { data: userReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForMovie(loggedUserName, movieId);
+  const { data: isFollowingMovie = false, isLoading: isFollowingMovieLoading, error: isFollowingMovieError } = useIsFollowingMovie(movieId);
   const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
   const reviews = reviewData?.reviews ?? [];
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
   const { mutate: addReview, isPending: isAddingReview, error: addError } = useAddReview();
+  const { mutate: addFollowMovie, isPending: addingFollowMovie, error: addFollowMovieError } = useAddFollowMovie();
+  const { mutate: removeFollowMovie, isPending: removingFollowMovie, error: removeFollowMovieError } = useRemoveFollowMovie();
 
   //Funkcje
   const handleDeleteReview = async (reviewId: string) => {
@@ -83,6 +84,17 @@ const MoviePage = () => {
       }
     );
   };
+
+  const handleChangeFollowing = async () => {
+    if(!movieId) return
+    if (isFollowingMovie === false) {
+        addFollowMovie(movieId);
+        console.log("Film dodany do obserwowanych!");
+    } else {
+        removeFollowMovie(movieId);
+        console.log("Film usunuęty obserwowanych!");
+    }
+  };
   
   if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading) return <SpinnerLoader />;
 
@@ -114,7 +126,7 @@ const MoviePage = () => {
             handleAddReview={handleAddReview}
             handleLoginSuccess={handleLoginSuccess}
             userReview={userReview ?? null}
-            isFollowing={isFollowing}
+            isFollowing={isFollowingMovie}
             handleChangeFollowing={handleChangeFollowing}
             inList={inList}
             setInList={setInList}
@@ -156,6 +168,8 @@ const MoviePage = () => {
       <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
       <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
       <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..." />
+      <ActionPendingModal show={addingFollowMovie} message="Trwa dodawanie filmu do obserwowanych..." />
+      <ActionPendingModal show={removingFollowMovie} message="Trwa usuwanie filmu z obserwowanych..." />
     </div>
   );
 };

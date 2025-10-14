@@ -1,31 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchUserStatistics } from "../../API/userAPI";
-import { UserStats } from "../../models/UserStats";
+import { useUserStatistics } from "../../API/UserAPI";
 import "../../styles/UserPage.css";
 import AccordionChart from "./AccordionChart";
 import { Tooltip } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { OverlayTrigger } from "react-bootstrap";
+import SpinnerLoader from "../SpinnerLoader";
 
 const UserStatistics = () => {
   const { userName } = useParams();
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const loggedUserName = localStorage.getItem("logged_username");
   const navigate = useNavigate();
       const renderTooltip = (props: any) => (
-    <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
+    <Tooltip {...props}>Powrót do profilu</Tooltip>
   );
-  
-  useEffect(() => {
-    if (userName) {
-      fetchUserStatistics(userName, setUserStats, setError, setLoading);
-    }
-  }, [userName]);
 
-  if (loading) return <p>Ładowanie danych...</p>;
+  const { data: userStats, isLoading: statsLoading } = useUserStatistics(userName);
+
+  if(statsLoading) return <SpinnerLoader />
+
   if (error) return <p className="text-danger text-center">{error}</p>;
   if (!userStats) return <p>Brak danych.</p>;
 

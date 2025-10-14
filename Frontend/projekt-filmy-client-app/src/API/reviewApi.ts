@@ -101,6 +101,7 @@ export const useDeleteReview = () => {
       await queryClient.invalidateQueries({queryKey: ['reviews']})
       await queryClient.invalidateQueries({queryKey: ['userReview']})
       await queryClient.invalidateQueries({queryKey: ['userReviews']})
+      await queryClient.invalidateQueries({queryKey: ['userData']})
     },
   });
 };

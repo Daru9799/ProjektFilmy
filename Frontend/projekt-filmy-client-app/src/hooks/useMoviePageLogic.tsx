@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Review } from "../models/Review";
 import {
   addToPlanned,
   addToWatched,
@@ -11,7 +10,6 @@ import {
   deleteFromWatched,
 } from "../API/movieApi";
 import { getLoggedUserId } from "./decodeJWT";
-import { addFollowMovie, removeFollowMovie } from "../API/userAPI";
 
 export const useMoviePageLogic = () => {
   const { movieId } = useParams();
@@ -21,35 +19,12 @@ export const useMoviePageLogic = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [inList, setInList] = useState<string | null>(null);
-
-  const checkFollowing = async (movieId: string) => {
-    try {
-      const response = await axios.get(
-        `https://localhost:7053/api/Users/get-follow-movie/${movieId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.data === true) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
-    } catch (err) {
-      console.error("Błąd po stronie sieci/axios:", err);
-    }
-  };
 
   useEffect(() => {
     if (movieId && userName) {
       const fetchData = async () => {
         const loggedUserId = getLoggedUserId();
-        checkFollowing(movieId);
         console.log("jajko");
         try {
           await Promise.all([
@@ -79,7 +54,6 @@ export const useMoviePageLogic = () => {
 
     if (movieId) {
       try {
-        checkFollowing(movieId);
         await Promise.all([
           checkIfInPlanned(movieId, setInList, setError),
           checkIfInWatched(movieId, setInList, setError),
@@ -96,62 +70,7 @@ export const useMoviePageLogic = () => {
     }
   };
 
-  const handleAddReview = async (review: string, rating: number) => {
-    try {
-      const response = await axios.post(
-        "https://localhost:7053/api/Reviews/add-review",
-        {
-          Rating: rating,
-          Comment: review,
-          Date: new Date().toISOString(),
-          MovieId: movieId,
-          UserName: userName,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.status === 200 && movieId) {
-        // await fetchUserReviewForMovie(
-        //   userName,
-        //   movieId,
-        //   setUserReview,
-        //   setError
-        // );
-        setShowReviewModal(false);
-      }
-    } catch (error) {
-      console.error("Błąd podczas dodawania recenzji:", error);
-      setError("Błąd podczas dodawania recenzji");
-    }
-  };
-
   // sprawdzanie czy użytkownik followuje
-
-  const handleChangeFollowing = async () => {
-    if (isFollowing === false) {
-      try {
-        const data = await addFollowMovie(movieId);
-        console.log("Odpowiedz: ", data);
-        setIsFollowing(true);
-      } catch (error: any) {
-        console.error(error);
-        setError(error);
-      }
-    } else {
-      try {
-        const data = await removeFollowMovie(movieId);
-        console.log("Odpowiedz: ", data);
-        setIsFollowing(false);
-      } catch (error: any) {
-        console.error(error);
-        setError(error);
-      }
-    }
-  };
 
   const handleChangePlanned = async () => {
     if (inList === "Planowany") {
@@ -209,14 +128,10 @@ export const useMoviePageLogic = () => {
     loading,
     error,
     isLoggedIn: !!localStorage.getItem("token"),
-    isFollowing,
     inList,
     setShowReviewModal,
     setShowLoginModal,
-    setIsFollowing,
-    handleAddReview,
     handleLoginSuccess,
-    handleChangeFollowing,
     setInList,
     handleChangePlanned,
     handleChangeWatched,

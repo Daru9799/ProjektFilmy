@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserProfile } from "../models/UserProfile";
 import { isUserMod } from "../hooks/decodeJWT";
-import { fetchUserData } from "../API/userAPI";
+import { useUserData } from "../API/UserAPI";
 import { fetchMovieCollectionsByUser } from "../API/movieCollectionApi";
 import { MovieCollection } from "../models/MovieCollection";
 import { Card } from "react-bootstrap";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/relationApi";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const MovieCollectionByUserPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -18,11 +19,9 @@ const MovieCollectionByUserPage = () => {
     pageSize: 5,
     totalPages: 1,
   });
-  const [user, setUser] = useState<UserProfile>();
   const { userName } = useParams();
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fakeLoading, fakeSetLoading] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
   const [sortOrder, setSortOrder] = useState<string>("likes");
   const [sortDirection, setSortDirection] = useState<string>("likes");
@@ -30,16 +29,13 @@ const MovieCollectionByUserPage = () => {
     []
   );
   const [relations, setRelations] = useState<any>(null);
-  const placeholder = () => {};
   const navigate = useNavigate();
+
+  const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
-
-  useEffect(() => {
-    fetchUserData(userName, setUser, setError, fakeSetLoading, placeholder);
-  }, [userName]);
 
   useEffect(() => {
     if (user?.id) {
@@ -81,7 +77,7 @@ const MovieCollectionByUserPage = () => {
     return null;
   }
 
-  if (loading) return <p>Ładowanie danych...</p>;
+  if(userLoading) return <SpinnerLoader />
   if (error) return <p>{error}</p>;
 
   return (

@@ -1,107 +1,47 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import ImageModal from "../components/SharedModals/ImageModal";
 import { usePersonById, usePersonMovies } from "../API/PersonApi";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
-import { getLoggedUserId } from "../hooks/decodeJWT";
-import { addFollowPerson, removeFollowPerson } from "../API/userAPI";
+import { useAddFollowPerson, useIsFollowingPerson, useRemoveFollowPerson } from "../API/UserAPI";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
-import axios from "axios";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
   const { id } = useParams();
-  const [error, setError] = useState<string | null>(null);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [isLogged, setIsLogged] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   //API hook
   const { data: person, isLoading: personLoading, error: personError } = usePersonById(id);
+  const { data: isFollowingPerson = false, error: isFollowingPersonError } = useIsFollowingPerson(id);
   const { data: moviesData, isLoading: moviesLoading } = usePersonMovies(id);
   const movies = moviesData ?? [];
+  //Mutacje
+  const { mutate: addFollowPerson, isPending: addingFollowPerson, error: addingFollowPersonError } = useAddFollowPerson();
+  const { mutate: removeFollowPerson, isPending: removingFollowPerson, error: removingFollowPersonError } = useRemoveFollowPerson();
 
-  useEffect(() => {
-    if (id && userName) {
-      const loggedUserId = getLoggedUserId();
+  const isLogged = !!userName;
 
-      if (!loggedUserId) {
-        console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
-        setIsLogged(false);
-        return;
-      }
-
-      checkFollowing(id);
-      setIsLogged(true);
-    }
-  }, [person]);
-
-  console.log(isLogged);
-  const handleChangeFollowing = async () => {
-    if (isFollowing === false) {
-      try {
-        const data = await addFollowPerson(person?.personId);
-        console.log("Odpowiedz: ", data);
-        setIsFollowing(true);
-      } catch (error: any) {
-        console.error(error);
-        setError(error);
-      }
+  const handleChangeFollowing = () => {
+    if (!id) return;
+    if (isFollowingPerson) {
+      removeFollowPerson(id);
     } else {
-      try {
-        const data = await removeFollowPerson(person?.personId);
-        console.log("Odpowiedz: ", data);
-        setIsFollowing(false);
-      } catch (error: any) {
-        console.error(error);
-        setError(error);
-      }
+      addFollowPerson(id);
     }
   };
 
-  const checkFollowing = async (personId: string) => {
-    try {
-      const response = await axios.get(
-        `https://localhost:7053/api/Users/get-follow-person/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      console.log("Odpowiedź: " + response.data);
-
-      if (response.data === true) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
-    } catch (err) {
-      console.error("Błąd po stronie sieci/axios:", err);
-    }
-  };
-
-  const handleLoginSuccess = async (username: string) => {
-    setShowLoginModal(false);
+  const handleLoginSuccess = (username: string) => {
     localStorage.setItem("logged_username", username);
     window.dispatchEvent(
       new CustomEvent("userUpdated", { detail: { username } })
     );
-    setIsLogged(true);
-
-    if (id) {
-      try {
-        checkFollowing(id);
-      } catch (err) {
-        console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
-      }
-    }
+    setShowLoginModal(false);
   };
 
   if (personLoading || moviesLoading) return <SpinnerLoader />;
-  
-  if (error) return <p>{error}</p>;
 
   return (
     <div
@@ -136,18 +76,18 @@ const PersonPage = () => {
               <button
                 className="btn btn-outline-light mt-3"
                 style={{
-                  backgroundColor: !isFollowing ? "green" : "red",
+                  backgroundColor: !isFollowingPerson ? "green" : "red",
                   width: "200px",
                 }}
                 onClick={handleChangeFollowing}
               >
-                {!isFollowing ? "Obserwuj" : "Przestań obserwować"}
+                {!isFollowingPerson ? "Obserwuj" : "Przestań obserwować"}
               </button>
             ) : (
               <button
                 className="btn btn-outline-light mt-3"
                 style={{
-                  backgroundColor: !isFollowing ? "green" : "red",
+                  backgroundColor: !isFollowingPerson ? "green" : "red",
                   width: "200px",
                 }}
                 onClick={() => setShowLoginModal(true)}
@@ -209,6 +149,8 @@ const PersonPage = () => {
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
+      <ActionPendingModal show={addingFollowPerson} message="Trwa dodawanie filmu do obserwowanych..." />
+      <ActionPendingModal show={removingFollowPerson} message="Trwa usuwanie filmu z obserwowanych..." />
     </div>
   );
 };

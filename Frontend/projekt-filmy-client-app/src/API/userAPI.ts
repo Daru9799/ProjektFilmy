@@ -1,7 +1,9 @@
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 import { Review } from "../models/Review";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserStats } from "../models/UserStats";
+import { UserProfile } from "../models/UserProfile";
 
 //to do: OBSLUGA BLEDOW
 export const useUserReviews = (userName: string | undefined, page: number, pageSize: number, sortOrder: string = "desc", sortDirection: string = "year") => {
@@ -39,170 +41,185 @@ export const useUserReviews = (userName: string | undefined, page: number, pageS
   });
 };
 
-/////////////////////////////////////////////////////////////////////
+//to do: OBSLUGA BLEDOW
+export const useUserStatistics = (userName: string | undefined) => {
+  return useQuery<UserStats | null>({
+    queryKey: ["userStatistics", userName],
+    queryFn: async () => {
+      if (!userName) return null;
 
-export const fetchUserData = async (
-  userName: string | undefined,
-  setUser: React.Dispatch<React.SetStateAction<any>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  navigate: (path: string) => void
-) => {
-  try {
-    setLoading(true);
-    setError(null);
-    const response = await axios.get(
-      `https://localhost:7053/api/Users/by-username/${userName}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setUser(response.data);
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      if (!err.response) {
-        setError("Błąd sieci: nie można połączyć się z serwerem.");
-      } else if (err.response.status === 404) {
-        navigate("/404");
-        return;
-      } else {
-        setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
-      }
-    } else {
-      setError("Wystąpił nieoczekiwany błąd.");
-    }
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
+      const { data } = await axios.get<UserStats>(
+        `${API_BASE_URL}/users/statistics/${userName}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    retry: false,
+  });
 };
 
-export const fetchUserStatistics = async (
-  userName: string,
-  setUser: React.Dispatch<React.SetStateAction<any>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  try {
-    setLoading(true);
-    setError(null);
-    const response = await axios.get(
-      `https://localhost:7053/api/users/statistics/${userName}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setUser(response.data);
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      if (!err.response) {
-        setError("Błąd sieci: nie można połączyć się z serwerem.");
-      } else if (err.response.status === 404) {
-        setError(`Użytkownik o nazwie '${userName}' nie został znaleziony.`);
-      } else {
-        setError(`Błąd: ${err.response.status} - ${err.response.statusText}`);
-      }
-    } else {
-      setError("Wystąpił nieoczekiwany błąd.");
-    }
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
+//to do: OBSLUGA BLEDOW
+export const useUserData = (userName: string | undefined) => {
+  return useQuery<UserProfile>({
+    queryKey: ["userData", userName],
+    queryFn: async () => {
+      if (!userName) throw new Error("Brak nazwy użytkownika");
+      const { data } = await axios.get<UserProfile>(`${API_BASE_URL}/Users/by-username/${userName}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    retry: false,
+  });
 };
 
-//change Role
-
-export const changeRole = async (userId: string, newRole: string) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.patch(
-    `https://localhost:7053/api/Users/change-role/${userId}`,
-    { newRole },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+//to do: OBSLUGA BLEDOW
+export const useChangeUserRole = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${API_BASE_URL}/Users/change-role/${userId}`,
+        { newRole },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: async () => {
+      //Odświeżenie danych usera i recenzji
+      await queryClient.invalidateQueries({ queryKey: ["userData"]} );
+      await queryClient.invalidateQueries({ queryKey: ["userReviews"] });
+    },
+  });
 };
 
-export const addFollowMovie = async (movieId: string | undefined) => {
-  if (!movieId) {
-    console.error("Brak ID filmu!");
-    return;
-  }
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `https://localhost:7053/api/Users/add-follow-movie/${movieId}`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+//to do: OBSLUGA BLEDOW
+export const useAddFollowMovie = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (movieId: string) => {
+      if (!movieId) throw new Error("Brak ID filmu!");
+      const { data } = await axios.post(`${API_BASE_URL}/Users/add-follow-movie/${movieId}`,
+        {}, //Do POST musi byc body wysylane (inaczej wywali 401 XD)
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["isFollowingMovie"] });
+    },
+  });
 };
 
-export const removeFollowMovie = async (movieId: string | undefined) => {
-  if (!movieId) {
-    console.error("Brak ID filmu!");
-    return;
-  }
-
-  const token = localStorage.getItem("token");
-  const response = await axios.delete(
-    `https://localhost:7053/api/Users/delete-follow-movie/${movieId}`,
-    {
-      data: {},
-
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+//to do: OBSLUGA BLEDOW
+export const useRemoveFollowMovie = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (movieId: string) => {
+      if (!movieId) throw new Error("Brak ID filmu!");
+      const { data } = await axios.delete(`${API_BASE_URL}/Users/delete-follow-movie/${movieId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["isFollowingMovie"] });
+    },
+  });
 };
 
-export const addFollowPerson = async (personId: string | undefined) => {
-  if (!personId) {
-    console.error("Brak ID filmu!");
-    return;
-  }
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `https://localhost:7053/api/Users/add-follow-person/${personId}`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+//to do: OBSLUGA BLEDOW
+export const useIsFollowingMovie = (movieId: string | undefined) => {
+  return useQuery<boolean>({
+    queryKey: ["isFollowingMovie", movieId],
+    queryFn: async () => {
+      if (!movieId) throw new Error("Brak ID filmu!");
+      const { data } = await axios.get<boolean>(`${API_BASE_URL}/Users/get-follow-movie/${movieId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    retry: false,
+  });
 };
 
-export const removeFollowPerson = async (personId: string | undefined) => {
-  if (!personId) {
-    console.error("Brak ID osoby!");
-    return;
-  }
+// to do: OBSLUGA BLEDOW
+export const useAddFollowPerson = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (personId: string) => {
+      if (!personId) throw new Error("Brak ID osoby!");
+      const { data } = await axios.post(`${API_BASE_URL}/Users/add-follow-person/${personId}`,
+        {}, //Do POST musi byc body wysylane (inaczej wywali 401 XD)
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["isFollowingPerson"] });
+    },
+  });
+};
 
-  const token = localStorage.getItem("token");
-  const response = await axios.delete(
-    `https://localhost:7053/api/Users/delete-follow-person/${personId}`,
-    {
-      data: {},
+// to do: OBSLUGA BLEDOW
+export const useRemoveFollowPerson = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (personId: string) => {
+      if (!personId) throw new Error("Brak ID osoby!");
+      const { data } = await axios.delete(`${API_BASE_URL}/Users/delete-follow-person/${personId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["isFollowingPerson"] });
+    },
+  });
+};
 
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+// to do: OBSLUGA BLEDOW
+export const useIsFollowingPerson = (personId: string | undefined) => {
+  return useQuery<boolean>({
+    queryKey: ["isFollowingPerson", personId],
+    queryFn: async () => {
+      if (!personId) throw new Error("Brak ID osoby!");
+      const { data } = await axios.get<boolean>(`${API_BASE_URL}/Users/get-follow-person/${personId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    retry: false,
+  });
 };

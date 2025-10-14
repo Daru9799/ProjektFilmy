@@ -2,38 +2,32 @@ import { useState } from "react";
 import { UserProfile } from "../../models/UserProfile";
 import { userRole } from "../../models/UserProfile";
 import { Button, Form, Modal } from "react-bootstrap";
-import { changeRole } from "../../API/userAPI";
+import { useChangeUserRole } from "../../API/UserAPI";
+import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
 interface Props {
   show: boolean;
   onClose: () => void;
   userData: UserProfile;
-  onSave: (updatedUser: UserProfile) => void;
 }
 
-const ChangeRoleModal = ({ show, onClose, userData, onSave }: Props) => {
+const ChangeRoleModal = ({ show, onClose, userData }: Props) => {
   const [role, setRole] = useState(userData.userRole);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const roleOptions = Object.entries(userRole).filter(
     ([key, value]) => typeof value === "number"
   ) as [string, number][];
 
+  const { mutate: changeUserRole, isPending: changingUserRole, error: changeUserRoleError } = useChangeUserRole();
+
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    try {
-      const data = await changeRole(userData.id, userRole[role]);
-      console.log("ODPOWIEDZ: ", data);
-      const updatedUser = { ...userData, userRole: role };
-      onSave(updatedUser);
-      onClose();
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data);
-      } else {
-        setErrorMessage("Wystąpił błąd podczas zmiany roli!");
+    changeUserRole({ userId: userData.id, newRole: role.toString() },
+      {
+        onSuccess: () => {
+          onClose();
+        }
       }
-    }
+    );
   };
   return (
     <Modal show={show} onHide={onClose} centered>
@@ -66,6 +60,8 @@ const ChangeRoleModal = ({ show, onClose, userData, onSave }: Props) => {
             Zapisz zmiany
           </Button>
         </Form>
+
+        <ActionPendingModal show={changingUserRole} message="Trwa zapisywanie zmian..."/>
       </Modal.Body>
     </Modal>
   );
