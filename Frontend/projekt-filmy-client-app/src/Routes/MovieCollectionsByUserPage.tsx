@@ -1,12 +1,9 @@
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { UserProfile } from "../models/UserProfile";
 import { isUserMod } from "../hooks/decodeJWT";
 import { useUserData } from "../API/UserAPI";
-import { fetchMovieCollectionsByUser } from "../API/movieCollectionApi";
-import { MovieCollection } from "../models/MovieCollection";
-import { Card } from "react-bootstrap";
+import { useMovieCollectionsByUser } from "../API/MovieCollectionApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/relationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
@@ -22,16 +19,17 @@ const MovieCollectionByUserPage = () => {
   const { userName } = useParams();
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [sortOrder, setSortOrder] = useState<string>("likes");
-  const [sortDirection, setSortDirection] = useState<string>("likes");
-  const [movieCollections, setMovieCollections] = useState<MovieCollection[]>(
-    []
-  );
   const [relations, setRelations] = useState<any>(null);
   const navigate = useNavigate();
+  //Potem mozna wymienić na stan, jesli bylaby implementacja sortowania
+  const sortOrder = "likes";
+  const sortDirection = "likes";
 
-  const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
+  //Api hooks:
+  const { data: user, isLoading: userLoading, error: userError } = useUserData(userName);
+  const { data: movieCollectionsData, isLoading: movieCollectionsLoading, error: movieCollectionsError } = useMovieCollectionsByUser(user?.id, pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
+  const movieCollections = movieCollectionsData?.collections ?? [];
+  const totalPages = movieCollectionsData?.totalPages ?? 1;
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
@@ -48,18 +46,6 @@ const MovieCollectionByUserPage = () => {
           navigate
         );
       }
-
-      fetchMovieCollectionsByUser(
-        user.id,
-        pagination.pageNumber,
-        pagination.pageSize,
-        sortOrder,
-        sortDirection,
-        setMovieCollections,
-        setPagination,
-        setError,
-        setLoading
-      );
     }
   }, [user, pagination.pageNumber, pagination.pageSize]);
 
@@ -77,7 +63,8 @@ const MovieCollectionByUserPage = () => {
     return null;
   }
 
-  if(userLoading) return <SpinnerLoader />
+  if(userLoading || movieCollectionsLoading) return <SpinnerLoader />
+
   if (error) return <p>{error}</p>;
 
   return (
@@ -85,7 +72,7 @@ const MovieCollectionByUserPage = () => {
       <div className="mt-3">
         <PaginationModule
           currentPage={pagination.pageNumber}
-          totalPages={pagination.totalPages}
+          totalPages={totalPages}
           onPageChange={(page) =>
             setPagination((prev) => ({ ...prev, pageNumber: page }))
           }
@@ -96,33 +83,31 @@ const MovieCollectionByUserPage = () => {
         Kolekcje użytkownika {user?.userName}
       </h4>
 
-      {/*////////////////////////////////////////////////////////////////////////////////
-      // Do przerzucenia do osobnego modułu
-      // */}
-
-      {movieCollections.map((movieCollection) => (
-        <div
-          key={movieCollection.movieCollectionId}
-          className="d-flex justify-content-center"
-        >
-          <MovieCollectionCard
+      {movieCollections.length > 0 ? (
+        movieCollections.map((movieCollection) => (
+          <div
             key={movieCollection.movieCollectionId}
-            movieCollection={movieCollection}
-            loggedUserName={loggedUserName}
-            isLoggedUserMod={isLoggedUserMod}
-            userPage={true}
-            isFriend={isFriend}
-            setError={setError}
-          />
-        </div>
-      ))}
-
-      {/*////////////////////////////////////////////////////////////////////////////////*/}
+            className="d-flex justify-content-center"
+          >
+            <MovieCollectionCard
+              key={movieCollection.movieCollectionId}
+              movieCollection={movieCollection}
+              loggedUserName={loggedUserName}
+              isLoggedUserMod={isLoggedUserMod}
+              userPage={true}
+              isFriend={isFriend}
+              setError={setError}
+            />
+          </div>
+        ))
+      ) : (
+        <p className="text-center" style={{ color: "white" }}>Brak kolekcji do wyświetlenia.</p>
+      )}
 
       <div className="mt-3">
         <PaginationModule
           currentPage={pagination.pageNumber}
-          totalPages={pagination.totalPages}
+          totalPages={totalPages}
           onPageChange={(page) =>
             setPagination((prev) => ({ ...prev, pageNumber: page }))
           }

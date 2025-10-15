@@ -19,7 +19,6 @@ const MoviePage = () => {
   const {
     showReviewModal,
     showLoginModal,
-    loading,
     error,
     isLoggedIn,
     inList,
@@ -31,7 +30,6 @@ const MoviePage = () => {
     handleChangeWatched,
   } = useMoviePageLogic();
 
-  ///////////Tutaj zaczynamy
   const { movieId } = useParams();
   const loggedUserName = localStorage.getItem("logged_username") || "";
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
@@ -96,7 +94,7 @@ const MoviePage = () => {
     }
   };
   
-  if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading) return <SpinnerLoader />;
+  if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading || isFollowingMovieLoading) return <SpinnerLoader />;
 
   if (!movie) return <p>Nie znaleziono filmu.</p>; //Tymczasowe rozwiązanie zeby nie przeszkadzalo w debbugowaniu
 

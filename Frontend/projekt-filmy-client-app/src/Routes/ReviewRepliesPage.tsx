@@ -11,18 +11,18 @@ import {
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { Reply } from "../models/Reply";
 import ReplyCard from "../components/reply_components/ReplyCard";
-import { Review } from "../models/Review";
 import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
-import { fetchCollectionReviewData } from "../API/CollectionReviewApi";
 import { 
   sendMovieReviewCommentedNotification, 
   sendCollectionReviewCommentedNotification 
 } from "../API/notificationApi"
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { useReviewById } from "../API/ReviewApi";
+import { useCollectionReviewById } from "../API/CollectionReviewApi";
 import SpinnerLoader from "../components/SpinnerLoader";
+import { Review } from "../models/Review";
 
 interface ReviewRepliesPageProps {
   endpointPrefix: ReplyEndpointType;
@@ -45,7 +45,18 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
 
   //API
-  const { data: review, isLoading: reviewLoading, error: reviewError } = useReviewById(reviewId);
+  const { data: movieReview, isLoading: movieReviewLoading, error: movieReviewError } = useReviewById(reviewId);
+  const { data: collectionReview, isLoading: collectionReviewLoading, error: collectionReviewError } = useCollectionReviewById(reviewId);
+  
+  let review: Review | undefined;
+  let reviewLoading : boolean;
+  if (endpointPrefix === "Reply") {
+    review = movieReview
+    reviewLoading = movieReviewLoading
+  } else {
+    review = collectionReview
+    reviewLoading = collectionReviewLoading
+  }
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
@@ -168,13 +179,9 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
     fetchData();
   }, [pagination.pageNumber, pagination.pageSize, reviewId, endpointPrefix]);
 
-  // if (loading) {
-  //   return <div className="text-center">Ładowanie komentarzy..</div>;
+  // if (error) {
+  //   return <div className="text-danger text-center">{error}</div>;
   // }
-
-  if (error) {
-    return <div className="text-danger text-center">{error}</div>;
-  }
 
   return (
     <div className="container my-2" style={{ minHeight: "90vh"}}>

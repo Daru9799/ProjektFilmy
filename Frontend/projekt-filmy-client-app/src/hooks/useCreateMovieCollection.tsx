@@ -29,9 +29,6 @@ export const useCreateMovieCollection = () => {
     totalPages: data?.totalPages ?? 1,
   };
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
   
   const handleOpenModal = async () => {
     refetch();
@@ -81,39 +78,6 @@ const handleSort = async (type: string) => {
   refetch();
 };
 
-  const handleCreateCollection = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const payload = {
-        title,
-        description,
-        shareMode,
-        type: 2,
-        allowCopy,
-        movieIds: movieIds
-          .split(",")
-          .map((id) => id.trim())
-          .filter((id) => id.length > 0),
-      };
-
-      await axios.post("https://localhost:7053/api/MovieCollection/add-collection", payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      return true;
-    } catch (err) {
-      console.error("Błąd przy tworzeniu kolekcji:", err);
-      setError("Nie udało się utworzyć kolekcji. Spróbuj ponownie.");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
     title,
     setTitle,
@@ -132,12 +96,9 @@ const handleSort = async (type: string) => {
     setSelectedMovies,
     tempSelectedMovies,
     setTempSelectedMovies,
-    error,
-    loading,
     handleOpenModal,
     handleToggleSelect,
     handleConfirmSelection,
-    handleCreateCollection,
     currentPage,
     pageInfo,
     handlePageChange,

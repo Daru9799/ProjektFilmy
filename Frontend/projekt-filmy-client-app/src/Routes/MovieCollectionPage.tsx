@@ -3,115 +3,63 @@ import { MovieCollection } from "../models/MovieCollection";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLoggedUserId, isUserMod } from "../hooks/decodeJWT";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
-import {
-  addMovieCollectionReview,
-  fetchMovieCollectionById,
-  fetchMovieCollectionReviews,
-  fetchUserReviewForMC,
-} from "../API/movieCollectionApi";
+import { useMovieCollectionById } from "../API/MovieCollectionApi";
 import "../styles/Zoom.css";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { sendCollectionReviewedNotification } from "../API/notificationApi";
-import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewApi";
+import { useAddCollectionReview, useCollectionReviewsByCollectionId, useUserReviewForCollection, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/relationApi";
+import SpinnerLoader from "../components/SpinnerLoader";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
   const { id } = useParams();
   const { userName } = useParams();
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
-  const [movieCollection, setMovieCollection] =
-    useState<MovieCollection | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loggedOWner, setLoggedOwner] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
-  const [reviews, setReviews] = useState<MovieCollectionReview[]>([]);
   const [notification, setNotification] = useState<any | null>(null);
-  const [pagination, setPagination] = useState({
-    totalItems: 1,
-    pageNumber: 1,
-    pageSize: 2,
-    totalPages: 1,
-  });
-  const [userReview, setUserReview] = useState<MovieCollectionReview | null>(
-    null
-  );
-  const [reviewToEdit, setReviewToEdit] =
-    useState<MovieCollectionReview | null>();
+  const [reviewToEdit, setReviewToEdit] = useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [moviesLoading, setMoviesLoading] = useState<boolean>(true);
   const [relations, setRelations] = useState<any>(null);
-
   const navigate = useNavigate();
+  const loggedUserId = getLoggedUserId();
+  
+  //Api hooks:
+  const { data: movieCollection = null, isLoading: movieCollectionLoading, error: movieCollectionError } = useMovieCollectionById(id);
+  const { data: userCollectionReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForCollection(loggedUserId, id);
+  const { data: collectionReviewsData, isLoading: reviewsLoading, error: reviewsError } = useCollectionReviewsByCollectionId(id, 1, 2, "", "");
+  const reviews = collectionReviewsData?.reviews ?? [];
+  //Mutacje
+  const { mutate: addReview, isPending: isAddingReview, error: addingReviewError } = useAddCollectionReview();
+  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
+  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
+
+  //Funkcje
+  const onDeleteReview = async (reviewId: string | undefined) => {
+    deleteReview(reviewId);
+  }
 
   const onEditReview = (review: MovieCollectionReview | null) => {
     setReviewToEdit(review);
     setShowEditModal(true);
   };
 
-  const onDeleteReview = async (reviewId: string | undefined) => {
-    try {
-      await deleteReviewMC(reviewId, setReviews);
-      setUserReview(null);
-      if (id) {
-        await fetchMovieCollectionReviews(
-          id,
-          setReviews,
-          setError,
-          setLoading,
-          setPagination,
-          null,
-          null,
-          null,
-          pagination.pageSize
-        );
-        fetchMovieCollectionById(id, setMovieCollection, setError);
-      }
-    } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
-    }
-  };
-
   const handleSaveEditedReview = async (reviewText: string, rating: number) => {
-    if (reviewToEdit) {
-      const loggedUserId = getLoggedUserId();
-      try {
-        await editReviewMC(
-          reviewToEdit.movieCollectionReviewId,
-          { comment: reviewText, rating },
-          setReviews,
-          setError
-        );
-        if (id && loggedUserId) {
-          await fetchMovieCollectionReviews(
-            id,
-            setReviews,
-            setError,
-            setLoading,
-            setPagination,
-            null,
-            null,
-            null,
-            pagination.pageSize
-          );
-
-          fetchMovieCollectionById(id, setMovieCollection, setError);
-          fetchUserReviewForMC(loggedUserId, id, setUserReview, setError);
-        }
-      } catch (err) {
-        console.error("Błąd podczas edycji recenzji:", err);
-        setError("Nie udało się edytować recenzji.");
-      } finally {
+    if (!reviewToEdit) return;
+    editReview({ reviewId: reviewToEdit.movieCollectionReviewId, updatedReview: { comment: reviewText, rating } }, {
+      onSuccess: () => {
         setShowEditModal(false);
         setReviewToEdit(null);
-      }
-    }
+      },
+    });
   };
 
   useEffect(() => {
@@ -124,19 +72,8 @@ const MovieCollectionPage = () => {
         navigate
       );
     }
-    fetchMovieCollectionById(id, setMovieCollection, setError);
-    fetchMovieCollectionReviews(
-      id,
-      setReviews,
-      setError,
-      setLoading,
-      setPagination,
-      null,
-      null,
-      null,
-      pagination.pageSize
-    );
   }, [id]);
+
   useEffect(() => {
     if (movieCollection && movieCollection?.userName !== userName) {
       navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
@@ -150,7 +87,6 @@ const MovieCollectionPage = () => {
         setIsLoggedIn(false);
         return;
       }
-      fetchUserReviewForMC(loggedUserId, id, setUserReview, setError);
       setIsLoggedIn(true);
       setLoggedOwner(movieCollection?.userId === loggedUserId);
     }
@@ -169,50 +105,23 @@ const MovieCollectionPage = () => {
       relation.type === "Blocked" && relation.relatedUserName === userName
   );
 
-  const handleAddReview = async (
-    reviewText: string,
-    rating: number,
-    isSpoiler: boolean
-  ) => {
-    try {
-      await addMovieCollectionReview(
-        reviewText,
-        rating,
-        isSpoiler,
+  const handleAddReview = async (reviewText: string, rating: number, isSpoiler: boolean) => {
+    addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: isSpoiler });
+    
+    const loggedUserId = getLoggedUserId();
+    if (
+      movieCollection &&
+      loggedUserId &&
+      movieCollection.userId !== loggedUserId
+    ) {
+      await sendCollectionReviewedNotification(
+        movieCollection.movieCollectionId,
+        movieCollection.userId,
+        loggedUserId,
         loggedUserName,
-        movieCollection?.movieCollectionId
+        movieCollection.userName,
+        setNotification
       );
-
-      const loggedUserId = getLoggedUserId();
-      if (
-        movieCollection &&
-        loggedUserId &&
-        movieCollection.userId !== loggedUserId
-      ) {
-        await sendCollectionReviewedNotification(
-          movieCollection.movieCollectionId,
-          movieCollection.userId,
-          loggedUserId,
-          loggedUserName,
-          movieCollection.userName,
-          setNotification
-        );
-      }
-
-      await fetchMovieCollectionById(id, setMovieCollection, setError);
-      await fetchMovieCollectionReviews(
-        id,
-        setReviews,
-        setError,
-        setLoading,
-        setPagination,
-        null,
-        null,
-        null,
-        null
-      );
-    } catch (error: any) {
-      console.log("Wystąpił błąd: ", error);
     }
   };
 
@@ -223,14 +132,6 @@ const MovieCollectionPage = () => {
       new CustomEvent("userUpdated", { detail: { username } })
     );
     setIsLoggedIn(true);
-
-    if (id) {
-      try {
-        await fetchMovieCollectionById(id, setMovieCollection, setError);
-      } catch (err) {
-        console.error("Błąd podczas odświeżania danych po zalogowaniu:", err);
-      }
-    }
   };
 
   if (isBlocked) {
@@ -253,7 +154,6 @@ const MovieCollectionPage = () => {
     return (
       <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${userName}`}</p>
     );
-  if (loading) return <p>Ładowanie danych...</p>;
   if (error) return <p>{error}</p>;
 
   return (
@@ -267,7 +167,7 @@ const MovieCollectionPage = () => {
       {/* Header */}
       <div
         className={`d-flex align-items-center ${
-          loggedOWner || userReview
+          loggedOWner || userCollectionReview
             ? "justify-content-center"
             : "justify-content-between"
         }`}
@@ -281,7 +181,7 @@ const MovieCollectionPage = () => {
             przcyisk i po wciśnięciu modal do logowania.
         */}
         {isLoggedIn ? (
-          !loggedOWner && !userReview ? (
+          !loggedOWner && !userCollectionReview ? (
             <button
               className="btn btn-outline-light mt-3"
               style={{ width: "200px" }}
@@ -325,43 +225,59 @@ const MovieCollectionPage = () => {
 
       {/*TODO - ogarnąć pagincaję */}
 
-      <MovieCollectionCard
-        movieCollection={movieCollection}
-        loggedUserName={loggedUserName}
-        isLoggedUserMod={isLoggedUserMod}
-        userPage={false}
-        isFriend={isFriend}
-        setError={setError}
-      />
+      <div className="d-flex justify-content-center mt-4">
+        {movieCollectionLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+            <SpinnerLoader />
+          </div>
+        ) : movieCollection ? (
+          <MovieCollectionCard
+            movieCollection={movieCollection}
+            loggedUserName={loggedUserName}
+            isLoggedUserMod={isLoggedUserMod}
+            userPage={false}
+            isFriend={isFriend}
+            setError={setError}
+          />
+        ) : (
+          <p>Nie udało się wczytać kolekcji.</p>
+        )}
+      </div>
+
       <div
         className="container pt-3 text-center"
         style={{ marginTop: "10px", marginBottom: "40px" }}
       >
-        {userReview && (
+        {userReviewLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ height: "150px" }}>
+            <SpinnerLoader />
+          </div>
+        ) : userCollectionReview ? (
           <div>
             <h3 className="mb-4">Twoja recenzja: </h3>
             <MovieCollectionReviewCard
-              key={userReview.movieCollectionReviewId}
-              movieCollectionReview={userReview}
+              key={userCollectionReview.movieCollectionReviewId}
+              movieCollectionReview={userCollectionReview}
               userReviewForCollection={true}
-              onEdit={() => onEditReview(userReview)}
+              onEdit={() => onEditReview(userCollectionReview)}
               onDelete={() =>
-                onDeleteReview(userReview?.movieCollectionReviewId)
+                onDeleteReview(userCollectionReview?.movieCollectionReviewId)
               }
             />
           </div>
-        )}
+        ) : null}
 
         <h3 className="mb-4">Recenzje:</h3>
 
-        {reviews.length > 0 ? (
-          (console.log(reviews),
+        {reviewsLoading ? (
+          <SpinnerLoader />
+        ) : reviews.length > 0 ? (
           reviews.map((review) => (
             <MovieCollectionReviewCard
               key={review.movieCollectionReviewId}
               movieCollectionReview={review}
             />
-          )))
+          ))
         ) : (
           <p>Brak recenzji dla tej kolekcji.</p>
         )}
@@ -395,6 +311,10 @@ const MovieCollectionPage = () => {
           initialReviewRating={reviewToEdit.rating}
         />
       )}
+
+      <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..."/>
+      <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+      <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
     </div>
   );
 };
