@@ -1,107 +1,62 @@
 import { useEffect, useState } from "react";
 import { MovieCollection } from "../models/MovieCollection";
-import {
-  fetchMovieCollectionById,
-  fetchMovieCollectionReviews,
-} from "../API/movieCollectionApi";
+import { useMovieCollectionById } from "../API/MovieCollectionApi";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, Form } from "react-bootstrap";
 import SortReviewModule from "../components/review_components/SortReviewsModle";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
-import { deleteReviewMC, editReviewMC } from "../API/CollectionReviewApi";
+import { useCollectionReviewsByCollectionId, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/relationApi";
+import SpinnerLoader from "../components/SpinnerLoader";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const MovieCollectionReviewsPage = () => {
   const navigate = useNavigate();
   const { id, userName } = useParams();
   const loggedUser = localStorage.getItem("logged_username") || "";
-  const [movieCollection, setMovieCollection] =
-    useState<MovieCollection | null>(null);
-  const [reviews, setReviews] = useState<MovieCollectionReview[]>([]);
   const [sortOrder, setSortOrder] = useState<string>("rating");
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [pagination, setPagination] = useState({
-    totalItems: 1,
-    pageNumber: 1,
-    pageSize: 5,
-    totalPages: 1,
-  });
-
+  const [pagination, setPagination] = useState({ totalItems: 1, pageNumber: 1, pageSize: 5, totalPages: 1 });
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
-  const [areSpoilersOn, setAreSpoilersOn] = useState(false);
-  const [reviewToEdit, setReviewToEdit] =
-    useState<MovieCollectionReview | null>();
+  const [reviewToEdit, setReviewToEdit] = useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
   const [relations, setRelations] = useState<any>(null);
+  const areSpoilersOn = false;
+
+  //Api hooks:
+  const { data: movieCollection = null, isLoading: movieCollectionLoading, error: movieCollectionError } = useMovieCollectionById(id);
+  const { data: collectionReviewsData, isLoading: reviewsLoading, error: reviewsError } = useCollectionReviewsByCollectionId(id, pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
+  const reviews = collectionReviewsData?.reviews ?? [];
+  const totalPages = collectionReviewsData?.totalPages ?? 1;
+  //Mutacje
+  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
+  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
+
+  //Funkcje
+  const onDeleteReview = async (reviewId: string | undefined) => {
+    deleteReview(reviewId);
+  };
 
   const onEditReview = (review: MovieCollectionReview | null) => {
     setReviewToEdit(review);
     setShowEditModal(true);
   };
 
-  const onDeleteReview = async (reviewId: string | undefined) => {
-    try {
-      await deleteReviewMC(reviewId, setReviews);
-      if (id) {
-        await fetchMovieCollectionReviews(
-          id,
-          setReviews,
-          setError,
-          setLoading,
-          setPagination,
-          sortOrder,
-          sortDirection,
-          pagination.pageNumber,
-          pagination.pageSize
-        );
-        fetchMovieCollectionById(id, setMovieCollection, setError);
-      }
-    } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
-    }
-  };
-
   const handleSaveEditedReview = async (reviewText: string, rating: number) => {
-    if (reviewToEdit) {
-      try {
-        await editReviewMC(
-          reviewToEdit.movieCollectionReviewId,
-          { comment: reviewText, rating },
-          setReviews,
-          setError
-        );
-        if (id) {
-          await fetchMovieCollectionReviews(
-            id,
-            setReviews,
-            setError,
-            setLoading,
-            setPagination,
-            sortOrder,
-            sortDirection,
-            pagination.pageNumber,
-            pagination.pageSize
-          );
-
-          fetchMovieCollectionById(id, setMovieCollection, setError);
-        }
-      } catch (err) {
-        console.error("Błąd podczas edycji recenzji:", err);
-        setError("Nie udało się edytować recenzji.");
-      } finally {
+    if (!reviewToEdit) return;
+    editReview({ reviewId: reviewToEdit.movieCollectionReviewId, updatedReview: { comment: reviewText, rating } }, {
+      onSuccess: () => {
         setShowEditModal(false);
         setReviewToEdit(null);
-      }
-    }
+      },
+    });
   };
 
   useEffect(() => {
@@ -114,26 +69,7 @@ const MovieCollectionReviewsPage = () => {
         navigate
       );
     }
-
-    fetchMovieCollectionById(id, setMovieCollection, setError);
-    fetchMovieCollectionReviews(
-      id,
-      setReviews,
-      setError,
-      setLoading,
-      setPagination,
-      sortOrder,
-      sortDirection,
-      pagination.pageNumber,
-      pagination.pageSize
-    );
-  }, [
-    id,
-    sortOrder,
-    sortDirection,
-    pagination.pageNumber,
-    pagination.pageSize,
-  ]);
+  }, [id, sortOrder, sortDirection, pagination.pageNumber, pagination.pageSize]);
 
   useEffect(() => {
     if (movieCollection && movieCollection?.userName !== userName) {
@@ -205,11 +141,6 @@ const MovieCollectionReviewsPage = () => {
       relation.relatedUserName === movieCollection?.userName
   );
 
-  if (movieCollection?.userName !== userName) {
-    navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
-    return null;
-  }
-
   if (isBlocked) {
     navigate("/"); //W przypadku bloka przenosi na /
     return null;
@@ -231,10 +162,6 @@ const MovieCollectionReviewsPage = () => {
       <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${movieCollection.userName}`}</p>
     );
 
-  if (loading) {
-    return <div className="text-center">Ładowanie recenzji...</div>;
-  }
-
   if (error) {
     return <div className="text-danger text-center">{error}</div>;
   }
@@ -249,7 +176,12 @@ const MovieCollectionReviewsPage = () => {
           style={{ color: "white" }}
         >{`Recenzje kolekcji ${movieCollection?.title}`}</h2>
         <div style={{ marginTop: "2%" }}>
-          <div className="d-flex justify-content-center">
+        <div className="d-flex justify-content-center">
+          {movieCollectionLoading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "250px" }}>
+              <SpinnerLoader />
+            </div>
+          ) : movieCollection ? (
             <MovieCollectionCard
               movieCollection={movieCollection}
               loggedUserName={loggedUser}
@@ -258,7 +190,10 @@ const MovieCollectionReviewsPage = () => {
               userPage={false}
               setError={setError}
             />
-          </div>
+          ) : (
+            <p>Nie udało się wczytać kolekcji.</p>
+          )}
+        </div>
           <div
             className="container pt-3 text-center"
             style={{ marginTop: "10px", marginBottom: "40px" }}
@@ -282,7 +217,11 @@ const MovieCollectionReviewsPage = () => {
               <SortReviewModule onSort={handleSortChange} />
             </div>
 
-            {reviews.length > 0 ? (
+            {reviewsLoading ? (
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+                <SpinnerLoader />
+              </div>
+            ) : reviews.length > 0 ? (
               reviews
                 .filter((review) => areSpoilersOn || review.spoilers === false)
                 .map((review) => (
@@ -293,12 +232,8 @@ const MovieCollectionReviewsPage = () => {
                     isLoggedUserMod={isLoggedUserMod}
                     userPage={true}
                     onEdit={() => onEditReview(review)}
-                    onDelete={() =>
-                      onDeleteReview(review?.movieCollectionReviewId)
-                    }
-                    commentCount={getReplyCountForReview(
-                      review.movieCollectionReviewId
-                    )}
+                    onDelete={() => onDeleteReview(review?.movieCollectionReviewId)}
+                    commentCount={getReplyCountForReview(review.movieCollectionReviewId)}
                     displayCommentCount
                   />
                 ))
@@ -308,7 +243,7 @@ const MovieCollectionReviewsPage = () => {
           </div>
           <PaginationModule
             currentPage={pagination.pageNumber}
-            totalPages={pagination.totalPages}
+            totalPages={totalPages}
             onPageChange={(page) =>
               setPagination((prev) => ({ ...prev, pageNumber: page }))
             }
@@ -324,6 +259,9 @@ const MovieCollectionReviewsPage = () => {
           initialReviewRating={reviewToEdit.rating}
         />
       )}
+
+      <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+      <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
     </div>
   );
 };

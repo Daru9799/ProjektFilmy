@@ -7,7 +7,8 @@ import InfoModal from "../SharedModals/InfoModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-
+import { useCreateMovieCollectionApi } from "../../API/MovieCollectionApi";
+import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
 const CreateMovieCollection = () => {
 const {
@@ -25,12 +26,9 @@ const {
   setSelectedMovies,
   tempSelectedMovies,
   setMovieIds,
-  error,
-  loading,
   handleOpenModal,
   handleToggleSelect,
   handleConfirmSelection,
-  handleCreateCollection,
   pageInfo,
   currentPage,
   handlePageChange,
@@ -43,10 +41,14 @@ const {
   setIsNoMovieModalVisible,
      
 } = useCreateMovieCollection();
-  const [showInfoModal, setShowInfoModal] = useState(false);
+
+const [showInfoModal, setShowInfoModal] = useState(false);
 const [showSuccessModal, setShowSuccessModal] = useState(false);
 const navigate = useNavigate();
 const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
+//Api hook
+const { mutate: createCollection, isPending: creatingCollection } = useCreateMovieCollectionApi();
+
 
   const renderTooltip = (props: any) => (
     <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
@@ -56,11 +58,7 @@ const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage
     <div className="create-collection-container">
 
       <h2 style={{ marginTop: "2%", marginBottom: "5%" }}>Utwórz nową kolekcję filmów</h2>
- 
-        <OverlayTrigger
-        placement="top" // Pozycja dymka (można zmienić na "bottom", "right", "left")
-        overlay={renderTooltip}
-      >
+        <OverlayTrigger placement="top" overlay={renderTooltip}>
         <button
           className="btn btn-secondary mb-3"
           onClick={() => navigate(`/user/${loggedUsername}`)}
@@ -80,37 +78,31 @@ const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage
         setAllowCopy={setAllowCopy}
       />
 
-      {error && <div className="error-message">{error}</div>}
-
       <SelectedMoviesList
         selectedMovies={selectedMovies}
         setSelectedMovies={setSelectedMovies}
         setMovieIds={setMovieIds}
       />
 
-            <div style={{ marginTop: "5%" }}>
-        <button className="green-button" onClick={handleOpenModal}>
+      <div className="mt-3 d-flex justify-content-center gap-2">
+        <button className="btn btn-success" onClick={handleOpenModal}>
           Dodaj film
         </button>
-      </div>
-
-      <button
-        onClick={async () => {
-            if (title.trim() === "") {
-              setShowInfoModal(true);
-            } else {
-              const success = await handleCreateCollection();
-              if (success) {
-                setShowSuccessModal(true);
-              }
-            }
+        <button
+          className="btn btn-primary"
+          onClick={async () => {
+            if (!title.trim()) return setShowInfoModal(true);
+            createCollection(
+              { title, description, shareMode, type: 2, allowCopy, movieIds: selectedMovies.map(m => m.movieId) },
+              { onSuccess: () => setShowSuccessModal(true) }
+            );
           }}
-        disabled={loading}
-        className="edit-button"
-        style={{ marginTop: "5%", marginBottom: "5%" }}
-      >
-        {loading ? "Tworzenie..." : "Utwórz kolekcję"}
-      </button>
+          disabled={creatingCollection}
+        >
+          Utwórz kolekcję
+          <ActionPendingModal show={creatingCollection} message="Trwa tworzenie kolekcji..." />
+        </button>
+      </div>
 
       <MovieSelectionModal
         show={showModal}
@@ -148,7 +140,6 @@ const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage
         message="Kolekcja została pomyślnie utworzona!"
         variant="success"
       />
-
       
     </div>
   );
