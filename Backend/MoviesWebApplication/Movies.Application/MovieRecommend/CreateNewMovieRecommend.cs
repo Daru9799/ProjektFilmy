@@ -49,12 +49,12 @@ namespace Movies.Application.MovieRecommend
                 var movie = await _context.Movies
                     .FirstOrDefaultAsync(m => m.MovieId == request.MovieId, cancellationToken);
                 if (movie == null)
-                    throw new ValidationException("Nie znaleziono filmu o ID: "+request.MovieId);
+                    throw new KeyNotFoundException("Nie znaleziono filmu o ID: "+request.MovieId);
 
                 var recommendMovie = await _context.Movies
                     .FirstOrDefaultAsync(m => m.MovieId == request.RecommendedMovieId, cancellationToken);
                 if (recommendMovie == null)
-                    throw new ValidationException("Nie znaleziono rekomendowanego filmu o ID: " + request.RecommendedMovieId);
+                    throw new KeyNotFoundException("Nie znaleziono rekomendowanego filmu o ID: " + request.RecommendedMovieId);
 
                 var alredyExistsRecommend = await _context.MovieRecommendations
                     .FirstOrDefaultAsync(m => m.MovieId == request.MovieId && m.RecommendedMovieId == request.RecommendedMovieId, cancellationToken);

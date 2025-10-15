@@ -4,6 +4,7 @@ using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Movies.Application._Common.Exceptions;
 
 public class AchievementsByUserName
 {
@@ -31,9 +32,13 @@ public class AchievementsByUserName
         {
             var currentUserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
-            if (currentUserName == null || !string.Equals(currentUserName, request.UserName, StringComparison.OrdinalIgnoreCase))
+            if (currentUserName == null)
             {
-                throw new UnauthorizedAccessException("Nie masz dostępu do tej strony");
+                throw new UnauthorizedException("Nie jesteś zalogowany");
+            }
+            if(!string.Equals(currentUserName, request.UserName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ForbidenException($"Jako użytkownik {currentUserName} nie masz dostępu do osiągnięć użytkownia {request.UserName}");
             }
 
             var query = _context.UserAchievements
@@ -76,6 +81,11 @@ public class AchievementsByUserName
                     Description = ua.Achievement.Description
                 },
             }).ToList();
+
+            if (userAchievementDtos == null || !userAchievementDtos.Any())
+            {
+                throw new NotFoundException($"Nie znaleziono osiągnięć dla użytkowinka '{currentUserName}'.");
+            }
 
             return new PagedResponse<UserAchievementDto>
             {

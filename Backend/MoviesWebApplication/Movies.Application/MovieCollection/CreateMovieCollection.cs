@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System.Security.Claims;
@@ -35,13 +36,13 @@ namespace Movies.Application.MovieCollections
                 var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (string.IsNullOrEmpty(currentUserId))
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
 
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
 
                 if (user == null)
-                    throw new InvalidOperationException("Nie znaleziono użytkownika.");
+                    throw new NotFoundException("Nie znaleziono użytkownika.");
 
                 var collection = new MovieCollection
                 {

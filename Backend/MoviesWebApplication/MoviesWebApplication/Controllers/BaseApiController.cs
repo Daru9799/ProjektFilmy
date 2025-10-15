@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MoviesWebApplication.Common;
 
 namespace MoviesWebApplication.Controllers
 {

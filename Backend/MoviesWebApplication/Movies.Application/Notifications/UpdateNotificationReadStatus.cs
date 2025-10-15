@@ -39,7 +39,7 @@ namespace Movies.Application.Notifications
 
                 if (notification == null)
                 {
-                    throw new ValidationException($"Nie znaleziono powiadomienia o ID {request.NotificationId}");
+                    throw new KeyNotFoundException($"Nie znaleziono powiadomienia o ID {request.NotificationId}");
                 }
                     
                 var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);

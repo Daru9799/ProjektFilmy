@@ -7,6 +7,8 @@ using MediatR;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
+using Movies.Application._Common.Exceptions;
+using Movies.Application.Movies;
 
 namespace Movies.Application.Categories
 {
@@ -32,6 +34,12 @@ namespace Movies.Application.Categories
                     .Where(m => m.MovieId == request.MovieId) 
                     .SelectMany(m => m.Categories)
                     .ToListAsync();
+
+                if (categories ==null || !categories.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono kategorii dla filmu o ID '{request.MovieId}'.");
+                }
+
                 return categories;
             }
         }

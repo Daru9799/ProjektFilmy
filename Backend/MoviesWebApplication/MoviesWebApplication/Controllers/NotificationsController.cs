@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Notifications;
 using Movies.Domain.DTOs;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -31,7 +32,7 @@ namespace MoviesWebApplication.Controllers
 
             if (notifications.Data == null || !notifications.Data.Any())
             {
-                return NotFound($"Nie znaleziono powiadomień dla użytkownika o ID '{userId}'.");
+                return NotFound(ApiResponse.NotFound($"Nie znaleziono powiadomień dla użytkownika o ID '{userId}'."));
             }
 
             return Ok(notifications);
@@ -48,7 +49,19 @@ namespace MoviesWebApplication.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ApiResponse.BadRequest(ex.Message));
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch(InvalidOperationException ex)
+            {
+                return Conflict(ApiResponse.Conflict(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać powiadomienia. \n{ex.Message}"));
             }
         }
         //Usuwanie powiadomień z bazy
@@ -57,13 +70,23 @@ namespace MoviesWebApplication.Controllers
         public async Task<IActionResult> DeleteNotification(Guid id)
         {
             var result = await Mediator.Send(new DeleteNotification(id));
-
-            if (result == null)
+            try
             {
-                return NotFound($"Nie znaleziono powiadomienia o ID: {id}");
-            }
+                if (result == null)
+                {
+                    return NotFound(ApiResponse.NotFound($"Nie znaleziono powiadomienia o ID: {id}"));
+                }
 
-            return Ok("Powiadomienie zostało pomyślnie usunięte.");
+                return Ok("Powiadomienie zostało pomyślnie usunięte.");
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się usunąć powiadomienia. \n{ex.Message}"));
+            }
         }
 
         //Nadpisanie czy powiadomienie zostało odczytane
@@ -76,9 +99,13 @@ namespace MoviesWebApplication.Controllers
                 var result = await Mediator.Send(command);
                 return Ok("Status przeczytania został zaktualizowany.");
             }
-            catch (ValidationException ex)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(ApiResponse.NotFound(ex.Message));
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
             }
         }
     }

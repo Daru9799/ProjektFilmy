@@ -6,7 +6,7 @@ using Movies.Application.Movies;
 using Movies.Application.Reviews;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
-using MoviesWebApplication.Responses;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {

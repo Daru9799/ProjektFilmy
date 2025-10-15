@@ -12,6 +12,7 @@ using Movies.Application.Replies;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Infrastructure;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -33,6 +34,7 @@ namespace MoviesWebApplication.Controllers
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
+
             try
             {
                 var result = await Mediator.Send(command);
@@ -40,7 +42,7 @@ namespace MoviesWebApplication.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się pobrać rekomendacji dla tego filmu. \n{ex.Message}"));
             }
 
         }
@@ -73,20 +75,30 @@ namespace MoviesWebApplication.Controllers
 
                 return Ok("Pomyślnie dodano rekomendację i polubienie.");
             }
+            catch(UnauthorizedAccessException ex)
+            {
+                await transaction.RollbackAsync();
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
             catch (ValidationException ex)
             {
                 await transaction.RollbackAsync();
-                return BadRequest(ex.Message);
+                return BadRequest(ApiResponse.BadRequest(ex.Message));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                await transaction.RollbackAsync();
+                return NotFound(ApiResponse.NotFound(ex.Message));
             }
             catch (InvalidOperationException ex)
             {
                 await transaction.RollbackAsync();
-                return Conflict(new { Error = ex.Message });
+                return Conflict(ApiResponse.Conflict(ex.Message));
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać nowej rekomendacji. \n{ex.Message}"));
             }
         }
         [Authorize]
@@ -103,17 +115,21 @@ namespace MoviesWebApplication.Controllers
                 await Mediator.Send(command);
                 return Ok("Pomyślnie polubiono rekomendacje.");
             }
-            catch (ValidationException ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse.NotFound(ex.Message));
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { Error = ex.Message });
+                return Conflict(ApiResponse.Conflict(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się polubić rekomendacji. \n{ex.Message}"));
             }
         }
         [Authorize]
@@ -129,22 +145,23 @@ namespace MoviesWebApplication.Controllers
                 await Mediator.Send(command);
                 return Ok("Pomyślnie usunięto polubienie rekomendacji.");
             }
-            catch (ValidationException ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse.NotFound(ex.Message));
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { Error = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { Error = ex.Message });
+                return Conflict(ApiResponse.Conflict(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się usunąć polubienia rekomendacji. \n{ex.Message}"));
             }
+
         }
 
     }

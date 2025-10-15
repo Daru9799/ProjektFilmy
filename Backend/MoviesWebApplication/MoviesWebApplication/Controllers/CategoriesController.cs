@@ -4,7 +4,8 @@ using Movies.Application.Categories;
 using Movies.Application.Countries;
 using Movies.Application.Movies;
 using Movies.Domain.Entities;
-using MoviesWebApplication.Responses;
+using MoviesWebApplication.Common;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -15,7 +16,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("all")]
         public async Task<ActionResult<List<Category>>> GetCountries()
         {
-            return Ok(await Mediator.Send(new CategoriesList.Query()));
+            return await Mediator.SendWithTypedExceptionHandling(new CategoriesList.Query());
         }
 
         //Zwracanie kategorii na podstawie ID filmu
@@ -23,14 +24,7 @@ namespace MoviesWebApplication.Controllers
         public async Task<ActionResult<List<Category>>> GetCategoriesByMovieId(Guid movieId)
         {
             var query = new CategoriesByMovieId.Query { MovieId = movieId };
-            var categories = await Mediator.Send(query);
-
-            if (categories == null || !categories.Any())
-            {
-                return NotFound(ApiResponse.NotFound($"Nie znaleziono kategorii dla filmu o ID '{movieId}'."));
-            }
-
-            return Ok(categories);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
     }
 }

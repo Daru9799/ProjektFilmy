@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MoviesWebApplication.Responses
+namespace MoviesWebApplication.Common.Responses
 {
     public abstract class ApiResponseBase
     {
         public int StatusCode { get; set; }
-        public string Type {  get; set; }
+        public string Type { get; set; }
         public string Message { get; set; }
         public DateTime Time { get; set; }
 
@@ -20,7 +20,7 @@ namespace MoviesWebApplication.Responses
     }
 
     // Wersja z danymi
-    public class ApiResponse<T> : ApiResponseBase
+    /*public class ApiResponse<T> : ApiResponseBase
     {
         public T Data { get; set; }
 
@@ -32,7 +32,7 @@ namespace MoviesWebApplication.Responses
 
         public static ApiResponse<T> Success(T data, string message = "Success", string type = "OK")
             => new ApiResponse<T>(200, type,  message, data);
-    }
+    }*/
 
     // Wersja bez danych
     public class ApiResponse : ApiResponseBase
@@ -43,9 +43,11 @@ namespace MoviesWebApplication.Responses
         public static ApiResponse Success(string message = "Zapytanie zostało wykonane pomyślnie.")
             => new ApiResponse(200, "OK", message);
         public static ApiResponse BadRequest(string message)
-            => new ApiResponse(400, "BadRequest", message);
+            => new ApiResponse(400, "Bad Request", message);
         public static ApiResponse Unauthorized(string message)
             => new ApiResponse(401, "Unauthorized", message);
+        public static ApiResponse Forbidden(string message)
+            => new ApiResponse(403, "Forbidden", message);
         public static ApiResponse NotFound(string message)
             => new ApiResponse(404, "Not Found", message);
         public static ApiResponse Conflict(string message)
@@ -53,5 +55,5 @@ namespace MoviesWebApplication.Responses
         public static ApiResponse InternalServerError(string message)
             => new ApiResponse(500, "Internal Server Error", message);
     }
-
 }
+

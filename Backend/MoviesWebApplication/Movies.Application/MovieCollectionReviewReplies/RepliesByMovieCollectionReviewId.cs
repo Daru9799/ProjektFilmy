@@ -10,6 +10,8 @@ using Movies.Domain.DTOs;
 using Movies.Domain;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Domain.Entities;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviewReplies
 {
@@ -81,6 +83,11 @@ namespace Movies.Application.MovieCollectionReviewReplies
                         IsOwner = isOwner
                     };
                 }).ToList();
+
+                if (replyDtos == null || !replyDtos.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{request.ReviewId}'.");
+                }
 
                 return new PagedResponse<MovieCollectionReviewReplyDto>
                 {

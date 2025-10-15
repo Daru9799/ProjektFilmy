@@ -5,6 +5,7 @@ using Movies.Infrastructure;
 using static Movies.Domain.Entities.MovieCollection;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollections
 {
@@ -38,16 +39,16 @@ namespace Movies.Application.MovieCollections
                 var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (string.IsNullOrEmpty(currentUserId))
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
 
                 var movieCollection = await _context.MovieCollections
                     .Include(m => m.User)
                     .Include(m => m.Movies) // Załaduj powiązane filmy
                     .FirstOrDefaultAsync(m => m.MovieCollectionId == request.MovieCollectionId, cancellationToken)
-                    ?? throw new InvalidOperationException("Nie znaleziono listy filmów.");
+                    ?? throw new NotFoundException("Nie znaleziono listy filmów.");
 
                 if (movieCollection.User.Id != currentUserId)
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edytowania tej kolekcji.");
+                    throw new ForbidenException("Nie masz uprawnień do edytowania tej kolekcji.");
 
                 // Aktualizacja pól
                 movieCollection.Title = string.IsNullOrWhiteSpace(request.Title) ? movieCollection.Title : request.Title;

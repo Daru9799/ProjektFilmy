@@ -9,6 +9,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviewReplies
 {
@@ -38,7 +39,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var currentUser = await _context.Users
@@ -50,7 +51,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                 if (reply == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono komentarza o ID: {request.ReplyId}");
                 }
 
                 //Sprawdzenie czy user jest właścicielem bądź moderatorem
@@ -59,7 +60,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                 if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tego komentarza.");
+                    throw new ForbidenException("Nie masz uprawnień do edycji tego komentarza.");
                 }
 
                 //if (reply.User == null || reply.User.Id != currentUserId)

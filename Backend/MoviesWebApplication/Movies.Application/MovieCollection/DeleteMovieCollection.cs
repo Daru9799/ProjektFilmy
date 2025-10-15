@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollections
 {
@@ -36,7 +37,7 @@ namespace Movies.Application.MovieCollections
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany."); 
                 }
 
                 var movieCollection = await _context.MovieCollections
@@ -45,13 +46,13 @@ namespace Movies.Application.MovieCollections
 
                 if (movieCollection == null)
                 {
-                    throw new InvalidOperationException($"Nie znaleziono listy filmów o ID: {request.MovieCollectionId}");
+                    throw new NotFoundException($"Nie znaleziono listy filmów o ID: {request.MovieCollectionId}");
                 }
 
                 // Sprawdzenie, czy aktualny użytkownik jest właścicielem kolekcji
                 if (movieCollection.User.Id != currentUserId)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej kolekcji.");
+                    throw new ForbidenException("Nie masz uprawnień do usunięcia tej kolekcji.");
                 }
 
                 _context.MovieCollections.Remove(movieCollection);

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
@@ -70,6 +71,11 @@ namespace Movies.Application.MovieCollections
                     Movies = pagedMovies,
                     UserId = collection.User.Id
                 };
+
+                if (collection.Movies != null)
+                {
+                    throw new NotFoundException($"Nie odnaleziono listy filmów z id {request.Id}.");
+                }
 
                 return collectionDto;
             }

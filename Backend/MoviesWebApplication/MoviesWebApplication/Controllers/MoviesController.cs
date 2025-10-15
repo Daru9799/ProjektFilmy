@@ -6,8 +6,8 @@ using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using static Movies.Application.Movies.AddMovieToPlanned;
 using static Movies.Application.Movies.AddMovieToWatched;
-using MoviesWebApplication.Responses;
 using Movies.Application.People;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {

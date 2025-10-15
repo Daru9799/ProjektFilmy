@@ -49,7 +49,7 @@ namespace Movies.Application.Replies
 
                 if (review == null)
                 {
-                    throw new ValidationException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
+                    throw new KeyNotFoundException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
                 }
 
                 //Sprawdzanie istnienia użytkownika
@@ -58,10 +58,10 @@ namespace Movies.Application.Replies
 
                 if (user == null)
                 {
-                    throw new ValidationException($"Nie znaleziono użytkownika o podanym ID");
+                    throw new KeyNotFoundException($"Nie znaleziono użytkownika o ID: {currentUserId}");
                 }
 
-                //Tworzenie nowej recenzji
+                //Tworzenie nowej odpowiedzi
                 var reply = new Reply
                 {
                     ReplyId = Guid.NewGuid(),
@@ -71,7 +71,7 @@ namespace Movies.Application.Replies
                     Review = review
                 };
 
-                //Dodanie recenzji do bazy danych
+                //Dodanie odpowiedzi do bazy danych
                 _context.Replies.Add(reply);
                 await _context.SaveChangesAsync(cancellationToken);
 

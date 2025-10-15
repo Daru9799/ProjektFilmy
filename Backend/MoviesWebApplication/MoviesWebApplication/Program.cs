@@ -13,6 +13,7 @@ using MoviesWebApplication.SignalR;
 using Hangfire;
 using Hangfire.MySql;
 using MoviesWebApplication.Hangfire;
+using MoviesWebApplication.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +55,6 @@ builder.Services.AddIdentityServices(builder.Configuration);
 
 //Rejestracja mediatora
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MoviesList.Handler).Assembly));
-
 
 builder.Services.AddControllers(opt =>
 {

@@ -9,8 +9,8 @@ using Google.Apis.Auth;
 using Movies.Infrastructure;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using MoviesWebApplication.Responses;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {

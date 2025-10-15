@@ -1,11 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Movies.Application.Countries;
 using Movies.Application.MovieCollectionReviewReplies;
+using Movies.Application.Movies;
 using Movies.Application.Replies;
+using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
-using MoviesWebApplication.Responses;
+using MoviesWebApplication.Common;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -14,7 +18,7 @@ namespace MoviesWebApplication.Controllers
         //Zwracanie odpowiedzi dla podanej recenzji listy filmowej
         [AllowAnonymous]
         [HttpGet("by-review-id/{reviewId}")]
-        public async Task<ActionResult<List<MovieCollectionReviewReplyDto>>> GetRepliesByMovieCollectionReviewId(Guid reviewId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
+        public async Task<ActionResult<PagedResponse<MovieCollectionReviewReplyDto>>> GetRepliesByMovieCollectionReviewId(Guid reviewId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
             var query = new RepliesByMovieCollectionReviewId.Query
             {
@@ -23,14 +27,7 @@ namespace MoviesWebApplication.Controllers
                 PageSize = pageSize
             };
 
-            var replies = await Mediator.Send(query);
-
-            if (replies.Data == null || !replies.Data.Any())
-            {
-                return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{reviewId}'."));
-            }
-
-            return Ok(replies);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
 
         [AllowAnonymous]
@@ -38,12 +35,8 @@ namespace MoviesWebApplication.Controllers
         public async Task<ActionResult<List<int>>> GetTotalAmountByReviewIds([FromQuery] List<Guid> reviewsIds = null)
         {
             var query = new GetNumberOfRepliesByMCReviewIds.Query { ReviewIds = reviewsIds };
-            var replies = await Mediator.Send(query);
-            if (replies == null || !replies.Any())
-            {
-                return NotFound(ApiResponse.NotFound("Nie znaleziono komentarzy dla podanych ID"));
-            }
-            return Ok(replies);
+   
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
 
         //Dodawanie nowego komentarza do recenzji listy filmowej
@@ -51,52 +44,15 @@ namespace MoviesWebApplication.Controllers
         [HttpPost("add-review-reply")]
         public async Task<IActionResult> CreateReviewReply([FromBody] CreateMovieCollectionReviewReply.CreateMovieCollectionReviewReplyCommand command)
         {
-            try
-            {
-                var reply = await Mediator.Send(command);
-                return Ok(reply);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ApiResponse.BadRequest(ex.Message));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (KeyNotFoundException ex) 
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać komentarza do recenzji listy filmowej.\n{ex.Message}"));
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Pomyślnie dodano komentarz.");
         }
+
         //Usuwanie komentarza do recenzji listy filmowej
         [Authorize]
         [HttpDelete("delete-review-reply/{id}")]
         public async Task<IActionResult> DeleteReviewReply(Guid id)
         {
-            try
-            {
-                var result = await Mediator.Send(new DeleteMovieCollectionReviewReply(id));
-
-                if (result == null)
-                {
-                    return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarza o ID: {id}"));
-                }
-
-                return Ok("Pomyślnie usunięto komentarz.");
-            }
-            catch (UnauthorizedAccessException ex) 
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError(ex.Message));
-            }
+            return await Mediator.SendWithExceptionHandling(new DeleteMovieCollectionReviewReply(id), "Pomyślnie usunięto komentarz.");
         }
 
         //Edycja komentarza do recenzji listy filmowej
@@ -104,27 +60,10 @@ namespace MoviesWebApplication.Controllers
         [HttpPut("edit-review-reply/{id}")]
         public async Task<IActionResult> EditReviewReply(Guid id, [FromBody] EditMovieCollectionReviewReply.EditMovieCollectionReviewReplyCommand command)
         {
-            try
-            {
-                command.ReplyId = id;
+            
+            command.ReplyId = id;
 
-                var reply = await Mediator.Send(command);
-
-                if (reply == null)
-                {
-                    return NotFound(ApiResponse.NotFound($"Nie znaleziono komentarza o ID: {id}"));
-                }
-
-                return Ok(ApiResponse.Success());
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dokonać edycji komentarza. \n{ex.Message}"));
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Pomyślnie edytowano komentarz.");
         }
     }
 }

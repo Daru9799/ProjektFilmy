@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviewReplies
 {
@@ -40,6 +41,11 @@ namespace Movies.Application.MovieCollectionReviewReplies
                         cancellationToken);
 
                 // Zwróć listę liczb odpowiedzi w tej samej kolejności co ReviewIds
+
+                if (replyCounts == null || !replyCounts.Any())
+                {
+                    throw new NotFoundException("Nie znaleziono komentarzy dla podanych ID");
+                }
 
                 return request.ReviewIds
                     .Select(reviewId => replyCounts.TryGetValue(reviewId, out var count) ? count : 0)

@@ -4,6 +4,7 @@ using Movies.Application.People;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -26,7 +27,7 @@ namespace MoviesWebApplication.Controllers
 
             if (result == null || result.Data.Count == 0)
             {
-                return NotFound("Nie znaleziono osób dla podanej roli.");
+                return NotFound(ApiResponse.NotFound("Nie znaleziono osób dla podanej roli."));
             }
 
             return Ok(result);
@@ -36,14 +37,14 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonDto>> GetActor(Guid id)
         {
-            var director = await Mediator.Send(new PersonById.Query { Id = id });
+            var person = await Mediator.Send(new PersonById.Query { Id = id });
 
-            if (director == null)
+            if (person == null)
             {
-                return NotFound($"Nie odnaleziono osoby o id {id}.");
+                return NotFound(ApiResponse.NotFound($"Nie odnaleziono osoby o id {id}."));
             }
 
-            return Ok(director);
+            return Ok(person);
         }
     }
 }

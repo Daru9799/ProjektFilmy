@@ -44,7 +44,7 @@ namespace Movies.Application.Notifications
 
                     if (targetUser == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika docelowego o ID: {request.TargetUserId}");
+                        throw new KeyNotFoundException($"Nie znaleziono użytkownika docelowego o ID: {request.TargetUserId}");
                     }
 
                     if (!Enum.TryParse<Notification.NotificationType>(request.Type, true, out var parsedType))
@@ -61,7 +61,7 @@ namespace Movies.Application.Notifications
 
                         if (sourceUser == null)
                         {
-                            throw new ValidationException($"Nie znaleziono nadawcy powiadomienia o ID: {request.SourceUserId}");
+                            throw new KeyNotFoundException($"Nie znaleziono nadawcy powiadomienia o ID: {request.SourceUserId}");
                         }
                     }
 
@@ -73,7 +73,7 @@ namespace Movies.Application.Notifications
 
                     if ((existingRelation != null) && request.Type == Notification.NotificationType.Invitation.ToString())
                     {
-                        throw new ValidationException("Użytkownik jest już Twoim znajomym!");
+                        throw new InvalidOperationException("Użytkownik jest już Twoim znajomym!");
                     }
 
                     var reverseInvitation = await _context.Notifications

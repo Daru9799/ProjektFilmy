@@ -42,11 +42,11 @@ namespace Movies.Application.MovieRecommendation
                     .Include(r => r.LikedByUsers)
                     .FirstOrDefaultAsync(r => r.RecommendationId == request.RecommendationId);
                 if (recommedation == null)
-                    throw new ValidationException("Nie znaleziono rekomendacji.");
+                    throw new KeyNotFoundException("Nie znaleziono rekomendacji.");
 
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
                 if (user == null)
-                    throw new ValidationException("Nie znaleziono użytkownika.");
+                    throw new KeyNotFoundException("Nie znaleziono użytkownika.");
 
                 if (recommedation.LikedByUsers.FirstOrDefault(u => u.Id == currentUserId) == null)
                     throw new InvalidOperationException("Użytkownik nie ma polubionej tej rekomendacji.");

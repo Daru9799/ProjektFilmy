@@ -7,6 +7,8 @@ using MediatR;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
+using Movies.Application.Movies;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Countries
 {
@@ -32,6 +34,11 @@ namespace Movies.Application.Countries
                     .Where(m => m.MovieId == request.MovieId) 
                     .SelectMany(m => m.Countries)
                     .ToListAsync();
+
+                if (countries == null || !countries.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono krajów dla filmu o ID '{request.MovieId}'.");
+                }
 
                 return countries;
             }

@@ -10,6 +10,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviewReplies
 {
@@ -38,7 +39,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                     if (string.IsNullOrEmpty(currentUserId))
                     {
-                        throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                        throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                     }
 
                     //Sprawdzenie istnienia recenzji
@@ -47,7 +48,7 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                     if (review == null)
                     {
-                        throw new ValidationException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
+                        throw new NotFoundException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
                     }
 
                     //Sprawdzenie istnienia użytkownika
@@ -56,12 +57,12 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
                     if (user == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika");
+                        throw new NotFoundException($"Nie znaleziono użytkownika");
                     }
 
                     if (user.Id != currentUserId)
                     {
-                        throw new UnauthorizedAccessException("Nie masz uprawnień do dodania komentarza!");
+                        throw new ForbidenException("Nie masz uprawnień do dodania komentarza!");
                     }
 
                     //Tworzenie nowej odpowiedzi

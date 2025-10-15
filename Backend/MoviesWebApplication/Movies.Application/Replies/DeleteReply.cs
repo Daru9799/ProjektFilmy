@@ -51,7 +51,7 @@ namespace Movies.Application.Replies
 
                 if (reply == null)
                 {
-                    throw new ValidationException("Nie znaleziono odpowiedzi o podanym ID");
+                    throw new KeyNotFoundException("Nie znaleziono odpowiedzi o podanym ID");
                 }
 
                 //Sprawdzenie czy user jest właścicielem bądź moderatorem
