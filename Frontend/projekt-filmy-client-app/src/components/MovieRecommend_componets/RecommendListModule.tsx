@@ -45,15 +45,9 @@ const RecommendListModule = ({
     }
   };
 
-  const handleLikeClick = async (
-    recommendationId: string,
-    e: React.MouseEvent
-  ) => {
+  const handleLikeClick = async (recommendationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (!isLoggedIn) {
-      return;
-    }
+    if (!isLoggedIn) return;
 
     try {
       const recommendationIndex = localRecommendations.findIndex(
@@ -63,19 +57,7 @@ const RecommendListModule = ({
       if (recommendationIndex === -1) return;
 
       const currentRecommendation = localRecommendations[recommendationIndex];
-      const newIsLiking = !currentRecommendation.isLiking;
-
-      // Optymistyczna aktualizacja UI
-      const updatedRecommendations = [...localRecommendations];
-      updatedRecommendations[recommendationIndex] = {
-        ...currentRecommendation,
-        isLiking: newIsLiking,
-        likesCounter: newIsLiking
-          ? currentRecommendation.likesCounter + 1
-          : currentRecommendation.likesCounter - 1,
-      };
-
-      setLocalRecommendations(updatedRecommendations);
+      const newIsLiking = !currentRecommendation.isLiking
 
       // Wywołanie funkcji z propsów do aktualizacji na backendzie
       if (onLikeToggle) {

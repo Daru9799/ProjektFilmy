@@ -14,7 +14,6 @@ interface Props {
   userReview: any;
   isFollowing: boolean;
   inList: string | null;
-  setInList: (value: string | null) => void;
   handleChangeWatched: () => void;
   handleChangePlanned: () => void;
 }
@@ -31,7 +30,6 @@ const ReviewActionsPanel: React.FC<Props> = ({
   userReview,
   isFollowing,
   inList,
-  setInList,
   handleChangeWatched,
   handleChangePlanned,
 }) => {

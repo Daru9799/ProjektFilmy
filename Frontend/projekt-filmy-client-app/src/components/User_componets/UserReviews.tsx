@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Review } from "../../models/Review";
 import SortReviewModule from "../review_components/SortReviewsModle"; 

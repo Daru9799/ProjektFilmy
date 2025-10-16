@@ -1,44 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
-import { Movie } from "../../models/Movie";
-import { Recommendation } from "../../models/Recommendation";
-import { CreateRecommendation, DeleteLikeRecommendation, fetchRecommendByMovieId, LikeRecommendation } from "../../API/MovieRecommendAPI";
-import { fetchMoviesListByIds } from "../../API/movieApi";
+import { useCreateRecommendation, useDeleteLikeRecommendation, useLikeRecommendation, useRecommendationsByMovie } from "../../API/MovieRecommendAPI";
 import RecommendListModule from "../MovieRecommend_componets/RecommendListModule";
 import PaginationModule from "../SharedModals/PaginationModule";
 import useMovieChoiceModule from "../../hooks/useMovieChoiceModule";
 import MovieSingleChoiceModal from "../MovieRecommend_componets/MovieSingleChoiceModal";
+import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
 interface Props {
   movieId: string | undefined,
 }
 
 const RecommendMovieModule = ({movieId}:Props) => {
-	const [movieList, setMovieList] = useState<Movie[]>([]);
-	const [recommendList, setRecommendList ] = useState<Recommendation[]>([]);
-	const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-	const [pageInfo, setPageInfo] = useState({
-		totalItems: 0,
-		pageNumber: 1,
-		pageSize: 2,
-		totalPages: 2,
-	});
   const[currentPage,setCurrentPage] = useState(1)
   const staticPageSize = 3;
-
 	const [open, setOpen] = useState(false);
   const [openMovieModal,setOpenMovieModal] = useState(false)
 
   const {
-    choosenMovieId,
-    setChoosenMovieId,
-    showModal,
-    setShowModal,
     movies,
     tempSelectedMovie, // Zmienione na pojedynczy film
-    setTempSelectedMovie, // Zmienione na pojedynczy film
     handleOpenModal,
     handleToggleSelect,
     handleConfirmSelection,
@@ -47,63 +29,27 @@ const RecommendMovieModule = ({movieId}:Props) => {
     handlePageChangeMC,
     searchText,
     setSearchText,
-    handleCloseModal,
     handleSort,
     isNoMovieModalVisible,
     setIsNoMovieModalVisible,
     setFilterList,
   } = useMovieChoiceModule();
 
-	useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // 1. Pobierz rekomendacje (z await!)
-        const recommendations = await fetchRecommendByMovieId(
-          movieId,
-          currentPage,
-          staticPageSize,
-          setPageInfo,
-          setError
-        );
-        setRecommendList(recommendations);
-        // 2. Wyodrębnij ID polecanych filmów
-        const recommendedMovieIds = recommendations.map(
-          (rec: Recommendation) => rec.recommendedMovieId
-        );
-        // 3. Pobierz pełne informacje o filmach
-        if (recommendedMovieIds.length > 0) {
-            fetchMoviesListByIds(
-            recommendedMovieIds,
-            setMovieList
-          );
-        } else {
-          setMovieList([]);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [movieId, currentPage]);
+  //Api hooks:
+  const { data: recommendationData, error: recommendationListError } = useRecommendationsByMovie(movieId, currentPage, staticPageSize);
+  const recommendList = recommendationData?.recommendations || [];
+  const movieList = recommendationData?.movies || [];
+  const pageInfo = recommendationData?.pagination;
+  //Mutacje
+  const { mutate: likeRecommendation, isPending: likingPending, error: likeError } = useLikeRecommendation();
+  const { mutate: deleteLikeRecommendation, isPending: dislikingPending, error: dislikeError  } = useDeleteLikeRecommendation();
+  const { mutate: createRecommendation, isPending: creatingPending, error: createRecommendationError } = useCreateRecommendation();
 
   const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
-    try {
-      setError(null);
-      if (isLiking) {
-        await LikeRecommendation(recommendationId); // Dodaj await
-      } else {
-        await DeleteLikeRecommendation(recommendationId);
-      }
-      // Dodaj odświeżenie danych lub aktualizację stanu
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
-      console.error("Error toggling like:", err);
+    if (isLiking) {
+      likeRecommendation(recommendationId);
+    } else {
+      deleteLikeRecommendation(recommendationId);
     }
   };
 
@@ -112,20 +58,10 @@ const RecommendMovieModule = ({movieId}:Props) => {
     console.log(pageInfo);
   };
 
-  const handleCreateRecommendation= async()=> {
-    try {
-      const result = await CreateRecommendation(movieId, tempSelectedMovie?.movieId);
-      console.log('Success:', result);
-      // Możesz tu dodać przekierowanie lub odświeżenie danych
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        console.log("ErrorMessage:" + err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
-      
-    }
+  const handleCreateRecommendation= () => {
+    if (!movieId || !tempSelectedMovie?.movieId) return;
+    console.log("sfs: ", tempSelectedMovie.movieId)
+    createRecommendation({ movieId, recommendMovieId: tempSelectedMovie.movieId });
   }
 
   return (
@@ -156,8 +92,8 @@ const RecommendMovieModule = ({movieId}:Props) => {
           />
           {recommendList.length > 0 && (
             <PaginationModule
-              currentPage={pageInfo.pageNumber}
-              totalPages={pageInfo.totalPages}
+              currentPage={pageInfo?.pageNumber}
+              totalPages={pageInfo?.totalPages}
               onPageChange={handlePageChange}
             />
           )}
@@ -197,6 +133,9 @@ const RecommendMovieModule = ({movieId}:Props) => {
         isNoMovieModalVisible={isNoMovieModalVisible}
         setIsNoMovieModalVisible={setIsNoMovieModalVisible}
       />
+      <ActionPendingModal show={likingPending} message="Trwa dodawanie polubienia..."/>
+      <ActionPendingModal show={dislikingPending} message="Trwa usuwanie polubienia..."/>
+      <ActionPendingModal show={creatingPending} message="Trwa dodawanie rekomendacji..." />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
 import qs from "qs";
 
@@ -111,200 +111,128 @@ export const useMoviesByCollectionId = (movieCollectionId: string | null, page: 
       }
     },
     retry: false,
-    placeholderData: { movies: [], totalPages: 1 },
+    placeholderData: keepPreviousData
   });
 };
 
-////////////////////////////////////////////////////////////////////////////////////////
-
-export const checkIfInPlanned = async (
-  movieId: string | undefined,
-  setList: React.Dispatch<React.SetStateAction<string | null>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
-    return; //Jeśli brak tokenu nie zaciąga danych z API
-  }
-
-  try {
-    const response = await axios.get(
-      `https://localhost:7053/api/Movies/check-if-in-list/Planned/${movieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data === true) {
-        setList("Planowany");
-      }
-      console.log("Pomyślnie sprawdzono czy film planowany.");
+//to do: OBSLUGA BLEDOW
+export const useCheckIfInPlanned = (movieId: string | undefined) => {
+  return useQuery<boolean>({
+    queryKey: ["planned", movieId],
+    queryFn: async () => {
+      if (!movieId) return false;
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+      const res = await axios.get<boolean>(`${API_BASE_URL}/Movies/check-if-in-list/Planned/${movieId}`, { 
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          } 
+        }
+      );
+      return res.data === true;
     }
-  } catch (err: any) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) {
-      setList(null);
-      console.log("Ten film nie istnieje");
-    } else {
-      setError("Błąd podczas wczytywania danych");
-      console.error(err);
+  });
+};
+
+//to do: OBSLUGA BLEDOW
+export const useCheckIfInWatched = (movieId: string | undefined) => {
+  return useQuery<boolean>({
+    queryKey: ["watched", movieId],
+    queryFn: async () => {
+      if (!movieId) return false;
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+      const res = await axios.get<boolean>(`${API_BASE_URL}/Movies/check-if-in-list/Watched/${movieId}`, { 
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          } 
+        }
+      );
+      return res.data === true;
     }
-  }
+  });
 };
 
-export const checkIfInWatched = async (
-  movieId: string | undefined,
-  setList: React.Dispatch<React.SetStateAction<string | null>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    console.log("Brak tokenu, użytkownik nie jest zalogowany.");
-    return; //Jeśli brak tokenu nie zaciąga danych z API
-  }
-
-  try {
-    const response = await axios.get(
-      `https://localhost:7053/api/Movies/check-if-in-list/Watched/${movieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+//to do: OBSLUGA BLEDOW
+export const useAddToPlanned = () => {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: async (movieId: string) => {
+      await axios.post(`${API_BASE_URL}/Movies/planned/add-movie`, 
+        { 
+          movieId 
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["planned"] });
+      queryClient.invalidateQueries({ queryKey: ["watched"] });
+    },
+  });
+};
 
-    if (response.status === 200) {
-      if (response.data === true) {
-        setList("Obejrzany");
-      }
-      console.log("Pomyślnie sprawdzono czy film obejrzany.");
+//to do: OBSLUGA BLEDOW
+export const useDeleteFromPlanned = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (movieId: string) => {
+      await axios.delete(`${API_BASE_URL}/Movies/planned/delete-from-planned/${movieId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["planned"] });
+      queryClient.invalidateQueries({ queryKey: ["watched"] });
+    },
+  });
+};
+
+//to do: OBSLUGA BLEDOW
+export const useAddToWatched = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (movieId: string) => {
+      await axios.post(`${API_BASE_URL}/Movies/watched/add-movie`,
+        { 
+          movieId 
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem("token")}` 
+          } 
+        }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watched"] });
+      queryClient.invalidateQueries({ queryKey: ["planned"] });
     }
-  } catch (err: any) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) {
-      setList(null);
-      console.log("Ten film nie istnieje.");
-    } else {
-      setError("Błąd podczas wczytywania danych");
-      console.error(err);
+  });
+};
+
+//to do: OBSLUGA BLEDOW
+export const useDeleteFromWatched = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (movieId: string) => {
+      await axios.delete(`${API_BASE_URL}/Movies/watched/delete-from-watched/${movieId}`, { 
+          headers: 
+          { 
+            Authorization: `Bearer ${localStorage.getItem("token")}` 
+          } 
+        }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watched"] });
+      queryClient.invalidateQueries({ queryKey: ["planned"] });
     }
-  }
-};
-
-export const addToPlanned = async (
-  movieId: string | undefined,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    await axios.post(
-      "https://localhost:7053/api/Movies/planned/add-movie",
-      {
-        movieId: movieId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  } catch (err: any) {
-    setError(err);
-    console.log("Błąd podczas dodawania do planowanych.");
-  }
-};
-
-export const addToWatched = async (
-  movieId: string | undefined,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    await axios.post(
-      "https://localhost:7053/api/Movies/watched/add-movie",
-      {
-        movieId: movieId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  } catch (err: any) {
-    setError(err);
-    console.log("Błąd podczas dodawania do obejrzanych.");
-  }
-};
-
-export const deleteFromWatched = async (
-  movieId: string | undefined,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    await axios.delete(
-      `https://localhost:7053/api/Movies/watched/delete-from-watched/${movieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  } catch (err: any) {
-    setError(err);
-    console.log("Błąd podczas usuwania z obejrzanych.");
-  }
-};
-
-export const deleteFromPlanned = async (
-  movieId: string | undefined,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    await axios.delete(
-      `https://localhost:7053/api/Movies/planned/delete-from-planned/${movieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  } catch (err: any) {
-    setError(err);
-    console.log("Błąd podczas usuwania z planowanych.");
-  }
-};
-
-export const fetchMoviesListByIds = async (
-  moviesIds: string[] | null,
-  setMovies: React.Dispatch<React.SetStateAction<Movie[]>>
-): Promise<void> => {
-  if (!moviesIds || moviesIds.length === 0) {
-    setMovies([]);
-    return;
-  }
-
-  try {
-    const response = await axios.get(
-      "https://localhost:7053/api/movies/get-list-by-id",
-      {
-        params: { movieIdList: moviesIds },
-        paramsSerializer: (params) =>
-          qs.stringify(params, { arrayFormat: "repeat" }),
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    // Przekształć odpowiedź API do oczekiwanego formatu
-    const moviesData = response.data.$values || [];
-    //console.log("Pobrane filmy:", moviesData);
-    setMovies(moviesData);
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-    throw error;
-  }
+  });
 };

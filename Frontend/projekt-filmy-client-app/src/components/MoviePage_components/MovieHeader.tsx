@@ -18,7 +18,6 @@ interface Props {
   userReview: Review | null;
   isFollowing: boolean;
   inList: string | null;
-  setInList: (value: string | null) => void;
   handleChangeWatched: () => void;
   handleChangePlanned: () => void;
 }
@@ -36,7 +35,6 @@ const MovieHeader: React.FC<Props> = ({
   userReview,
   isFollowing,
   inList,
-  setInList,
   handleChangeWatched,
   handleChangePlanned,
 }) => {
@@ -122,7 +120,6 @@ const MovieHeader: React.FC<Props> = ({
           isFollowing={isFollowing}
           handleChangeFollowing={handleChangeFollowing}
           inList={inList}
-          setInList={setInList}
           handleChangePlanned={handleChangePlanned}
           handleChangeWatched={handleChangeWatched}
         />

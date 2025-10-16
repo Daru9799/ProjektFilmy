@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMoviesByFilters } from "../API/movieApi";
+import { useMoviesByFilters } from "../API/MovieApi";
 
 export const useMovieLoader = (
   page: number,

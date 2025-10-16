@@ -6,7 +6,7 @@ import MovieHeader from "../components/MoviePage_components/MovieHeader";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import { useMoviePageLogic } from "../hooks/useMoviePageLogic";
 import RecommendMovieModule from "../components/MoviePage_components/RecommendMovieModule";
-import { useMovieById, useActorsByMovieId  } from "../API/movieApi";
+import { useMovieById, useActorsByMovieId, useCheckIfInPlanned, useCheckIfInWatched, useAddToWatched, useAddToPlanned, useDeleteFromPlanned, useDeleteFromWatched  } from "../API/MovieApi";
 import { useAddReview, useDeleteReview, useEditReview, useReviewsByMovieId, useUserReviewForMovie } from "../API/ReviewApi";
 import { useParams } from "react-router-dom";
 import SpinnerLoader from "../components/SpinnerLoader";
@@ -16,29 +16,18 @@ import { Review } from "../models/Review";
 import { useAddFollowMovie, useIsFollowingMovie, useRemoveFollowMovie } from "../API/UserAPI";
 
 const MoviePage = () => {
-  const {
-    showReviewModal,
-    showLoginModal,
-    error,
-    isLoggedIn,
-    inList,
-    setShowReviewModal,
-    setShowLoginModal,
-    handleLoginSuccess,
-    setInList,
-    handleChangePlanned,
-    handleChangeWatched,
-  } = useMoviePageLogic();
-
   const { movieId } = useParams();
   const loggedUserName = localStorage.getItem("logged_username") || "";
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const { showReviewModal, showLoginModal, isLoggedIn, setShowReviewModal, setShowLoginModal, handleLoginSuccess } = useMoviePageLogic();
   //Api hooks
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
   const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
   const { data: userReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForMovie(loggedUserName, movieId);
   const { data: isFollowingMovie = false, isLoading: isFollowingMovieLoading, error: isFollowingMovieError } = useIsFollowingMovie(movieId);
+  const { data: isPlanned, isLoading: loadingPlanned, error: errorPlanned } = useCheckIfInPlanned(movieId);
+  const { data: isWatched, isLoading: loadingWatched, error: errorWatched } = useCheckIfInWatched(movieId);
   const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
   const reviews = reviewData?.reviews ?? [];
   //Mutacje
@@ -47,6 +36,10 @@ const MoviePage = () => {
   const { mutate: addReview, isPending: isAddingReview, error: addError } = useAddReview();
   const { mutate: addFollowMovie, isPending: addingFollowMovie, error: addFollowMovieError } = useAddFollowMovie();
   const { mutate: removeFollowMovie, isPending: removingFollowMovie, error: removeFollowMovieError } = useRemoveFollowMovie();
+  const { mutate: addToPlanned, isPending: addingPlanned, error: addToPlannedError } = useAddToPlanned();
+  const { mutate: deleteFromPlanned, isPending: deletingPlanned } = useDeleteFromPlanned();
+  const { mutate: addToWatched, isPending: addingWatched, error: addToWatchedError } = useAddToWatched();
+  const { mutate: deleteFromWatched, isPending: deletingWatched } = useDeleteFromWatched();
 
   //Funkcje
   const handleDeleteReview = async (reviewId: string) => {
@@ -93,12 +86,20 @@ const MoviePage = () => {
         console.log("Film usunuęty obserwowanych!");
     }
   };
+
+  const handleChangePlanned = () => {
+    if (isPlanned) deleteFromPlanned(movieId!);
+    else addToPlanned(movieId!);
+  };
+
+  const handleChangeWatched = () => {
+    if (isWatched) deleteFromWatched(movieId!);
+    else addToWatched(movieId!);
+  };
   
-  if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading || isFollowingMovieLoading) return <SpinnerLoader />;
+  if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading || isFollowingMovieLoading || loadingPlanned || loadingWatched) return <SpinnerLoader />;
 
   if (!movie) return <p>Nie znaleziono filmu.</p>; //Tymczasowe rozwiązanie zeby nie przeszkadzalo w debbugowaniu
-
-  if (error) return <p>{error}</p>;
 
   return (
     <div
@@ -126,9 +127,8 @@ const MoviePage = () => {
             userReview={userReview ?? null}
             isFollowing={isFollowingMovie}
             handleChangeFollowing={handleChangeFollowing}
-            inList={inList}
-            setInList={setInList}
-            handleChangePlanned={handleChangePlanned}
+            inList={isPlanned ? "Planowany" : isWatched ? "Obejrzany" : null}
+            handleChangePlanned={(handleChangePlanned)}
             handleChangeWatched={handleChangeWatched}
           />
 
@@ -168,6 +168,10 @@ const MoviePage = () => {
       <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..." />
       <ActionPendingModal show={addingFollowMovie} message="Trwa dodawanie filmu do obserwowanych..." />
       <ActionPendingModal show={removingFollowMovie} message="Trwa usuwanie filmu z obserwowanych..." />
+      <ActionPendingModal show={addingPlanned} message="Trwa dodawanie filmu do planowanych..." />
+      <ActionPendingModal show={addingWatched} message="Trwa dodawanie filmu do obejrzanych..." />
+      <ActionPendingModal show={deletingPlanned} message="Trwa usuwanie filmu z planowanych..." />
+      <ActionPendingModal show={deletingWatched} message="Trwa usuwanie filmu z obejrzanych..." />
     </div>
   );
 };

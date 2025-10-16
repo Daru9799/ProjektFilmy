@@ -2,7 +2,7 @@ import { Card } from "react-bootstrap";
 import { MovieCollection } from "../../models/MovieCollection";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useMoviesByCollectionId } from "../../API/movieApi";
+import { useMoviesByCollectionId } from "../../API/MovieApi";
 import SpinnerLoader from "../SpinnerLoader";
 
 interface MovieCollectionCardProps {

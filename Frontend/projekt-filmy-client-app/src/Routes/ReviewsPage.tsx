@@ -5,7 +5,7 @@ import SortReviewModule from "../components/review_components/SortReviewsModle";
 import ReviewCard from "../components/review_components/ReviewCard";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { useParams } from "react-router-dom";
-import { useMovieById } from "../API/movieApi";
+import { useMovieById } from "../API/MovieApi";
 import { useReviewsByMovieId, useDeleteReview, useEditReview } from "../API/ReviewApi";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";

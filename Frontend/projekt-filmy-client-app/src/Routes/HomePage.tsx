@@ -1,5 +1,5 @@
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
-import { useMoviesByFilters } from "../API/movieApi";
+import { useMoviesByFilters } from "../API/MovieApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 
 const HomePage = () => {

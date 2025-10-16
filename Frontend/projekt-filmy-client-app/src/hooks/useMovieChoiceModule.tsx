@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { Movie } from "../models/Movie";
 import { useMovieLoader } from "./useMovieLoader";
 
