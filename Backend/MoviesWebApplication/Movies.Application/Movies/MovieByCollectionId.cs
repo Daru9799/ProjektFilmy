@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
@@ -41,7 +42,8 @@ namespace Movies.Application.Movies
 
                 if (!movies.Any())
                 {
-                    return new List<MovieDto>();
+                    //return new List<MovieDto>();
+                    throw new NotFoundException($"Nie odnaleziono filmów dla kolekcji z id {request.CollectionId}.");
                 }
 
                 return movies.Select(movie => new MovieDto

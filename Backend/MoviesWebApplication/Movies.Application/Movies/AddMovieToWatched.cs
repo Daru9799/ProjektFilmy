@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -35,7 +36,7 @@ namespace Movies.Application.Movies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
                 }
 
                 //Sprawdzenie czy nie jest już na liście obejrzanych i czy lista istnieje
@@ -46,12 +47,12 @@ namespace Movies.Application.Movies
 
                 if (watchedCollection == null)
                 {
-                    throw new KeyNotFoundException("Nie znaleziono listy obejrzanych.");
+                    throw new NotFoundException("Nie znaleziono listy obejrzanych.");
                 }
 
                 if (watchedCollection.Movies.Any(m => m.MovieId == request.MovieId))
                 {
-                    throw new InvalidOperationException("Film już istnieje w liście obejrzanych.");
+                    throw new ConflictException("Film już istnieje w liście obejrzanych.");
                 }
 
                 //Usuwa z planowanych (jeśli film tam jest)
@@ -72,7 +73,7 @@ namespace Movies.Application.Movies
 
                 if (movie == null)
                 {
-                    throw new KeyNotFoundException("Nie znaleziono filmu.");
+                    throw new NotFoundException("Nie znaleziono filmu.");
                 }
 
                 //Dodanie do obejrzanych

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
@@ -48,12 +49,12 @@ namespace Movies.Application.Notifications
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 if (request.UserId != currentUserId)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do przeglądania powiadomień tego użytkownika!");
+                    throw new ForbidenException("Nie masz uprawnień do przeglądania powiadomień tego użytkownika!");
                 }
 
                 IQueryable<Notification> query = _context.Notifications
@@ -106,6 +107,11 @@ namespace Movies.Application.Notifications
                         SourceUserName = n.SourceUser?.UserName ?? "System"
                     }).ToList();
 
+                    if (notificationDtos == null || !notificationDtos.Any())
+                    {
+                        throw new NotFoundException($"Nie znaleziono powiadomień dla użytkownika o ID '{request.UserId}'.");
+                    }
+
                     return new PagedResponse<NotificationDto>
                     {
                         Data = notificationDtos,
@@ -133,6 +139,11 @@ namespace Movies.Application.Notifications
                         SourceUserId = n.SourceUserId,
                         SourceUserName = n.SourceUser?.UserName ?? "System"
                     }).ToList();
+
+                    if (notificationDtos == null || !notificationDtos.Any())
+                    {
+                        throw new NotFoundException($"Nie znaleziono powiadomień dla użytkownika o ID '{request.UserId}'.");
+                    }
 
                     int totalItems = await query.CountAsync(cancellationToken);
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -36,7 +37,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                 if (review == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono recenzji o ID: {request.Id}.");
                 }
 
                 return new MovieCollectionReviewDto

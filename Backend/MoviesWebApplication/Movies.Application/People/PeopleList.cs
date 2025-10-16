@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
@@ -76,6 +77,11 @@ namespace Movies.Application.People
                             .FirstOrDefault()
                     }).ToList();
 
+                    if (personDtos == null || personDtos.Count == 0)
+                    {
+                        throw new NotFoundException("Nie znaleziono osób dla podanej roli.");
+                    }
+
                     return new PagedResponse<PersonDto>
                     {
                         Data = personDtos,
@@ -109,6 +115,11 @@ namespace Movies.Application.People
                             .Select(g => g.Key)
                             .FirstOrDefault()
                     }).ToList();
+
+                    if (personDtos == null || personDtos.Count == 0)
+                    {
+                        throw new NotFoundException("Nie znaleziono osób dla podanej roli.");
+                    }
 
                     //Obliczenie całkowitej liczby osób
                     int totalItems = await query.CountAsync(cancellationToken);

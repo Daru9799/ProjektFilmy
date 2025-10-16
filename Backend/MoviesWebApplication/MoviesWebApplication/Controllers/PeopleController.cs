@@ -4,6 +4,7 @@ using Movies.Application.People;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Common;
 using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
@@ -15,7 +16,7 @@ namespace MoviesWebApplication.Controllers
         [HttpGet("by-filters")]
         public async Task<ActionResult<PagedResponse<PersonDto>>> GetPeopleByRole([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string personSearch = "", [FromQuery] bool noPagination = false, [FromQuery] MoviePerson.PersonRole role = MoviePerson.PersonRole.Director, [FromQuery] Guid? movieId = null)
         {
-            var result = await Mediator.Send(new PeopleList.Query
+            var query = new PeopleList.Query
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
@@ -23,28 +24,19 @@ namespace MoviesWebApplication.Controllers
                 NoPagination = noPagination,
                 Role = role,
                 MovieId = movieId
-            });
+            };
 
-            if (result == null || result.Data.Count == 0)
-            {
-                return NotFound(ApiResponse.NotFound("Nie znaleziono osób dla podanej roli."));
-            }
-
-            return Ok(result);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
 
         //Zwracanie osoby o konkretnym id
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonDto>> GetActor(Guid id)
         {
-            var person = await Mediator.Send(new PersonById.Query { Id = id });
+            var query = new PersonById.Query { Id = id };
 
-            if (person == null)
-            {
-                return NotFound(ApiResponse.NotFound($"Nie odnaleziono osoby o id {id}."));
-            }
+            return await Mediator.SendWithTypedExceptionHandling(query);
 
-            return Ok(person);
         }
     }
 }

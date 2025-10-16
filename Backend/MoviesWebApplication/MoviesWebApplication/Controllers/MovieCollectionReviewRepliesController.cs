@@ -65,5 +65,6 @@ namespace MoviesWebApplication.Controllers
 
             return await Mediator.SendWithExceptionHandling(command, "Pomyślnie edytowano komentarz.");
         }
+
     }
 }

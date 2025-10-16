@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Application.Notifications;
+using Movies.Domain;
 using Movies.Domain.DTOs;
+using MoviesWebApplication.Common;
 using MoviesWebApplication.Common.Responses;
 
 namespace MoviesWebApplication.Controllers
@@ -12,7 +14,7 @@ namespace MoviesWebApplication.Controllers
         //Zwracanie powiadomień na podstawie id usera
         [Authorize]
         [HttpGet("by-user-id/{userId}")]
-        public async Task<ActionResult<List<NotificationDto>>> GetNotificationsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc", [FromQuery] bool? isRead = null, [FromQuery] string type = null, [FromQuery] bool noPagination = false, [FromQuery] string sourceUserName = null)
+        public async Task<ActionResult<PagedResponse<NotificationDto>>> GetNotificationsByUserId(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string orderBy = "date", [FromQuery] string sortDirection = "desc", [FromQuery] bool? isRead = null, [FromQuery] string type = null, [FromQuery] bool noPagination = false, [FromQuery] string sourceUserName = null)
         {
             var query = new NotificationsByUserId.Query
             {
@@ -27,66 +29,25 @@ namespace MoviesWebApplication.Controllers
                 SourceUserName = sourceUserName
 
             };
+            return await Mediator.SendWithTypedExceptionHandling(query);
 
-            var notifications = await Mediator.Send(query);
-
-            if (notifications.Data == null || !notifications.Data.Any())
-            {
-                return NotFound(ApiResponse.NotFound($"Nie znaleziono powiadomień dla użytkownika o ID '{userId}'."));
-            }
-
-            return Ok(notifications);
         }
         //Dodawanie powiadomień do bazy
         [AllowAnonymous]
         [HttpPost("add-notification")]
         public async Task<IActionResult> CreateNotification([FromBody] CreateNotification.CreateNotificationCommand command)
         {
-            try
-            {
-                var result = await Mediator.Send(command);
-                return Ok("Powiadomienie zostało pomyślnie dodane.");
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ApiResponse.BadRequest(ex.Message));
-            }
-            catch(KeyNotFoundException ex)
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch(InvalidOperationException ex)
-            {
-                return Conflict(ApiResponse.Conflict(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się dodać powiadomienia. \n{ex.Message}"));
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Powiadomienie zostało pomyślnie dodane.");
         }
+
         //Usuwanie powiadomień z bazy
         [Authorize]
         [HttpDelete("delete-notification/{id}")]
         public async Task<IActionResult> DeleteNotification(Guid id)
         {
-            var result = await Mediator.Send(new DeleteNotification(id));
-            try
-            {
-                if (result == null)
-                {
-                    return NotFound(ApiResponse.NotFound($"Nie znaleziono powiadomienia o ID: {id}"));
-                }
-
-                return Ok("Powiadomienie zostało pomyślnie usunięte.");
-            }
-            catch(UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się usunąć powiadomienia. \n{ex.Message}"));
-            }
+            var command = new DeleteNotification(id);
+            
+            return await Mediator.SendWithExceptionHandling(command, "Powiadomienie zostało pomyślnie usunięte.");
         }
 
         //Nadpisanie czy powiadomienie zostało odczytane
@@ -94,19 +55,7 @@ namespace MoviesWebApplication.Controllers
         [HttpPatch("update-isread/{id}")]
         public async Task<IActionResult> UpdateIsRead(Guid id, [FromBody] UpdateNotificationReadStatus.Command command)
         {
-            try
-            {
-                var result = await Mediator.Send(command);
-                return Ok("Status przeczytania został zaktualizowany.");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch(UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Status przeczytania został zaktualizowany.");
         }
     }
 }

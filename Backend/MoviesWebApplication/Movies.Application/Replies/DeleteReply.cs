@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Replies
 {
@@ -38,7 +39,7 @@ namespace Movies.Application.Replies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var currentUser = await _context.Users
@@ -51,7 +52,7 @@ namespace Movies.Application.Replies
 
                 if (reply == null)
                 {
-                    throw new KeyNotFoundException("Nie znaleziono odpowiedzi o podanym ID");
+                    throw new NotFoundException("Nie znaleziono odpowiedzi o podanym ID");
                 }
 
                 //Sprawdzenie czy user jest właścicielem bądź moderatorem
@@ -60,7 +61,7 @@ namespace Movies.Application.Replies
 
                 if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego komentarza.");
+                    throw new ForbidenException("Nie masz uprawnień do usunięcia tego komentarza.");
                 }
 
                 // Sprawdzenie czy użytkownik jest autorem odpowiedzi

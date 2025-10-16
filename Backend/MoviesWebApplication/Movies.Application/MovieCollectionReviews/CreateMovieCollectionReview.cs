@@ -10,6 +10,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -42,7 +43,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                     if (string.IsNullOrEmpty(currentUserId))
                     {
-                        throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                        throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                     }
 
                     //Sprawdzenie istnienia kolekcji
@@ -51,7 +52,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                     if (collection == null)
                     {
-                        throw new KeyNotFoundException($"Nie znaleziono kolekcji filmowej o ID: {request.MovieCollectionId}");
+                        throw new NotFoundException($"Nie znaleziono kolekcji filmowej o ID: {request.MovieCollectionId}");
                     }
 
                     //Sprawdzenie istnienia użytkownika
@@ -60,12 +61,12 @@ namespace Movies.Application.MovieCollectionReviews
 
                     if (user == null)
                     {
-                        throw new KeyNotFoundException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
+                        throw new NotFoundException($"Nie znaleziono użytkownika o nazwie: {request.UserName}");
                     }
 
                     if (user.Id != currentUserId)
                     {
-                        throw new UnauthorizedAccessException("Nie masz uprawnień do dodania recenzji!");
+                        throw new ForbidenException("Nie masz uprawnień do dodania recenzji!");
                     }
 
                     //Tworzenie nowej recenzji dla listy

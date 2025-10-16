@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Movies.Application.MovieRecommend.CreateUserLikeRecommend;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieRecommendation
 {
@@ -35,22 +36,29 @@ namespace Movies.Application.MovieRecommendation
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var recommedation = await _context.MovieRecommendations
                     .Include(r => r.LikedByUsers)
                     .FirstOrDefaultAsync(r => r.RecommendationId == request.RecommendationId);
-                if (recommedation == null)
-                    throw new KeyNotFoundException("Nie znaleziono rekomendacji.");
 
+                if (recommedation == null)
+                {
+                    throw new NotFoundException("Nie znaleziono rekomendacji.");
+                }
+                    
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
                 if (user == null)
-                    throw new KeyNotFoundException("Nie znaleziono użytkownika.");
+                {
+                    throw new NotFoundException("Nie znaleziono użytkownika.");
+                }
 
                 if (recommedation.LikedByUsers.FirstOrDefault(u => u.Id == currentUserId) == null)
-                    throw new InvalidOperationException("Użytkownik nie ma polubionej tej rekomendacji.");
-
+                {
+                    throw new NotFoundException("Użytkownik nie ma polubionej tej rekomendacji.");
+                }
 
                 recommedation.LikedByUsers.Remove(user);
                 recommedation.LikesCounter = recommedation.LikedByUsers.Count();

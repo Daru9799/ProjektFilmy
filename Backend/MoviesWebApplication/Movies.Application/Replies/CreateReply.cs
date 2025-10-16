@@ -11,6 +11,7 @@ using static Movies.Application.Reviews.CreateReview;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Replies
 {
@@ -40,7 +41,7 @@ namespace Movies.Application.Replies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 //Sprawdzanie istnienia recenzja
@@ -49,7 +50,7 @@ namespace Movies.Application.Replies
 
                 if (review == null)
                 {
-                    throw new KeyNotFoundException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
+                    throw new NotFoundException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
                 }
 
                 //Sprawdzanie istnienia użytkownika
@@ -58,7 +59,7 @@ namespace Movies.Application.Replies
 
                 if (user == null)
                 {
-                    throw new KeyNotFoundException($"Nie znaleziono użytkownika o ID: {currentUserId}");
+                    throw new NotFoundException($"Nie znaleziono użytkownika o ID: {currentUserId}");
                 }
 
                 //Tworzenie nowej odpowiedzi

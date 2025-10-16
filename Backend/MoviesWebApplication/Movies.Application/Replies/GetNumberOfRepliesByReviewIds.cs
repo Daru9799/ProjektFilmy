@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,11 @@ namespace Movies.Application.Replies
                         g => g.Key,
                         g => g.Count(),
                         cancellationToken);
+
+                if (replyCounts == null || !replyCounts.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono komentarzy dla podanych ID");
+                }
 
                 // Zwróć listę liczb odpowiedzi w tej samej kolejności co ReviewIds
                 return request.ReviewIds

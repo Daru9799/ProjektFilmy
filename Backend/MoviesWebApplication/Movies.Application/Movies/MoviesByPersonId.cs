@@ -3,6 +3,8 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
+using Movies.Application.People;
 
 namespace Movies.Application.Movies
 {
@@ -33,9 +35,9 @@ namespace Movies.Application.Movies
                     .Where(m => m.MoviePerson.Any(mp => mp.Person.PersonId == request.PersonId ))
                     .ToListAsync(cancellationToken);
 
-                if (!movies.Any())
+                if (!movies.Any() || movies == null)
                 {
-                    return new List<MovieDto>();
+                    throw new NotFoundException($"Nie odnaleziono filmu o id osoby: {request.PersonId}.");
                 }
 
                 return movies.Select(movie => new MovieDto

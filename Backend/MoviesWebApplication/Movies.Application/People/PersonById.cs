@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 using Movies.Infrastructure;
 
@@ -36,7 +37,7 @@ namespace Movies.Application.People
 
                 if (person == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie odnaleziono osoby o id {request.Id}.");
                 }
 
                 var totalMovies = person.MoviePerson.Count;

@@ -9,6 +9,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -41,7 +42,7 @@ namespace Movies.Application.Movies
 
                 if (movie == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie odnaleziono filmu o id {request.Id}.");
                 }
 
                 return new MovieDto

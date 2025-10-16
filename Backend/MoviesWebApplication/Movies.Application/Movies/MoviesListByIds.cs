@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -45,6 +46,11 @@ namespace Movies.Application.Movies
                     .Where(m => request.moviesIds.Contains(m.MovieId))
                     .Where(m => m.MoviePerson.Any(mp => mp.Role == MoviePerson.PersonRole.Director))
                     .ToListAsync(cancellationToken);
+
+                if (movies == null)
+                {
+                    throw new NotFoundException($"Nie odnaleziono filmów o podanych id {request.moviesIds}.");
+                }
 
                 // Posortuj filmy zgodnie z kolejnością w request.moviesIds
                 var orderedMovies = request.moviesIds

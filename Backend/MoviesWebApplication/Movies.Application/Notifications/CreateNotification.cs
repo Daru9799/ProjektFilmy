@@ -9,6 +9,7 @@ using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Application.Interfaces;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Notifications
 {
@@ -44,12 +45,12 @@ namespace Movies.Application.Notifications
 
                     if (targetUser == null)
                     {
-                        throw new KeyNotFoundException($"Nie znaleziono użytkownika docelowego o ID: {request.TargetUserId}");
+                        throw new NotFoundException($"Nie znaleziono użytkownika docelowego o ID: {request.TargetUserId}");
                     }
 
                     if (!Enum.TryParse<Notification.NotificationType>(request.Type, true, out var parsedType))
                     {
-                        throw new ValidationException($"Niepoprawny typ powiadomienia: {request.Type}");
+                        throw new BadRequestException($"Niepoprawny typ powiadomienia: {request.Type}");
                     }
 
                     //Jeśli SourceUserId b\edzie wynosić 0 to jest to powiadomienie systemowe
@@ -61,7 +62,7 @@ namespace Movies.Application.Notifications
 
                         if (sourceUser == null)
                         {
-                            throw new KeyNotFoundException($"Nie znaleziono nadawcy powiadomienia o ID: {request.SourceUserId}");
+                            throw new NotFoundException($"Nie znaleziono nadawcy powiadomienia o ID: {request.SourceUserId}");
                         }
                     }
 
@@ -73,7 +74,7 @@ namespace Movies.Application.Notifications
 
                     if ((existingRelation != null) && request.Type == Notification.NotificationType.Invitation.ToString())
                     {
-                        throw new InvalidOperationException("Użytkownik jest już Twoim znajomym!");
+                        throw new ConflictException("Użytkownik jest już Twoim znajomym!");
                     }
 
                     var reverseInvitation = await _context.Notifications

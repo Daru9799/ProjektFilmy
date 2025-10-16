@@ -9,6 +9,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -135,6 +136,11 @@ namespace Movies.Application.Movies
                         PhotoUrl = mp.Person.PhotoUrl
                     }).ToList()
                 }).ToList();
+
+                if (movieDtos == null || !movieDtos.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono filmów dla podanych filtrów.");
+                }
 
                 // Zwrócenie odpowiedzi paginowanej
                 return new PagedResponse<MovieDto>

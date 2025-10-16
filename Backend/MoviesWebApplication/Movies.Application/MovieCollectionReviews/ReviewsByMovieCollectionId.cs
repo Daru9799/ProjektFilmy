@@ -11,6 +11,8 @@ using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Domain;
 using Movies.Infrastructure;
+using Movies.Application.Movies;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -86,6 +88,11 @@ namespace Movies.Application.MovieCollectionReviews
                         IsOwner = isOwner //Sprawdzenie właściciela
                     };
                 }).ToList();
+
+                if (reviewDtos == null || !reviewDtos.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono recenzji dla listy filmowej o ID '{request.MovieCollectionId}'.");
+                }
 
                 return new PagedResponse<MovieCollectionReviewDto>
                 {

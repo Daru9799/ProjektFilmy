@@ -9,6 +9,7 @@ using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -40,7 +41,7 @@ namespace Movies.Application.MovieCollectionReviews
 
             if (string.IsNullOrEmpty(currentUserId))
             {
-                throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                throw new UnauthorizedException("Użytkownik nie jest zalogowany");
             }
 
             var currentUser = await _context.Users
@@ -53,7 +54,7 @@ namespace Movies.Application.MovieCollectionReviews
 
             if (review == null)
             {
-                return null;
+                throw new NotFoundException($"Nie znaleziono recenzji kolekcji o ID: {request.ReviewId}");
             }
 
             //Sprawdzenie czy user jest właścicielem bądź moderatorem
@@ -62,7 +63,7 @@ namespace Movies.Application.MovieCollectionReviews
 
             if (!isOwner && !isMod)
             {
-                throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tej recenzji.");
+                throw new ForbidenException("Nie masz uprawnień do usunięcia tej recenzji.");
             }
 
             _context.MovieCollectionReviews.Remove(review);

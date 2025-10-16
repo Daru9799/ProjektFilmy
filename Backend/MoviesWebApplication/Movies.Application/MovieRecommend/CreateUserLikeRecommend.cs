@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System;
@@ -36,23 +37,29 @@ namespace Movies.Application.MovieRecommend
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var recommedation = await _context.MovieRecommendations
                     .Include(r => r.LikedByUsers)
                     .FirstOrDefaultAsync(r => r.RecommendationId == request.RecommendationId);
+
                 if (recommedation == null)
-                    throw new KeyNotFoundException("Nie znaleziono rekomendacji.");
+                {
+                    throw new NotFoundException("Nie znaleziono rekomendacji.");
+                }
 
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
-                if (user == null) 
-                    throw new KeyNotFoundException("Nie znaleziono użytkownika.");
-
+                if (user == null)
+                {
+                    throw new NotFoundException("Nie znaleziono użytkownika.");
+                } 
+                    
                 if (recommedation.LikedByUsers.Any(u => u.Id == currentUserId))
-                    throw new InvalidOperationException("Użytkownik już polubił tą rekomendacje");
-
-
+                {
+                    throw new ConflictException("Użytkownik już polubił tą rekomendacje");
+                }
+                    
                 recommedation.LikedByUsers.Add(user);
                 recommedation.LikesCounter = recommedation.LikedByUsers.Count();
 

@@ -4,6 +4,7 @@ using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -32,7 +33,7 @@ namespace Movies.Application.Movies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
                 }
 
                 // Pobieranie kolekcji razem z właścicielem i filmami
@@ -42,22 +43,22 @@ namespace Movies.Application.Movies
                     .FirstOrDefaultAsync(mc => mc.MovieCollectionId == request.MovieCollectionId, cancellationToken);
 
                 if (collection == null)
-                    throw new KeyNotFoundException("Nie znaleziono kolekcji.");
+                    throw new NotFoundException("Nie znaleziono kolekcji.");
 
                 // Sprawdzenie właściciela kolekcji
                 if (collection.User.Id != currentUserId)
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edytowania tej kolekcji.");
+                    throw new ForbidenException("Nie masz uprawnień do edytowania tej kolekcji.");
 
                 // Pobieranie filmu
                 var movie = await _context.Movies
                     .FirstOrDefaultAsync(m => m.MovieId == request.MovieId, cancellationToken);
 
                 if (movie == null)
-                    throw new KeyNotFoundException("Nie znaleziono filmu.");
+                    throw new NotFoundException("Nie znaleziono filmu.");
 
                 // Sprawdzenie, czy film już istnieje w kolekcji
                 if (collection.Movies.Any(m => m.MovieId == movie.MovieId))
-                    throw new InvalidOperationException("Film już istnieje w tej kolekcji.");
+                    throw new ConflictException("Film już istnieje w tej kolekcji.");
 
                 // Dodanie filmu do kolekcji
                 collection.Movies.Add(movie);

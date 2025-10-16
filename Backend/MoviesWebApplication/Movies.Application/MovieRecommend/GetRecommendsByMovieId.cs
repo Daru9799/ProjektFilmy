@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using static Movies.Application.MovieRecommend.CreateUserLikeRecommend;
 using Movies.Domain;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.MovieRecommend
 {
@@ -66,6 +67,11 @@ namespace Movies.Application.MovieRecommend
                         IsLiking = isLiking
                     };
                 }).ToList();
+
+                if(recommendsDtos == null || !recommendsDtos.Any())
+                {
+                    throw new NotFoundException("Nie znaleziono rekomendacji.");
+                }
 
                 return new PagedResponse<MovieRecommendDto>
                 {

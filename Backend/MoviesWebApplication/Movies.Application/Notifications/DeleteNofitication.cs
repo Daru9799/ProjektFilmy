@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System;
@@ -39,14 +40,19 @@ namespace Movies.Application.Notifications
 
             if (notification == null)
             {
-                return null;
+                throw new NotFoundException($"Nie znaleziono powiadomienia o ID: {request.NotificationId}");
             }
 
             var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
+            }
+
             if (notification.TargetUserId != currentUserId)
             {
-                throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego powiadomienia!");
+                throw new ForbidenException("Nie masz uprawnień do usunięcia tego powiadomienia!");
             }
 
             _context.Notifications.Remove(notification);

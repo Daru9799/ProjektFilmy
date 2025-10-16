@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -42,14 +43,14 @@ namespace Movies.Application.Movies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
                 }
 
                 var collectionType = request.ListType.ToLower() switch
                 {
                     "planned" => Domain.Entities.MovieCollection.CollectionType.Planned,
                     "watched" => Domain.Entities.MovieCollection.CollectionType.Watched,
-                    _ => throw new ArgumentException("Nieprawidłowy typ listy.")
+                    _ => throw new BadRequestException("Nieprawidłowy typ listy.")
                 };
 
                 var collection = await _context.MovieCollections

@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 
 namespace Movies.Application.Replies
@@ -82,6 +83,11 @@ namespace Movies.Application.Replies
                         IsOwner = isOwner
                     };
                 }).ToList();
+
+                if (replyDtos == null || !replyDtos.Any())
+                {
+                    throw new NotFoundException("Nie znaleziono komentarzy.");
+                }
 
                 return new PagedResponse<ReplyDto>
                 {

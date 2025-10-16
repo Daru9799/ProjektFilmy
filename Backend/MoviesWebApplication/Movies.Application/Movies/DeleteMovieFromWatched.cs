@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Movies
 {
@@ -36,7 +37,7 @@ namespace Movies.Application.Movies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
                 }
                     
                 var collection = await _context.MovieCollections
@@ -46,14 +47,14 @@ namespace Movies.Application.Movies
 
                 if (collection == null)
                 {
-                    throw new KeyNotFoundException("Nie znaleziono listy obejrzanych filmów.");
+                    throw new NotFoundException("Nie znaleziono listy obejrzanych filmów.");
                 }
                     
                 var movie = collection.Movies.FirstOrDefault(m => m.MovieId == request.MovieId);
 
                 if (movie == null)
                 {
-                    throw new KeyNotFoundException("Nie znaleziono filmu na liście objerzanych filmów.");
+                    throw new NotFoundException("Nie znaleziono filmu na liście objerzanych filmów.");
                 }
                     
                 collection.Movies.Remove(movie);

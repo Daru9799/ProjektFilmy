@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System.Security.Claims;
@@ -32,7 +33,7 @@ namespace Movies.Application.Movies
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany.");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany.");
                 }
 
                 // Pobieranie kolekcji razem z właścicielem i filmami
@@ -42,17 +43,17 @@ namespace Movies.Application.Movies
                     .FirstOrDefaultAsync(mc => mc.MovieCollectionId == request.MovieCollectionId, cancellationToken);
 
                 if (collection == null)
-                    throw new KeyNotFoundException("Nie znaleziono kolekcji.");
+                    throw new NotFoundException("Nie znaleziono kolekcji.");
 
                 // Sprawdzenie właściciela kolekcji
                 if (collection.User.Id != currentUserId)
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edytowania tej kolekcji.");
+                    throw new ForbidenException("Nie masz uprawnień do edytowania tej kolekcji.");
 
                 // Znajdź film w kolekcji
                 var movieToRemove = collection.Movies.FirstOrDefault(m => m.MovieId == request.MovieId);
 
                 if (movieToRemove == null)
-                    throw new InvalidOperationException("Film nie istnieje w tej kolekcji.");
+                    throw new NotFoundException("Film nie istnieje w tej kolekcji.");
 
                 collection.Movies.Remove(movieToRemove);
 

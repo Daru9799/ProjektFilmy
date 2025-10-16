@@ -10,6 +10,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
+using Movies.Application.Movies;
 
 namespace Movies.Application.MovieCollectionReviews
 {
@@ -44,7 +46,7 @@ namespace Movies.Application.MovieCollectionReviews
 
                 if (review == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono recenzji dla użytkownika o ID '{request.UserId}' i filmu o ID '{request.MovieCollectionId}'.");
                 }
 
                 //Pobieranie tokena JWT z nagłówka
