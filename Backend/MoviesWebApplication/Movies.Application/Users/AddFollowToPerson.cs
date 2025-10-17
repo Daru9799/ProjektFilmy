@@ -51,7 +51,7 @@ namespace Movies.Application.Users
                     throw new NotFoundException("Nie znaleziono osoby.");
                 }
 
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
 
                 if (user == null) 
                 { 
