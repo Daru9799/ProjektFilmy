@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useUserStatistics } from "../../API/UserAPI";
+import { useUserStatistics } from "../../API/UserApi";
 import "../../styles/UserPage.css";
 import AccordionChart from "./AccordionChart";
 import { Tooltip } from "recharts";

@@ -9,9 +9,9 @@ import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
 import { useCollectionReviewsByCollectionId, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
-import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
+import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
-import { fetchRelationsData } from "../API/relationApi";
+import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 

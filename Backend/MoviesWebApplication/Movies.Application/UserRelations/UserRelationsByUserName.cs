@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
@@ -38,17 +39,25 @@ namespace Movies.Application.UserRelations
                 //Sprawdzenie czy user jest zalogowany
                 var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
+                }
+
+                // Sprawdzanie czy użytkownik istnieje w bazie
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken);
 
                 if (user == null)
-                    throw new ValidationException($"Nie znaleziono użytkownika o nazwie '{request.UserName}'.");
+                {
+                    throw new NotFoundException($"Nie znaleziono użytkownika o nazwie '{request.UserName}'.");
+                }   
 
                 var userId = user.Id;
 
                 if (string.IsNullOrEmpty(currentUserId) || userId != currentUserId)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do przeglądania listy tego użytkownika.");
+                    throw new ForbidenException("Nie masz uprawnień do przeglądania listy tego użytkownika.");
                 }
 
                 //Szukanie relacji (z obu stron A - B i B - A)
@@ -112,6 +121,11 @@ namespace Movies.Application.UserRelations
                         Type = r.Type.ToString()
                     };
                 }).ToList();
+
+                if (!relationDtos.Any())
+                {
+                    return new List<UserRelationDto>();
+                }
 
                 return relationDtos;
             }

@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Application.Movies;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Reviews
 {
@@ -59,6 +61,11 @@ namespace Movies.Application.Reviews
                     .Skip((request.PageNumber - 1) * request.PageSize)
                     .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
+
+                if (reviews == null || !reviews.Any())
+                {
+                    throw new NotFoundException($"Nie znaleziono recenzji dla filmu o ID '{request.MovieId}'.");
+                }
 
                 //Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);

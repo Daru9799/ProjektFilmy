@@ -7,17 +7,17 @@ import {
   deleteReply,
   editReply,
   fetchRepliesByReviewId,
-} from "../API/ReplyUniwersalAPI";
+} from "../API/ReplyUniwersalApi";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { Reply } from "../models/Reply";
 import ReplyCard from "../components/reply_components/ReplyCard";
 import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
-import { ReplyEndpointType } from "../API/ReplyUniwersalAPI";
+import { ReplyEndpointType } from "../API/ReplyUniwersalApi";
 import { 
   sendMovieReviewCommentedNotification, 
   sendCollectionReviewCommentedNotification 
-} from "../API/notificationApi"
+} from "../API/NotificationApi"
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { useReviewById } from "../API/ReviewApi";
 import { useCollectionReviewById } from "../API/CollectionReviewApi";

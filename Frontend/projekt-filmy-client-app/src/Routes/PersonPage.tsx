@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import ImageModal from "../components/SharedModals/ImageModal";
 import { usePersonById, usePersonMovies } from "../API/PersonApi";
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
-import { useAddFollowPerson, useIsFollowingPerson, useRemoveFollowPerson } from "../API/UserAPI";
+import { useAddFollowPerson, useIsFollowingPerson, useRemoveFollowPerson } from "../API/UserApi";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";

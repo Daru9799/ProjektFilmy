@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
@@ -35,7 +36,7 @@ namespace Movies.Application.Reviews
 
                 if (review == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono recenzji o podanym ID.");
                 }
 
                 return new ReviewDto

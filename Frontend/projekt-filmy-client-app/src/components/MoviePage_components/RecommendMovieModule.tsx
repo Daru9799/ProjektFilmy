@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
-import { useCreateRecommendation, useDeleteLikeRecommendation, useLikeRecommendation, useRecommendationsByMovie } from "../../API/MovieRecommendAPI";
+import { useCreateRecommendation, useDeleteLikeRecommendation, useLikeRecommendation, useRecommendationsByMovie } from "../../API/MovieRecommendApi";
 import RecommendListModule from "../MovieRecommend_componets/RecommendListModule";
 import PaginationModule from "../SharedModals/PaginationModule";
 import useMovieChoiceModule from "../../hooks/useMovieChoiceModule";

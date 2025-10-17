@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Movies.Domain.Entities;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
+using Movies.Application.Movies;
 
 namespace Movies.Application.Reviews
 {
@@ -45,12 +47,17 @@ namespace Movies.Application.Reviews
 
                 if (review == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono recenzji użytkownika '{request.UserName}' dla filmu o ID '{request.MovieId}'.");
                 }
 
                 //Pobieranie tokena JWT z nagłówka
                 var userClaims = _httpContextAccessor.HttpContext.User;
                 var tokenUserId = userClaims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(tokenUserId))
+                {
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
+                }
 
                 bool isOwner = false;
                 if (tokenUserId != null && tokenUserId == review.User.Id.ToString())

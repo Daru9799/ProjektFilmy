@@ -8,6 +8,7 @@ using MediatR;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.UserRelations
 {
@@ -36,7 +37,7 @@ namespace Movies.Application.UserRelations
 
                     if (firstUser == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika o ID: {request.FirstUserId}");
+                        throw new NotFoundException($"Nie znaleziono użytkownika o ID: {request.FirstUserId}");
                     }
 
                     var secondUser = await _context.Users
@@ -44,7 +45,7 @@ namespace Movies.Application.UserRelations
 
                     if (secondUser == null)
                     {
-                        throw new ValidationException($"Nie znaleziono użytkownika o ID: {request.SecondUserId}");
+                        throw new NotFoundException($"Nie znaleziono użytkownika o ID: {request.SecondUserId}");
                     }
 
                     //Sprawdzenie czy nie ma juz relacji tego typu
@@ -55,7 +56,7 @@ namespace Movies.Application.UserRelations
 
                     if (existingRelation != null)
                     {
-                        throw new ValidationException("Taka relacja już istnieje!");
+                        throw new ConflictException("Taka relacja już istnieje!");
                     }
 
                     //Tworzenie nowej relacji

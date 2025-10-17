@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 using System;
@@ -36,17 +37,22 @@ namespace Movies.Application.UserRelations
         {
             var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                throw new UnauthorizedException("Użytkownik nie jest zalogowany");
+            }
+
             var relation = await _context.UserRelations
                 .FirstOrDefaultAsync(r => r.UserRelationId == request.RelationId, cancellationToken);
 
             if (relation == null)
             {
-                return null;
+                throw new NotFoundException($"Nie znaleziono relacji o ID: {request.RelationId}");
             }
 
             if (string.IsNullOrEmpty(currentUserId) || (relation.FirstUserId != currentUserId && relation.SecondUserId != currentUserId))
             {
-                throw new UnauthorizedAccessException("Nie masz uprawnień do usuwania tej relacji.");
+                throw new ForbidenException("Nie masz uprawnień do usuwania tej relacji.");
             }
 
             _context.UserRelations.Remove(relation);

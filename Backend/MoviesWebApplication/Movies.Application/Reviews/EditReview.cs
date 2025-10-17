@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Reviews
 {
@@ -41,11 +42,16 @@ namespace Movies.Application.Reviews
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var currentUser = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
+                if (currentUser == null) 
+                {
+                    throw new NotFoundException($"Nie znaleziono konta użytkownika.");
+                }
 
                 //Pobranie recenzji z bazy
                 var review = await _context.Reviews
@@ -54,7 +60,7 @@ namespace Movies.Application.Reviews
 
                 if (review == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Nie znaleziono recenzji o ID: {request.ReviewId}");
                 }
 
                 //Sprawdzenie czy user jest właścicielem bądź moderatorem
@@ -63,7 +69,7 @@ namespace Movies.Application.Reviews
 
                 if (!isOwner && !isMod)
                 {
-                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tej recenzji.");
+                    throw new ForbidenException("Nie masz uprawnień do edycji tej recenzji.");
                 }
 
                 //Aktualizacja pól

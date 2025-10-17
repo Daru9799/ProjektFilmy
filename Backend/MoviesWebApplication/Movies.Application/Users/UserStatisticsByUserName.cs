@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using static Movies.Domain.Entities.MovieCollection;
 using static Movies.Domain.Entities.MoviePerson;
 using Microsoft.AspNetCore.Http;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Users
 {
@@ -30,10 +31,22 @@ namespace Movies.Application.Users
             {
                 var currentUserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
-                if (string.IsNullOrEmpty(currentUserName) ||
-                    !string.Equals(currentUserName, request.userName, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(currentUserName))
                 {
-                    throw new UnauthorizedAccessException("Nie masz dostępu do tej strony");
+                    throw new UnauthorizedException("Nie jesteś zalogowany.");
+                }
+                else if (!string.Equals(currentUserName, request.userName, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ForbidenException("Nie masz dostępu do tej strony");
+                }
+
+                var user = await _context.Users
+                    .Include(u => u.Reviews)
+                    .FirstOrDefaultAsync(u => u.UserName == request.userName, cancellationToken);
+
+                if (user == null)
+                {
+                    throw new NotFoundException($"Użytkownik o nazwie '{request.userName}' nie zostal odnaleziony.");
                 }
 
                 var watchedMovieIds = await _context.MovieCollections
@@ -104,7 +117,6 @@ namespace Movies.Application.Users
                 {
                     Console.WriteLine("Brak danych dla ulubionego reżysera.");
                 }
-
 
                 var ratings = reviews
                     .GroupBy(r => r.Rating)

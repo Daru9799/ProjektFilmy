@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { UserRelation } from "../models/UserRelation";
-import { fetchRelationsData, deleteRelation } from "../API/relationApi";
+import { fetchRelationsData, deleteRelation } from "../API/RelationApi";
 import FriendCard from "../components/Friends_components/FriendCard"
 import InfoModal from "../components/SharedModals/InfoModal"
 

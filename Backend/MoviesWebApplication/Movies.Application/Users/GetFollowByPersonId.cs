@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
@@ -39,7 +40,7 @@ namespace Movies.Application.Users
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var person = await _context.People
@@ -48,11 +49,13 @@ namespace Movies.Application.Users
 
                 if (person == null)
                 {
-                    throw new ValidationException($"Osoba o ID {request.PersonId} nie została znaleziona");
+                    throw new NotFoundException($"Osoba o ID {request.PersonId} nie została znaleziona");
                 }
-                // Sprawdź czy wśród obserwujących jest użytkownik o currentUserId
-                return person.Followers.Any(f => f.Id == currentUserId);
 
+                // Sprawdź czy wśród obserwujących jest użytkownik o currentUserId
+                bool isUserFollowing = person.Followers.Any(f => f.Id == currentUserId);
+
+                return isUserFollowing;
             }
         }
     }

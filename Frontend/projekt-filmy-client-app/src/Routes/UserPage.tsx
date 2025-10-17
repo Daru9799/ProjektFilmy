@@ -5,19 +5,19 @@ import { Review } from "../models/Review";
 import ReviewCard from "../components/review_components/ReviewCard";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import EditUserModal from "../components/User_componets/EditUserModal";
-import { useUserReviews, useUserData } from "../API/UserAPI";
+import { useUserReviews, useUserData } from "../API/UserApi";
 import {
   fetchRelationsData,
   deleteRelation,
   createRelation,
-} from "../API/relationApi";
+} from "../API/RelationApi";
 import {
   sendFriendInvitation,
   checkIsInvited,
   checkIsInvitedByUser,
   getInvitationFromUser,
   deleteNotification,
-} from "../API/notificationApi";
+} from "../API/NotificationApi";
 import { useDeleteReview, useEditReview } from "../API/ReviewApi";
 import ConfirmationModal from "../components/SharedModals/ConfirmationModal";
 import { isUserMod, getLoggedUserId } from "../hooks/decodeJWT";

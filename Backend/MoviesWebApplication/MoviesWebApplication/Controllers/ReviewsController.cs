@@ -6,6 +6,7 @@ using Movies.Application.Reviews;
 using Movies.Domain;
 using Movies.Domain.DTOs;
 using Movies.Domain.Entities;
+using MoviesWebApplication.Common;
 
 namespace MoviesWebApplication.Controllers
 {
@@ -24,30 +25,22 @@ namespace MoviesWebApplication.Controllers
                 OrderBy = orderBy
             };
 
-            var reviews = await Mediator.Send(query);
-
-            return Ok(reviews);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
+
         //Zwracanie recenzji na podstawie ID filmu
-        
         [AllowAnonymous]
         [HttpGet("{reviewId}")]
         public async Task<ActionResult<ReviewDto>> GetReviewById(Guid reviewId)
         {
-            var querry = new GetReviewById.Query {Id = reviewId};
-            var result = await Mediator.Send(querry);
+            var query = new GetReviewById.Query {Id = reviewId};
 
-            if (result == null)
-            {
-                return NotFound($"Nie znaleziono recenzji o podanym ID.");
-            }
-
-            return Ok(result);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
 
         [AllowAnonymous]
         [HttpGet("by-movie-id/{movieId}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
+        public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviewsByMovieId(Guid movieId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
             var query = new ReviewsByMovieId.Query
             {
@@ -57,19 +50,14 @@ namespace MoviesWebApplication.Controllers
                 SortDirection = sortDirection,
                 OrderBy = orderBy
             };
-            var reviews = await Mediator.Send(query);
 
-            if (reviews.Data == null || !reviews.Data.Any())
-            {
-                return NotFound($"Nie znaleziono recenzji dla filmu o ID '{movieId}'.");
-            }
-
-            return Ok(reviews);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
+
         //Zwracanie recenzji na podstawie nazwy usera
         [AllowAnonymous]
         [HttpGet("by-username/{userName}")]
-        public async Task<ActionResult<List<ReviewDto>>> GetReviewsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
+        public async Task<ActionResult<PagedResponse<ReviewDto>>> GetReviewsByUserId(string userName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2, [FromQuery] string orderBy = "year", [FromQuery] string sortDirection = "desc")
         {
             var query = new ReviewsByUserName.Query
             {
@@ -79,71 +67,36 @@ namespace MoviesWebApplication.Controllers
                 SortDirection = sortDirection,
                 OrderBy = orderBy
             };
-            var reviews = await Mediator.Send(query);
 
-            if (reviews.Data == null || !reviews.Data.Any())
-            {
-                return NotFound($"Nie znaleziono recenzji dla użytkownika o podanej nazwie '{userName}'.");
-            }
-
-            return Ok(reviews);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
+
         //Dodawanie recenzji
         [Authorize]
         [HttpPost("add-review")]
         public async Task<IActionResult> CreateReview([FromBody] CreateReview.CreateReviewCommand command)
         {
-            try
-            {
-                var review = await Mediator.Send(command);
-                return Ok("Pomyślnie dodano recenzje.");
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Pomyślnie dodano recenzje.");
         }
+
         //Usuwanie recenzji
         [Authorize]
         [HttpDelete("delete-review/{id}")]
         public async Task<IActionResult> DeleteReview(Guid id)
         {
-            //Wysyłanie komendy usunięcia recenzji do mediatora
-            var result = await Mediator.Send(new DeleteReview(id));
+            var command = new DeleteReview(id);
 
-            if (result == null)
-            {
-                return NotFound($"Nie znaleziono recenzji o ID: {id}");
-            }
-
-            return Ok("Recenzja została pomyslnie usunięta.");
+            return await Mediator.SendWithExceptionHandling(command, "Pomyślnie usunięto recenzje.");
         }
+
         //Edycja recenzji
         [Authorize]
         [HttpPut("edit-review/{id}")]
         public async Task<IActionResult> EditReview(Guid id, [FromBody] EditReview.EditReviewCommand command)
         {
-            try
-            {
-                command.ReviewId = id;
-
-                var review = await Mediator.Send(command);
-                if (review == null)
-                {
-                    return NotFound($"Nie znaleziono recenzji o ID: {id}");
-                }
-
-                return Ok("Recenzja została zmieniona.");
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
-            }
+            return await Mediator.SendWithExceptionHandling(command, "Pomyślnie zmieniono recenzje.");
         }
+
         //Zwracanie jednej recenzji na podstawie UserName i MovieId
         [Authorize]
         [HttpGet("by-username-and-movie-id")]
@@ -155,14 +108,7 @@ namespace MoviesWebApplication.Controllers
                 MovieId = movieId
             };
 
-            var review = await Mediator.Send(query);
-
-            if (review == null)
-            {
-                return NotFound($"Nie znaleziono recenzji dla użytkownika '{userName}' i filmu o ID '{movieId}'.");
-            }
-
-            return Ok(review);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
     }
 }

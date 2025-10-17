@@ -8,10 +8,10 @@ import "../styles/Zoom.css";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
-import { sendCollectionReviewedNotification } from "../API/notificationApi";
+import { sendCollectionReviewedNotification } from "../API/NotificationApi";
 import { useAddCollectionReview, useCollectionReviewsByCollectionId, useUserReviewForCollection, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
-import { fetchRelationsData } from "../API/relationApi";
+import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 

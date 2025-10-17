@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { Notification } from "../../models/Notification";
 import { NotificationType } from "../../models/NotificationType";
-import { fetchNotificationsByUserId, deleteNotification } from "../../API/notificationApi";
+import { fetchNotificationsByUserId, deleteNotification } from "../../API/NotificationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import * as signalR from "@microsoft/signalr";
 import { PaginationResponse } from "../../models/PaginationResponse";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { UserProfile } from "../../models/UserProfile";
 import { userRole } from "../../models/UserProfile";
 import { Button, Form, Modal } from "react-bootstrap";
-import { useChangeUserRole } from "../../API/UserAPI";
+import { useChangeUserRole } from "../../API/UserApi";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
 interface Props {

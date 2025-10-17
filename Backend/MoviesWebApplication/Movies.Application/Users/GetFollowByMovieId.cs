@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Users
 {
@@ -37,7 +38,7 @@ namespace Movies.Application.Users
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
-                    throw new UnauthorizedAccessException("Użytkownik nie jest zalogowany");
+                    throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
 
                 var movie = await _context.Movies
@@ -46,7 +47,7 @@ namespace Movies.Application.Users
 
                 if (movie == null)
                 {
-                    throw new ValidationException($"Movie o ID {request.MovieId} nie został znaleziony");
+                    throw new NotFoundException($"Movie o ID {request.MovieId} nie został znaleziony");
                 }
                 // Sprawdź czy wśród obserwujących jest użytkownik o currentUserId
                 return movie.Followers.Any(f => f.Id == currentUserId);

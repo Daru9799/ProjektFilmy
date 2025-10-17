@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Movies.Domain.DTOs;
+using Movies.Application._Common.Exceptions;
 
 namespace Movies.Application.Users
 {
@@ -39,7 +40,7 @@ namespace Movies.Application.Users
 
                 if (user == null)
                 {
-                    return null;
+                    throw new NotFoundException($"Użytkownik o nazwie '{request.UserName}' nie zostal odnaleziony.");
                 }
 
                 //Pobierz token JWT z nagłówka

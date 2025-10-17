@@ -2,10 +2,10 @@ import PaginationModule from "../components/SharedModals/PaginationModule";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { isUserMod } from "../hooks/decodeJWT";
-import { useUserData } from "../API/UserAPI";
+import { useUserData } from "../API/UserApi";
 import { useMovieCollectionsByUser } from "../API/MovieCollectionApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
-import { fetchRelationsData } from "../API/relationApi";
+import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 
 const MovieCollectionByUserPage = () => {

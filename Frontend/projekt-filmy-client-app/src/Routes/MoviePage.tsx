@@ -13,7 +13,7 @@ import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import { useState } from "react";
 import { Review } from "../models/Review";
-import { useAddFollowMovie, useIsFollowingMovie, useRemoveFollowMovie } from "../API/UserAPI";
+import { useAddFollowMovie, useIsFollowingMovie, useRemoveFollowMovie } from "../API/UserApi";
 
 const MoviePage = () => {
   const { movieId } = useParams();

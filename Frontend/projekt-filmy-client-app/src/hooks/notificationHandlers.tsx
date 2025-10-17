@@ -1,6 +1,6 @@
 import { getLoggedUserId } from "../hooks/decodeJWT";
-import { createRelation } from "../API/relationApi";
-import { deleteNotification, markNotificationAsRead } from "../API/notificationApi";
+import { createRelation } from "../API/RelationApi";
+import { deleteNotification, markNotificationAsRead } from "../API/NotificationApi";
 import { Notification } from "../models/Notification";
 
 

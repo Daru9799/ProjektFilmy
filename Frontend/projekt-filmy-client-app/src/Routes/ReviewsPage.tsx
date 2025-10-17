@@ -10,7 +10,7 @@ import { useReviewsByMovieId, useDeleteReview, useEditReview } from "../API/Revi
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import { isUserMod } from "../hooks/decodeJWT";
-import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalAPI";
+import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
