@@ -10,20 +10,13 @@ import { useReviewsByMovieId, useDeleteReview, useEditReview } from "../API/Revi
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import AddReviewModal from "../components/review_components/AddReviewModal";
 import { isUserMod } from "../hooks/decodeJWT";
-import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
+import { useReplyCountsByReviewIds } from "../API/ReplyUniwersalApi"
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
-  const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({
-    totalItems: 1,
-    pageNumber: 1,
-    pageSize: 2,
-    totalPages: 1,
-  });
+  const [pagination, setPagination] = useState({ totalItems: 1, pageNumber: 1, pageSize: 2, totalPages: 1 });
   const [sortOrder, setSortOrder] = useState<string>("rating");
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [showModal, setShowModal] = useState(false);
@@ -41,8 +34,9 @@ const ReviewsPage = () => {
   );
   const reviews = reviewData?.reviews ?? [];
   const totalPages = reviewData?.totalPages ?? 1;
+  const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("Reply", reviews);
   //Mutacje
-  const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
 
   useEffect(() => {
@@ -67,29 +61,6 @@ const ReviewsPage = () => {
       setShowModal(false);
       setReviewToEdit(null);
     }
-  };
-
-  useEffect(() => {
-    try {
-      const reviewsListIds = reviews.map((r) => r.reviewId);
-      if (reviewsListIds.length > 0) {
-        fetchReplyCountsByReviewIds(
-          "Reply",
-          reviewsListIds,
-          setRepliesAmount,
-          setError
-        );
-      }
-    } catch (err) {
-      console.error("Błąd podczas pobierania ilości odpowiedzi:", err);
-    }
-  }, [reviews]);
-
-  const getReplyCountForReview = (reviewId: string) => {
-    const index = reviews.findIndex((r) => r.reviewId === reviewId);
-    return index !== -1 && repliesAmount[index] !== undefined
-      ? repliesAmount[index]
-      : 0;
   };
 
   const handleSortChange = (category: string) => {
@@ -136,7 +107,7 @@ const ReviewsPage = () => {
         <SortReviewModule onSort={handleSortChange} />
       </div>
 
-      {reviewsLoading ? (
+      {reviewsLoading || repliesLoading ? (
         <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
           <SpinnerLoader />
         </div>
@@ -148,7 +119,7 @@ const ReviewsPage = () => {
             userPage={true}
             onDelete={() => handleDeleteReview(review.reviewId)}
             onEdit={() => handleEditReview(review)}
-            commentCount={getReplyCountForReview(review.reviewId)}
+            commentCount={replyCounts[review.reviewId] ?? 0}
             displayCommentCount={true}
             isLoggedUserMod={isLoggedUserMod}
           />

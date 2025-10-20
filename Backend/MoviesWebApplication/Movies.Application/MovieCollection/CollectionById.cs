@@ -72,7 +72,7 @@ namespace Movies.Application.MovieCollections
                     UserId = collection.User.Id
                 };
 
-                if (collection.Movies != null)
+                if (collection.Movies == null)
                 {
                     throw new NotFoundException($"Nie odnaleziono listy filmów z id {request.Id}.");
                 }

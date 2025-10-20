@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { MovieCollection } from "../models/MovieCollection";
 import { useMovieCollectionById } from "../API/MovieCollectionApi";
 import { useNavigate, useParams } from "react-router-dom";
 import SortReviewModule from "../components/review_components/SortReviewsModle";
@@ -9,11 +8,11 @@ import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
 import { useCollectionReviewsByCollectionId, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
-import { fetchReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import { useReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 
 const MovieCollectionReviewsPage = () => {
   const navigate = useNavigate();
@@ -26,7 +25,6 @@ const MovieCollectionReviewsPage = () => {
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [repliesAmount, setRepliesAmount] = useState<number[]>([]);
   const [relations, setRelations] = useState<any>(null);
   const areSpoilersOn = false;
 
@@ -35,6 +33,7 @@ const MovieCollectionReviewsPage = () => {
   const { data: collectionReviewsData, isLoading: reviewsLoading, error: reviewsError } = useCollectionReviewsByCollectionId(id, pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   const reviews = collectionReviewsData?.reviews ?? [];
   const totalPages = collectionReviewsData?.totalPages ?? 1;
+  const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("MovieCollectionReviewReplies", reviews);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
@@ -81,33 +80,7 @@ const MovieCollectionReviewsPage = () => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
-  useEffect(() => {
-    try {
-      const reviewsListIds = reviews.map((r) => r.movieCollectionReviewId);
-      if (reviewsListIds.length > 0) {
-        fetchReplyCountsByReviewIds(
-          "MovieCollectionReviewReplies",
-          reviewsListIds,
-          setRepliesAmount,
-          setError
-        );
-      }
-    } catch (err) {
-      console.error("Błąd podczas pobierania ilości odpowiedzi:", err);
-    }
-  }, [reviews]);
-
-  const getReplyCountForReview = (reviewId: string) => {
-    const index = reviews.findIndex(
-      (r) => r.movieCollectionReviewId === reviewId
-    );
-    return index !== -1 && repliesAmount[index] !== undefined
-      ? repliesAmount[index]
-      : 0;
-  };
-
   const handleSortChange = (category: string) => {
-    console.log(repliesAmount);
     switch (category) {
       case "highRaiting":
         setSortOrder("rating");
@@ -217,7 +190,7 @@ const MovieCollectionReviewsPage = () => {
               <SortReviewModule onSort={handleSortChange} />
             </div>
 
-            {reviewsLoading ? (
+            {reviewsLoading || repliesLoading ? (
               <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
                 <SpinnerLoader />
               </div>
@@ -233,7 +206,7 @@ const MovieCollectionReviewsPage = () => {
                     userPage={true}
                     onEdit={() => onEditReview(review)}
                     onDelete={() => onDeleteReview(review?.movieCollectionReviewId)}
-                    commentCount={getReplyCountForReview(review.movieCollectionReviewId)}
+                    commentCount={replyCounts[review.movieCollectionReviewId] ?? 0}
                     displayCommentCount
                   />
                 ))
