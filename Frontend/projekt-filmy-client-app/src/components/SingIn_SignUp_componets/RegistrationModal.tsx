@@ -1,7 +1,7 @@
-import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { useRegister } from "../../API/AccountApi";
 
 interface Props {
   show: boolean; // Czy modal jest widoczny
@@ -13,65 +13,24 @@ const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageTemp, setErrorMessage] = useState("");
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+  //Api hook
+  const { mutate: register, isPending: registerLoading, apiError: registerError } = useRegister();
+
+  const handleRegister = (e: any) => {
     e.preventDefault();
-    setErrorMessage(""); // Resetuj błąd przed próbą rejestracji
-
-    const dataToSend = {
-      email: email,
-      userName: username,
-      password: password,
-    };
-
-    try {
-      const response = await axios.post(
-        "https://localhost:7053/api/Account/register",
-        dataToSend
-      );
-
-      console.log("Registration successful:", response.data);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("logged_username", response.data.userName);
-
-      onRegisterSuccess(response.data.userName);
-
-      onClose();
-
-      setEmail("");
-      setPassword("");
-      setUsername("");
-    } catch (error: any) {
-      console.error("Registration failed:", error);
-
-      // Obsługa różnych błędów na podstawie odpowiedzi z serwera
-      if (error.response?.status === 400) {
-        const responseData = error.response.data;
-        const serverError = error.response?.data;
-
-        if (typeof responseData === "string") {
-          setErrorMessage(responseData);
-        }
-        else if (serverError?.errors) {
-          // Wyodrębnienie błędów z obiektu `errors`
-          const errorsArray = Object.entries(serverError.errors)
-            .filter(([key]) => key !== "$id") // Ignoruj pola jak `$id`
-            .flatMap(([_, messages]) => messages) // Pobierz komunikaty błędów
-            .join(" "); // Połącz je w jeden ciąg znaków
-          setErrorMessage(errorsArray);
-        } else {
-          setErrorMessage(
-            "Wystąpił problem."
-          );
-        }
-      } 
-      else {
-        setErrorMessage(
-          "Wystąpił problem z połączeniem. Spróbuj ponownie później."
-        );
+    register({ email, username, password }, {
+      onSuccess: (data) => {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("logged_username", data.userName);
+        onRegisterSuccess(data.userName);
+        onClose();
+        setEmail("");
+        setUsername("");
+        setPassword("");
       }
-    }
+    });
   };
 
   return (
@@ -80,9 +39,14 @@ const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
         <Modal.Title>Rejestracja</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {errorMessage && (
-          <Alert variant="danger" className="mb-3">
-            {errorMessage}
+        {registerLoading && (
+          <Alert variant="info" className="mb-3 text-center">
+            Trwa logowanie...
+          </Alert>
+        )}        
+        {registerError && (
+          <Alert variant="danger" className="mb-3 text-center">
+            {registerError?.message}
           </Alert>
         )}
         <Form onSubmit={handleRegister}>

@@ -36,7 +36,7 @@ namespace Movies.Application.Account
             {
                 if (await _userManager.Users.AnyAsync(x => x.UserName == request.UserName))
                 {
-                    throw new ConflictException("Już istnieje taką nazwa użytkownika.");
+                    throw new ConflictException("Już istnieje konto z taką nazwa użytkownika.");
                 }
 
                 if (await _userManager.Users.AnyAsync(x => x.Email == request.Email))

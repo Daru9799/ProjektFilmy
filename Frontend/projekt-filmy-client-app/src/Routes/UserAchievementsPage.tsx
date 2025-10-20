@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { useUserAchievements } from "../API/AchievementApi";
 import SpinnerLoader from "../components/SpinnerLoader";
-import { useApiError } from "../hooks/useApiError";
+import { getApiError } from "../functions/getApiError";
 
 const UserAchievementsPage = () => {
   const { userName } = useParams();
@@ -26,7 +26,7 @@ const UserAchievementsPage = () => {
 
   const achievements = paginatedAchievements?.achievements ?? [];
   const totalPages = paginatedAchievements?.totalPages ?? 1;
-  const apiError = useApiError(error);
+  const apiError = getApiError(error);
 
   const loggedUserName = localStorage.getItem("logged_username");
 

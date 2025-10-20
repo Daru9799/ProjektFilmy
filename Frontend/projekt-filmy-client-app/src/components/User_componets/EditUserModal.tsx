@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { UserProfile } from "../../models/UserProfile";
-import axios from "axios";
 import ChangePasswordModal from "./EditUserPassword";
 import { useNavigate } from "react-router-dom";
 import InfoModal from "../SharedModals/InfoModal"
+import { useEditUser } from "../../API/AccountApi";
 
 interface Props {
   show: boolean;
@@ -16,52 +16,28 @@ interface Props {
 const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
   const [email, setEmail] = useState(userData.email);
   const [username, setUsername] = useState(userData.userName);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showGoogleInfoModal, setShowGoogleInfoModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  //Api hook
+  const { mutate: editUser, isPending: saving, apiError: savingError } = useEditUser();
+
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const updatedUser: UserProfile = {
-      ...userData,
-      email,
-      userName: username,
-    };
-
-    try {
-      const response = await axios.patch(
-        "https://localhost:7053/api/Account/edit",
-        {
-          NewLogin: updatedUser.userName,
-          NewEmail: updatedUser.email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        localStorage.setItem("logged_username", updatedUser.userName);
-        localStorage.setItem("logged_username", updatedUser.userName);
+    editUser({ userName: username, email }, {
+      onSuccess: (updatedUser) => {
+        localStorage.setItem("logged_username", username);
 
         const event = new CustomEvent("userUpdated", {
-          detail: { username: updatedUser.userName },
+          detail: { username: username },
         });
+        
         window.dispatchEvent(event);
-        navigate(`/user/${updatedUser.userName}`);
+        navigate(`/user/${username}`);
         onSave(updatedUser);
       }
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data);
-      } else {
-        setErrorMessage("Wystąpił problem podczas zapisywania danych!");
-      }
-    }
+    });
   };
 
   return (
@@ -72,6 +48,16 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
           <Modal.Title>Edytuj dane użytkownika</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {saving && (
+            <Alert variant="info" className="mb-3 text-center">
+              Trwa zapisywanie zmian...
+            </Alert>
+          )}
+          {savingError && (
+            <Alert variant="danger" className="mb-3 text-center">
+              {savingError?.message}
+            </Alert>
+          )}
           <Form onSubmit={handleSave}>
             {/* Pole edycji email */}
             <Form.Group className="mb-3" controlId="email">
@@ -89,9 +75,6 @@ const EditUserModal = ({ show, onClose, userData, onSave }: Props) => {
               <Form.Label>Nazwa użytkownika</Form.Label>
               <Form.Control type="text" placeholder="Wprowadź nazwę użytkownika" value={username} onChange={(e) => setUsername(e.target.value)} required/>
             </Form.Group>
-
-            {/* Komunikat o błędzie */}
-            {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
             {/* Przycisk zapisu */}
             <Button variant="primary" type="submit" className="w-100">

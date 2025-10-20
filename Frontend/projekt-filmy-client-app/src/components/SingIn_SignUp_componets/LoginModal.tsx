@@ -1,7 +1,7 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { useLogin } from "../../API/AccountApi";
 
 interface Props {
   show: boolean;
@@ -12,38 +12,24 @@ interface Props {
 const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorTemp, setErrorMessage] = useState(""); //Temp
+
+  //Api hook
+  const { mutate: login, isPending: loginLoading, apiError: loginError } = useLogin();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const dataToSend = {
-      email: email,
-      password: password,
-    };
-
-    try {
-      const response = await axios.post("https://localhost:7053/api/Account/login", dataToSend);
-
-      console.log("Login successful:", response.data);
-      localStorage.setItem("logged_username", response.data.userName);
-      localStorage.setItem("token", response.data.token);
-
-      // Wywołaj funkcję, aby przekazać nazwę użytkownika do NavBar
-      onLoginSuccess(response.data.userName);
-
-      onClose();
-
-      setEmail("");
-      setPassword("");
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      if (error.response?.status === 401) {
-        setErrorMessage("Podałeś błędny e-mail lub hasło");
-      } else {
-        setErrorMessage(error.response?.data?.message || "Wystąpił problem podczas logowania.");
+    login({ email, password }, {
+        onSuccess: (data) => {
+          localStorage.setItem("logged_username", data.userName);
+          localStorage.setItem("token", data.token);
+          onLoginSuccess(data.userName);
+          onClose();
+          setEmail("");
+          setPassword("");
+        }
       }
-    }
+    );
   };
 
   return (
@@ -52,9 +38,14 @@ const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
         <Modal.Title>Logowanie</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {errorMessage && (
-          <Alert variant="danger" className="mb-3">
-            {errorMessage}
+        {loginLoading && (
+          <Alert variant="info" className="mb-3 text-center">
+            Trwa logowanie...
+          </Alert>
+        )}
+        {loginError && (
+          <Alert variant="danger" className="mb-3 text-center">
+            {loginError?.message}
           </Alert>
         )}
         <Form onSubmit={handleLogin}>

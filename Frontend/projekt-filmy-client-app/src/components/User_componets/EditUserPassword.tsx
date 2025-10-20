@@ -1,6 +1,7 @@
-import axios from "axios";
 import { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
+import { useChangePassword } from "../../API/AccountApi";
+import { toast } from "react-toastify";
 
 
 interface PasswordProps {
@@ -13,53 +14,26 @@ interface PasswordProps {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    //Api hook
+    const { mutate: changePassword, isPending: changingPassword, apiError: passwordChangingError } = useChangePassword();
   
-    const handleSavePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSavePassword = async (e: any) => {
       e.preventDefault();
-  
       if (newPassword !== confirmPassword) {
         setErrorMessage("Nowe hasła muszą być identyczne!");
         return;
       }
-  
-      try {
-        const response = await axios.patch(
-          "https://localhost:7053/api/Account/change-password",
-          {
-            currentPassword,
-            newPassword,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-  
-        if (response.status === 200) {
-          alert("Hasło zostało zmienione!");
+      changePassword({ currentPassword, newPassword }, {
+        onSuccess: () => {
+          toast.success("Hasło zostało zmienione pomyślnie!");
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
           setErrorMessage(null);
           onClose();
         }
-      } catch (error: any) {
-        if (error.response && error.response.data) {
-          const serverError = error.response.data;
-
-          if (typeof serverError === "string") {
-            setErrorMessage(serverError);
-          } else if (serverError?.errors) {
-            const errorsArray = Object.entries(serverError.errors)
-              .filter(([key]) => key !== "$id") 
-              .flatMap(([_, messages]) => Array.isArray(messages) ? messages : [])
-              .join(" "); 
-            setErrorMessage(errorsArray);
-          } else {
-            setErrorMessage("Wystąpił problem podczas zmiany hasła!");
-          }
-        } else {
-          setErrorMessage("Wystąpił problem z połączeniem. Spróbuj ponownie później.");
-        }
-      }
+      });
     };
   
     return (
@@ -68,6 +42,16 @@ interface PasswordProps {
           <Modal.Title>Zmień hasło</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {changingPassword && (
+            <Alert variant="info" className="mb-3 text-center">
+              Trwa zmiana hasła...
+            </Alert>
+          )}
+          {passwordChangingError && (
+            <Alert variant="danger" className="mb-3 text-center">
+              {passwordChangingError?.message}
+            </Alert>
+          )}
           <Form onSubmit={handleSavePassword}>
             {/* Pole aktualnego hasła */}
             <Form.Group className="mb-3" controlId="currentPassword">

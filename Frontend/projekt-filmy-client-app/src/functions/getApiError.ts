@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { ApiError } from "../models/ApiError";
 
 //Konwerter errora otrzymanego z Axiosa do obiektu błędu
-export const useApiError = (error: unknown) => {
+export const getApiError = (error: unknown) => {
   if (!error) return null;
   const axiosError = error as AxiosError<ApiError>;
 
