@@ -38,7 +38,8 @@ namespace Movies.Application.Achievements
                 {
                     AchievementId = r.AchievementId,
                     Title = r.Title,
-                    Description = r.Description 
+                    Description = r.Description,
+                    ImageUrl = r.ImageUrl
                 }).ToList(); 
 
                 int totalItems = await query.CountAsync(cancellationToken);
