@@ -1,9 +1,11 @@
 import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
-import { handleAcceptInvitation, handleDeleteNotification, handleViewResource } from "../../hooks/notificationHandlers";
 import { useNavigate } from "react-router-dom";
-import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
+import { useDeleteNotification, useMarkNotificationAsRead } from "../../API/NotificationApi";
+import { createRelation } from "../../API/RelationApi";
+import { getLoggedUserId } from "../../hooks/decodeJWT";
+import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
 interface NotificationDropdownItemProps {
   notification: Notification;
@@ -12,26 +14,39 @@ interface NotificationDropdownItemProps {
 
 const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ notification, isLast }) => {
   const [error, setError] = useState<string | null>(null);
-  const { removeNotification } = useNotificationContext();
+  const [isInvitation, setIsInvitation] = useState<boolean>(false);
   const navigate = useNavigate();
+  const loggedUserId = getLoggedUserId();
+
+  //Api
+  const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
+  const { mutate: markAsRead } = useMarkNotificationAsRead();
 
   const handleAccept = async () => {
-    await handleAcceptInvitation(notification, setError);
-    removeNotification(notification.notificationId);
+    if (!loggedUserId) {
+      console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
+      return;
+    }
+    await createRelation(loggedUserId, notification.sourceUserId, 0, () => {}, setError);
+    setIsInvitation(true);
+    deleteNotification(notification.notificationId);
     window.location.reload();
   };
 
   const handleDelete = async () => {
-    await handleDeleteNotification(notification, setError);
-    removeNotification(notification.notificationId);
+    setIsInvitation(false);
+    deleteNotification(notification.notificationId);
   };
 
-  const handleView = async () => {
-    const resource = await handleViewResource(notification);
-    if (resource) {
-      navigate(resource);
+  const handleView = () => {
+    if (notification.isRead === false) {
+      markAsRead(notification.notificationId);
+    }
+    
+    if (notification.resource) {
+      navigate(notification.resource);
     } else {
-      setError("ERROR");
+      return null;
     }
   };
 
@@ -74,6 +89,8 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
       <div className="fw-semibold mb-1">{notification.title}</div>
       <div className="text-muted small">{notification.description}</div>
       {renderActions()}
+      <ActionPendingModal show={isDeletingNotification && !isInvitation} message="Trwa usuwanie powiadomienia..."/>
+      <ActionPendingModal show={isDeletingNotification && isInvitation} message="Trwa dodawanie do znajomych..."/>
     </div>
   );
 };

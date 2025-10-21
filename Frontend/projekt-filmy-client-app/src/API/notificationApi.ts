@@ -1,7 +1,91 @@
 import axios from "axios";
 import { Notification } from "../models/Notification";
-import { PaginationResponse } from "../models/PaginationResponse"
 import { NotificationType } from "../models/NotificationType";
+import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { useApiQuery } from "../hooks/useApiQuery";
+import { useApiMutation } from "../hooks/useApiMutation ";
+
+export const useNotificationsByUserId = (userId: string, pageNumber: number, pageSize: number, orderBy: "date" | "type" = "date", sortDirection: "asc" | "desc" = "desc", isRead?: boolean, type?: NotificationType) => {
+  return useApiQuery<{ notifications: Notification[]; totalPages: number }>({
+    queryKey: ["notifications", userId, pageNumber, pageSize, orderBy, sortDirection, isRead, type],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            params: {
+              pageNumber,
+              pageSize,
+              orderBy,
+              sortDirection,
+              isRead,
+              type,
+            },
+          }
+        );
+        return {
+          notifications: data.data?.$values ?? [],
+          totalPages: data.totalPages ?? 1,
+        };
+      } catch (err: any) {
+        //404, pusta lista
+        if (err.response?.status === 404) {
+          return {
+            notifications: [],
+            totalPages: 0,
+          };
+        }
+        throw err;
+      }
+    },
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
+};
+
+//to do: OBSLUGA BLEDOW
+export const useDeleteNotification = () => {
+  const queryClient = useQueryClient();
+  return useApiMutation({
+    mutationFn: async (notificationId: string) => {
+      await axios.delete(`https://localhost:7053/api/Notifications/delete-notification/${notificationId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return notificationId;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+};
+
+//Status odczytania powiadomienia
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+  return useApiMutation({
+    mutationFn: async (notificationId: string) => {
+      await axios.patch(`https://localhost:7053/api/Notifications/update-isread/${notificationId}`, {
+          notificationId,
+          isRead: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return notificationId;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 export const sendFriendInvitation = async (
   targetUserId: string,
@@ -107,84 +191,6 @@ export const getInvitationFromUser = async (
   } catch (error) {
     console.error("Błąd podczas pobierania zaproszenia:", error);
     return null;
-  }
-};
-
-//Usuwanie powiadomienia
-export const deleteNotification = async (notificationId: string, setError: React.Dispatch<React.SetStateAction<string | null>>) => {
-  try {
-    await axios.delete(
-      `https://localhost:7053/api/Notifications/delete-notification/${notificationId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  } catch (err) {
-    console.error("Błąd podczas usuwania powiadomienia:", err);
-    setError("Nie udało się usunąć powiadomienia.");
-  }
-};
-
-//Lista wszystkich powiadomień
-export const fetchNotificationsByUserId = async (
-  userId: string,
-  pageNumber: number,
-  pageSize: number,
-  orderBy: "date" | "type" = "date",
-  sortDirection: "asc" | "desc" = "desc",
-  isRead?: boolean,
-  type?: NotificationType,
-): Promise<PaginationResponse<Notification>> => {
-  try {
-    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
-      params: {
-        pageNumber,
-        pageSize,
-        orderBy,
-        sortDirection,
-        isRead,
-        type,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-  return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return {
-        data: { $values: [] },
-        totalItems: 0,
-        pageNumber,
-        pageSize,
-        totalPages: 0,
-      };
-    }
-  throw error;
-  }
-};
-
-//Status odczytania powiadomienia
-export const markNotificationAsRead = async (notificationId: string): Promise<void> => {
-  try {
-    await axios.patch(
-      `https://localhost:7053/api/Notifications/update-isread/${notificationId}`,
-      {
-        notificationId,
-        isRead: true
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      }
-    );
-  } catch (error) {
-    console.error("Błąd podczas ustawiania powiadomienia jako przeczytane:", error);
-    throw error;
   }
 };
 

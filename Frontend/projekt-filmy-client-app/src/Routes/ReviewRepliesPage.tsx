@@ -19,6 +19,7 @@ import { useCollectionReviewById } from "../API/CollectionReviewApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import { Review } from "../models/Review";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 interface ReviewRepliesPageProps {
   endpointPrefix: ReplyEndpointType;
@@ -39,7 +40,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
 
   //API
   const { data: movieReview, isLoading: movieReviewLoading, error: movieReviewError } = useReviewById(reviewId);
-  const { data: collectionReview, isLoading: collectionReviewLoading, error: collectionReviewError } = useCollectionReviewById(reviewId);
+  const { data: collectionReview, isLoading: collectionReviewLoading, apiError: collectionReviewError } = useCollectionReviewById(reviewId);
   const { data: repliesData, isLoading: repliesLoading, error: repliesError } = useRepliesByReviewId(endpointPrefix, reviewId, pagination.pageNumber, pagination.pageSize);
   const replies = repliesData?.replies ?? [];
   const totalReplyPages = repliesData?.totalPages ?? 1;
@@ -50,12 +51,15 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   
   let review: Review | undefined;
   let reviewLoading : boolean;
+  let reviewError: any;
   if (endpointPrefix === "Reply") {
     review = movieReview
     reviewLoading = movieReviewLoading
+    reviewError = collectionReviewError
   } else {
     review = collectionReview
     reviewLoading = collectionReviewLoading
+    reviewError = collectionReviewError
   }
 
   useEffect(() => {
@@ -123,6 +127,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
             : "Recenzja kolekcji:"}
         </h2>
         <div style={{ marginTop: "2%" }}>
+        <ApiErrorDisplay apiError={reviewError}>
           {reviewLoading ? (
             <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
               <SpinnerLoader />
@@ -132,6 +137,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
           ) : (
             <p className="text-light text-center">Nie znaleziono recenzji.</p>
           )}
+        </ApiErrorDisplay>
         </div>
       </div>
       <div>

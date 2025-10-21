@@ -1,13 +1,18 @@
 import { Link } from "react-router-dom";
 import NotificationDropdownItem from "../../components/Navbar_componets/NotificationListItem";
 import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
+import { getLoggedUserId } from "../../hooks/decodeJWT";
+import { useNotificationsByUserId } from "../../API/NotificationApi";
 
 const NotificationDropdown = () => {
-  const { latestNotifications, hasNew, setHasNew, fetchLatestNotifications } = useNotificationContext();
+  const { hasNew, setHasNew } = useNotificationContext();
+  const userId = getLoggedUserId();
+  //Api
+  const { data: notificationsData, isLoading, apiError, refetch } = useNotificationsByUserId(userId ?? "", 1, 3);
+  const latestNotifications = notificationsData?.notifications ?? [];
 
   const handleOpenDropdown = () => {
     setHasNew(false);
-    fetchLatestNotifications()
   };
 
   return (

@@ -16,7 +16,7 @@ import {
   checkIsInvited,
   checkIsInvitedByUser,
   getInvitationFromUser,
-  deleteNotification,
+  useDeleteNotification,
 } from "../API/NotificationApi";
 import { useDeleteReview, useEditReview } from "../API/ReviewApi";
 import ConfirmationModal from "../components/SharedModals/ConfirmationModal";
@@ -66,8 +66,9 @@ const UserPage = () => {
   const reviews = reviewData?.reviews ?? [];
   const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
   //Mutacje
-  const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
+  const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
 
   useEffect(() => {
     setReload(false);
@@ -253,7 +254,7 @@ const UserPage = () => {
 
     //Usuwanie zaproszenia
     if (invitation) {
-      await deleteNotification(invitation.notificationId, setError);
+      deleteNotification(invitation.notificationId);
     }
 
     //Odświeżenie dla przycisków
@@ -531,6 +532,7 @@ const UserPage = () => {
 
         <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
         <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
+        <ActionPendingModal show={isDeletingNotification} message="Trwa dodawanie do znajomych..."/>
       </div>
     </>
   );

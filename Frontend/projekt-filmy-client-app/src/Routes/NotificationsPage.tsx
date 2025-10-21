@@ -1,24 +1,34 @@
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import NotificationCard from "../components/Notifications_components/NotificationCard"
 import PaginationModule from "../components/SharedModals/PaginationModule";
-import { useNotificationContext } from "../components/Notifications_components/NotificationsContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import InfoModal from "../components/SharedModals/InfoModal";
 import SortNotificationModule from "../components/Notifications_components/SortNotificationModule"
 import { readFilterMap, ReadFilterOption, NotificationTypeFilterOption } from "../components/Notifications_components/SortNotificationModule";
+import { getLoggedUserId } from "../hooks/decodeJWT";
+import { useNotificationsByUserId } from "../API/NotificationApi";
+import SpinnerLoader from "../components/SpinnerLoader";
+import { NotificationType } from "../models/NotificationType";
+import { useNotificationContext } from "../components/Notifications_components/NotificationsContext";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const NotificationPage = () => {
-    const { notifications, fetchNotifications, pageInfo, filters, setFilters } = useNotificationContext();
+    const { hasNew, setHasNew  } = useNotificationContext();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filters, setFilters] = useState<{orderBy: "date" | "type"; sortDirection: "asc" | "desc"; isRead?: boolean; notificationType?: NotificationType;}>({orderBy: "date", sortDirection: "desc",});
     const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const shouldReset = searchParams.get("reset") === "true";
+    const userId = getLoggedUserId();
+  
+    //Hook
+    const { data: notificationsData, isLoading: notificationLoading, apiError: notificationError, refetch: refetchNofiticationsData } = useNotificationsByUserId(userId ?? "", currentPage, 6, filters.orderBy, filters.sortDirection, filters.isRead, filters.notificationType);
+    const notifications = notificationsData?.notifications ?? [];
+    const totalPages = notificationsData?.totalPages ?? 1;
 
-    const handlePageChange = (page: number) => {
-      fetchNotifications(page);
-    };
+    const handlePageChange = (page: number) => setCurrentPage(page);
 
     useEffect(() => {
       const token = localStorage.getItem("token");
@@ -29,8 +39,15 @@ const NotificationPage = () => {
       }
     });
 
+    //W przypadku gdy signalR otrzyma powiadomienie, zrobi refetch'a (gdy jestesmy na stronie z notifications zdejmuje setHasNew aby zapobiedz kolizji)
     useEffect(() => {
-      fetchNotifications(1, filters.orderBy, filters.sortDirection, filters.isRead, filters.notificationType);
+      refetchNofiticationsData();
+      setHasNew(false);
+    }, [hasNew])
+
+    //Przejście po filtrach do 1 strony
+    useEffect(() => {
+      setCurrentPage(1);
     }, [filters]);
 
     useEffect(() => {
@@ -54,14 +71,16 @@ const NotificationPage = () => {
       setFilters(newFilters);
     };
 
+    if(notificationLoading) return <SpinnerLoader />
+
   return (
     <div className="container my-4" style={{ minHeight: "90vh"}}>
+      <ApiErrorDisplay apiError={notificationError}>
       <h2 className="mb-4" style={{ color: "white" }}>
         Twoje powiadomienia
       </h2>
       <SortNotificationModule onSort={handleSort} />
-        {loading && <p>Ładowanie...</p>}
-        {!loading && notifications.length === 0 && <h3 style={{ color: "white" }}>Brak powiadomień.</h3>}
+        {!notificationLoading && notifications.length === 0 && <h3 className="py-4" style={{ color: "white" }}>Brak powiadomień.</h3>}
         <div className="d-flex flex-column gap-3 mb-3 mt-3">
             {notifications.map(notification => (
             <NotificationCard 
@@ -73,11 +92,11 @@ const NotificationPage = () => {
 
       {/* Komponent paginacji */}
       <div className="mt-auto">
-        <PaginationModule
-          currentPage={pageInfo.pageNumber}
-          totalPages={pageInfo.totalPages}
+        {notifications.length !== 0 && <PaginationModule
+          currentPage={currentPage}
+          totalPages={totalPages}
           onPageChange={handlePageChange}
-        />
+        />}
       </div>
 
       {/* Modal informujący o braku zalogowania */}
@@ -88,6 +107,7 @@ const NotificationPage = () => {
         message="Musisz być zalogowany, aby zobaczyć swoje powiadomienia."
         variant="danger"
       />
+      </ApiErrorDisplay>
     </div>
   );
 };

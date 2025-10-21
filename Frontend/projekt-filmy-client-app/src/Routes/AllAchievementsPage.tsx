@@ -30,10 +30,6 @@ const AllAchievementsPage = () => {
     return <SpinnerLoader />;
   }
 
-  if (achievementsError) {
-    return <div className="text-danger text-center">Wystąpił błąd</div>;
-  }
-
   return (
     <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
     <ApiErrorDisplay apiError={achievementsError}>

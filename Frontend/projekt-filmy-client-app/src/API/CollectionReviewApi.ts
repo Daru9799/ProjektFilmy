@@ -2,10 +2,11 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
+import { useApiQuery } from "../hooks/useApiQuery";
 
 //to do: OBSLUGA BLEDOW
 export const useCollectionReviewById = (reviewId: string | undefined) => {
-  return useQuery({
+  return useApiQuery({
     queryKey: ["collectionReview", reviewId],
     queryFn: async () => {
       const { data } = await axios.get(`${API_BASE_URL}/MovieCollectionReviews/${reviewId}`, {
