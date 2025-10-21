@@ -63,8 +63,8 @@ const VerticalBarChart = ({
         type="category"
         tick={renderCustomTick}
         interval={0}
-        width={120}  // <-- TO dodajesz (możesz zmodyfikować szerokość)
-        tickLine={false} // (opcjonalnie, dla czystszego wyglądu)
+        width={120} 
+        tickLine={false}
       >
         <Label
           value={yLabel}

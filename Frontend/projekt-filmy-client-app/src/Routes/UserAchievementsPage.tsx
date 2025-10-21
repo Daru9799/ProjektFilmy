@@ -59,6 +59,14 @@ const UserAchievementsPage = () => {
                       {new Date(userAchievement.date).toLocaleDateString()}
                     </span>
                     <div className="card-body">
+                      {userAchievement.achievement.imageUrl && (
+                    <img
+                    src={userAchievement.achievement.imageUrl}
+                    alt={userAchievement.achievement.title}
+                    className="img-fluid mb-3 rounded"
+                    style={{ maxHeight: "50px", objectFit: "cover" }}
+                      />
+                     )}
                       <h5 className="card-title">{userAchievement.achievement.title}</h5>
                       <p className="card-description">{userAchievement.achievement.description}</p>
                     </div>

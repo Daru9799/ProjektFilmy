@@ -78,7 +78,8 @@ public class AchievementsByUserName
                 {
                     AchievementId = ua.Achievement.AchievementId,
                     Title = ua.Achievement.Title,
-                    Description = ua.Achievement.Description
+                    Description = ua.Achievement.Description,
+                    ImageUrl = ua.Achievement.ImageUrl
                 },
             }).ToList();
 

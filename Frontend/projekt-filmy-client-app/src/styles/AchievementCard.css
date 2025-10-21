@@ -2,31 +2,44 @@
   background-color: #330867;
   color: white;
   border-radius: 8px;
-  padding: 20px;
+  padding: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  height: 150px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 180px; /* większa wysokość dla responsywności */
 }
 
-.achievement-date {
-  position: absolute;
-  top: 20px;
-  right: 12px;
-  font-size: 0.9rem;
-  color: #aaa;
-  opacity: 0; /* Ukryj domyślnie */
-  transition: opacity 0.3s ease;
+.achievement-card img {
+  max-height: 80px;
+  width: auto;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 5px;
 }
 
 .card-description {
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: auto; /* wypycha opis na dół karty */
   opacity: 0;
   transition: opacity 0.3s ease;
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  font-size: 14px;
+  word-wrap: break-word; /* zapobiega nachodzeniu słów */
+}
+
+.achievement-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  opacity: 0;
+  margin-bottom: 5px;
 }
 
 .achievement-card:hover {
@@ -37,4 +50,24 @@
 .achievement-card:hover .card-description,
 .achievement-card:hover .achievement-date {
   opacity: 1;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .achievement-card {
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .card-description {
+    font-size: 0.8rem;
+  }
+
+  .achievement-card img {
+    max-height: 60px;
+  }
 }

@@ -64,22 +64,34 @@ const AllAchievementsPage = () => {
           )}
         </div>
 
-        <div className="row">
-          {achievements.length > 0 ? (
-            achievements.map((achievement) => (
-              <div className="col-md-4 mb-3" key={achievement.achievementId}>
-                <div className="achievement-card">
-                  <div className="card-body">
-                    <h5 className="card-title">{achievement.title}</h5>
-                    <p className="card-description">{achievement.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-white">Brak osiągnięć do wyświetlenia.</p>
-          )}
+<div className="row">
+  {achievements.length > 0 ? (
+    achievements.map((achievement) => (
+      <div className="col-md-4 mb-3" key={achievement.achievementId}>
+        <div className="achievement-card">
+          <div className="card-body text-center">
+            {/* Obrazek */}
+            {achievement.imageUrl && (
+              <img
+                src={achievement.imageUrl}
+                alt={achievement.title}
+                className="img-fluid mb-3 rounded"
+                style={{ maxHeight: "50px", objectFit: "cover" }}
+              />
+            )}
+
+            {/* Tytuł i opis */}
+            <h5 className="card-title">{achievement.title}</h5>
+            <p className="card-description mt-3">{achievement.description}</p>
+          </div>
         </div>
+      </div>
+    ))
+  ) : (
+    <p>Brak osiągnięć do wyświetlenia.</p>
+  )}
+</div>
+
       </div>
 
       <div className="mt-auto">
