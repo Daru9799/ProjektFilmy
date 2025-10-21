@@ -5,6 +5,7 @@ import { useCategories } from "../../API/CategoriesApi";
 import { useCountries } from "../../API/CountriesApi";
 import { usePeopleByRoleNoPgnt } from "../../API/PersonApi";
 import SpinnerLoader from "../SpinnerLoader" 
+import ApiErrorDisplay from "../ApiErrorDisplay";
 
 interface Props {
   // Pobranie Kategori jako string[], Krajów jako string[], Aktorów jako string[], Reżyserów jako string[]
@@ -26,8 +27,8 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   // -------------------
   // API hooks
   // -------------------
-  const { data: categoryData = [], isLoading: loadingCategories, error: categoriesError } = useCategories();
-  const { data: countryData = [], isLoading: loadingCountries, error: countriesError} = useCountries();
+  const { data: categoryData = [], isLoading: loadingCategories, apiError: categoriesError } = useCategories();
+  const { data: countryData = [], isLoading: loadingCountries, apiError: countriesError} = useCountries();
   const { data: allActors = [], isLoading: loadingActors } = usePeopleByRoleNoPgnt(1, actorName);
   const { data: allDirectors = [], isLoading: loadingDirectors } = usePeopleByRoleNoPgnt(0, directorName);
 
@@ -142,37 +143,41 @@ const FilterMovieModule = ({ getFilters }: Props) => {
           {activeTab === "kraje" && loadingCountries && <SpinnerLoader />}
           
           {activeTab === "gatunki" && !loadingCategories && (
-            <Row className="mx-1">
-              {categoryData.map((item) => (
-                <Col key={item.name} md={4} className="mb-2">
-                  <Form.Check
-                    type="checkbox"
-                    id={item.name}
-                    className="text-white text-start"
-                    label={item.name}
-                    checked={selectedCategories.includes(item.name)}
-                    onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "gatunki")}
-                  />
-                </Col>
-              ))}
-            </Row>
+            <ApiErrorDisplay apiError={categoriesError}>
+              <Row className="mx-1">
+                {categoryData.map((item) => (
+                  <Col key={item.name} md={4} className="mb-2">
+                    <Form.Check
+                      type="checkbox"
+                      id={item.name}
+                      className="text-white text-start"
+                      label={item.name}
+                      checked={selectedCategories.includes(item.name)}
+                      onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "gatunki")}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </ApiErrorDisplay>
           )}
 
           {activeTab === "kraje" && !loadingCountries && (
-            <Row className="mx-1">
-              {countryData.map((item) => (
-                <Col key={item.name} md={4} className="mb-2">
-                  <Form.Check
-                    type="checkbox"
-                    id={item.name}
-                    className="text-white text-start"
-                    label={item.name}
-                    checked={selectedCountries.includes(item.name)}
-                    onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "kraje")}
-                  />
-                </Col>
-              ))}
-            </Row>
+            <ApiErrorDisplay apiError={countriesError}>
+              <Row className="mx-1">
+                {countryData.map((item) => (
+                  <Col key={item.name} md={4} className="mb-2">
+                    <Form.Check
+                      type="checkbox"
+                      id={item.name}
+                      className="text-white text-start"
+                      label={item.name}
+                      checked={selectedCountries.includes(item.name)}
+                      onChange={(e) => handleCheckboxChange(item.name, e.target.checked, "kraje")}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </ApiErrorDisplay>
           )}
         </div>
       )}

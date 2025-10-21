@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { ApiError } from "../models/ApiError";
 
 type ApiErrorDisplayProps = {
-  apiError?: ApiError | null;
+  apiError: ApiError | null;
   showToast?: boolean;
   children?: React.ReactNode;
 };
