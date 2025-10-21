@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { useUserAchievements } from "../API/AchievementApi";
 import SpinnerLoader from "../components/SpinnerLoader";
-import { getApiError } from "../functions/getApiError";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const UserAchievementsPage = () => {
   const { userName } = useParams();
@@ -16,7 +16,7 @@ const UserAchievementsPage = () => {
   const sortDirection = "desc";
 
   //API hook
-  const { data: paginatedAchievements, isLoading, error } = useUserAchievements(
+  const { data: paginatedAchievements, isLoading, apiError: achievementError  } = useUserAchievements(
     userName ?? "",
     pagination.pageNumber,
     pagination.pageSize,
@@ -26,30 +26,14 @@ const UserAchievementsPage = () => {
 
   const achievements = paginatedAchievements?.achievements ?? [];
   const totalPages = paginatedAchievements?.totalPages ?? 1;
-  const apiError = getApiError(error);
 
   const loggedUserName = localStorage.getItem("logged_username");
 
   if (isLoading) return <SpinnerLoader />;
 
-  if (apiError) {
-    switch (apiError.statusCode) {
-      case 404:
-        return (
-          <div className="text-center text-warning mt-20 min-h-[90vh]">
-            <h2>Nie posiadasz jeszcze osiągnięć!</h2>
-            <p>{apiError.statusCode} {apiError.message} {apiError.time} {apiError.type}</p>
-          </div>
-        );
-      case 401:
-        return <div className="text-center text-red-500">Brak autoryzacji</div>;
-      default:
-        return <div className="text-center text-red-500">{apiError.message}</div>;
-    }
-  }
-
   return (
     <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
+    <ApiErrorDisplay apiError={achievementError}>
       <div className="flex-grow-1">
         <div style={{ position: "relative", marginBottom: "5%", marginTop: "3%" }}>
           <button
@@ -66,29 +50,29 @@ const UserAchievementsPage = () => {
               : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
           </h2>
         </div>
-
-        <div className="row">
-          {achievements.length > 0 ? (
-            achievements.map((userAchievement) => (
-              <div className="col-md-4 mb-3" key={userAchievement.userAchievementId}>
-                <div className="achievement-card position-relative">
-                  <span className="achievement-date">
-                    {new Date(userAchievement.date).toLocaleDateString()}
-                  </span>
-                  <div className="card-body">
-                    <h5 className="card-title">{userAchievement.achievement.title}</h5>
-                    <p className="card-description">{userAchievement.achievement.description}</p>
+          <div className="row">
+            {achievements.length > 0 ? (
+              achievements.map((userAchievement) => (
+                <div className="col-md-4 mb-3" key={userAchievement.userAchievementId}>
+                  <div className="achievement-card position-relative">
+                    <span className="achievement-date">
+                      {new Date(userAchievement.date).toLocaleDateString()}
+                    </span>
+                    <div className="card-body">
+                      <h5 className="card-title">{userAchievement.achievement.title}</h5>
+                      <p className="card-description">{userAchievement.achievement.description}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-white">Brak osiągnięć do wyświetlenia.</p>
-          )}
-        </div>
+              ))
+            ) : (
+              <p className="text-warning fs-4">Brak osiągnięć do wyświetlenia</p>
+            )}
+          </div>
       </div>
 
       <div className="mt-auto">
+        {achievements.length > 0 && (
         <PaginationModule
           currentPage={pagination.pageNumber}
           totalPages={totalPages}
@@ -96,7 +80,9 @@ const UserAchievementsPage = () => {
             setPagination((prev) => ({ ...prev, pageNumber: page }))
           }
         />
+        )}
       </div>
+    </ApiErrorDisplay>
     </div>
   );
 };

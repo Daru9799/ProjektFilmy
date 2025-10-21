@@ -84,7 +84,7 @@ public class AchievementsByUserName
 
             if (userAchievementDtos == null || !userAchievementDtos.Any())
             {
-                throw new NotFoundException($"Nie znaleziono osiągnięć dla użytkowinka '{currentUserName}'.");
+                throw new NotFoundException($"Nie znaleziono osiągnięć!");
             }
 
             return new PagedResponse<UserAchievementDto>

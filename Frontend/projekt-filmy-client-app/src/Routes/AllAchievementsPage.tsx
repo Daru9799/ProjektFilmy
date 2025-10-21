@@ -4,6 +4,7 @@ import { useAchievements } from "../API/AchievementApi";
 import "../styles/AchievementCard.css";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const AllAchievementsPage = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const AllAchievementsPage = () => {
   const sortDirection = "desc";
 
   //API hook
-  const { data: paginatedAchievements, isLoading: loadingAchievements, error: achievementsError } = useAchievements(
+  const { data: paginatedAchievements, isLoading: loadingAchievements, apiError: achievementsError } = useAchievements(
     pagination.pageNumber,
     pagination.pageSize,
     sortOrder,
@@ -35,6 +36,7 @@ const AllAchievementsPage = () => {
 
   return (
     <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
+    <ApiErrorDisplay apiError={achievementsError}>
       <div className="flex-grow-1">
         <div
           style={{
@@ -89,6 +91,7 @@ const AllAchievementsPage = () => {
           }
         />
       </div>
+    </ApiErrorDisplay>
     </div>
   );
 };
