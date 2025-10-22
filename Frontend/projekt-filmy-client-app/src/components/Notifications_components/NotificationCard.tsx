@@ -3,7 +3,7 @@ import { Notification } from "../../models/Notification";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDeleteNotification, useMarkNotificationAsRead } from "../../API/NotificationApi";
-import { createRelation } from "../../API/RelationApi";
+import { useCreateRelation } from "../../API/RelationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
@@ -12,7 +12,6 @@ interface NotificationCardProps {
 }
 
 const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => {
-    const [error, setError] = useState<string | null>(null);
     const [isInvitation, setIsInvitation] = useState<boolean>(false);
     const navigate = useNavigate();
     const loggedUserId = getLoggedUserId();
@@ -20,13 +19,14 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => 
     //Api
     const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
     const { mutate: markAsRead } = useMarkNotificationAsRead();
+    const { mutate: acceptToFriends, error: acceptToFriendsError } = useCreateRelation();
 
     const handleAccept = async () => {
       if (!loggedUserId) {
         console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
-      await createRelation(loggedUserId, notification.sourceUserId, 0, () => {}, setError);
+      acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0});
       setIsInvitation(true);
       deleteNotification(notification.notificationId);
     };

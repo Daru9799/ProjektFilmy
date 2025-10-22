@@ -3,7 +3,7 @@ import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteNotification, useMarkNotificationAsRead } from "../../API/NotificationApi";
-import { createRelation } from "../../API/RelationApi";
+import { useCreateRelation } from "../../API/RelationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
 
@@ -21,13 +21,14 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
   //Api
   const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
   const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const { mutate: acceptToFriends, error: acceptToFriendsError } = useCreateRelation();
 
   const handleAccept = async () => {
     if (!loggedUserId) {
       console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
       return;
     }
-    await createRelation(loggedUserId, notification.sourceUserId, 0, () => {}, setError);
+    acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0});
     setIsInvitation(true);
     deleteNotification(notification.notificationId);
     window.location.reload();

@@ -1,8 +1,8 @@
-import { keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useApiQuery } from "../hooks/useApiQuery";
 import { API_BASE_URL } from "../constants/api";
-
+import { useApiMutation } from "../hooks/useApiMutation ";
 
 export const useUserRelations = (username: string | undefined, type: string) => {
   return useApiQuery<{ relations: any[] } | null>({
@@ -23,62 +23,39 @@ export const useUserRelations = (username: string | undefined, type: string) => 
   });
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-export const deleteRelation = async (
-  relationId: string,
-  setRelations: React.Dispatch<React.SetStateAction<any>>
-) => {
-  await axios.delete(
-    `https://localhost:7053/api/UserRelations/delete-relation/${relationId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
-  setRelations((prevRelations: any) => {
-    const updatedRelations = { ...prevRelations };
-    updatedRelations.$values = updatedRelations.$values.filter(
-      (relation: any) => relation.id !== relationId
-    );
-    return updatedRelations;
-  });
-};
-
-export const createRelation = async (
-  firstUserId: string,
-  secondUserId: string,
-  type: number, //0 - Friend 1 - Blocked
-  setRelations: React.Dispatch<React.SetStateAction<any>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  try {
-    const response = await axios.post(
-      `https://localhost:7053/api/UserRelations/add-relation`,
-      {
-        firstUserId,
-        secondUserId,
-        type,
-      },
-      {
+export const useDeleteRelation = () => {
+  const queryClient = useQueryClient();
+  return useApiMutation({
+    mutationFn: async (relationId: string) => {
+      await axios.delete(`${API_BASE_URL}/UserRelations/delete-relation/${relationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
-    );
+      });
+      return relationId;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['userRelations'] });
+    },
+  });
+};
 
-    setRelations((prevRelations: any) => {
-      const updated = { ...prevRelations };
-      updated.$values = [...(updated?.$values || []), response.data];
-      return updated;
-    });
-  } catch (err) {
-    console.error("Błąd podczas tworzenia relacji:", err);
-    if (axios.isAxiosError(err) && err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else {
-      setError("Nie udało się dodać relacji. Spróbuj ponownie.");
+export const useCreateRelation = () => {
+  const queryClient = useQueryClient();
+  return useApiMutation({
+    mutationFn: async (params: { firstUserId: string; secondUserId: string; type: number }) => {
+      const { firstUserId, secondUserId, type } = params;
+      const { data } = await axios.post(`${API_BASE_URL}/UserRelations/add-relation`,
+        { firstUserId, secondUserId, type }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["userRelations"] });
     }
-  }
+  });
 };

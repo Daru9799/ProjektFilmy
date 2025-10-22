@@ -1,46 +1,20 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
 import { UserRelation } from "../models/UserRelation";
-import { useUserRelations, deleteRelation } from "../API/RelationApi";
+import { useUserRelations, useDeleteRelation } from "../API/RelationApi";
 import BlockedCardProps from "../components/Blocked_components/BlockedCard";
-import InfoModal from "../components/SharedModals/InfoModal"
 import SpinnerLoader from "../components/SpinnerLoader";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 
 const BlockedPage = () => {
   const { userName } = useParams();
-  const [relations, setRelations] = useState<any>(null);
-  const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
   const { data, isLoading: blockedListLoading, apiError: blockedListError  } = useUserRelations(userName, "Blocked");
   const blockedUsers = data?.relations ?? [];
+  //Mutacje
+  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
 
   const handleDeleteRelation = async (relationId: string) => {
-    try {
-      await deleteRelation(relationId, setRelations);
-
-      setRelations((prev: any) => {
-        if (!prev) return null;
-
-        const updated = {
-          ...prev,
-          $values: prev.$values.filter((r: UserRelation) => r.relationId !== relationId),
-        };
-        return updated;
-      });
-
-      // if (userName) {
-      //   setLoading(true);
-      //   fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
-      //     setLoading(false);
-      //   });
-      // }
-    } catch (error) {
-      showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
-    }
-  };
-
-  const showInfoModal = (title: string, message: string, variant: "success" | "danger" | "warning" = "danger") => {
-    setInfoModal({ show: true, title, message, variant });
+    deleteFromFriends(relationId);
   };
 
   if(blockedListLoading) return <SpinnerLoader />
@@ -66,7 +40,7 @@ const BlockedPage = () => {
           )}
         </ApiErrorDisplay>
       </div>
-      <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
+      <ActionPendingModal show={isDeletingFromFriends} message="Trwa usuwanie użytkownika z zablokowanych..."/>
     </div>
   );
 };

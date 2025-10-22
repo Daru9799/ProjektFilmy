@@ -7,8 +7,8 @@ import AddReviewModal from "../components/review_components/AddReviewModal";
 import EditUserModal from "../components/User_componets/EditUserModal";
 import { useUserReviews, useUserData } from "../API/UserApi";
 import {
-  deleteRelation,
-  createRelation,
+  useDeleteRelation,
+  useCreateRelation,
 } from "../API/RelationApi";
 import {
   sendFriendInvitation,
@@ -61,30 +61,21 @@ const UserPage = () => {
   const [reload, setReload] = useState<boolean>(false);
 
   //Api hooks
-  const { data: reviewData, isLoading: reviewlLoading, error: reviewsError, refetch: refetchReviews } = useUserReviews(userName, 1, 5);
+  const { data: reviewData, isLoading: reviewlLoading, error: reviewsError} = useUserReviews(userName, 1, 5);
   const reviews = reviewData?.reviews ?? [];
   const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
   const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
+  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
+  const { mutate: acceptToFriends, isPending: isAcceptingToFriends, error: acceptToFriendsError } = useCreateRelation();
+  const { mutate: blockUser, isPending: isBlockingUser, error: blockUserError } = useCreateRelation();
+
 
   useEffect(() => {
     setReload(false);
     const loggedUserName = localStorage.getItem("logged_username");
-    if (userName) {
-      //fetchUserData(userName, setUser, setError, setLoading, navigate);
-      //fetchUserReviews(userName, 3, setReviews, setError);
-      // if (loggedUserName) {
-      //   fetchRelationsData(
-      //     loggedUserName,
-      //     "",
-      //     setRelations,
-      //     setError,
-      //     navigate
-      //   );
-      // }
-    }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
 
     if (loggedUserName && userName) {
@@ -159,18 +150,7 @@ const UserPage = () => {
   };
 
   const handleDeleteRelation = async (relationId: string) => {
-    try {
-      await deleteRelation(relationId, setRelations);
-      setRelations((prevRelations: any) => {
-        const updatedRelations = { ...prevRelations };
-        updatedRelations.$values = updatedRelations.$values.filter(
-          (relation: any) => relation.relationId !== relationId
-        );
-        return updatedRelations;
-      });
-    } catch (error) {
-      window.location.reload();
-    }
+    deleteFromFriends(relationId);
   };
 
   const sendInvitation = async () => {
@@ -246,7 +226,7 @@ const UserPage = () => {
     if (!user || !loggedUserId) return;
 
     //Utworzenie relacji
-    await createRelation(loggedUserId, user.id, 0, setRelations, setError);
+    acceptToFriends({firstUserId: loggedUserId, secondUserId: user.id, type: 0});
 
     //Pobranie zaproszeń
     const invitation = await getInvitationFromUser(loggedUserId, user.userName);
@@ -255,15 +235,6 @@ const UserPage = () => {
     if (invitation) {
       deleteNotification(invitation.notificationId);
     }
-
-    //Odświeżenie dla przycisków
-    // await fetchRelationsData(
-    //   localStorage.getItem("logged_username")!,
-    //   "",
-    //   setRelations,
-    //   setError,
-    //   navigate
-    // );
     setIsInvitedByUser(false);
   };
 
@@ -284,16 +255,7 @@ const UserPage = () => {
     if (!user || !loggedUserId) return;
 
     //Utworzenie relacji
-    await createRelation(loggedUserId, user.id, 1, setRelations, setError);
-
-    //Odświeżenie dla przycisków
-    // await fetchRelationsData(
-    //   localStorage.getItem("logged_username")!,
-    //   "",
-    //   setRelations,
-    //   setError,
-    //   navigate
-    // );
+    blockUser({firstUserId: loggedUserId, secondUserId: user.id, type: 1});
   };
 
   const isFriend = relations?.$values.some(
@@ -532,6 +494,7 @@ const UserPage = () => {
         <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
         <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
         <ActionPendingModal show={isDeletingNotification} message="Trwa dodawanie do znajomych..."/>
+        <ActionPendingModal show={isDeletingFromFriends} message="Trwa usuwanie ze znajomych..."/>
       </div>
     </>
   );
