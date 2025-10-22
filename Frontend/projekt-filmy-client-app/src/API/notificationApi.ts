@@ -59,6 +59,7 @@ export const useDeleteNotification = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      await queryClient.invalidateQueries({ queryKey: ['invitation'] });
     }
   });
 };
@@ -160,111 +161,50 @@ export const useSendCollectionReviewedNotification = () => {
   });
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-export const sendFriendInvitation = async (
-  targetUserId: string,
-  sourceUserId: string,
-  sourceUserName: string | null,
-  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
-) => {
-    const response = await axios.post(
-      "https://localhost:7053/api/Notifications/add-notification",
-      {
-        title: `Zaproszenie do grona znajomych!`,
-        description: `${sourceUserName} zaprasza Cię do grona znajomych!`,
-        type: "Invitation",
-        date: new Date().toISOString(),
-        isRead: false,
-        resource: `/user/${sourceUserName}`,
-        sourceUserId: sourceUserId,
-        targetUserId: targetUserId, //Id zapraszanego usera
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+export const useSendFriendInvitation = () => {
+  return useApiMutation({
+    mutationFn: async ({ targetUserId, sourceUserId, sourceUserName }: { targetUserId: string; sourceUserId: string; sourceUserName: string | null; }) => {
+      const response = await axios.post(`${API_BASE_URL}/Notifications/add-notification`, {
+          title: `Zaproszenie do grona znajomych!`,
+          description: `${sourceUserName} zaprasza Cię do grona znajomych!`,
+          type: "Invitation",
+          date: new Date().toISOString(),
+          isRead: false,
+          resource: `/user/${sourceUserName}`,
+          sourceUserId,
+          targetUserId,
         },
-      }
-    );
-
-    if (response.status === 200) {
-      setNotification(response.data);
-    }
-};
-
-//Sprawdzanie czy zalogowany A zaprosił już B (aby nie mógł zapraszać dwukrotnie)
-export const checkIsInvited = async (targetUserId: string): Promise<boolean> => {
-  const loggedUserName = localStorage.getItem("logged_username");
-
-  if (!loggedUserName) {
-    console.error("Brak zalogowanego użytkownika.");
-    return false;
-  }
-
-  try {
-    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${targetUserId}`, {
-      params: {
-        type: "Invitation",
-        disablePagination: true,
-        sourceUserName: loggedUserName,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
-    });
-
-    const notifications: Notification[] = response.data.data?.$values ?? [];
-
-    return notifications.length > 0;
-  } catch (error) {
-    console.error("Błąd podczas sprawdzania zaproszenia:", error);
-    return false;
-  }
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return response.data;
+    },
+  });
 };
 
 //Sprawdzenie czy A nie otrzymał przypadkiem zaproszenia od B (aby nie renderować niepotrzebnie Dodaj do znajomych)
-export const checkIsInvitedByUser = async (loggedUserId: string, profileUserName: string): Promise<boolean> => {
-  try {
-    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${loggedUserId}`, {
-      params: {
-        type: "Invitation",
-        noPagination: true,
-        sourceUserName: profileUserName,  //Nazwa profilu który jest przeglądany
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
-    });
+//Mozna by to jeszcze sprobowac przerzucić do backendu i próbować wypluwać jako role Pending
+export const useCheckIsInvitedByUser = (loggedUserId: string | null, profileUserName: string) => {
+  return useApiQuery({
+    queryKey: ["invitation", loggedUserId, profileUserName],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/Notifications/by-user-id/${loggedUserId}`, {
+        params: {
+          type: "Invitation",
+          noPagination: true,
+          sourceUserName: profileUserName,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    const notifications: Notification[] = response.data.data?.$values ?? [];
-    return notifications.length > 0;
-  } catch (error) {
-    console.error("Błąd podczas sprawdzania zaproszenia:", error);
-    return false;
-  }
-};
-
-//Pobranie zaproszenia
-export const getInvitationFromUser = async (
-  loggedUserId: string,
-  profileUserName: string
-): Promise<Notification | null> => {
-  try {
-    const response = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${loggedUserId}`, {
-      params: {
-        type: "Invitation",
-        noPagination: true,
-        sourceUserName: profileUserName,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    const notifications: Notification[] = response.data.data?.$values ?? [];
-    return notifications.length > 0 ? notifications[0] : null;
-  } catch (error) {
-    console.error("Błąd podczas pobierania zaproszenia:", error);
-    return null;
-  }
+      const notifications = data.data?.$values ?? [];
+      return notifications.length > 0;
+    },
+    enabled: !!loggedUserId && !!profileUserName,
+  });
 };

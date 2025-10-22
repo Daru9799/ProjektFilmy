@@ -66,6 +66,18 @@ namespace Movies.Application.Notifications
                         }
                     }
 
+                    var existingInvitation = await _context.Notifications
+                        .FirstOrDefaultAsync(n =>
+                            n.Type == Notification.NotificationType.Invitation &&
+                            n.SourceUserId == request.SourceUserId &&
+                            n.TargetUserId == request.TargetUserId,
+                            cancellationToken);
+
+                    if (existingInvitation != null)
+                    {
+                        throw new ConflictException("Zaproszenie zostało już wysłane!");
+                    }
+
                     var existingRelation = await _context.UserRelations
                         .FirstOrDefaultAsync(r =>
                             (r.FirstUserId == request.SourceUserId && r.SecondUserId == request.TargetUserId ||

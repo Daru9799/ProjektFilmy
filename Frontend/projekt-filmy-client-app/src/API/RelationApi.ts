@@ -36,6 +36,8 @@ export const useDeleteRelation = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['userRelations'] });
+      await queryClient.invalidateQueries({ queryKey: ['userData'] });
+      await queryClient.invalidateQueries({ queryKey: ["isInvitedByUser"] });
     },
   });
 };
@@ -56,6 +58,8 @@ export const useCreateRelation = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["userRelations"] });
+      await queryClient.invalidateQueries({ queryKey: ['userData'] });
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
     }
   });
 };

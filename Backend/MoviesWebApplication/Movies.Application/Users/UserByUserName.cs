@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Movies.Domain.DTOs;
 using Movies.Application._Common.Exceptions;
+using Movies.Domain.Entities;
 
 namespace Movies.Application.Users
 {
@@ -53,6 +54,29 @@ namespace Movies.Application.Users
                     isOwner = true;
                 }
 
+                string relationType = "None"; //Domyślnie brak relacji
+                Guid? relationId = null;
+
+                //Sprawdzenie relacji
+                if (!isOwner && tokenUserId != null)
+                {
+                    var relation = await _context.UserRelations
+                        .FirstOrDefaultAsync(ur =>
+                            (ur.FirstUserId == tokenUserId && ur.SecondUserId == user.Id) ||
+                            (ur.SecondUserId == tokenUserId && ur.FirstUserId == user.Id),
+                            cancellationToken
+                        );
+
+                    if (relation != null)
+                    {
+                        if (relation.Type == UserRelation.RelationType.Friend)
+                            relationType = "Friend";
+                        else if (relation.Type == UserRelation.RelationType.Blocked)
+                            relationType = "Blocked";
+                            relationId = relation.UserRelationId;
+                    }
+                }
+
                 return new UserProfileDto
                 {
                     Id = user.Id,
@@ -61,7 +85,9 @@ namespace Movies.Application.Users
                     UserRole = user.UserRole,
                     ReviewsCount = user.Reviews?.Count ?? 0,
                     IsOwner = isOwner,
-                    IsGoogleUser = user.IsGoogleUser
+                    IsGoogleUser = user.IsGoogleUser,
+                    RelationType = relationType,
+                    RelationId = relationId,
                 };
             }
         }

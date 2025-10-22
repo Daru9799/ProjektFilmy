@@ -71,6 +71,23 @@ namespace Movies.Application.UserRelations
                     };
 
                     _context.UserRelations.Add(relation);
+
+                    //Jeśli to relacja "Friend" usuwa zaproszenia pomiędzy tymi użytkownikami
+                    if (request.Type == UserRelation.RelationType.Friend)
+                    {
+                        var invitations = await _context.Notifications
+                            .Where(n =>
+                                n.Type == Notification.NotificationType.Invitation &&
+                                ((n.SourceUserId == request.FirstUserId && n.TargetUserId == request.SecondUserId) ||
+                                 (n.SourceUserId == request.SecondUserId && n.TargetUserId == request.FirstUserId)))
+                            .ToListAsync(cancellationToken);
+
+                        if (invitations.Any())
+                        {
+                            _context.Notifications.RemoveRange(invitations);
+                        }
+                    }
+
                     await _context.SaveChangesAsync(cancellationToken);
 
                     return relation;

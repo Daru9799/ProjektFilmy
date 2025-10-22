@@ -11,11 +11,9 @@ import {
   useCreateRelation,
 } from "../API/RelationApi";
 import {
-  sendFriendInvitation,
-  checkIsInvited,
-  checkIsInvitedByUser,
-  getInvitationFromUser,
+  useSendFriendInvitation,
   useDeleteNotification,
+  useCheckIsInvitedByUser,
 } from "../API/NotificationApi";
 import { useDeleteReview, useEditReview } from "../API/ReviewApi";
 import ConfirmationModal from "../components/SharedModals/ConfirmationModal";
@@ -25,6 +23,7 @@ import ChangeRoleModal from "../components/User_componets/ChangeRoleModal";
 import InfoModal from "../components/SharedModals/InfoModal";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import SpinnerLoader from "../components/SpinnerLoader";
+import { toast } from "react-toastify";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -41,15 +40,12 @@ function getUserRoleName(role: userRole): string {
 
 const UserPage = () => {
   const { userName } = useParams();
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
-  const [relations, setRelations] = useState<any>(null);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showChangeRoleModal, setShowChangeRoleModal] = useState(false);
-  const [notification, setNotification] = useState(null);
-  const [isInvitedByUser, setIsInvitedByUser] = useState(false);
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [infoModal, setInfoModal] = useState<{
     show: boolean;
@@ -64,14 +60,14 @@ const UserPage = () => {
   const { data: reviewData, isLoading: reviewlLoading, error: reviewsError} = useUserReviews(userName, 1, 5);
   const reviews = reviewData?.reviews ?? [];
   const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
+  const { data: isInvitedByUser} = useCheckIsInvitedByUser(getLoggedUserId(), userName!);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
-  const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
   const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
   const { mutate: acceptToFriends, isPending: isAcceptingToFriends, error: acceptToFriendsError } = useCreateRelation();
   const { mutate: blockUser, isPending: isBlockingUser, error: blockUserError } = useCreateRelation();
-
+  const { mutate: sendFriendRequest, isPending: sendingFriendRequest, apiError: sendingFriendRequestError } = useSendFriendInvitation();
 
   useEffect(() => {
     setReload(false);
@@ -88,8 +84,6 @@ const UserPage = () => {
 
       //Sprawdzanie czy mod
       setIsLoggedUserMod(isUserMod());
-
-      checkIsInvitedByUser(loggedUserId, userName).then(setIsInvitedByUser);
     }
   }, [userName, reload]);
 
@@ -139,18 +133,17 @@ const UserPage = () => {
   };
 
   const handleConfirmDelete = () => {
-    handleDeleteRelation(
-      relations?.$values.find(
-        (relation: any) =>
-          relation.type === "Friend" &&
-          relation.relatedUserName === user?.userName
-      )?.relationId
-    );
+    if(!user?.relationId) return
+    handleDeleteRelation(user?.relationId);
     setShowDeleteModal(false);
   };
 
   const handleDeleteRelation = async (relationId: string) => {
-    deleteFromFriends(relationId);
+    deleteFromFriends(relationId, {
+      onSuccess: () => {
+        window.location.reload(); //Temp
+      },
+    });
   };
 
   const sendInvitation = async () => {
@@ -167,45 +160,22 @@ const UserPage = () => {
 
     //Dekodowanie tokenu
     if (user) {
-      const alreadyInvited = await checkIsInvited(user.id);
-      if (alreadyInvited) {
-        showInfoModal(
-          "Informacja",
-          "Ten użytkownik został już zaproszony.",
-          "danger"
-        );
-        return;
-      }
-
       const sourceUserId = getLoggedUserId(); //Id użytkownika, który wysyła zaproszenie
       const sourceUserName = localStorage.getItem("logged_username");
       const targetUserId = user.id; //Id użytkownika docelowego
 
       if (sourceUserId == null) return;
-
-      try {
-        await sendFriendInvitation(
-          targetUserId,
-          sourceUserId,
-          sourceUserName,
-          setNotification
-        );
-        showInfoModal(
-          "Informacja",
-          "Pomyślnie wysłano zaproszenie do grona znajomych!",
-          "success"
-        );
-      } catch (error: any) {
-        if (error.response && error.response.status === 400) {
-          window.location.reload();
-        } else {
-          showInfoModal(
-            "Informacja",
-            "Coś poszło nie tak. Spróbuj ponownie.",
-            "danger"
-          );
+      sendFriendRequest(
+        { targetUserId, sourceUserId, sourceUserName },
+        {
+          onSuccess() {
+            toast.info(`Pomyślnie wysłano zaproszenie użytkownikowi ${user.userName}`);
+          },
+          onError() {
+            toast.error(`Nie udało się wysłać zaproszenia. Spróbuj ponownie. ${sendingFriendRequestError?.message}`);
+          },
         }
-      }
+      );
     }
   };
 
@@ -227,15 +197,6 @@ const UserPage = () => {
 
     //Utworzenie relacji
     acceptToFriends({firstUserId: loggedUserId, secondUserId: user.id, type: 0});
-
-    //Pobranie zaproszeń
-    const invitation = await getInvitationFromUser(loggedUserId, user.userName);
-
-    //Usuwanie zaproszenia
-    if (invitation) {
-      deleteNotification(invitation.notificationId);
-    }
-    setIsInvitedByUser(false);
   };
 
   const handleBlock = async () => {
@@ -256,21 +217,12 @@ const UserPage = () => {
 
     //Utworzenie relacji
     blockUser({firstUserId: loggedUserId, secondUserId: user.id, type: 1});
+    navigate("/");
   };
-
-  const isFriend = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Friend" && relation.relatedUserName === user?.userName
-  );
-
-  const isBlocked = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Blocked" && relation.relatedUserName === user?.userName
-  );
 
   if (error) return <p className="error">{error}</p>;
 
-  if (isBlocked) {
+  if (user?.relationType === "Blocked") {
     navigate("/"); //W przypadku bloka przenosi na /
     return null;
   }
@@ -300,31 +252,32 @@ const UserPage = () => {
           </div>
 
           <div className="relation-buttons ms-2">
-            {!user?.isOwner && (
-              <>
-                {isInvitedByUser ? (
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleAcceptInvitation}
-                  >
-                    Akceptuj zaproszenie
-                  </button>
-                ) : !isFriend ? (
-                  <button className="btn btn-success" onClick={sendInvitation}>
-                    Dodaj do znajomych
-                  </button>
-                ) : (
-                  <button className="btn btn-danger" onClick={handleDeleteRel}>
-                    Usuń ze znajomych
-                  </button>
-                )}
-                {!isFriend && (
-                  <button className="btn btn-danger" onClick={handleBlock}>
+          {!user?.isOwner && (
+            <>
+              {user?.relationType === "None" && (
+                <>
+                  {isInvitedByUser ? (
+                    <button className="btn btn-primary me-2" onClick={handleAcceptInvitation}>
+                      Akceptuj zaproszenie
+                    </button>
+                  ) : (
+                    <button className="btn btn-success me-2" onClick={sendInvitation}>
+                      Dodaj do znajomych
+                    </button>
+                  )}
+                  <button className="btn btn-outline-danger" onClick={handleBlock}>
                     Zablokuj
                   </button>
-                )}
-              </>
-            )}
+                </>
+              )}
+
+              {user?.relationType === "Friend" && (
+                <button className="btn btn-danger" onClick={handleDeleteRel}>
+                  Usuń ze znajomych
+                </button>
+              )}
+            </>
+          )}
           </div>
           {/*
           Zmieniam visibility na display, bo inaczej się przyciski psują,
@@ -493,8 +446,9 @@ const UserPage = () => {
 
         <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
         <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
-        <ActionPendingModal show={isDeletingNotification} message="Trwa dodawanie do znajomych..."/>
+        <ActionPendingModal show={isAcceptingToFriends} message="Trwa dodawanie do znajomych..."/>
         <ActionPendingModal show={isDeletingFromFriends} message="Trwa usuwanie ze znajomych..."/>
+        <ActionPendingModal show={sendingFriendRequest} message="Trwa wysyłanie zaproszenia do znajomych"/>
       </div>
     </>
   );
