@@ -7,7 +7,6 @@ import AddReviewModal from "../components/review_components/AddReviewModal";
 import EditUserModal from "../components/User_componets/EditUserModal";
 import { useUserReviews, useUserData } from "../API/UserApi";
 import {
-  fetchRelationsData,
   deleteRelation,
   createRelation,
 } from "../API/RelationApi";
@@ -76,15 +75,15 @@ const UserPage = () => {
     if (userName) {
       //fetchUserData(userName, setUser, setError, setLoading, navigate);
       //fetchUserReviews(userName, 3, setReviews, setError);
-      if (loggedUserName) {
-        fetchRelationsData(
-          loggedUserName,
-          "",
-          setRelations,
-          setError,
-          navigate
-        );
-      }
+      // if (loggedUserName) {
+      //   fetchRelationsData(
+      //     loggedUserName,
+      //     "",
+      //     setRelations,
+      //     setError,
+      //     navigate
+      //   );
+      // }
     }
     console.log("Czy użytkownik jest właścicielem?", user?.isOwner);
 
@@ -258,13 +257,13 @@ const UserPage = () => {
     }
 
     //Odświeżenie dla przycisków
-    await fetchRelationsData(
-      localStorage.getItem("logged_username")!,
-      "",
-      setRelations,
-      setError,
-      navigate
-    );
+    // await fetchRelationsData(
+    //   localStorage.getItem("logged_username")!,
+    //   "",
+    //   setRelations,
+    //   setError,
+    //   navigate
+    // );
     setIsInvitedByUser(false);
   };
 
@@ -288,13 +287,13 @@ const UserPage = () => {
     await createRelation(loggedUserId, user.id, 1, setRelations, setError);
 
     //Odświeżenie dla przycisków
-    await fetchRelationsData(
-      localStorage.getItem("logged_username")!,
-      "",
-      setRelations,
-      setError,
-      navigate
-    );
+    // await fetchRelationsData(
+    //   localStorage.getItem("logged_username")!,
+    //   "",
+    //   setRelations,
+    //   setError,
+    //   navigate
+    // );
   };
 
   const isFriend = relations?.$values.some(

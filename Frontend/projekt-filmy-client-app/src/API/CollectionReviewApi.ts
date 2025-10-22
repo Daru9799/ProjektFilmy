@@ -4,7 +4,6 @@ import { API_BASE_URL } from "../constants/api";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import { useApiQuery } from "../hooks/useApiQuery";
 
-//to do: OBSLUGA BLEDOW
 export const useCollectionReviewById = (reviewId: string | undefined) => {
   return useApiQuery({
     queryKey: ["collectionReview", reviewId],
@@ -23,7 +22,7 @@ export const useCollectionReviewById = (reviewId: string | undefined) => {
 
 //to do: OBSLUGA BLEDOW
 export const useCollectionReviewsByCollectionId = (movieCollectionId: string | undefined, page: number, pageSize: number, sortOrder: string, sortDirection: string) => {
-  return useQuery<{ reviews: MovieCollectionReview[]; totalPages: number }>({
+  return useApiQuery<{ reviews: MovieCollectionReview[]; totalPages: number }>({
     queryKey: ["collectionReviews", movieCollectionId, page, pageSize, sortOrder, sortDirection],
     queryFn: async () => {
       try {

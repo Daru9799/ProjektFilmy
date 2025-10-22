@@ -1,28 +1,18 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { UserRelation } from "../models/UserRelation";
-import { fetchRelationsData, deleteRelation } from "../API/RelationApi";
+import { useUserRelations, deleteRelation } from "../API/RelationApi";
 import BlockedCardProps from "../components/Blocked_components/BlockedCard";
 import InfoModal from "../components/SharedModals/InfoModal"
+import SpinnerLoader from "../components/SpinnerLoader";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const BlockedPage = () => {
   const { userName } = useParams();
   const [relations, setRelations] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (userName) {
-      setLoading(true);
-      fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
-        setLoading(false);
-      });
-    }
-  }, [userName]);
-
-  const blockedUsers = relations?.$values.filter((relation: UserRelation) => relation.type === "Blocked");
+  const { data, isLoading: blockedListLoading, apiError: blockedListError  } = useUserRelations(userName, "Blocked");
+  const blockedUsers = data?.relations ?? [];
 
   const handleDeleteRelation = async (relationId: string) => {
     try {
@@ -38,12 +28,12 @@ const BlockedPage = () => {
         return updated;
       });
 
-      if (userName) {
-        setLoading(true);
-        fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
-          setLoading(false);
-        });
-      }
+      // if (userName) {
+      //   setLoading(true);
+      //   fetchRelationsData(userName, "Blocked", setRelations, setError, navigate).finally(() => {
+      //     setLoading(false);
+      //   });
+      // }
     } catch (error) {
       showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
     }
@@ -53,8 +43,7 @@ const BlockedPage = () => {
     setInfoModal({ show: true, title, message, variant });
   };
 
-  if (loading) return <p>Ładowanie danych...</p>;
-  if (error) return <h1 className="error" style={{ color: 'white' }}>{error}</h1>;
+  if(blockedListLoading) return <SpinnerLoader />
 
   return (
     <div style={{ minHeight: "90vh"}}>
@@ -63,17 +52,19 @@ const BlockedPage = () => {
       </h2>
 
       <div style={{ color: "white", textAlign: "center", marginLeft: "30px", marginRight: "30px" }}>
-        {blockedUsers && blockedUsers.length > 0 ? (
-          <div className="row g-5">
-            {blockedUsers.map((blocked: UserRelation, index: number) => (
-              <div className="col-12 col-md-3" key={index}>
-                <BlockedCardProps blockedUser={blocked} onUnblock={handleDeleteRelation} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Brak zablokowanych użytkowników</p>
-        )}
+        <ApiErrorDisplay apiError={blockedListError}>
+          {blockedUsers && blockedUsers.length > 0 ? (
+            <div className="row g-5">
+              {blockedUsers.map((blocked: UserRelation, index: number) => (
+                <div className="col-12 col-md-3" key={index}>
+                  <BlockedCardProps blockedUser={blocked} onUnblock={handleDeleteRelation} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>Brak zablokowanych użytkowników</p>
+          )}
+        </ApiErrorDisplay>
       </div>
       <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
     </div>

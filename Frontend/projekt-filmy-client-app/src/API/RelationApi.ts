@@ -1,43 +1,29 @@
+import { keepPreviousData } from "@tanstack/react-query";
 import axios from "axios";
+import { useApiQuery } from "../hooks/useApiQuery";
+import { API_BASE_URL } from "../constants/api";
 
-export const fetchRelationsData = async (
-  username: string,
-  type: string,
-  setRelations: React.Dispatch<React.SetStateAction<any>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  navigate: (path: string) => void
-) => {
-  try {
-    const relationsResponse = await axios.get(
-      `https://localhost:7053/api/UserRelations/by-username/${username}`,
-      {
-        params: {
-          type: type,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setRelations(relationsResponse.data);
-  } catch (relationsError) {
-    if (axios.isAxiosError(relationsError)) {
-      if (relationsError.response?.status === 404) {
-        return;
-      } else if (relationsError.response?.status === 403) {
-        const errorMessage =
-          "Nie masz uprawnień do przeglądania listy tego użytkownika.";
-        setError(errorMessage);
-      } else {
-        navigate("/404");
-        return;
-      }
-    } else {
-      setError("Nieoczekiwany błąd");
-    }
-    console.error(relationsError);
-  }
+
+export const useUserRelations = (username: string | undefined, type: string) => {
+  return useApiQuery<{ relations: any[] } | null>({
+    queryKey: ['userRelations', username, type],
+    queryFn: async () => {
+        const { data } = await axios.get(`${API_BASE_URL}/UserRelations/by-username/${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            params: { type },
+          }
+        );
+        return { relations: data.$values ?? [] };
+    },
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 export const deleteRelation = async (
   relationId: string,

@@ -1,28 +1,18 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { UserRelation } from "../models/UserRelation";
-import { fetchRelationsData, deleteRelation } from "../API/RelationApi";
+import { useUserRelations, deleteRelation } from "../API/RelationApi";
 import FriendCard from "../components/Friends_components/FriendCard"
 import InfoModal from "../components/SharedModals/InfoModal"
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import SpinnerLoader from "../components/SpinnerLoader";
 
 const FriendsPage = () => {
-    const { userName } = useParams();
-    const [relations, setRelations] = useState<any>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (userName) {
-        setLoading(true);
-        fetchRelationsData(userName, "Friend", setRelations, setError, navigate).finally(() => {
-            setLoading(false);
-      });
-    }
-    }, [userName]);
-
-  const friends = relations?.$values.filter((relation: UserRelation) => relation.type === "Friend");
+  const { userName } = useParams();
+  const [relations, setRelations] = useState<any>(null);
+  const [infoModal, setInfoModal] = useState<{ show: boolean; title: string; message: string; variant: "success" | "danger" | "warning"; }>({ show: false, title: "", message: "", variant: "danger" });
+  const { data, isLoading: friendsListLoading, apiError: friendsListError  } = useUserRelations(userName, "Friend");
+  const friends = data?.relations ?? [];
 
   const handleDeleteRelation = async (relationId: string) => {
     try{
@@ -38,12 +28,12 @@ const FriendsPage = () => {
         return updated;
       });
 
-      if (userName) {
-        setLoading(true);
-        fetchRelationsData(userName, "Friend", setRelations, setError, navigate).finally(() => {
-          setLoading(false);
-        });
-      }
+      // if (userName) {
+      //   setLoading(true);
+      //   fetchRelationsData(userName, "Friend", setRelations, setError, navigate).finally(() => {
+      //     setLoading(false);
+      //   });
+      // }
     } catch (error) {
       showInfoModal("Błąd", "Nie udało się usunąć relacji — być może już została usunięta. Spróbuj odświeżyć stronę.", "danger");
     }
@@ -53,8 +43,7 @@ const FriendsPage = () => {
     setInfoModal({ show: true, title, message, variant });
   };
 
-  if (loading) return <p>Ładowanie danych...</p>;
-  if (error) return <h1 className="error" style={{ color: 'white'}}>{error}</h1>;
+  if(friendsListLoading) return <SpinnerLoader />
 
 return (
     <div style={{ minHeight: "90vh"}}>
@@ -63,6 +52,7 @@ return (
         </h2>
 
         <div style={{ color: "white", textAlign: "center", marginLeft: "30px", marginRight: "30px" }}>
+          <ApiErrorDisplay apiError={friendsListError}>
             {friends && friends.length > 0 ? (
                 <div className="row g-5">
                 {friends.map((friend: UserRelation, index: number) => (
@@ -72,8 +62,9 @@ return (
                 ))}
                 </div>
             ) : (
-                <p>Brak znajomych</p>
+                <p className="text-warning fs-5">Brak znajomych</p>
             )}
+          </ApiErrorDisplay>
         </div>
         <InfoModal show={infoModal.show} onClose={() => setInfoModal({ ...infoModal, show: false })} title={infoModal.title}message={infoModal.message} variant={infoModal.variant}/>
     </div>

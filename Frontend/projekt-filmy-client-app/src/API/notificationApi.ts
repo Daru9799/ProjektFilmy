@@ -4,13 +4,14 @@ import { NotificationType } from "../models/NotificationType";
 import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "../hooks/useApiQuery";
 import { useApiMutation } from "../hooks/useApiMutation ";
+import { API_BASE_URL } from "../constants/api";
 
 export const useNotificationsByUserId = (userId: string, pageNumber: number, pageSize: number, orderBy: "date" | "type" = "date", sortDirection: "asc" | "desc" = "desc", isRead?: boolean, type?: NotificationType) => {
   return useApiQuery<{ notifications: Notification[]; totalPages: number }>({
     queryKey: ["notifications", userId, pageNumber, pageSize, orderBy, sortDirection, isRead, type],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(`https://localhost:7053/api/Notifications/by-user-id/${userId}`, {
+        const { data } = await axios.get(`${API_BASE_URL}/Notifications/by-user-id/${userId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -49,7 +50,7 @@ export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
   return useApiMutation({
     mutationFn: async (notificationId: string) => {
-      await axios.delete(`https://localhost:7053/api/Notifications/delete-notification/${notificationId}`, {
+      await axios.delete(`${API_BASE_URL}/Notifications/delete-notification/${notificationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -67,7 +68,7 @@ export const useMarkNotificationAsRead = () => {
   const queryClient = useQueryClient();
   return useApiMutation({
     mutationFn: async (notificationId: string) => {
-      await axios.patch(`https://localhost:7053/api/Notifications/update-isread/${notificationId}`, {
+      await axios.patch(`${API_BASE_URL}/Notifications/update-isread/${notificationId}`, {
           notificationId,
           isRead: true,
         },
@@ -81,6 +82,80 @@ export const useMarkNotificationAsRead = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+};
+
+//Wysłanie powiadomienia po dodaniu komentarza do recenzji filmu
+export const useSendMovieReviewCommentedNotification = () => {
+  return useApiMutation({
+    mutationFn: async ({ reviewId, targetUserId, sourceUserId, sourceUserName }: { reviewId: string; targetUserId: string; sourceUserId: string; sourceUserName: string | null; }) => {
+      const response = await axios.post(`${API_BASE_URL}/Notifications/add-notification`, {
+          title: `Komentarz do Twojej recenzji filmu`,
+          description: `${sourceUserName} skomentował(a) Twoją recenzję filmu.`,
+          type: "ReviewCommented",
+          date: new Date().toISOString(),
+          isRead: false,
+          resource: `/${reviewId}/replies`,
+          sourceUserId,
+          targetUserId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return response.data;
+    }
+  });
+};
+
+//Wysłanie powiadomienia po dodaniu komentarza do recenzji kolekcji filmowej
+export const useSendCollectionReviewCommentedNotification = () => {
+  return useApiMutation({
+    mutationFn: async ({ collectionId, targetUserId, sourceUserId, sourceUserName }: { collectionId: string; targetUserId: string; sourceUserId: string; sourceUserName: string | null }) => {
+      const response = await axios.post(`${API_BASE_URL}/Notifications/add-notification`, {
+          title: `Komentarz do Twojej recenzji kolekcji`,
+          description: `${sourceUserName} skomentował(a) Twoją recenzję kolekcji filmów.`,
+          type: "ReviewCommented",
+          date: new Date().toISOString(),
+          isRead: false,
+          resource: `/movie-collection/${collectionId}/replies`,
+          sourceUserId,
+          targetUserId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return response.data;
+    }
+  });
+};
+
+export const useSendCollectionReviewedNotification = () => {
+  return useApiMutation({
+    mutationFn: async ({ collectionId, targetUserId, sourceUserId, sourceUserName, targetUserName }: { collectionId: string; targetUserId: string; sourceUserId: string; sourceUserName: string | null; targetUserName: string | null; }) => {
+      const response = await axios.post(`${API_BASE_URL}/Notifications/add-notification`, {
+          title: `Twoja kolekcja filmowa została zrecenzowana`,
+          description: `${sourceUserName} napisał(a) recenzję Twojej kolekcji filmów.`,
+          type: "CollectionReviewed",
+          date: new Date().toISOString(),
+          isRead: false,
+          resource: `/user/${targetUserName}/movieCollection/${collectionId}/reviews`,
+          sourceUserId,
+          targetUserId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return response.data;
     }
   });
 };
@@ -191,102 +266,5 @@ export const getInvitationFromUser = async (
   } catch (error) {
     console.error("Błąd podczas pobierania zaproszenia:", error);
     return null;
-  }
-};
-
-//Wysłanie powiadomienia po dodaniu komentarza do recenzji filmu
-export const sendMovieReviewCommentedNotification = async (
-  reviewId: string,
-  targetUserId: string,
-  sourceUserId: string,
-  sourceUserName: string | null,
-  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
-) => {
-  const response = await axios.post(
-    "https://localhost:7053/api/Notifications/add-notification",
-    {
-      title: `Komentarz do Twojej recenzji filmu`,
-      description: `${sourceUserName} skomentował(a) Twoją recenzję filmu.`,
-      type: "ReviewCommented",
-      date: new Date().toISOString(),
-      isRead: false,
-      resource: `/${reviewId}/replies`,
-      sourceUserId,
-      targetUserId,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
-
-  if (response.status === 200) {
-    setNotification(response.data);
-  }
-};
-
-//Wysłanie powiadomienia po dodaniu komentarza do recenzji kolekcji filmowej
-export const sendCollectionReviewCommentedNotification = async (
-  collectionId: string,
-  targetUserId: string,
-  sourceUserId: string,
-  sourceUserName: string | null,
-  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
-) => {
-  const response = await axios.post(
-    "https://localhost:7053/api/Notifications/add-notification",
-    {
-      title: `Komentarz do Twojej recenzji kolekcji`,
-      description: `${sourceUserName} skomentował(a) Twoją recenzję kolekcji filmów.`,
-      type: "ReviewCommented",
-      date: new Date().toISOString(),
-      isRead: false,
-      resource: `/movie-collection/${collectionId}/replies`,
-      sourceUserId,
-      targetUserId,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
-
-  if (response.status === 200) {
-    setNotification(response.data);
-  }
-};
-
-//Wysłanie powiadomienia po zrecenzowaniu kolekcji filmowej
-export const sendCollectionReviewedNotification = async (
-  collectionId: string,
-  targetUserId: string,
-  sourceUserId: string,
-  sourceUserName: string | null,
-  targetUserName: string | null,
-  setNotification: React.Dispatch<React.SetStateAction<any | null>>,
-) => {
-  const response = await axios.post(
-    "https://localhost:7053/api/Notifications/add-notification",
-    {
-      title: `Twoja kolekcja filmowa została zrecenzowana`,
-      description: `${sourceUserName} napisał(a) recenzję Twojej kolekcji filmów.`,
-      type: "CollectionReviewed",
-      date: new Date().toISOString(),
-      isRead: false,
-      resource: `/user/${targetUserName}/movieCollection/${collectionId}/reviews`,
-      sourceUserId,
-      targetUserId,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
-
-  if (response.status === 200) {
-    setNotification(response.data);
   }
 };

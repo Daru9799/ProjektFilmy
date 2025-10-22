@@ -5,7 +5,6 @@ import { isUserMod } from "../hooks/decodeJWT";
 import { useUserData } from "../API/UserApi";
 import { useMovieCollectionsByUser } from "../API/MovieCollectionApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
-import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 
 const MovieCollectionByUserPage = () => {
@@ -19,8 +18,6 @@ const MovieCollectionByUserPage = () => {
   const { userName } = useParams();
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [relations, setRelations] = useState<any>(null);
-  const navigate = useNavigate();
   //Potem mozna wymienić na stan, jesli bylaby implementacja sortowania
   const sortOrder = "likes";
   const sortDirection = "likes";
@@ -34,34 +31,6 @@ const MovieCollectionByUserPage = () => {
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
-
-  useEffect(() => {
-    if (user?.id) {
-      if (loggedUserName) {
-        fetchRelationsData(
-          localStorage.getItem("logged_username")!,
-          "",
-          setRelations,
-          setError,
-          navigate
-        );
-      }
-    }
-  }, [user, pagination.pageNumber, pagination.pageSize]);
-
-  const isFriend = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Friend" && relation.relatedUserName === user?.userName
-  );
-  const isBlocked = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Blocked" && relation.relatedUserName === user?.userName
-  );
-
-  if (isBlocked) {
-    navigate("/"); //W przypadku bloka przenosi na /
-    return null;
-  }
 
   if(userLoading || movieCollectionsLoading) return <SpinnerLoader />
 
@@ -95,7 +64,7 @@ const MovieCollectionByUserPage = () => {
               loggedUserName={loggedUserName}
               isLoggedUserMod={isLoggedUserMod}
               userPage={true}
-              isFriend={isFriend}
+              isFriend={false}
               setError={setError}
             />
           </div>

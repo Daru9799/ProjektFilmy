@@ -10,8 +10,8 @@ import ReviewCard from "../components/review_components/ReviewCard";
 import ReplyFormModal from "../components/reply_components/ReplyFormModal";
 import { ReplyEndpointType } from "../API/ReplyUniwersalApi"
 import { 
-  sendMovieReviewCommentedNotification, 
-  sendCollectionReviewCommentedNotification 
+  useSendMovieReviewCommentedNotification, 
+  useSendCollectionReviewCommentedNotification 
 } from "../API/NotificationApi"
 import { getLoggedUserId } from "../hooks/decodeJWT";
 import { useReviewById } from "../API/ReviewApi";
@@ -48,6 +48,8 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   const { mutate: createReply, isPending: isCreatingReply, error: createReplyError } = useCreateReply();
   const { mutate: deleteReply, isPending: isDeletingReply, error: deleteReplyError } = useDeleteReply();
   const { mutate: editReply, isPending: isEditingReply, error: editReplyError } = useEditReply();
+  const { mutate: sendReviewCommentedNotification } = useSendMovieReviewCommentedNotification();
+  const { mutate: sendCollectionReviewCommentedNotification } = useSendCollectionReviewCommentedNotification();
   
   let review: Review | undefined;
   let reviewLoading : boolean;
@@ -55,7 +57,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   if (endpointPrefix === "Reply") {
     review = movieReview
     reviewLoading = movieReviewLoading
-    reviewError = collectionReviewError
+    reviewError = movieReviewError
   } else {
     review = collectionReview
     reviewLoading = collectionReviewLoading
@@ -86,21 +88,9 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
 
     if (loggedUserId && loggedUserId !== reviewAuthorId) {
     if (endpointPrefix === "Reply") {
-      await sendMovieReviewCommentedNotification(
-        reviewId,
-        reviewAuthorId,
-        loggedUserId,
-        loggedUserName,
-        () => {}
-      );
+      sendReviewCommentedNotification({ reviewId: reviewId, targetUserId: reviewAuthorId, sourceUserId: loggedUserId, sourceUserName: loggedUserName })
     } else {
-        await sendCollectionReviewCommentedNotification(
-          reviewId,
-          reviewAuthorId,
-          loggedUserId,
-          loggedUserName,
-          () => {}
-        );
+        sendCollectionReviewCommentedNotification({ collectionId: reviewId, targetUserId: reviewAuthorId, sourceUserId: loggedUserId, sourceUserName: loggedUserName});
       }
     }
   };

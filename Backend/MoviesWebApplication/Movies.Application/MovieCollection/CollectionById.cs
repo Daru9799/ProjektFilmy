@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
@@ -19,10 +21,12 @@ namespace Movies.Application.MovieCollections
         public class Handler : IRequestHandler<Query, MovieCollectionDto>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<MovieCollectionDto?> Handle(Query request, CancellationToken cancellationToken)
@@ -38,6 +42,44 @@ namespace Movies.Application.MovieCollections
                 {
                     return null;
                 }
+
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                //Jeśli kolekcja prywatna i nie właściciel → brak dostępu
+                if (collection.ShareMode == MovieCollection.VisibilityMode.Private &&
+                    collection.User.Id != currentUserId)
+                {
+                    throw new NotFoundException("Nie możesz zobaczyć tej kolekcji.");
+                }
+
+                //Jeśli użytkownik nie jest właścicielem, sprawdzamy blokady i znajomych
+                if (collection.User.Id != currentUserId && currentUserId != null)
+                {
+                    var userRelation = await _context.UserRelations
+                        .FirstOrDefaultAsync(ur =>
+                            (ur.FirstUserId == collection.User.Id && ur.SecondUserId == currentUserId) ||
+                            (ur.SecondUserId == collection.User.Id && ur.FirstUserId == currentUserId),
+                            cancellationToken
+                        );
+
+                    //Zablokowany
+                    if (userRelation != null && userRelation.Type == UserRelation.RelationType.Blocked)
+                        throw new NotFoundException("Nie możesz zobaczyć tej kolekcji.");
+
+                    //Znajomi
+                    if (collection.ShareMode == MovieCollection.VisibilityMode.Friends &&
+                        (userRelation == null || userRelation.Type != UserRelation.RelationType.Friend))
+                    {
+                        throw new NotFoundException("Nie możesz zobaczyć tej kolekcji.");
+                    }
+                }
+
+                //Niezalogowani widzą tylko publiczne
+                if (currentUserId == null && collection.ShareMode != MovieCollection.VisibilityMode.Public)
+                {
+                    throw new NotFoundException("Nie możesz zobaczyć tej kolekcji.");
+                }
+
 
                 // Paginacja filmów
                 var pagedMovies = collection.Movies

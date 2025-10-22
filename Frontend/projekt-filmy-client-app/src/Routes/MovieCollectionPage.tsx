@@ -8,12 +8,12 @@ import "../styles/Zoom.css";
 import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
-import { sendCollectionReviewedNotification } from "../API/NotificationApi";
+import { useSendCollectionReviewedNotification } from "../API/NotificationApi";
 import { useAddCollectionReview, useCollectionReviewsByCollectionId, useUserReviewForCollection, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
-import { fetchRelationsData } from "../API/RelationApi";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -25,7 +25,6 @@ const MovieCollectionPage = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
-  const [notification, setNotification] = useState<any | null>(null);
   const [reviewToEdit, setReviewToEdit] = useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [relations, setRelations] = useState<any>(null);
@@ -33,14 +32,15 @@ const MovieCollectionPage = () => {
   const loggedUserId = getLoggedUserId();
   
   //Api hooks:
-  const { data: movieCollection = null, isLoading: movieCollectionLoading, error: movieCollectionError } = useMovieCollectionById(id);
+  const { data: movieCollection = null, isLoading: movieCollectionLoading, apiError: movieCollectionError } = useMovieCollectionById(id);
   const { data: userCollectionReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForCollection(loggedUserId, id);
-  const { data: collectionReviewsData, isLoading: reviewsLoading, error: reviewsError } = useCollectionReviewsByCollectionId(id, 1, 2, "", "");
+  const { data: collectionReviewsData, isLoading: reviewsLoading, apiError: reviewsError } = useCollectionReviewsByCollectionId(id, 1, 2, "", "");
   const reviews = collectionReviewsData?.reviews ?? [];
   //Mutacje
   const { mutate: addReview, isPending: isAddingReview, error: addingReviewError } = useAddCollectionReview();
   const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
   const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
+  const { mutate: sendCollectionReviewedNotification } = useSendCollectionReviewedNotification();
 
   //Funkcje
   const onDeleteReview = async (reviewId: string | undefined) => {
@@ -63,22 +63,6 @@ const MovieCollectionPage = () => {
   };
 
   useEffect(() => {
-    if (loggedUserName) {
-      fetchRelationsData(
-        localStorage.getItem("logged_username")!,
-        "",
-        setRelations,
-        setError,
-        navigate
-      );
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (movieCollection && movieCollection?.userName !== userName) {
-      navigate("/404"); //jeżeli user w url nie jest właścicielem kolekcji leci na 404
-    }
-
     if (id && loggedUserName) {
       const loggedUserId = getLoggedUserId();
 
@@ -96,15 +80,6 @@ const MovieCollectionPage = () => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
-  const isFriend = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Friend" && relation.relatedUserName === userName
-  );
-  const isBlocked = relations?.$values.some(
-    (relation: any) =>
-      relation.type === "Blocked" && relation.relatedUserName === userName
-  );
-
   const handleAddReview = async (reviewText: string, rating: number, isSpoiler: boolean) => {
     addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: isSpoiler });
     
@@ -114,14 +89,7 @@ const MovieCollectionPage = () => {
       loggedUserId &&
       movieCollection.userId !== loggedUserId
     ) {
-      await sendCollectionReviewedNotification(
-        movieCollection.movieCollectionId,
-        movieCollection.userId,
-        loggedUserId,
-        loggedUserName,
-        movieCollection.userName,
-        setNotification
-      );
+      sendCollectionReviewedNotification({ collectionId: movieCollection.movieCollectionId, targetUserId: movieCollection.userId, sourceUserId: loggedUserId, sourceUserName: loggedUserName, targetUserName: movieCollection.userName });
     }
   };
 
@@ -134,26 +102,8 @@ const MovieCollectionPage = () => {
     setIsLoggedIn(true);
   };
 
-  if (isBlocked) {
-    navigate("/"); //W przypadku bloka przenosi na /
-    return null;
-  }
+  if(movieCollectionError) return <ApiErrorDisplay apiError={movieCollectionError} />
 
-  if (
-    movieCollection?.shareMode === "Private" &&
-    loggedUserName != userName &&
-    !isLoggedUserMod
-  )
-    return <p>Ta kolekcja jest prywatna</p>;
-  if (
-    movieCollection?.shareMode === "Friends" &&
-    loggedUserName != userName &&
-    !isLoggedUserMod &&
-    !isFriend
-  )
-    return (
-      <p>{`Ta kolekcja jest dostępna tylko dla znajomych użytkownika ${userName}`}</p>
-    );
   if (error) return <p>{error}</p>;
 
   return (
@@ -236,7 +186,7 @@ const MovieCollectionPage = () => {
             loggedUserName={loggedUserName}
             isLoggedUserMod={isLoggedUserMod}
             userPage={false}
-            isFriend={isFriend}
+            isFriend={false}
             setError={setError}
           />
         ) : (
@@ -268,19 +218,20 @@ const MovieCollectionPage = () => {
         ) : null}
 
         <h3 className="mb-4">Recenzje:</h3>
-
-        {reviewsLoading ? (
-          <SpinnerLoader />
-        ) : reviews.length > 0 ? (
-          reviews.map((review) => (
-            <MovieCollectionReviewCard
-              key={review.movieCollectionReviewId}
-              movieCollectionReview={review}
-            />
-          ))
-        ) : (
-          <p>Brak recenzji dla tej kolekcji.</p>
-        )}
+        <ApiErrorDisplay apiError={reviewsError}>
+          {reviewsLoading ? (
+            <SpinnerLoader />
+          ) : reviews.length > 0 ? (
+            reviews.map((review) => (
+              <MovieCollectionReviewCard
+                key={review.movieCollectionReviewId}
+                movieCollectionReview={review}
+              />
+            ))
+          ) : (
+            <p>Brak recenzji dla tej kolekcji.</p>
+          )}
+        </ApiErrorDisplay>
       </div>
       {reviews.length === 2 && id && (
         <button

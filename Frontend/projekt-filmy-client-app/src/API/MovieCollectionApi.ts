@@ -3,6 +3,7 @@ import { MovieCollection } from "../models/MovieCollection";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import qs from "qs";
 import { API_BASE_URL } from "../constants/api";
+import { useApiQuery } from "../hooks/useApiQuery";
 
 //to do: OBSLUGA BLEDOW
 export const useMovieCollectionsByUser = (userId: string | undefined, page: number, pageSize: number, sortOrder: string, sortDirection: string) => {
@@ -36,7 +37,7 @@ export const useMovieCollectionsByUser = (userId: string | undefined, page: numb
 
 //to do: OBSLUGA BLEDOW
 export const useMovieCollectionById = (movieCollectionId: string | undefined) => {
-  return useQuery<MovieCollection, string>({
+  return useApiQuery<MovieCollection, string>({
     queryKey: ["movieCollection", movieCollectionId],
     queryFn: async () => {
       if (!movieCollectionId) throw "Brak movieCollectionId";

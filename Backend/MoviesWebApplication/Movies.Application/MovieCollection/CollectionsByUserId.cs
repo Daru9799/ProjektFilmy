@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Movies.Application._Common.Exceptions;
 using Movies.Domain;
@@ -26,23 +28,50 @@ namespace Movies.Application.MovieCollections
         public class Handler : IRequestHandler<Query, PagedResponse<MovieCollectionDto>>
         {
             private readonly DataContext _context;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<PagedResponse<MovieCollectionDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 var query = _context.MovieCollections
                     .Where(mc => mc.User.Id == request.UserId.ToString())
                     .Include(mc => mc.Movies)
-                    .Include(mc => mc.User) 
+                    .Include(mc => mc.User)
                     .AsQueryable();
 
-                if (request.visibilityMode != null)
+                //Zwracanie kolekcji w zależności od relacji
+                if (currentUserId != null)
                 {
-                    query = query.Where(mc => request.visibilityMode.Contains(mc.ShareMode));
+                    query = query.Where(mc =>
+                        mc.ShareMode == MovieCollection.VisibilityMode.Public
+                        || mc.User.Id == currentUserId // właściciel widzi wszystko
+                        || (mc.ShareMode == MovieCollection.VisibilityMode.Friends &&
+                            _context.UserRelations.Any(ur =>
+                                ur.Type == UserRelation.RelationType.Friend &&
+                                ((ur.FirstUserId == mc.User.Id && ur.SecondUserId == currentUserId) ||
+                                 (ur.SecondUserId == mc.User.Id && ur.FirstUserId == currentUserId))
+                            )
+                        )
+                    )
+                    //Pod bloka
+                    .Where(mc =>
+                        !_context.UserRelations.Any(ur =>
+                            ur.Type == UserRelation.RelationType.Blocked &&
+                            ((ur.FirstUserId == mc.User.Id && ur.SecondUserId == currentUserId) ||
+                             (ur.SecondUserId == mc.User.Id && ur.FirstUserId == currentUserId))
+                        )
+                    );
+                }
+                else
+                {
+                    query = query.Where(mc => mc.ShareMode == MovieCollection.VisibilityMode.Public);
                 }
 
                 if (request.collectionType != null)
