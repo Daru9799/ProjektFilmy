@@ -6,6 +6,8 @@ import { useDeleteNotification, useMarkNotificationAsRead } from "../../API/Noti
 import { useCreateRelation } from "../../API/RelationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 interface NotificationDropdownItemProps {
   notification: Notification;
@@ -13,30 +15,47 @@ interface NotificationDropdownItemProps {
 }
 
 const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ notification, isLast }) => {
-  const [error, setError] = useState<string | null>(null);
   const [isInvitation, setIsInvitation] = useState<boolean>(false);
   const navigate = useNavigate();
   const loggedUserId = getLoggedUserId();
 
   //Api
-  const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
+  const { mutate: deleteNotification, isPending: isDeletingNotification} = useDeleteNotification();
   const { mutate: markAsRead } = useMarkNotificationAsRead();
-  const { mutate: acceptToFriends, error: acceptToFriendsError } = useCreateRelation();
+  const { mutate: acceptToFriends, isPending: isAcceptingToFriends } = useCreateRelation();
 
   const handleAccept = async () => {
     if (!loggedUserId) {
       console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
       return;
     }
-    acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0});
-    setIsInvitation(true);
-    deleteNotification(notification.notificationId);
-    window.location.reload();
+    acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0}, {
+        onSuccess: () => {
+          toast.success(`Pomyślnie dodano użytkownika do znajomych!`);
+          setIsInvitation(true);
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zaakceptować zaproszenia. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      }
+    );
   };
 
   const handleDelete = async () => {
     setIsInvitation(false);
-    deleteNotification(notification.notificationId);
+    deleteNotification(notification.notificationId, {
+      onSuccess: () => {
+        toast.info("Powiadomienie zostało usunięte.");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(
+          `Nie udało się usunąć powiadomienia. [${apiErr?.statusCode}] ${apiErr?.message}`
+        );
+      },
+    });
   };
 
   const handleView = () => {
@@ -56,10 +75,10 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
       case "Invitation":
         return (
           <div className="d-flex gap-2 mt-2">
-            <Button variant="success" size="sm" onClick={handleAccept}>
+            <Button variant="success" size="sm" onClick={(e) => { e.stopPropagation(); handleAccept(); }}>
               Dodaj
             </Button>
-            <Button variant="danger" size="sm" onClick={handleDelete}>
+            <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }}>
               Odrzuć
             </Button>
             <Button variant="primary" size="sm" onClick={handleView}>
@@ -75,7 +94,7 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
             <Button variant="primary" size="sm" onClick={handleView}>
               Zobacz
             </Button>
-            <Button variant="danger" size="sm" onClick={handleDelete}>
+            <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }}>
               Usuń
             </Button>
           </div>
@@ -91,7 +110,7 @@ const NotificationDropdownItem: React.FC<NotificationDropdownItemProps> = ({ not
       <div className="text-muted small">{notification.description}</div>
       {renderActions()}
       <ActionPendingModal show={isDeletingNotification && !isInvitation} message="Trwa usuwanie powiadomienia..."/>
-      <ActionPendingModal show={isDeletingNotification && isInvitation} message="Trwa dodawanie do znajomych..."/>
+      <ActionPendingModal show={isAcceptingToFriends} message="Trwa dodawanie do znajomych..."/>
     </div>
   );
 };

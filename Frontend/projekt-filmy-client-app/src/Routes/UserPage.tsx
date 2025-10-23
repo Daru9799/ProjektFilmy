@@ -12,7 +12,6 @@ import {
 } from "../API/RelationApi";
 import {
   useSendFriendInvitation,
-  useDeleteNotification,
   useCheckIsInvitedByUser,
 } from "../API/NotificationApi";
 import { useDeleteReview, useEditReview } from "../API/ReviewApi";
@@ -24,6 +23,7 @@ import InfoModal from "../components/SharedModals/InfoModal";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import SpinnerLoader from "../components/SpinnerLoader";
 import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -62,12 +62,12 @@ const UserPage = () => {
   const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
   const { data: isInvitedByUser} = useCheckIsInvitedByUser(getLoggedUserId(), userName!);
   //Mutacje
-  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
-  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
-  const { mutate: acceptToFriends, isPending: isAcceptingToFriends, error: acceptToFriendsError } = useCreateRelation();
-  const { mutate: blockUser, isPending: isBlockingUser, error: blockUserError } = useCreateRelation();
-  const { mutate: sendFriendRequest, isPending: sendingFriendRequest, apiError: sendingFriendRequestError } = useSendFriendInvitation();
+  const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditReview();
+  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends } = useDeleteRelation();
+  const { mutate: acceptToFriends, isPending: isAcceptingToFriends } = useCreateRelation();
+  const { mutate: blockUser } = useCreateRelation();
+  const { mutate: sendFriendRequest, isPending: sendingFriendRequest } = useSendFriendInvitation();
 
   useEffect(() => {
     setReload(false);
@@ -88,39 +88,36 @@ const UserPage = () => {
   }, [userName, reload]);
 
   const handleDeleteReview = async (reviewId: string) => {
-    try {
-      deleteReview(reviewId);
-
-      // Odśwież dane z serwera
-      if (userName) {
-        refetchUser();
-        //fetchUserReviews(userName, 3, setReviews, setError);
-      }
-    } catch (err) {
-      console.error("Błąd podczas usuwania recenzji:", err);
-    }
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została usunięta pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
   };
 
-  const handleEditReview = (
-    review?: Review,
-    reviewText?: string,
-    rating?: number
-  ) => {
+  const handleEditReview = (review?: Review, reviewText?: string, rating?: number) => {
     if (review) {
-      // Otwórz modal i ustaw recenzję do edycji
       setReviewToEdit(review);
       setShowModal(true);
-    } else if (
-      reviewToEdit &&
-      reviewText !== undefined &&
-      rating !== undefined
-    ) {
-      editReview({
-        reviewId: reviewToEdit.reviewId,
-        updatedReview: { comment: reviewText, rating },
-      });
-      setShowModal(false);
-      setReviewToEdit(null);
+    } else if (reviewToEdit && reviewText !== undefined && rating !== undefined) {
+      editReview({ reviewId: reviewToEdit.reviewId, updatedReview: { comment: reviewText, rating } }, {
+          onSuccess: () => {
+            setShowModal(false);
+            setReviewToEdit(null);
+            toast.success("Recenzja została zaktualizowana pomyślnie!");
+          },
+          onError: (err) => {
+            const apiErr = getApiError(err);
+            toast.error(
+              `Nie udało się zaktualizować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`
+            );
+          },
+        }
+      );
     }
   };
 
@@ -142,6 +139,12 @@ const UserPage = () => {
     deleteFromFriends(relationId, {
       onSuccess: () => {
         window.location.reload(); //Temp
+        toast.success("Użytkownik został usunięty ze znajomych pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć użytkownika ze znajomych. [${apiErr?.statusCode}] ${apiErr?.message}`
+        );
       },
     });
   };
@@ -165,14 +168,16 @@ const UserPage = () => {
       const targetUserId = user.id; //Id użytkownika docelowego
 
       if (sourceUserId == null) return;
-      sendFriendRequest(
-        { targetUserId, sourceUserId, sourceUserName },
+      sendFriendRequest({ targetUserId, sourceUserId, sourceUserName },
         {
           onSuccess() {
             toast.info(`Pomyślnie wysłano zaproszenie użytkownikowi ${user.userName}`);
           },
-          onError() {
-            toast.error(`Nie udało się wysłać zaproszenia. Spróbuj ponownie. ${sendingFriendRequestError?.message}`);
+          onError: (err) => {
+            const apiErr = getApiError(err);
+            toast.error(
+              `Nie udało się wysłać zaproszenia. [${apiErr?.statusCode}] ${apiErr?.message}`
+            );
           },
         }
       );
@@ -196,7 +201,17 @@ const UserPage = () => {
     if (!user || !loggedUserId) return;
 
     //Utworzenie relacji
-    acceptToFriends({firstUserId: loggedUserId, secondUserId: user.id, type: 0});
+    acceptToFriends({ firstUserId: loggedUserId, secondUserId: user.id, type: 0 }, {
+        onSuccess: () => {
+          toast.success(`Pomyślnie dodano użytkownika ${user.userName} do znajomych!`);
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zaakceptować zaproszenia. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      }
+    );
   };
 
   const handleBlock = async () => {
@@ -216,8 +231,17 @@ const UserPage = () => {
     if (!user || !loggedUserId) return;
 
     //Utworzenie relacji
-    blockUser({firstUserId: loggedUserId, secondUserId: user.id, type: 1});
-    navigate("/");
+    blockUser({ firstUserId: loggedUserId, secondUserId: user.id, type: 1 }, {
+        onSuccess: () => {
+          toast.success(`Użytkownik ${user.userName} został zablokowany!`);
+          navigate("/");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zablokować użytkownika. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      }
+    );
   };
 
   if (error) return <p className="error">{error}</p>;

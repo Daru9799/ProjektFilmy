@@ -45,7 +45,6 @@ export const useNotificationsByUserId = (userId: string, pageNumber: number, pag
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
   return useApiMutation({

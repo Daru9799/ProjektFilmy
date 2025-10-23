@@ -5,6 +5,8 @@ import FriendCard from "../components/Friends_components/FriendCard"
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const FriendsPage = () => {
   const { userName } = useParams();
@@ -12,10 +14,19 @@ const FriendsPage = () => {
   const { data, isLoading: friendsListLoading, apiError: friendsListError  } = useUserRelations(userName, "Friend");
   const friends = data?.relations ?? [];
   //Mutacje
-  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
+  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends } = useDeleteRelation();
 
   const handleDeleteRelation = async (relationId: string) => {
-    deleteFromFriends(relationId);
+    deleteFromFriends(relationId, {
+      onSuccess: () => {
+        toast.success("Użytkownik został usunięty ze znajomych pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć użytkownika ze znajomych. [${apiErr?.statusCode}] ${apiErr?.message}`
+        );
+      },
+    });
   };
 
   if(friendsListLoading) return <SpinnerLoader />

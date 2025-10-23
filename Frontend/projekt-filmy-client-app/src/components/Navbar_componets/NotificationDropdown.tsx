@@ -3,12 +3,14 @@ import NotificationDropdownItem from "../../components/Navbar_componets/Notifica
 import { useNotificationContext } from "../../components/Notifications_components/NotificationsContext";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import { useNotificationsByUserId } from "../../API/NotificationApi";
+import SpinnerLoader from "../SpinnerLoader";
+import ApiErrorDisplay from "../ApiErrorDisplay";
 
 const NotificationDropdown = () => {
   const { hasNew, setHasNew } = useNotificationContext();
   const userId = getLoggedUserId();
   //Api
-  const { data: notificationsData, isLoading, apiError, refetch } = useNotificationsByUserId(userId ?? "", 1, 3);
+  const { data: notificationsData, isLoading: loadingNotificationsData, apiError: notificationsDataError } = useNotificationsByUserId(userId ?? "", 1, 3);
   const latestNotifications = notificationsData?.notifications ?? [];
 
   const handleOpenDropdown = () => {
@@ -37,7 +39,15 @@ const NotificationDropdown = () => {
 
     <ul className="dropdown-menu dropdown-menu-end " aria-labelledby="notificationsDropdown" style={{ minWidth: "300px", fontFamily: "'Arial', sans-serif" }}>
         <div className="list-group list-group-flush">
-          {latestNotifications.length === 0 ? (
+          {loadingNotificationsData ? (
+            <div className="list-group-item text-center py-3">
+              <SpinnerLoader />
+            </div>
+          ) : notificationsDataError ? (
+            <div className="list-group-item text-center text-danger py-3">
+              <ApiErrorDisplay apiError={notificationsDataError} />
+            </div>
+          ) : latestNotifications.length === 0 ? (
             <div className="list-group-item text-center text-muted py-3">
               Brak powiadomień
             </div>

@@ -6,6 +6,8 @@ import { useDeleteNotification, useMarkNotificationAsRead } from "../../API/Noti
 import { useCreateRelation } from "../../API/RelationApi";
 import { getLoggedUserId } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 interface NotificationCardProps {
   notification: Notification;
@@ -17,23 +19,42 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => 
     const loggedUserId = getLoggedUserId();
 
     //Api
-    const { mutate: deleteNotification, isPending: isDeletingNotification, apiError: deleteNotificationError} = useDeleteNotification();
+    const { mutate: deleteNotification, isPending: isDeletingNotification} = useDeleteNotification();
     const { mutate: markAsRead } = useMarkNotificationAsRead();
-    const { mutate: acceptToFriends, error: acceptToFriendsError } = useCreateRelation();
+    const { mutate: acceptToFriends, isPending: isAcceptingToFriends } = useCreateRelation();
 
     const handleAccept = async () => {
       if (!loggedUserId) {
         console.error("Brak zalogowanego użytkownika lub token niepoprawny.");
         return;
       }
-      acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0});
-      setIsInvitation(true);
-      deleteNotification(notification.notificationId);
+      acceptToFriends({firstUserId: loggedUserId, secondUserId: notification.sourceUserId, type: 0}, {
+          onSuccess: () => {
+            toast.success(`Pomyślnie dodano użytkownika do znajomych!`);
+            setIsInvitation(true);
+          },
+          onError: (err) => {
+            const apiErr = getApiError(err);
+            toast.error(`Nie udało się zaakceptować zaproszenia. [${apiErr?.statusCode}] ${apiErr?.message}`
+            );
+          },
+        }
+      );
     };
 
     const handleDelete = async () => {
       setIsInvitation(false);
-      deleteNotification(notification.notificationId);
+      deleteNotification(notification.notificationId, {
+        onSuccess: () => {
+          toast.info("Powiadomienie zostało usunięte.");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(
+            `Nie udało się usunąć powiadomienia. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      });
     };
 
     const handleView = () => {
@@ -117,7 +138,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => 
         <p className="card-text text-start">{notification.description}</p>
         {renderActions()}
         <ActionPendingModal show={isDeletingNotification && !isInvitation} message="Trwa usuwanie powiadomienia..."/>
-        <ActionPendingModal show={isDeletingNotification && isInvitation} message="Trwa dodawanie do znajomych..."/>
+        <ActionPendingModal show={isAcceptingToFriends} message="Trwa dodawanie do znajomych..."/>
       </div>
     </div>
   );

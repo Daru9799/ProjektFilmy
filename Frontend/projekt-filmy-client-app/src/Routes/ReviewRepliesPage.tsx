@@ -39,7 +39,7 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
 
   //API
-  const { data: movieReview, isLoading: movieReviewLoading, error: movieReviewError } = useReviewById(reviewId);
+  const { data: movieReview, isLoading: movieReviewLoading, apiError: movieReviewError } = useReviewById(reviewId);
   const { data: collectionReview, isLoading: collectionReviewLoading, apiError: collectionReviewError } = useCollectionReviewById(reviewId);
   const { data: repliesData, isLoading: repliesLoading, error: repliesError } = useRepliesByReviewId(endpointPrefix, reviewId, pagination.pageNumber, pagination.pageSize);
   const replies = repliesData?.replies ?? [];

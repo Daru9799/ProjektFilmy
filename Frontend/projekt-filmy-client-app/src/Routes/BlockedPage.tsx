@@ -5,16 +5,28 @@ import BlockedCardProps from "../components/Blocked_components/BlockedCard";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const BlockedPage = () => {
   const { userName } = useParams();
   const { data, isLoading: blockedListLoading, apiError: blockedListError  } = useUserRelations(userName, "Blocked");
   const blockedUsers = data?.relations ?? [];
   //Mutacje
-  const { mutate: deleteFromFriends, isPending: isDeletingFromFriends, error: deleteFromFriendsError } = useDeleteRelation();
+  const { mutate: deleteFromBlocked, isPending: isDeletingFromBlocked } = useDeleteRelation();
 
   const handleDeleteRelation = async (relationId: string) => {
-    deleteFromFriends(relationId);
+    deleteFromBlocked(relationId, {
+      onSuccess: () => {
+        toast.success("Użytkownik został usunięty z listy zablokowanych pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(
+          `Nie udało się usunąć użytkownika z listy zablokowanych. [${apiErr?.statusCode}] ${apiErr?.message}`
+        );
+      },
+    });
   };
 
   if(blockedListLoading) return <SpinnerLoader />
@@ -40,7 +52,7 @@ const BlockedPage = () => {
           )}
         </ApiErrorDisplay>
       </div>
-      <ActionPendingModal show={isDeletingFromFriends} message="Trwa usuwanie użytkownika z zablokowanych..."/>
+      <ActionPendingModal show={isDeletingFromBlocked} message="Trwa usuwanie użytkownika z zablokowanych..."/>
     </div>
   );
 };

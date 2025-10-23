@@ -14,6 +14,9 @@ import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import { useState } from "react";
 import { Review } from "../models/Review";
 import { useAddFollowMovie, useIsFollowingMovie, useRemoveFollowMovie } from "../API/UserApi";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const MoviePage = () => {
   const { movieId } = useParams();
@@ -24,16 +27,16 @@ const MoviePage = () => {
   //Api hooks
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
   const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
-  const { data: userReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForMovie(loggedUserName, movieId);
+  const { data: userReview, isLoading: userReviewLoading } = useUserReviewForMovie(loggedUserName, movieId);
   const { data: isFollowingMovie = false, isLoading: isFollowingMovieLoading, error: isFollowingMovieError } = useIsFollowingMovie(movieId);
   const { data: isPlanned, isLoading: loadingPlanned, error: errorPlanned } = useCheckIfInPlanned(movieId);
   const { data: isWatched, isLoading: loadingWatched, error: errorWatched } = useCheckIfInWatched(movieId);
-  const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
+  const { data: reviewData, isLoading: reviewsLoading, apiError: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
   const reviews = reviewData?.reviews ?? [];
   //Mutacje
-  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
-  const { mutate: addReview, isPending: isAddingReview, error: addError } = useAddReview();
+  const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditReview();
+  const { mutate: addReview, isPending: isAddingReview } = useAddReview();
   const { mutate: addFollowMovie, isPending: addingFollowMovie, error: addFollowMovieError } = useAddFollowMovie();
   const { mutate: removeFollowMovie, isPending: removingFollowMovie, error: removeFollowMovieError } = useRemoveFollowMovie();
   const { mutate: addToPlanned, isPending: addingPlanned, error: addToPlannedError } = useAddToPlanned();
@@ -43,7 +46,15 @@ const MoviePage = () => {
 
   //Funkcje
   const handleDeleteReview = async (reviewId: string) => {
-    deleteReview(reviewId)
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została usunięta pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
   };
 
   const handleEditReview = (review: Review) => {
@@ -56,21 +67,31 @@ const MoviePage = () => {
       editReview({
         reviewId: reviewToEdit.reviewId,
         updatedReview: { comment: reviewText, rating },
+      }, {
+        onSuccess: () => {
+          setShowEditModal(false);
+          setReviewToEdit(null);
+          toast.success("Recenzja została zaktualizowana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zaktualizować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
       });
-      setShowEditModal(false);
-      setReviewToEdit(null);
     }
   };
 
   const handleAddReview = (review: string, rating: number) => {
     if (!movieId || !loggedUserName) return;
-    addReview({ rating, comment: review, movieId, userName: loggedUserName }, 
-      {
+    addReview({ rating, comment: review, movieId, userName: loggedUserName }, {
         onSuccess: () => {
           setShowReviewModal(false);
+          toast.success("Recenzja została dodana pomyślnie!");
         },
-        onError: (error) => {
-          console.error("Błąd podczas dodawania recenzji:", error); //ERROR HANDLING BY SIE PRZYDAL
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
         },
       }
     );
@@ -148,14 +169,18 @@ const MoviePage = () => {
         />
       )}
 
-      <ReviewsSection
-        reviews={reviews}
-        userReview={userReview ?? null}
-        onEditReview={handleEditReview}
-        onDeleteReview={handleDeleteReview}
-        movieId={movie?.movieId}
-        totalReviewsCount={movie?.reviewsNumber ?? 0}
-      />
+      {reviewsError ? (
+        <ApiErrorDisplay apiError={reviewsError} />
+      ) : (
+        <ReviewsSection
+          reviews={reviews}
+          userReview={userReview ?? null}
+          onEditReview={handleEditReview}
+          onDeleteReview={handleDeleteReview}
+          movieId={movie?.movieId}
+          totalReviewsCount={movie?.reviewsNumber ?? 0}
+        />
+      )}
 
       <LoginModal
         show={showLoginModal}

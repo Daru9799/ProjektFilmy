@@ -12,6 +12,8 @@ import { isUserMod } from "../../hooks/decodeJWT";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
 import { useUserReviews } from "../../API/UserApi";
 import SpinnerLoader from "../SpinnerLoader";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 const ReviewsPage = () => {
   const { userName } = useParams();
@@ -35,17 +37,24 @@ const ReviewsPage = () => {
   const reviews = reviewData?.reviews ?? [];
   const totalPages = reviewData?.totalPages ?? 1;
   //Mutacje
-  const { mutate: deleteReview, error: deleteReviewError, isPending: isDeletingReview } = useDeleteReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
+  const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditReview();
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
-    console.log("dupa")
   }, []);
 
-    const handleDeleteReview = async (reviewId: string) => {
-      deleteReview(reviewId);
-    };
+  const handleDeleteReview = async (reviewId: string) => {
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została usunięta pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
+  };
     
   const handleSortChange = (category: string) => {
     switch (category) {
@@ -80,9 +89,17 @@ const ReviewsPage = () => {
       editReview({
         reviewId: reviewToEdit.reviewId,
         updatedReview: { comment: reviewText, rating },
+      }, {
+        onSuccess: () => {
+          setShowModal(false);
+          setReviewToEdit(null);
+          toast.success("Recenzja została zaktualizowana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zaktualizować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
       });
-      setShowModal(false); 
-      setReviewToEdit(null); 
     }
   };
 

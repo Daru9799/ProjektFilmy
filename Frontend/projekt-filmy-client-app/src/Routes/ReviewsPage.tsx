@@ -13,6 +13,9 @@ import { isUserMod } from "../hooks/decodeJWT";
 import { useReplyCountsByReviewIds } from "../API/ReplyUniwersalApi"
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const ReviewsPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
@@ -25,7 +28,7 @@ const ReviewsPage = () => {
 
   //Api hooks
   const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
-  const { data: reviewData, isLoading: reviewsLoading, error: reviewsError } = useReviewsByMovieId(
+  const { data: reviewData, isLoading: reviewsLoading, apiError: reviewsError } = useReviewsByMovieId(
     movieId,
     pagination.pageNumber,
     pagination.pageSize,
@@ -36,15 +39,23 @@ const ReviewsPage = () => {
   const totalPages = reviewData?.totalPages ?? 1;
   const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("Reply", reviews);
   //Mutacje
-  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditReview();
+  const { mutate: deleteReview, isPending: isDeletingReview} = useDeleteReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditReview();
 
   useEffect(() => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
   const handleDeleteReview = async (reviewId: string) => {
-    deleteReview(reviewId);
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została usunięta pomyślnie!");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
   };
 
   const handleEditReview = (review: Review) => {
@@ -57,9 +68,17 @@ const ReviewsPage = () => {
       editReview({
         reviewId: reviewToEdit.reviewId,
         updatedReview: { comment: reviewText, rating },
+      }, {
+        onSuccess: () => {
+          setShowModal(false);
+          setReviewToEdit(null);
+          toast.success("Recenzja została zaktualizowana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zaktualizować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
       });
-      setShowModal(false);
-      setReviewToEdit(null);
     }
   };
 
@@ -111,6 +130,8 @@ const ReviewsPage = () => {
         <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
           <SpinnerLoader />
         </div>
+      ) : reviewsError ? (
+        <ApiErrorDisplay apiError={reviewsError} />
       ) : reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard

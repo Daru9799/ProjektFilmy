@@ -10,7 +10,7 @@ function App() {
   return (
     <QueryProvider>
       <NotificationProvider>
-        <ToastContainer position="bottom-right" transition={Bounce} autoClose={5000} style={{ zIndex: 9999 }} />
+        <ToastContainer position="bottom-right" transition={Bounce} autoClose={5000} style={{ zIndex: 9999 }} limit={3} />
         <div className="Container">
           <NavBar />
           <div className="App">

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { Review } from "../models/Review";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
+import { useApiQuery } from "../hooks/useApiQuery";
 
-//to do: OBSLUGA BLEDOW
 export const useReviewsByMovieId = (movieId: string | undefined, page: number, pageSize: number, sortOrder: string, sortDirection: string) => {
-  return useQuery<{ reviews: Review[]; totalPages: number }>({
+  return useApiQuery<{ reviews: Review[]; totalPages: number }>({
     queryKey: ["reviews", movieId, page, pageSize, sortOrder, sortDirection],
     queryFn: async () => {
       try {
@@ -38,9 +38,8 @@ export const useReviewsByMovieId = (movieId: string | undefined, page: number, p
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useUserReviewForMovie = (userName?: string, movieId?: string) => {
-  return useQuery<Review | null>({
+  return useApiQuery<Review | null>({
     queryKey: ["userReview", userName, movieId],
     queryFn: async () => {
       try {
@@ -66,9 +65,8 @@ export const useUserReviewForMovie = (userName?: string, movieId?: string) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useReviewById = (reviewId: string | undefined) => {
-  return useQuery<Review>({
+  return useApiQuery<Review>({
     queryKey: ["review", reviewId],
     queryFn: async () => {
       const { data } = await axios.get(`${API_BASE_URL}/Reviews/${reviewId}`, {
@@ -83,7 +81,6 @@ export const useReviewById = (reviewId: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -106,13 +103,14 @@ export const useDeleteReview = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useEditReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ reviewId, updatedReview }: { reviewId: string; updatedReview: { comment: string; rating: number }; }) => {
-      const response = await axios.put(`${API_BASE_URL}/Reviews/edit-review/${reviewId}`,
-        updatedReview,
+      const response = await axios.put(`${API_BASE_URL}/Reviews/edit-review/${reviewId}`, {
+          reviewId,
+          ...updatedReview,
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -131,7 +129,6 @@ export const useEditReview = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useAddReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
