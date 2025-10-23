@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import UsernamePromptModal from "../../components/SingIn_SignUp_componets/UsernamePromptModal";
-import axios from "axios";
+import { useGoogleLogin, useGoogleRegister } from "../../API/AccountApi";
+import { getApiError } from "../../functions/getApiError";
 
 interface Props {
   onLoginSuccess: (username: string) => void;
@@ -13,49 +14,53 @@ const GoogleLoginButton = ({ onLoginSuccess, onError, onClose }: Props) => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [idToken, setIdToken] = useState("");
 
+  //Api hooks:
+  const { mutate: googleLogin } = useGoogleLogin();
+  const { mutate: googleRegister } = useGoogleRegister();
+
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     const googleToken = credentialResponse.credential;
+    if (!googleToken) return;
     setIdToken(googleToken!);
 
-    try {
-      const response = await axios.post("https://localhost:7053/api/Account/google-login", {
-        idToken: googleToken,
-      });
-
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("logged_username", response.data.userName);
-      onLoginSuccess(response.data.userName);
-      onClose?.();
-    } catch (error: any) {
-      if (error.response?.data === "Brakuje nazwy użytkownika do rejestracji.") {
-        //W przypadku nowego użytkownika
-        setShowPrompt(true);
-      } else {
-        onError?.("Błąd logowania przez Google");
-        console.error(error);
+    googleLogin({ idToken: googleToken }, {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("logged_username", data.userName);
+          onLoginSuccess(data.userName);
+          onClose?.();
+        },
+        onError: (error: any) => {
+          const apiErr = getApiError(error);
+          if (apiErr?.message === "Brakuje nazwy użytkownika do rejestracji.") {
+            setShowPrompt(true);
+          } else {
+            onError?.("Błąd logowania przez Google");
+            console.error(error);
+          }
+        },
       }
-    }
+    );
   };
 
   //Jeśli nie użytkownik nie ma konta to dodatkowo przesyłamy uzyskany od niego username
-  const handleUsernameSubmit = async (username: string) => {
-    try {
-      const response = await axios.post("https://localhost:7053/api/Account/google-login", {
-        idToken,
-        userName: username,
-      });
-
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("logged_username", response.data.userName);
-      onLoginSuccess(response.data.userName);
-      setShowPrompt(false);
-      onClose?.();
-    } catch (error: any) {
-      setShowPrompt(false);
-      console.error(error)
-      const message = error.response?.data ?? "Nie udało się ukończyć rejestracji przez Google.";
-      onError?.(message);
-    }
+  const handleUsernameSubmit = (username: string) => {
+    googleRegister({ idToken, userName: username }, {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("logged_username", data.userName);
+          onLoginSuccess(data.userName);
+          setShowPrompt(false);
+          onClose?.();
+        },
+        onError: (error: any) => {
+          setShowPrompt(false);
+          const message = error?.response?.data ?? "Nie udało się ukończyć rejestracji przez Google.";
+          onError?.(message);
+          console.error(error);
+        },
+      }
+    );
   };
 
   return (

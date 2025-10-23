@@ -12,7 +12,7 @@ interface Props {
 const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorTemp, setErrorMessage] = useState(""); //Temp
+  const [googleError, setGoogleErrorMessage] = useState(""); //Temp
 
   //Api hook
   const { mutate: login, isPending: loginLoading, apiError: loginError } = useLogin();
@@ -48,6 +48,11 @@ const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
             {loginError?.message}
           </Alert>
         )}
+        {googleError && (
+          <Alert variant="danger" className="mb-3 text-center">
+            {googleError}
+          </Alert>
+        )}
         <Form onSubmit={handleLogin}>
           <Form.Group className="mb-3" controlId="email">
             <Form.Label>Adres e-mail</Form.Label>
@@ -63,7 +68,7 @@ const LoginModal = ({ show, onClose, onLoginSuccess }: Props) => {
         </Form>
           <div className="text-center mt-3">lub</div>
           <div className="d-flex justify-content-center mt-1">
-            <GoogleLoginButton onLoginSuccess={onLoginSuccess} onError={(msg) => setErrorMessage(msg)} onClose={onClose}/>
+            <GoogleLoginButton onLoginSuccess={onLoginSuccess} onError={(msg) => setGoogleErrorMessage(msg)} onClose={onClose}/>
           </div>
       </Modal.Body>
     </Modal>

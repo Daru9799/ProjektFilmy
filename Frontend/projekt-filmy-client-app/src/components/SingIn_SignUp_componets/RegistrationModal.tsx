@@ -13,7 +13,7 @@ const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessageTemp, setErrorMessage] = useState("");
+  const [googleError, setGoogleErrorMessage] = useState("");
 
   //Api hook
   const { mutate: register, isPending: registerLoading, apiError: registerError } = useRegister();
@@ -47,6 +47,11 @@ const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
         {registerError && (
           <Alert variant="danger" className="mb-3 text-center">
             {registerError?.message}
+          </Alert>
+        )}
+        {googleError && (
+          <Alert variant="danger" className="mb-3 text-center">
+            {googleError}
           </Alert>
         )}
         <Form onSubmit={handleRegister}>
@@ -86,7 +91,7 @@ const RegistrationModal = ({ show, onClose, onRegisterSuccess }: Props) => {
         </Form>
         <div className="text-center mt-3">lub</div>
         <div className="d-flex justify-content-center mt-1">
-          <GoogleLoginButton onLoginSuccess={onRegisterSuccess} onError={(msg) => setErrorMessage(msg)} onClose={onClose}/>
+          <GoogleLoginButton onLoginSuccess={onRegisterSuccess} onError={(msg) => setGoogleErrorMessage(msg)} onClose={onClose}/>
         </div>
       </Modal.Body>
     </Modal>

@@ -77,3 +77,28 @@ export const useChangePassword = () => {
     },
   });
 };
+
+//Logowanie przez google
+export const useGoogleLogin = () => {
+  return useApiMutation({
+    mutationFn: async ({ idToken }: { idToken: string }) => {
+      const res = await axios.post(`${API_BASE_URL}/Account/google-login`, {
+        idToken,
+      });
+      return res.data;
+    },
+  });
+};
+
+//Rejestracja nowego użytkownika przez Google (gdy backend wymaga username)
+export const useGoogleRegister = () => {
+  return useApiMutation({
+    mutationFn: async ({ idToken, userName }: { idToken: string; userName: string }) => {
+      const res = await axios.post(`${API_BASE_URL}/Account/google-login`, {
+        idToken,
+        userName,
+      });
+      return res.data;
+    },
+  });
+};
