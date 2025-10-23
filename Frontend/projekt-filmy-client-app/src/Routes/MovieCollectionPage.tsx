@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { MovieCollection } from "../models/MovieCollection";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLoggedUserId, isUserMod } from "../hooks/decodeJWT";
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import { useMovieCollectionById } from "../API/MovieCollectionApi";
 import "../styles/Zoom.css";
-import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { useSendCollectionReviewedNotification } from "../API/NotificationApi";
@@ -16,6 +14,7 @@ import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
 import { toast } from "react-toastify";
 import { getApiError } from "../functions/getApiError";
+import AddReviewModal from "../components/review_components/AddReviewModal";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
@@ -93,8 +92,8 @@ const MovieCollectionPage = () => {
     setIsLoggedUserMod(isUserMod());
   }, []);
 
-  const handleAddReview = async (reviewText: string, rating: number, isSpoiler: boolean) => {
-    addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: isSpoiler }, {
+  const handleAddReview = async (reviewText: string, rating: number) => {
+    addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: false }, {
         onSuccess: () => {
           toast.success("Recenzja została dodana pomyślnie!");
         },
@@ -277,19 +276,23 @@ const MovieCollectionPage = () => {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      <AddMovieCollectionReviewModal
+      <AddReviewModal
         show={showReviewModal}
         onClose={() => setShowReviewModal(false)}
-        onAddReview={handleAddReview}
+        onAddReview={handleAddReview} 
+        headerText={"Dodaj recenzję kolekcji"} 
+        buttonText={"Dodaj recenzję"}       
       />
 
       {reviewToEdit && (
-        <AddMovieCollectionReviewModal
+        <AddReviewModal
           show={showEditModal}
           onClose={() => setShowEditModal(false)}
           onAddReview={handleSaveEditedReview}
           initialReviewText={reviewToEdit.comment}
           initialReviewRating={reviewToEdit.rating}
+          headerText={"Edytuj recenzję kolekcji"} 
+          buttonText={"Edytuj recenzję"}    
         />
       )}
 

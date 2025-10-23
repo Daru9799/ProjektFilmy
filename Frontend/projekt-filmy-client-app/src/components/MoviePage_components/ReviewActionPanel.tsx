@@ -128,6 +128,8 @@ const ReviewActionsPanel: React.FC<Props> = ({
         show={showReviewModal}
         onClose={() => setShowReviewModal(false)}
         onAddReview={handleAddReview}
+        headerText={"Dodaj recenzję"} 
+        buttonText={"Dodaj recenzję"}  
       />
 
       <LoginModal

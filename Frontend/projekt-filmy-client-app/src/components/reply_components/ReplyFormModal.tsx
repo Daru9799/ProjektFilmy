@@ -1,75 +1,92 @@
 import React, { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
 
-interface Props {
+interface ReplyFormModalProps {
   show: boolean;
   onClose: () => void;
-  onAddReview: (review: string) => void;
-  initialReviewText?: string;
-  initialReviewRating?: number;
+  onAddReply: (reply: string) => void;
+  initialReplyText?: string;
+  headerText: string;
+  buttonText: string;
 }
 
-const ReplyFormModal: React.FC<Props> = ({
+const ReplyFormModal: React.FC<ReplyFormModalProps> = ({
   show,
   onClose,
-  onAddReview,
-  initialReviewText = "",
+  onAddReply,
+  initialReplyText = "",
+  headerText,
+  buttonText,
 }) => {
-  const [replyText, setReplyText] = useState<string>(initialReviewText);
+  const [replyText, setReplyText] = useState<string>(initialReplyText);
 
   useEffect(() => {
-    setReplyText(initialReviewText);;
-  }, [show, initialReviewText]);
+    setReplyText(initialReplyText);
+  }, [show, initialReplyText]);
 
   const handleSave = () => {
     if (replyText.trim()) {
-      onAddReview(replyText);
-      setReplyText("");;
+      onAddReply(replyText);
+      setReplyText("");
       onClose();
     }
   };
 
+  if (!show) return null;
+
   return (
-    <Modal show={show} onHide={onClose} centered>
-      <div
-        className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
-        style={{
-          borderRadius: "15px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          padding: "20px",
-          color: "black",
-          backgroundColor: "#7C00FE",
-        }}
-      >
-        <div style={{ flex: 1, textAlign: "left", color: "white" }}>
-          <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}></p>
-          <textarea
-            className="form-control"
-            rows={4}
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Wpisz komentarz..."
-            maxLength={500}
-            style={{
-              width: "100%",
-              borderRadius: "8px",
-              padding: "10px",
-            }}
-          />
-          <p style={{ color: "white", fontSize: "12px" }}>
-            {`${replyText.length}/500`}
-          </p>
+    <div
+      className="modal fade show d-block"
+      tabIndex={-1}
+      role="dialog"
+      aria-hidden="true"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
+      <div className="modal-dialog modal-dialog-centered" role="document">
+        <div
+          className="modal-content"
+          style={{
+            borderRadius: "15px",
+            backgroundColor: "#ffffffff",
+            color: "black",
+          }}
+        >
+          {/* Krzyżyk do zamykania */}
+          <div className="text-end p-2">
+            <button
+              type="button"
+              className="btn-close btn-close-black"
+              aria-label="Close"
+              onClick={onClose}
+            ></button>
+          </div>
+
+          {/* Ciało modala */}
+          <div className="modal-body text-center">
+            {/* Tytuł */}
+            <h4 className="mb-3">{headerText}</h4>
+
+            {/* Pole tekstowe */}
+            <textarea
+              className={`form-control mb-3 ${replyText ? "is-valid" : ""}`}
+              rows={4}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Wpisz odpowiedź..."
+              style={{ borderRadius: "2px", resize: "none" }}
+            />
+
+            {/* Przycisk */}
+            <button
+              className="btn btn-success px-5"
+              onClick={handleSave}
+              disabled={!replyText}
+            >
+              {buttonText}
+            </button>
+          </div>
         </div>
       </div>
-      <Modal.Footer style={{ justifyContent: "center" }}>
-        <button className="btn btn-secondary mx-2" onClick={onClose}>
-          Anuluj
-        </button>
-        <button className="btn btn-primary mx-2" onClick={handleSave}>
-          Zapisz
-        </button>
-      </Modal.Footer>
-    </Modal>
+    </div>
   );
 };
 

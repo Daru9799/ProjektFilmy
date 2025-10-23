@@ -424,6 +424,8 @@ const UserPage = () => {
             } // Wywołanie zapisu edycji
             initialReviewText={reviewToEdit.comment}
             initialReviewRating={reviewToEdit.rating}
+            headerText={"Edytuj recenzję"} 
+            buttonText={"Zapisz zmiany"}
           />
         )}
 

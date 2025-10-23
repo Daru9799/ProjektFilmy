@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useMovieCollectionById } from "../API/MovieCollectionApi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import SortReviewModule from "../components/review_components/SortReviewsModle";
 import MovieCollectionReviewCard from "../components/review_components/MovieCollectionReviewCard";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import { isUserMod } from "../hooks/decodeJWT";
 import { useCollectionReviewsByCollectionId, useDeleteCollectionReview, useEditCollectionReview } from "../API/CollectionReviewApi";
-import AddMovieCollectionReviewModal from "../components/review_components/AddMovieCollectionReview";
 import MovieCollectionCard from "../components/MovieCollection_components/MovieCollectionCard";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
@@ -15,6 +14,7 @@ import { useReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
 import { toast } from "react-toastify";
 import { getApiError } from "../functions/getApiError";
+import AddReviewModal from "../components/review_components/AddReviewModal";
 
 const MovieCollectionReviewsPage = () => {
   const { id } = useParams();
@@ -190,12 +190,14 @@ const MovieCollectionReviewsPage = () => {
         </div>
       </div>
       {reviewToEdit && (
-        <AddMovieCollectionReviewModal
+        <AddReviewModal
           show={showEditModal}
           onClose={() => setShowEditModal(false)}
           onAddReview={handleSaveEditedReview}
           initialReviewText={reviewToEdit.comment}
           initialReviewRating={reviewToEdit.rating}
+          headerText={"Edytuj recenzję kolekcji"} 
+          buttonText={"Edytuj recenzję"}   
         />
       )}
 

@@ -170,8 +170,10 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
           setShowModal(false);
           setReviewToEdit(null);
         }}
-        onAddReview={handleModalSave}
-        initialReviewText={replyToEdit?.comment}
+        onAddReply={handleModalSave}
+        initialReplyText={replyToEdit?.comment || ""}
+        headerText={replyToEdit ? "Edytuj komentarz" : "Dodaj komentarz"}
+        buttonText={replyToEdit ? "Zapisz zmiany" : "Dodaj"}
       />
       <ActionPendingModal show={isCreatingReply} message="Trwa dodawanie odpowiedzi..."/>
       <ActionPendingModal show={isDeletingReply} message="Trwa usuwanie odpowiedzi..."/>

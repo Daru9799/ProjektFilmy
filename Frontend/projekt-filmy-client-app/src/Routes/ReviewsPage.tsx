@@ -165,6 +165,8 @@ const ReviewsPage = () => {
           onAddReview={handleModalSave}
           initialReviewText={reviewToEdit.comment}
           initialReviewRating={reviewToEdit.rating}
+          headerText={"Edytuj recenzję"} 
+          buttonText={"Zapisz zmiany"}
         />
       )}
 

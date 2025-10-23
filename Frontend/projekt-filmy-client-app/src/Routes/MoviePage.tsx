@@ -166,6 +166,8 @@ const MoviePage = () => {
           onAddReview={handleSaveEditedReview}
           initialReviewText={reviewToEdit.comment}
           initialReviewRating={reviewToEdit.rating}
+          headerText={"Edytuj recenzję"} 
+          buttonText={"Zapisz zmiany"}
         />
       )}
 

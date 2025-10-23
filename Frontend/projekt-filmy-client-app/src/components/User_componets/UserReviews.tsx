@@ -165,7 +165,9 @@ const ReviewsPage = () => {
           onClose={() => setShowModal(false)}
           onAddReview={handleModalSave}
           initialReviewText={reviewToEdit.comment}
-          initialReviewRating={reviewToEdit.rating}
+          initialReviewRating={reviewToEdit.rating} 
+          headerText={"Edytuj recenzję"} 
+          buttonText={"Zapisz zmiany"}          
         />
       )}
 
