@@ -13,9 +13,10 @@ import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import { useReplyCountsByReviewIds } from "../API/ReplyUniwersalApi";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const MovieCollectionReviewsPage = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
   const loggedUser = localStorage.getItem("logged_username") || "";
   const [sortOrder, setSortOrder] = useState<string>("rating");
@@ -34,12 +35,20 @@ const MovieCollectionReviewsPage = () => {
   const totalPages = collectionReviewsData?.totalPages ?? 1;
   const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("MovieCollectionReviewReplies", reviews);
   //Mutacje
-  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
+  const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteCollectionReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditCollectionReview();
 
   //Funkcje
   const onDeleteReview = async (reviewId: string | undefined) => {
-    deleteReview(reviewId);
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została pomyślnie usunięta.");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
   };
 
   const onEditReview = (review: MovieCollectionReview | null) => {
@@ -51,8 +60,13 @@ const MovieCollectionReviewsPage = () => {
     if (!reviewToEdit) return;
     editReview({ reviewId: reviewToEdit.movieCollectionReviewId, updatedReview: { comment: reviewText, rating } }, {
       onSuccess: () => {
+        toast.success(`Recenzja została pomyślnie zedytowana.`);
         setShowEditModal(false);
         setReviewToEdit(null);
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się edytować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
       },
     });
   };
@@ -84,8 +98,6 @@ const MovieCollectionReviewsPage = () => {
     }
   };
 
-  if(movieCollectionError) return <ApiErrorDisplay apiError={movieCollectionError} />
-
   return (
     <div
       className=" container-fluid text-white"
@@ -96,24 +108,29 @@ const MovieCollectionReviewsPage = () => {
           style={{ color: "white" }}
         >{`Recenzje kolekcji ${movieCollection?.title}`}</h2>
         <div style={{ marginTop: "2%" }}>
-        <div className="d-flex justify-content-center">
-          {movieCollectionLoading ? (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: "250px" }}>
-              <SpinnerLoader />
-            </div>
-          ) : movieCollection ? (
-            <MovieCollectionCard
-              movieCollection={movieCollection}
-              loggedUserName={loggedUser}
-              isLoggedUserMod={isLoggedUserMod}
-              isFriend={false}
-              userPage={false}
-              setError={setError}
-            />
-          ) : (
-            <p>Nie udało się wczytać kolekcji.</p>
-          )}
-        </div>
+          <div className="d-flex justify-content-center">
+            {movieCollectionLoading ? (
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "250px" }}
+              >
+                <SpinnerLoader />
+              </div>
+            ) : movieCollectionError ? (
+              <ApiErrorDisplay apiError={movieCollectionError} />
+            ) : movieCollection ? (
+              <MovieCollectionCard
+                movieCollection={movieCollection}
+                loggedUserName={loggedUser}
+                isLoggedUserMod={isLoggedUserMod}
+                isFriend={false}
+                userPage={false}
+                setError={setError}
+              />
+            ) : (
+              <p>Nie udało się wczytać kolekcji.</p>
+            )}
+          </div>
           <div
             className="container pt-3 text-center"
             style={{ marginTop: "10px", marginBottom: "40px" }}

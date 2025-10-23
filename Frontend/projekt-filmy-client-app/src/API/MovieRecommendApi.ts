@@ -1,11 +1,12 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 import qs from "qs";
+import { useApiQuery } from "../hooks/useApiQuery";
+import { useApiMutation } from "../hooks/useApiMutation ";
 
-//to do: OBSLUGA BLEDOW
 export const useRecommendationsByMovie = (movieId: string | undefined, currentPage: number, pageSize: number) => {
-  return useQuery({ queryKey: ["recommendations", movieId, currentPage],
+  return useApiQuery({ queryKey: ["recommendations", movieId, currentPage],
     queryFn: async () => {
       if (!movieId) return { recommendations: [], movies: [], pagination: null };
       //Pobranie rekomendacji
@@ -35,10 +36,9 @@ export const useRecommendationsByMovie = (movieId: string | undefined, currentPa
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useLikeRecommendation = () => {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useApiMutation({
     mutationFn: async (recommendId: string) => {
       const res = await axios.post(`${API_BASE_URL}/Recommendations/like-recommend/${recommendId}`, 
         null,
@@ -57,10 +57,9 @@ export const useLikeRecommendation = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteLikeRecommendation = () => {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useApiMutation({
     mutationFn: async (recommendId: string) => {
       const res = await axios.delete(`${API_BASE_URL}/Recommendations/delete-like-recommend/${recommendId}`, {
           headers: {
@@ -77,10 +76,9 @@ export const useDeleteLikeRecommendation = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useCreateRecommendation = () => {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useApiMutation({
     mutationFn: async ({ movieId, recommendMovieId }: { movieId: string; recommendMovieId: string }) => {
       const response = await axios.post(`${API_BASE_URL}/Recommendations/${movieId}/add-recommend-with-like/${recommendMovieId}`,
         null,

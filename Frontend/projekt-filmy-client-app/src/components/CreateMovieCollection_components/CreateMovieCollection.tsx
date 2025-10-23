@@ -9,46 +9,47 @@ import { useNavigate } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useCreateMovieCollectionApi } from "../../API/MovieCollectionApi";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 const CreateMovieCollection = () => {
-const {
-  title,
-  setTitle,
-  description,
-  setDescription,
-  shareMode,
-  setShareMode,
-  allowCopy,
-  setAllowCopy,
-  showModal,
-  movies,
-  selectedMovies,
-  setSelectedMovies,
-  tempSelectedMovies,
-  setMovieIds,
-  handleOpenModal,
-  handleToggleSelect,
-  handleConfirmSelection,
-  pageInfo,
-  currentPage,
-  handlePageChange,
-  handleCloseModal,
-  searchText,             
-  setSearchText,
-  setFilterList,
-  handleSort,
-  isNoMovieModalVisible,
-  setIsNoMovieModalVisible,
-     
-} = useCreateMovieCollection();
+  const {
+    title,
+    setTitle,
+    description,
+    setDescription,
+    shareMode,
+    setShareMode,
+    allowCopy,
+    setAllowCopy,
+    showModal,
+    movies,
+    selectedMovies,
+    setSelectedMovies,
+    tempSelectedMovies,
+    setMovieIds,
+    handleOpenModal,
+    handleToggleSelect,
+    handleConfirmSelection,
+    pageInfo,
+    currentPage,
+    handlePageChange,
+    handleCloseModal,
+    searchText,             
+    setSearchText,
+    setFilterList,
+    handleSort,
+    isNoMovieModalVisible,
+    setIsNoMovieModalVisible,
+      
+  } = useCreateMovieCollection();
 
-const [showInfoModal, setShowInfoModal] = useState(false);
-const [showSuccessModal, setShowSuccessModal] = useState(false);
-const navigate = useNavigate();
-const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
-//Api hook
-const { mutate: createCollection, isPending: creatingCollection } = useCreateMovieCollectionApi();
-
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const navigate = useNavigate();
+  const [loggedUsername, setLoggedUsername] = useState<string | null>(localStorage.getItem("logged_username"));
+  //Api hook
+  const { mutate: createCollection, isPending: creatingCollection } = useCreateMovieCollectionApi();
 
   const renderTooltip = (props: any) => (
     <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
@@ -92,9 +93,16 @@ const { mutate: createCollection, isPending: creatingCollection } = useCreateMov
           className="btn btn-primary"
           onClick={async () => {
             if (!title.trim()) return setShowInfoModal(true);
-            createCollection(
-              { title, description, shareMode, type: 2, allowCopy, movieIds: selectedMovies.map(m => m.movieId) },
-              { onSuccess: () => setShowSuccessModal(true) }
+            createCollection({ title, description, shareMode, type: 2, allowCopy, movieIds: selectedMovies.map(m => m.movieId) },
+              { 
+                onSuccess: () => {
+                  setShowSuccessModal(true) 
+                },
+                onError: (err) => {
+                  const apiErr = getApiError(err);
+                  toast.error(`Nie udało się utworzyć kolekcji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+                }
+              }
             );
           }}
           disabled={creatingCollection}

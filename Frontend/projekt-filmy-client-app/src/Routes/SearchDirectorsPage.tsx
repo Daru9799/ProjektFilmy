@@ -5,6 +5,7 @@ import SearchModule from "../components/SharedModals/SearchModule";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import NoPeopleFoundModal from "../components/SharedModals/NoPeopleFoundModal";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const SearchDirectorsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
@@ -13,7 +14,7 @@ const SearchDirectorsPage = () => {
   const staticPageSize = 4;
 
   //API hook
-  const { data: paginatedDirectors, isLoading, error } = usePeopleByRole(currentPage, staticPageSize, 0, searchText);
+  const { data: paginatedDirectors, isLoading, apiError: directorListError } = usePeopleByRole(currentPage, staticPageSize, 0, searchText);
   const directors = paginatedDirectors?.people ?? [];
   const totalPages = paginatedDirectors?.totalPages ?? 1;
 
@@ -44,6 +45,8 @@ const SearchDirectorsPage = () => {
       
       {isLoading ? (
         <SpinnerLoader />
+      ) : directorListError ? (
+        <ApiErrorDisplay apiError={directorListError} />
       ) : (
         <PeopleListModule peopleList={directors} type={"director"} />
       )}

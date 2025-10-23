@@ -29,8 +29,8 @@ const FilterMovieModule = ({ getFilters }: Props) => {
   // -------------------
   const { data: categoryData = [], isLoading: loadingCategories, apiError: categoriesError } = useCategories();
   const { data: countryData = [], isLoading: loadingCountries, apiError: countriesError} = useCountries();
-  const { data: allActors = [], isLoading: loadingActors } = usePeopleByRoleNoPgnt(1, actorName);
-  const { data: allDirectors = [], isLoading: loadingDirectors } = usePeopleByRoleNoPgnt(0, directorName);
+  const { data: allActors = [] } = usePeopleByRoleNoPgnt(1, actorName);
+  const { data: allDirectors = [] } = usePeopleByRoleNoPgnt(0, directorName);
 
   useEffect(() => {
     const selectedActorsStrings = selectedActors.map(

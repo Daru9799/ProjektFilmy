@@ -7,6 +7,10 @@ import PaginationModule from "../SharedModals/PaginationModule";
 import useMovieChoiceModule from "../../hooks/useMovieChoiceModule";
 import MovieSingleChoiceModal from "../MovieRecommend_componets/MovieSingleChoiceModal";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
+import ApiErrorDisplay from "../ApiErrorDisplay";
+import SpinnerLoader from "../SpinnerLoader";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 interface Props {
   movieId: string | undefined,
@@ -36,20 +40,37 @@ const RecommendMovieModule = ({movieId}:Props) => {
   } = useMovieChoiceModule();
 
   //Api hooks:
-  const { data: recommendationData, error: recommendationListError } = useRecommendationsByMovie(movieId, currentPage, staticPageSize);
+  const { data: recommendationData, isLoading: recommendationLoading, apiError: recommendationListError } = useRecommendationsByMovie(movieId, currentPage, staticPageSize);
   const recommendList = recommendationData?.recommendations || [];
   const movieList = recommendationData?.movies || [];
   const pageInfo = recommendationData?.pagination;
   //Mutacje
-  const { mutate: likeRecommendation, isPending: likingPending, error: likeError } = useLikeRecommendation();
-  const { mutate: deleteLikeRecommendation, isPending: dislikingPending, error: dislikeError  } = useDeleteLikeRecommendation();
-  const { mutate: createRecommendation, isPending: creatingPending, error: createRecommendationError } = useCreateRecommendation();
+  const { mutate: likeRecommendation, isPending: likingPending } = useLikeRecommendation();
+  const { mutate: deleteLikeRecommendation, isPending: dislikingPending  } = useDeleteLikeRecommendation();
+  const { mutate: createRecommendation, isPending: creatingPending } = useCreateRecommendation();
 
   const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
+    if (!recommendationId) return
     if (isLiking) {
-      likeRecommendation(recommendationId);
+      likeRecommendation(recommendationId, {
+        onSuccess: () => {
+          toast.success("Polubiono rekomendację!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się polubić rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        }
+      });
     } else {
-      deleteLikeRecommendation(recommendationId);
+      deleteLikeRecommendation(recommendationId, {
+        onSuccess: () => {
+          toast.info("Usunięto polubienie.");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się usunąć polubienia rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
     }
   };
 
@@ -60,8 +81,17 @@ const RecommendMovieModule = ({movieId}:Props) => {
 
   const handleCreateRecommendation= () => {
     if (!movieId || !tempSelectedMovie?.movieId) return;
-    console.log("sfs: ", tempSelectedMovie.movieId)
-    createRecommendation({ movieId, recommendMovieId: tempSelectedMovie.movieId });
+    createRecommendation({ movieId, recommendMovieId: tempSelectedMovie.movieId }, {
+        onSuccess: () => {
+          toast.success("Rekomendacja została dodana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      }
+    );
   }
 
   return (
@@ -85,18 +115,27 @@ const RecommendMovieModule = ({movieId}:Props) => {
 
       <Collapse in={open}>
         <div id="recommend-movie-list">
-          <RecommendListModule
-            movieList={movieList}
-            recommendations={recommendList}
-            onLikeToggle={onLikeToggle}
-          />
-          {recommendList.length > 0 && (
-            <PaginationModule
-              currentPage={pageInfo?.pageNumber}
-              totalPages={pageInfo?.totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
+          <ApiErrorDisplay apiError={recommendationListError}>
+            {recommendationLoading ? (
+              <SpinnerLoader />
+            ) : (
+              <>
+                <RecommendListModule
+                  movieList={movieList}
+                  recommendations={recommendList}
+                  onLikeToggle={onLikeToggle}
+                />
+
+                {recommendList.length > 0 && (
+                  <PaginationModule
+                    currentPage={pageInfo?.pageNumber}
+                    totalPages={pageInfo?.totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </>
+            )}
+          </ApiErrorDisplay>
           <div className="d-grid gap-2 col-4 mx-auto">
             <Button
               onClick={() => {

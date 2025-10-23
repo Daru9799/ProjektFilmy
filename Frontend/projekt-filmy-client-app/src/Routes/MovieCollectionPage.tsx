@@ -14,11 +14,12 @@ import MovieCollectionCard from "../components/MovieCollection_components/MovieC
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const MovieCollectionPage = () => {
   const loggedUserName = localStorage.getItem("logged_username") || "";
   const { id } = useParams();
-  const { userName } = useParams();
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loggedOWner, setLoggedOwner] = useState<boolean>(false);
@@ -27,24 +28,31 @@ const MovieCollectionPage = () => {
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
   const [reviewToEdit, setReviewToEdit] = useState<MovieCollectionReview | null>();
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [relations, setRelations] = useState<any>(null);
   const navigate = useNavigate();
   const loggedUserId = getLoggedUserId();
   
   //Api hooks:
   const { data: movieCollection = null, isLoading: movieCollectionLoading, apiError: movieCollectionError } = useMovieCollectionById(id);
-  const { data: userCollectionReview, isLoading: userReviewLoading, error: userReviewError } = useUserReviewForCollection(loggedUserId, id);
+  const { data: userCollectionReview, isLoading: userReviewLoading, apiError: userReviewError } = useUserReviewForCollection(loggedUserId, id);
   const { data: collectionReviewsData, isLoading: reviewsLoading, apiError: reviewsError } = useCollectionReviewsByCollectionId(id, 1, 2, "", "");
   const reviews = collectionReviewsData?.reviews ?? [];
   //Mutacje
-  const { mutate: addReview, isPending: isAddingReview, error: addingReviewError } = useAddCollectionReview();
-  const { mutate: deleteReview, isPending: isDeletingReview, error: deleteReviewError } = useDeleteCollectionReview();
-  const { mutate: editReview, isPending: isEditingReview, error: editError } = useEditCollectionReview();
+  const { mutate: addReview, isPending: isAddingReview } = useAddCollectionReview();
+  const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteCollectionReview();
+  const { mutate: editReview, isPending: isEditingReview } = useEditCollectionReview();
   const { mutate: sendCollectionReviewedNotification } = useSendCollectionReviewedNotification();
 
   //Funkcje
   const onDeleteReview = async (reviewId: string | undefined) => {
-    deleteReview(reviewId);
+    deleteReview(reviewId, {
+      onSuccess: () => {
+        toast.success("Recenzja została pomyślnie usunięta.");
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się usunąć recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
   }
 
   const onEditReview = (review: MovieCollectionReview | null) => {
@@ -56,8 +64,13 @@ const MovieCollectionPage = () => {
     if (!reviewToEdit) return;
     editReview({ reviewId: reviewToEdit.movieCollectionReviewId, updatedReview: { comment: reviewText, rating } }, {
       onSuccess: () => {
+        toast.success(`Recenzja została pomyślnie zedytowana.`);
         setShowEditModal(false);
         setReviewToEdit(null);
+      },
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się edytować recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
       },
     });
   };
@@ -81,7 +94,16 @@ const MovieCollectionPage = () => {
   }, []);
 
   const handleAddReview = async (reviewText: string, rating: number, isSpoiler: boolean) => {
-    addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: isSpoiler });
+    addReview({ comment: reviewText, rating: rating, userName: loggedUserName, movieCollectionId: movieCollection?.movieCollectionId!, spoilers: isSpoiler }, {
+        onSuccess: () => {
+          toast.success("Recenzja została dodana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać recenzji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      }
+    );
     
     const loggedUserId = getLoggedUserId();
     if (
@@ -101,8 +123,6 @@ const MovieCollectionPage = () => {
     );
     setIsLoggedIn(true);
   };
-
-  if(movieCollectionError) return <ApiErrorDisplay apiError={movieCollectionError} />
 
   if (error) return <p>{error}</p>;
 
@@ -177,9 +197,14 @@ const MovieCollectionPage = () => {
 
       <div className="d-flex justify-content-center mt-4">
         {movieCollectionLoading ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "200px" }}
+          >
             <SpinnerLoader />
           </div>
+        ) : movieCollectionError ? (
+          <ApiErrorDisplay apiError={movieCollectionError} />
         ) : movieCollection ? (
           <MovieCollectionCard
             movieCollection={movieCollection}
@@ -198,13 +223,17 @@ const MovieCollectionPage = () => {
         className="container pt-3 text-center"
         style={{ marginTop: "10px", marginBottom: "40px" }}
       >
+      <ApiErrorDisplay apiError={userReviewError}>
         {userReviewLoading ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ height: "150px" }}>
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "150px" }}
+          >
             <SpinnerLoader />
           </div>
         ) : userCollectionReview ? (
           <div>
-            <h3 className="mb-4">Twoja recenzja: </h3>
+            <h3 className="mb-4">Twoja recenzja:</h3>
             <MovieCollectionReviewCard
               key={userCollectionReview.movieCollectionReviewId}
               movieCollectionReview={userCollectionReview}
@@ -216,6 +245,7 @@ const MovieCollectionPage = () => {
             />
           </div>
         ) : null}
+      </ApiErrorDisplay>
 
         <h3 className="mb-4">Recenzje:</h3>
         <ApiErrorDisplay apiError={reviewsError}>

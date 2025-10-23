@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 import { MovieCollectionReview } from "../models/MovieCollectionReview";
@@ -20,7 +20,6 @@ export const useCollectionReviewById = (reviewId: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useCollectionReviewsByCollectionId = (movieCollectionId: string | undefined, page: number, pageSize: number, sortOrder: string, sortDirection: string) => {
   return useApiQuery<{ reviews: MovieCollectionReview[]; totalPages: number }>({
     queryKey: ["collectionReviews", movieCollectionId, page, pageSize, sortOrder, sortDirection],
@@ -55,9 +54,8 @@ export const useCollectionReviewsByCollectionId = (movieCollectionId: string | u
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useUserReviewForCollection = (userId?: string | null, collectionId?: string) => {
-  return useQuery<MovieCollectionReview | null>({
+  return useApiQuery<MovieCollectionReview | null>({
     queryKey: ["userCollectionReview", userId, collectionId],
     queryFn: async () => {
       try {
@@ -83,7 +81,6 @@ export const useUserReviewForCollection = (userId?: string | null, collectionId?
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useAddCollectionReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -119,7 +116,6 @@ export const useAddCollectionReview = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteCollectionReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -139,13 +135,14 @@ export const useDeleteCollectionReview = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useEditCollectionReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ reviewId, updatedReview,}: { reviewId: string; updatedReview: { comment: string; rating: number }; }) => {
-      const response = await axios.put(`${API_BASE_URL}/MovieCollectionReviews/edit-movie-collection-review/${reviewId}`,
-        updatedReview,
+      const response = await axios.put(`${API_BASE_URL}/MovieCollectionReviews/edit-movie-collection-review/${reviewId}`, {
+          reviewId,
+          ...updatedReview,
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

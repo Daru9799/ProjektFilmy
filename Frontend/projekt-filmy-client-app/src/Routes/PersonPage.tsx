@@ -7,6 +7,7 @@ import { useAddFollowPerson, useIsFollowingPerson, useRemoveFollowPerson } from 
 import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
@@ -14,9 +15,9 @@ const PersonPage = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   //API hook
-  const { data: person, isLoading: personLoading, error: personError } = usePersonById(id);
+  const { data: person, isLoading: personLoading, apiError: personError } = usePersonById(id);
   const { data: isFollowingPerson = false, error: isFollowingPersonError } = useIsFollowingPerson(id);
-  const { data: moviesData, isLoading: moviesLoading } = usePersonMovies(id);
+  const { data: moviesData, isLoading: moviesLoading, apiError: moviesError } = usePersonMovies(id);
   const movies = moviesData ?? [];
   //Mutacje
   const { mutate: addFollowPerson, isPending: addingFollowPerson, error: addingFollowPersonError } = useAddFollowPerson();
@@ -41,7 +42,9 @@ const PersonPage = () => {
     setShowLoginModal(false);
   };
 
-  if (personLoading || moviesLoading) return <SpinnerLoader />;
+  if (personLoading) return <SpinnerLoader />;
+
+  if(personError) return <ApiErrorDisplay apiError={personError} />
 
   return (
     <div
@@ -113,7 +116,7 @@ const PersonPage = () => {
             {person?.totalMovies ? `${person.totalMovies}` : "Niedostępna"}
           </p>
           <p style={{ marginTop: "10px" }}>
-            <span className="fw-bold">Najczęściej kręci: </span>
+            <span className="fw-bold">Najczęściej udziela się w: </span>
             {person?.favoriteGenre ? `${person.favoriteGenre}` : "Niedostępny"}
           </p>
 
@@ -136,13 +139,20 @@ const PersonPage = () => {
         </div>
       </div>
 
-      {movies.length > 0 && (
-        <p style={{ fontSize: "1.6rem", marginTop: "5%" }}>
-          {movies.length === 1 ? "Powiązany film:" : "Powiązane filmy:"}
-        </p>
+      {moviesLoading ? (
+        <SpinnerLoader />
+      ) : moviesError ? (
+        <ApiErrorDisplay apiError={moviesError} />
+      ) : movies.length > 0 ? (
+        <>
+          <p style={{ fontSize: "1.6rem", marginTop: "5%" }}>
+            {movies.length === 1 ? "Powiązany film:" : "Powiązane filmy:"}
+          </p>
+          <MovieListModule movieList={movies} />
+        </>
+      ) : (
+        <p>Brak powiązanych filmów.</p>
       )}
-
-      <MovieListModule movieList={movies} />
 
       <LoginModal
         show={showLoginModal}
