@@ -33,7 +33,7 @@ const MovieCollectionReviewsPage = () => {
   const { data: collectionReviewsData, isLoading: reviewsLoading, apiError: reviewsError } = useCollectionReviewsByCollectionId(id, pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   const reviews = collectionReviewsData?.reviews ?? [];
   const totalPages = collectionReviewsData?.totalPages ?? 1;
-  const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("MovieCollectionReviewReplies", reviews);
+  const { data: replyCounts = {}, isLoading: repliesLoading, apiError: repliesError } = useReplyCountsByReviewIds("MovieCollectionReviewReplies", reviews);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteCollectionReview();
   const { mutate: editReview, isPending: isEditingReview } = useEditCollectionReview();
@@ -154,7 +154,7 @@ const MovieCollectionReviewsPage = () => {
               <SortReviewModule onSort={handleSortChange} />
             </div>
 
-            <ApiErrorDisplay apiError={reviewsError}>
+            <ApiErrorDisplay apiError={reviewsError || repliesError}>
               {reviewsLoading || repliesLoading ? (
                 <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
                   <SpinnerLoader />

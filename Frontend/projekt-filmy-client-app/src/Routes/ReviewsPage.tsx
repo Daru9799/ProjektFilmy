@@ -37,7 +37,7 @@ const ReviewsPage = () => {
   );
   const reviews = reviewData?.reviews ?? [];
   const totalPages = reviewData?.totalPages ?? 1;
-  const { data: replyCounts = {}, isLoading: repliesLoading, error: repliesError } = useReplyCountsByReviewIds("Reply", reviews);
+  const { data: replyCounts = {}, isLoading: repliesLoading, apiError: repliesError } = useReplyCountsByReviewIds("Reply", reviews);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview} = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview } = useEditReview();
@@ -132,8 +132,8 @@ const ReviewsPage = () => {
         <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
           <SpinnerLoader />
         </div>
-      ) : reviewsError ? (
-        <ApiErrorDisplay apiError={reviewsError} />
+      ) : reviewsError || repliesError ? (
+        <ApiErrorDisplay apiError={reviewsError || repliesError} />
       ) : reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard

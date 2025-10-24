@@ -1,14 +1,14 @@
 import axios from "axios";
 import qs from "qs";
 import { Reply } from "../models/Reply";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
+import { useApiQuery } from "../hooks/useApiQuery";
 
 export type ReplyEndpointType = "Reply" | "MovieCollectionReviewReplies";
 
-//to do: OBSLUGA BLEDOW
 export const useReplyCountsByReviewIds = (endpointPrefix: ReplyEndpointType, reviews: ({ reviewId?: string; movieCollectionReviewId?: string }[] | undefined)) => {
-  return useQuery<Record<string, number>>({
+  return useApiQuery<Record<string, number>>({
     queryKey: ["replyCounts", endpointPrefix, reviews?.map(r => r.reviewId || r.movieCollectionReviewId)],
     queryFn: async () => {
       if (!reviews || reviews.length === 0) return {};
@@ -36,9 +36,8 @@ export const useReplyCountsByReviewIds = (endpointPrefix: ReplyEndpointType, rev
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useRepliesByReviewId = (endpointPrefix: ReplyEndpointType, reviewId: string | undefined, page: number, pageSize: number) => {
-  return useQuery<{ replies: Reply[]; totalPages: number }>({
+  return useApiQuery<{ replies: Reply[]; totalPages: number }>({
     queryKey: ["replies", endpointPrefix, reviewId, page, pageSize],
     queryFn: async () => {
       if (!reviewId) return { replies: [], totalPages: 1 };
@@ -70,7 +69,6 @@ export const useRepliesByReviewId = (endpointPrefix: ReplyEndpointType, reviewId
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useCreateReply = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -95,7 +93,6 @@ export const useCreateReply = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteReply = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -114,7 +111,6 @@ export const useDeleteReply = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useEditReply = () => {
   const queryClient = useQueryClient();
   return useMutation({

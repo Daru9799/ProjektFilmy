@@ -20,6 +20,8 @@ import SpinnerLoader from "../components/SpinnerLoader";
 import { Review } from "../models/Review";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 interface ReviewRepliesPageProps {
   endpointPrefix: ReplyEndpointType;
@@ -41,13 +43,13 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   //API
   const { data: movieReview, isLoading: movieReviewLoading, apiError: movieReviewError } = useReviewById(reviewId);
   const { data: collectionReview, isLoading: collectionReviewLoading, apiError: collectionReviewError } = useCollectionReviewById(reviewId);
-  const { data: repliesData, isLoading: repliesLoading, error: repliesError } = useRepliesByReviewId(endpointPrefix, reviewId, pagination.pageNumber, pagination.pageSize);
+  const { data: repliesData, isLoading: repliesLoading, apiError: repliesError } = useRepliesByReviewId(endpointPrefix, reviewId, pagination.pageNumber, pagination.pageSize);
   const replies = repliesData?.replies ?? [];
   const totalReplyPages = repliesData?.totalPages ?? 1;
   //Mutacje
-  const { mutate: createReply, isPending: isCreatingReply, error: createReplyError } = useCreateReply();
-  const { mutate: deleteReply, isPending: isDeletingReply, error: deleteReplyError } = useDeleteReply();
-  const { mutate: editReply, isPending: isEditingReply, error: editReplyError } = useEditReply();
+  const { mutate: createReply, isPending: isCreatingReply } = useCreateReply();
+  const { mutate: deleteReply, isPending: isDeletingReply } = useDeleteReply();
+  const { mutate: editReply, isPending: isEditingReply } = useEditReply();
   const { mutate: sendReviewCommentedNotification } = useSendMovieReviewCommentedNotification();
   const { mutate: sendCollectionReviewCommentedNotification } = useSendCollectionReviewCommentedNotification();
   
@@ -69,7 +71,17 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   }, []);
 
   const handleDeleteReply = async (replyId: string) => {
-    deleteReply({ endpointPrefix, replyId });
+    deleteReply({ endpointPrefix, replyId }, {
+        onSuccess: () => {
+          toast.success("Odpowiedź została usunięta pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się usunąć odpowiedzi. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      }
+    );
   };
 
   const handleEditReply = (reply: Reply) => {
@@ -79,7 +91,18 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
 
   const handleCreateReply = async (comment: string) => {
     if (!reviewId || !review) return;
-    createReply({ endpointPrefix, reviewId, comment });
+    createReply(
+      { endpointPrefix, reviewId, comment }, {
+        onSuccess: () => {
+          toast.success("Odpowiedź została dodana pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać odpowiedzi. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
+      }
+    );
 
     //Generowanie powiadomienia
     const reviewAuthorId = review.userId;
@@ -96,15 +119,22 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
   };
 
   const handleModalSave = async (replyText: string) => {
-    try {
     if (replyToEdit) {
-      editReply({ endpointPrefix, replyId: replyToEdit.replyId, updatedComment: replyText });
+      editReply({ endpointPrefix, replyId: replyToEdit.replyId, updatedComment: replyText }, {
+          onSuccess: () => {
+            toast.success("Odpowiedź została zaktualizowana pomyślnie!");
+            setShowModal(false);
+            setReviewToEdit(null);
+          },
+          onError: (err) => {
+            const apiErr = getApiError(err);
+            toast.error(`Nie udało się zaktualizować odpowiedzi. [${apiErr?.statusCode}] ${apiErr?.message}`
+            );
+          },
+        }
+      );
     } else {
-      await handleCreateReply(replyText); //leci async bo powiadomienia jeszcze nieprzerobione na react query
-    }
-    } finally {
-      setShowModal(false);
-      setReviewToEdit(null);
+      await handleCreateReply(replyText);
     }
   };
 
@@ -140,6 +170,8 @@ const ReviewRepliesPage = ({ endpointPrefix }: ReviewRepliesPageProps) => {
         <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
           <SpinnerLoader />
         </div>
+      ) : repliesError ? (
+        <ApiErrorDisplay apiError={repliesError} />
       ) : replies.length > 0 ? (
         replies.map((reply) => (
           <ReplyCard
