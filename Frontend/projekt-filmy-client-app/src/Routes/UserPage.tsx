@@ -24,6 +24,7 @@ import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import SpinnerLoader from "../components/SpinnerLoader";
 import { toast } from "react-toastify";
 import { getApiError } from "../functions/getApiError";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 function getUserRoleName(role: userRole): string {
   switch (role) {
@@ -57,9 +58,9 @@ const UserPage = () => {
   const [reload, setReload] = useState<boolean>(false);
 
   //Api hooks
-  const { data: reviewData, isLoading: reviewlLoading, error: reviewsError} = useUserReviews(userName, 1, 5);
+  const { data: reviewData, isLoading: reviewlLoading, apiError: reviewsError} = useUserReviews(userName, 1, 5);
   const reviews = reviewData?.reviews ?? [];
-  const { data: user, isLoading: userLoading, error: userError, refetch: refetchUser } = useUserData(userName);
+  const { data: user, isLoading: userLoading, apiError: userError, refetch: refetchUser } = useUserData(userName);
   const { data: isInvitedByUser} = useCheckIsInvitedByUser(getLoggedUserId(), userName!);
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteReview();
@@ -260,6 +261,7 @@ const UserPage = () => {
   };
 
   if(userLoading) return <SpinnerLoader />
+  if(userError) return <ApiErrorDisplay apiError={userError} />
 
   return (
     <>
@@ -384,10 +386,15 @@ const UserPage = () => {
 
         <div className="reviews">
           <h3 style={{ color: "white" }}>Ostatnie recenzje:</h3>
+
           {reviewlLoading ? (
             <div className="d-flex justify-content-center align-items-center" style={{ height: "100px" }}>
               <SpinnerLoader />
             </div>
+          ) : reviewsError ? (
+            <p style={{ color: "red" }}>
+              <ApiErrorDisplay apiError={reviewsError} />
+            </p>
           ) : reviews.length > 0 ? (
             reviews.map((review) => (
               <ReviewCard

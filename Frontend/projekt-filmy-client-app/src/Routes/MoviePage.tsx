@@ -25,23 +25,23 @@ const MoviePage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const { showReviewModal, showLoginModal, isLoggedIn, setShowReviewModal, setShowLoginModal, handleLoginSuccess } = useMoviePageLogic();
   //Api hooks
-  const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
-  const { data: people, isLoading: peopleLoading, error: peopleError } = useActorsByMovieId(movieId);
+  const { data: movie, isLoading: movieLoading, apiError: movieError } = useMovieById(movieId);
+  const { data: people, isLoading: peopleLoading, apiError: peopleError } = useActorsByMovieId(movieId);
   const { data: userReview, isLoading: userReviewLoading } = useUserReviewForMovie(loggedUserName, movieId);
-  const { data: isFollowingMovie = false, isLoading: isFollowingMovieLoading, error: isFollowingMovieError } = useIsFollowingMovie(movieId);
-  const { data: isPlanned, isLoading: loadingPlanned, error: errorPlanned } = useCheckIfInPlanned(movieId);
-  const { data: isWatched, isLoading: loadingWatched, error: errorWatched } = useCheckIfInWatched(movieId);
+  const { data: isFollowingMovie = false, isLoading: isFollowingMovieLoading } = useIsFollowingMovie(movieId);
+  const { data: isPlanned, isLoading: loadingPlanned } = useCheckIfInPlanned(movieId);
+  const { data: isWatched, isLoading: loadingWatched } = useCheckIfInWatched(movieId);
   const { data: reviewData, isLoading: reviewsLoading, apiError: reviewsError } = useReviewsByMovieId(movieId, 1, 2, "", "");
   const reviews = reviewData?.reviews ?? [];
   //Mutacje
   const { mutate: deleteReview, isPending: isDeletingReview } = useDeleteReview();
   const { mutate: editReview, isPending: isEditingReview } = useEditReview();
   const { mutate: addReview, isPending: isAddingReview } = useAddReview();
-  const { mutate: addFollowMovie, isPending: addingFollowMovie, error: addFollowMovieError } = useAddFollowMovie();
-  const { mutate: removeFollowMovie, isPending: removingFollowMovie, error: removeFollowMovieError } = useRemoveFollowMovie();
-  const { mutate: addToPlanned, isPending: addingPlanned, error: addToPlannedError } = useAddToPlanned();
+  const { mutate: addFollowMovie, isPending: addingFollowMovie } = useAddFollowMovie();
+  const { mutate: removeFollowMovie, isPending: removingFollowMovie } = useRemoveFollowMovie();
+  const { mutate: addToPlanned, isPending: addingPlanned } = useAddToPlanned();
   const { mutate: deleteFromPlanned, isPending: deletingPlanned } = useDeleteFromPlanned();
-  const { mutate: addToWatched, isPending: addingWatched, error: addToWatchedError } = useAddToWatched();
+  const { mutate: addToWatched, isPending: addingWatched } = useAddToWatched();
   const { mutate: deleteFromWatched, isPending: deletingWatched } = useDeleteFromWatched();
 
   //Funkcje
@@ -98,29 +98,75 @@ const MoviePage = () => {
   };
 
   const handleChangeFollowing = async () => {
-    if(!movieId) return
+    if (!movieId) return;
     if (isFollowingMovie === false) {
-        addFollowMovie(movieId);
-        console.log("Film dodany do obserwowanych!");
+      addFollowMovie(movieId, {
+        onSuccess: () => {
+          toast.success("Film został dodany do obserwowanych!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać filmu do obserwowanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
     } else {
-        removeFollowMovie(movieId);
-        console.log("Film usunuęty obserwowanych!");
+      removeFollowMovie(movieId, {
+        onSuccess: () => {
+          toast.success("Film został usunięty z obserwowanych!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się usunąć filmu z obserwowanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
     }
   };
 
   const handleChangePlanned = () => {
-    if (isPlanned) deleteFromPlanned(movieId!);
-    else addToPlanned(movieId!);
+    if (!movieId) return;
+    if (isPlanned) {
+      deleteFromPlanned(movieId, {
+        onSuccess: () => toast.success("Film został usunięty z planowanych!"),
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się usunąć filmu z planowanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
+    } else {
+      addToPlanned(movieId, {
+        onSuccess: () => toast.success("Film został dodany do planowanych!"),
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać filmu do planowanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
+    }
   };
 
   const handleChangeWatched = () => {
-    if (isWatched) deleteFromWatched(movieId!);
-    else addToWatched(movieId!);
+    if (!movieId) return;
+    if (isWatched) {
+      deleteFromWatched(movieId, {
+        onSuccess: () => toast.success("Film został usunięty z obejrzanych!"),
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się usunąć filmu z obejrzanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
+    } else {
+      addToWatched(movieId, {
+        onSuccess: () => toast.success("Film został dodany do obejrzanych!"),
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się dodać filmu do obejrzanych. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
+    }
   };
   
   if (movieLoading || peopleLoading || reviewsLoading || userReviewLoading || isFollowingMovieLoading || loadingPlanned || loadingWatched) return <SpinnerLoader />;
 
-  if (!movie) return <p>Nie znaleziono filmu.</p>; //Tymczasowe rozwiązanie zeby nie przeszkadzalo w debbugowaniu
+  if(movieError) return <ApiErrorDisplay apiError={movieError} />
 
   return (
     <div
@@ -135,6 +181,7 @@ const MoviePage = () => {
             defaultImageUrl="/path/to/defaultPoster.jpg"
           />
         </div>
+        {movie &&
         <div className="col-9">
           <MovieHeader
             movie={movie}
@@ -153,8 +200,13 @@ const MoviePage = () => {
             handleChangeWatched={handleChangeWatched}
           />
 
-          <MovieTabs movie={movie} people={people ?? []} />
+          {peopleError ? (
+            <ApiErrorDisplay apiError={peopleError} />
+          ) : (
+            <MovieTabs movie={movie} people={people ?? []} />
+          )}
         </div>
+        }
       </div>
 
       <RecommendMovieModule movieId={movie?.movieId} />

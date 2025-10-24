@@ -27,7 +27,7 @@ const ReviewsPage = () => {
   const [isLoggedUserMod, setIsLoggedUserMod] = useState(false);
 
   //Api hooks
-  const { data: movie, isLoading: movieLoading, error: movieError } = useMovieById(movieId);
+  const { data: movie, isLoading: movieLoading, apiError: movieError } = useMovieById(movieId);
   const { data: reviewData, isLoading: reviewsLoading, apiError: reviewsError } = useReviewsByMovieId(
     movieId,
     pagination.pageNumber,
@@ -114,6 +114,8 @@ const ReviewsPage = () => {
             <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
               <SpinnerLoader />
             </div>
+          ) : movieError ? (
+            <ApiErrorDisplay apiError={movieError} />
           ) : movie ? (
             <MovieListModule movieList={[movie]} />
           ) : (

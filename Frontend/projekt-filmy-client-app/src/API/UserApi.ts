@@ -1,13 +1,13 @@
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 import { Review } from "../models/Review";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserStats } from "../models/UserStats";
 import { UserProfile } from "../models/UserProfile";
+import { useApiQuery } from "../hooks/useApiQuery";
 
-//to do: OBSLUGA BLEDOW
 export const useUserReviews = (userName: string | undefined, page: number, pageSize: number, sortOrder: string = "desc", sortDirection: string = "year") => {
-  return useQuery<{ reviews: Review[]; totalPages: number }>({
+  return useApiQuery<{ reviews: Review[]; totalPages: number }>({
     queryKey: ["userReviews", userName, page, pageSize, sortOrder, sortDirection],
     queryFn: async () => {
       if (!userName) return { reviews: [], totalPages: 0 };
@@ -41,9 +41,8 @@ export const useUserReviews = (userName: string | undefined, page: number, pageS
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useUserStatistics = (userName: string | undefined) => {
-  return useQuery<UserStats | null>({
+  return useApiQuery<UserStats | null>({
     queryKey: ["userStatistics", userName],
     queryFn: async () => {
       if (!userName) return null;
@@ -62,9 +61,8 @@ export const useUserStatistics = (userName: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useUserData = (userName: string | undefined) => {
-  return useQuery<UserProfile>({
+  return useApiQuery<UserProfile>({
     queryKey: ["userData", userName],
     queryFn: async () => {
       if (!userName) throw new Error("Brak nazwy użytkownika");
@@ -80,7 +78,6 @@ export const useUserData = (userName: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useChangeUserRole = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -104,12 +101,10 @@ export const useChangeUserRole = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useAddFollowMovie = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (movieId: string) => {
-      if (!movieId) throw new Error("Brak ID filmu!");
       const { data } = await axios.post(`${API_BASE_URL}/Users/add-follow-movie/${movieId}`,
         {}, //Do POST musi byc body wysylane (inaczej wywali 401 XD)
         {
@@ -126,7 +121,6 @@ export const useAddFollowMovie = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useRemoveFollowMovie = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -146,9 +140,8 @@ export const useRemoveFollowMovie = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useIsFollowingMovie = (movieId: string | undefined) => {
-  return useQuery<boolean>({
+  return useApiQuery<boolean>({
     queryKey: ["isFollowingMovie", movieId],
     queryFn: async () => {
       if (!movieId) throw new Error("Brak ID filmu!");
@@ -164,7 +157,6 @@ export const useIsFollowingMovie = (movieId: string | undefined) => {
   });
 };
 
-// to do: OBSLUGA BLEDOW
 export const useAddFollowPerson = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -186,7 +178,6 @@ export const useAddFollowPerson = () => {
   });
 };
 
-// to do: OBSLUGA BLEDOW
 export const useRemoveFollowPerson = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -206,9 +197,8 @@ export const useRemoveFollowPerson = () => {
   });
 };
 
-// to do: OBSLUGA BLEDOW
 export const useIsFollowingPerson = (personId: string | undefined) => {
-  return useQuery<boolean>({
+  return useApiQuery<boolean>({
     queryKey: ["isFollowingPerson", personId],
     queryFn: async () => {
       if (!personId) throw new Error("Brak ID osoby!");

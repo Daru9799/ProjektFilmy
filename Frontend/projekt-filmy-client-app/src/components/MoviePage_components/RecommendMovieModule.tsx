@@ -24,6 +24,8 @@ const RecommendMovieModule = ({movieId}:Props) => {
 
   const {
     movies,
+    moviesError,
+    isMoviesLoading,
     tempSelectedMovie, // Zmienione na pojedynczy film
     handleOpenModal,
     handleToggleSelect,
@@ -149,29 +151,35 @@ const RecommendMovieModule = ({movieId}:Props) => {
           </div>
         </div>
       </Collapse>
-      <MovieSingleChoiceModal
-        show={openMovieModal}
-        onClose={() => {
-          setOpenMovieModal(false);
-        }}
-        movies={movies}
-        tempSelectedMovie={tempSelectedMovie}
-        onToggleSelect={handleToggleSelect}
-        onConfirm={() => {
-          handleConfirmSelection(); //raczej nie potrzebne
-          handleCreateRecommendation();
-          setOpenMovieModal(false);
-        }}
-        currentPage={currentPageMC}
-        totalPages={pageInfoMC.totalPages}
-        onPageChange={handlePageChangeMC}
-        searchText={searchText}
-        setSearchText={setSearchText}
-        setFilterList={setFilterList}
-        handleSort={handleSort}
-        isNoMovieModalVisible={isNoMovieModalVisible}
-        setIsNoMovieModalVisible={setIsNoMovieModalVisible}
-      />
+
+      {isMoviesLoading ? (
+        <SpinnerLoader />
+      ) : moviesError ? (
+        <ApiErrorDisplay apiError={moviesError} />
+      ) : (
+        <MovieSingleChoiceModal
+          show={openMovieModal}
+          onClose={() => setOpenMovieModal(false)}
+          movies={movies}
+          tempSelectedMovie={tempSelectedMovie}
+          onToggleSelect={handleToggleSelect}
+          onConfirm={() => {
+            handleConfirmSelection();
+            handleCreateRecommendation();
+            setOpenMovieModal(false);
+          }}
+          currentPage={currentPageMC}
+          totalPages={pageInfoMC.totalPages}
+          onPageChange={handlePageChangeMC}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          setFilterList={setFilterList}
+          handleSort={handleSort}
+          isNoMovieModalVisible={isNoMovieModalVisible}
+          setIsNoMovieModalVisible={setIsNoMovieModalVisible}
+        />
+      )}
+
       <ActionPendingModal show={likingPending} message="Trwa dodawanie polubienia..."/>
       <ActionPendingModal show={dislikingPending} message="Trwa usuwanie polubienia..."/>
       <ActionPendingModal show={creatingPending} message="Trwa dodawanie rekomendacji..." />

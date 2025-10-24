@@ -1,13 +1,13 @@
 import axios from "axios";
 import { Movie } from "../models/Movie";
 import { Person } from "../models/Person";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "../constants/api";
 import qs from "qs";
+import { useApiQuery } from "../hooks/useApiQuery";
 
-//to do: OBSLUGA BLEDOW
 export const useMovieById = (id: string | undefined) => {
-  return useQuery<Movie>({
+  return useApiQuery<Movie>({
     queryKey: ["movie", id],
     queryFn: async () => {
       const { data } = await axios.get(`${API_BASE_URL}/Movies/${id}`);
@@ -17,35 +17,41 @@ export const useMovieById = (id: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useActorsByMovieId = (movieId: string | undefined) => {
-  return useQuery<Person[]>({
+  return useApiQuery<Person[]>({
     queryKey: ["actors", movieId],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/People/by-filters`, {
-        params: {
-          pageNumber: 1,
-          pageSize: 2,
-          noPagination: true,
-          role: 1,
-          movieId: movieId,
-        },
-      });
+      try {
+        const response = await axios.get(`${API_BASE_URL}/People/by-filters`, {
+          params: {
+            pageNumber: 1,
+            pageSize: 2,
+            noPagination: true,
+            role: 1,
+            movieId: movieId,
+          },
+        });
 
-      const actorsArray = response.data?.data?.$values;
-      if (Array.isArray(actorsArray)) {
-        return actorsArray;
-      } else {
-        return [];
+        const actorsArray = response.data?.data?.$values;
+        if (Array.isArray(actorsArray)) {
+          return actorsArray;
+        } else {
+          return [];
+        }
+      } catch (err: any) {
+        //404 jako pusta lista
+        if (err.response?.status === 404) {
+          return [];
+        }
+        throw err;
       }
     },
     retry: false,
   });
 };
 
-//to do: OBSLUGA BLEDOW (jest niepełna zrobiona zeby modal dzialał poprawnie)
 export const useMoviesByFilters = (page: number, pageSize: number, titleSearch?: string, orderBy?: string, sortDirection?: string, categoryNames?: string[], countryNames?: string[], actorsList?: string[], directorsList?: string[]) => {
-  return useQuery<{ movies: Movie[]; totalPages: number }>({
+  return useApiQuery<{ movies: Movie[]; totalPages: number }>({
     queryKey: ["movies", page, pageSize, titleSearch, orderBy, sortDirection, categoryNames, countryNames, actorsList, directorsList],
     queryFn: async () => {
       try {
@@ -81,9 +87,8 @@ export const useMoviesByFilters = (page: number, pageSize: number, titleSearch?:
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useMoviesByCollectionId = (movieCollectionId: string | null, page: number, pageSize: number) => {
-  return useQuery<{ movies: Movie[]; totalPages: number }>({
+  return useApiQuery<{ movies: Movie[]; totalPages: number }>({
     queryKey: ["moviesByCollection", movieCollectionId, page, pageSize],
     queryFn: async () => {
       try {
@@ -115,9 +120,8 @@ export const useMoviesByCollectionId = (movieCollectionId: string | null, page: 
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useCheckIfInPlanned = (movieId: string | undefined) => {
-  return useQuery<boolean>({
+  return useApiQuery<boolean>({
     queryKey: ["planned", movieId],
     queryFn: async () => {
       if (!movieId) return false;
@@ -134,9 +138,8 @@ export const useCheckIfInPlanned = (movieId: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useCheckIfInWatched = (movieId: string | undefined) => {
-  return useQuery<boolean>({
+  return useApiQuery<boolean>({
     queryKey: ["watched", movieId],
     queryFn: async () => {
       if (!movieId) return false;
@@ -153,7 +156,6 @@ export const useCheckIfInWatched = (movieId: string | undefined) => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useAddToPlanned = () => {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: async (movieId: string) => {
@@ -175,7 +177,6 @@ export const useAddToPlanned = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteFromPlanned = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -194,7 +195,6 @@ export const useDeleteFromPlanned = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useAddToWatched = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -217,7 +217,6 @@ export const useAddToWatched = () => {
   });
 };
 
-//to do: OBSLUGA BLEDOW
 export const useDeleteFromWatched = () => {
   const queryClient = useQueryClient();
   return useMutation({

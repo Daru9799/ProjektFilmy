@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMovieLoader } from "./useMovieLoader";
 
 const staticPageSize = 4;
@@ -10,7 +10,7 @@ export const useSearchMovies = () => {
   const [sortDirection, setSortDirection] = useState<string>("asc");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, isNoMovieModalVisible, setIsNoMovieModalVisible } = useMovieLoader( currentPage, staticPageSize, searchText, sortCategory, sortDirection, filterList);
+  const { data, isLoading, apiError, isNoMovieModalVisible, setIsNoMovieModalVisible } = useMovieLoader( currentPage, staticPageSize, searchText, sortCategory, sortDirection, filterList);
 
   const handleSearchSubmit = () => {
     setCurrentPage(1); 
@@ -42,6 +42,7 @@ export const useSearchMovies = () => {
     handleSort,
     isNoMovieModalVisible,
     setIsNoMovieModalVisible,
-    isLoading
+    isLoading,
+    apiError
   };
 };

@@ -24,7 +24,7 @@ const MovieCollectionByUserPage = () => {
   const sortDirection = "likes";
 
   //Api hooks:
-  const { data: user, isLoading: userLoading, error: userError } = useUserData(userName);
+  const { data: user, isLoading: userLoading, apiError: userError } = useUserData(userName);
   const { data: movieCollectionsData, isLoading: movieCollectionsLoading, apiError: movieCollectionsError } = useMovieCollectionsByUser(user?.id, pagination.pageNumber, pagination.pageSize, sortOrder, sortDirection);
   const movieCollections = movieCollectionsData?.collections ?? [];
   const totalPages = movieCollectionsData?.totalPages ?? 1;
@@ -34,8 +34,7 @@ const MovieCollectionByUserPage = () => {
   }, []);
 
   if(userLoading || movieCollectionsLoading) return <SpinnerLoader />
-
-  if (error) return <p>{error}</p>;
+  if (userError) return <ApiErrorDisplay apiError={userError} />;
 
   return (
     <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>

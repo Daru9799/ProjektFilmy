@@ -16,7 +16,7 @@ export const useMovieChoiceModule = () => {
   const [currentPageMC, setCurrentPageMC] = useState(1);
   const [searchText, setSearchText] = useState<string>("");
 
-  const { data, isLoading, error: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch, } = useMovieLoader( currentPageMC, 6, searchText, sortCategory, sortDirection, filterList );
+  const { data, isLoading: isMoviesLoading, apiError: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch, } = useMovieLoader( currentPageMC, 6, searchText, sortCategory, sortDirection, filterList );
 
   const movies = data?.movies ?? [];
   const pageInfoMC = {
@@ -24,9 +24,6 @@ export const useMovieChoiceModule = () => {
     pageSize: 6,
     totalPages: data?.totalPages ?? 1,
   };
-
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const handleOpenModal = async () => {
     refetch();
@@ -82,10 +79,10 @@ export const useMovieChoiceModule = () => {
     showModal,
     setShowModal,
     movies,
+    moviesError,
+    isMoviesLoading,
     tempSelectedMovie, // Zmienione na pojedynczy film
     setTempSelectedMovie, // Zmienione na pojedynczy film
-    error,
-    loading,
     handleOpenModal,
     handleToggleSelect,
     handleConfirmSelection,

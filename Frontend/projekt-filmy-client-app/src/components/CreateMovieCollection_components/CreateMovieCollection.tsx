@@ -11,6 +11,8 @@ import { useCreateMovieCollectionApi } from "../../API/MovieCollectionApi";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
 import { toast } from "react-toastify";
 import { getApiError } from "../../functions/getApiError";
+import ApiErrorDisplay from "../ApiErrorDisplay";
+import SpinnerLoader from "../SpinnerLoader";
 
 const CreateMovieCollection = () => {
   const {
@@ -24,6 +26,8 @@ const CreateMovieCollection = () => {
     setAllowCopy,
     showModal,
     movies,
+    isMovieLoading,
+    moviesError,
     selectedMovies,
     setSelectedMovies,
     tempSelectedMovies,
@@ -112,23 +116,29 @@ const CreateMovieCollection = () => {
         </button>
       </div>
 
-      <MovieSelectionModal
-        show={showModal}
-        onClose={handleCloseModal}
-        movies={movies}
-        tempSelectedMovies={tempSelectedMovies}
-        onToggleSelect={handleToggleSelect}
-        onConfirm={handleConfirmSelection}
-        currentPage={currentPage}
-        totalPages={pageInfo.totalPages}
-        onPageChange={handlePageChange}
-        searchText={searchText}
-        setSearchText={setSearchText}
-        setFilterList={setFilterList}
-        handleSort={handleSort}
-        isNoMovieModalVisible={isNoMovieModalVisible}
-        setIsNoMovieModalVisible={setIsNoMovieModalVisible}
-      />
+      {isMovieLoading ? (
+        <SpinnerLoader />
+      ) : moviesError ? (
+        <ApiErrorDisplay apiError={moviesError} />
+      ) : (
+        <MovieSelectionModal
+          show={showModal}
+          onClose={handleCloseModal}
+          movies={movies}
+          tempSelectedMovies={tempSelectedMovies}
+          onToggleSelect={handleToggleSelect}
+          onConfirm={handleConfirmSelection}
+          currentPage={currentPage}
+          totalPages={pageInfo.totalPages}
+          onPageChange={handlePageChange}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          setFilterList={setFilterList}
+          handleSort={handleSort}
+          isNoMovieModalVisible={isNoMovieModalVisible}
+          setIsNoMovieModalVisible={setIsNoMovieModalVisible}
+        />
+      )}
 
       <InfoModal
         show={showInfoModal}

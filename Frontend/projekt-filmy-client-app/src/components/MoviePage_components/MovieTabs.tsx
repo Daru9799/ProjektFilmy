@@ -90,7 +90,7 @@ const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
                   </button>
                 ))
               ) : (
-                <p>Brak danych o aktorach</p>
+                <p className="text-black" >Brak danych o aktorach</p>
               )}
             </div>
           </div>

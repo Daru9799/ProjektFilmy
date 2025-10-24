@@ -8,6 +8,8 @@ import LoginModal from "../components/SingIn_SignUp_componets/LoginModal";
 import SpinnerLoader from "../components/SpinnerLoader";
 import ActionPendingModal from "../components/SharedModals/ActionPendingModal";
 import ApiErrorDisplay from "../components/ApiErrorDisplay";
+import { toast } from "react-toastify";
+import { getApiError } from "../functions/getApiError";
 
 const PersonPage = () => {
   const userName = localStorage.getItem("logged_username") || "";
@@ -16,21 +18,37 @@ const PersonPage = () => {
 
   //API hook
   const { data: person, isLoading: personLoading, apiError: personError } = usePersonById(id);
-  const { data: isFollowingPerson = false, error: isFollowingPersonError } = useIsFollowingPerson(id);
+  const { data: isFollowingPerson = false } = useIsFollowingPerson(id);
   const { data: moviesData, isLoading: moviesLoading, apiError: moviesError } = usePersonMovies(id);
   const movies = moviesData ?? [];
   //Mutacje
-  const { mutate: addFollowPerson, isPending: addingFollowPerson, error: addingFollowPersonError } = useAddFollowPerson();
-  const { mutate: removeFollowPerson, isPending: removingFollowPerson, error: removingFollowPersonError } = useRemoveFollowPerson();
+  const { mutate: addFollowPerson, isPending: addingFollowPerson } = useAddFollowPerson();
+  const { mutate: removeFollowPerson, isPending: removingFollowPerson } = useRemoveFollowPerson();
 
   const isLogged = !!userName;
 
   const handleChangeFollowing = () => {
     if (!id) return;
     if (isFollowingPerson) {
-      removeFollowPerson(id);
+      removeFollowPerson(id, {
+        onSuccess: () => {
+          toast.success("Przestałeś obserwować tę osobę!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się przestać obserwować osoby. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
     } else {
-      addFollowPerson(id);
+      addFollowPerson(id, {
+        onSuccess: () => {
+          toast.success("Rozpocząłeś obserwację tej osoby!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się rozpocząć obserwacji osoby. [${apiErr?.statusCode}] ${apiErr?.message}`);
+        },
+      });
     }
   };
 

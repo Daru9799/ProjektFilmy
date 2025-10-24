@@ -7,21 +7,20 @@ import { Tooltip } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { OverlayTrigger } from "react-bootstrap";
 import SpinnerLoader from "../SpinnerLoader";
+import ApiErrorDisplay from "../ApiErrorDisplay";
 
 const UserStatistics = () => {
   const { userName } = useParams();
-  const [error, setError] = useState<string | null>(null);
   const loggedUserName = localStorage.getItem("logged_username");
   const navigate = useNavigate();
       const renderTooltip = (props: any) => (
     <Tooltip {...props}>Powrót do profilu</Tooltip>
   );
 
-  const { data: userStats, isLoading: statsLoading } = useUserStatistics(userName);
+  const { data: userStats, isLoading: statsLoading, apiError: statsError } = useUserStatistics(userName);
 
   if(statsLoading) return <SpinnerLoader />
-
-  if (error) return <p className="text-danger text-center">{error}</p>;
+  if(statsError) return <ApiErrorDisplay apiError={statsError} />
   if (!userStats) return <p>Brak danych.</p>;
 
   return (

@@ -4,6 +4,8 @@ import { userRole } from "../../models/UserProfile";
 import { Button, Form, Modal } from "react-bootstrap";
 import { useChangeUserRole } from "../../API/UserApi";
 import ActionPendingModal from "../SharedModals/ActionPendingModal";
+import { toast } from "react-toastify";
+import { getApiError } from "../../functions/getApiError";
 
 interface Props {
   show: boolean;
@@ -17,7 +19,7 @@ const ChangeRoleModal = ({ show, onClose, userData }: Props) => {
     ([key, value]) => typeof value === "number"
   ) as [string, number][];
 
-  const { mutate: changeUserRole, isPending: changingUserRole, error: changeUserRoleError } = useChangeUserRole();
+  const { mutate: changeUserRole, isPending: changingUserRole } = useChangeUserRole();
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,10 +27,17 @@ const ChangeRoleModal = ({ show, onClose, userData }: Props) => {
       {
         onSuccess: () => {
           onClose();
-        }
+          toast.success("Rola użytkownika została zmieniona pomyślnie!");
+        },
+        onError: (err) => {
+          const apiErr = getApiError(err);
+          toast.error(`Nie udało się zmienić roli użytkownika. [${apiErr?.statusCode}] ${apiErr?.message}`
+          );
+        },
       }
     );
   };
+
   return (
     <Modal show={show} onHide={onClose} centered>
       <Modal.Header closeButton>

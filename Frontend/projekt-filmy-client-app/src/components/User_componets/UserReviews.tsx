@@ -14,11 +14,10 @@ import { useUserReviews } from "../../API/UserApi";
 import SpinnerLoader from "../SpinnerLoader";
 import { toast } from "react-toastify";
 import { getApiError } from "../../functions/getApiError";
+import ApiErrorDisplay from "../ApiErrorDisplay";
 
 const ReviewsPage = () => {
   const { userName } = useParams();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState({
     totalItems: 1,
     pageNumber: 1,
@@ -33,7 +32,7 @@ const ReviewsPage = () => {
   const navigate = useNavigate();
 
   //Api hooks
-  const { data: reviewData, isLoading: reviewLoading, error: reviewsError} = useUserReviews(userName, pagination.pageNumber, 5, sortOrder, sortDirection);
+  const { data: reviewData, isLoading: reviewLoading, apiError: reviewsError} = useUserReviews(userName, pagination.pageNumber, 5, sortOrder, sortDirection);
   const reviews = reviewData?.reviews ?? [];
   const totalPages = reviewData?.totalPages ?? 1;
   //Mutacje
@@ -103,10 +102,6 @@ const ReviewsPage = () => {
     }
   };
 
-  if (error) {
-    return <div className="text-danger text-center">{error}</div>;
-  }
-
   const renderTooltip = (props: any) => (
     <Tooltip {...props}>Powrót do profilu</Tooltip> // Treść dymka tooltipa
   );
@@ -134,6 +129,8 @@ const ReviewsPage = () => {
 
       {reviewLoading ? (
         <SpinnerLoader />
+      ) : reviewsError ? (
+        <ApiErrorDisplay apiError={reviewsError} />
       ) : reviews.length > 0 ? (
         reviews.map((review) => (
           <ReviewCard

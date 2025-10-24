@@ -6,6 +6,7 @@ import { useSearchMovies } from "../hooks/useMovieSearch";
 import SearchModule from "../components/SharedModals/SearchModule";
 import PaginationModule from "../components/SharedModals/PaginationModule";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 
 const SearchMoviesPage = () => {
@@ -20,7 +21,8 @@ const SearchMoviesPage = () => {
     handleSort,
     isNoMovieModalVisible,
     setIsNoMovieModalVisible,
-    isLoading
+    isLoading,
+    apiError
   } = useSearchMovies();
 
   return (
@@ -43,6 +45,8 @@ const SearchMoviesPage = () => {
 
       {isLoading ? (
         <SpinnerLoader />
+      ) : apiError ? (
+        <ApiErrorDisplay apiError={apiError} />
       ) : (
         <MovieListModule movieList={movies} />
       )}

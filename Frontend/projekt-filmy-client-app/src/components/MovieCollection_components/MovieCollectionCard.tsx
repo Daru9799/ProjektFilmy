@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useMoviesByCollectionId } from "../../API/MovieApi";
 import SpinnerLoader from "../SpinnerLoader";
+import ApiErrorDisplay from "../ApiErrorDisplay";
 
 interface MovieCollectionCardProps {
   movieCollection: MovieCollection | null;
@@ -30,7 +31,7 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
 
   const navigate = useNavigate();
   const collectionId = movieCollection?.movieCollectionId ?? null;
-  const { data, isLoading, error } = useMoviesByCollectionId(collectionId, pagination.pageNumber, pagination.pageSize);
+  const { data, isLoading, apiError } = useMoviesByCollectionId(collectionId, pagination.pageNumber, pagination.pageSize);
   const movies = data?.movies ?? [];
 
   if(isLoading) return <SpinnerLoader />
@@ -72,60 +73,56 @@ const MovieCollectionCard: React.FC<MovieCollectionCardProps> = ({
           </div>
 
           <div style={{ flexGrow: 1, overflowX: "auto" }}>
-            {movies ? (
-              movies.length > 0 ? (
-                <div
-                  className="d-flex flex-nowrap gap-3"
-                  style={{ minHeight: "100%" }}
-                >
-                  {movies.map((movie) => (
-                    <Card
-                      key={movie.movieId}
-                      className="zoomCard"
+            {apiError ? (
+              <ApiErrorDisplay apiError={apiError} />
+            ) : movies && movies.length > 0 ? (
+              <div
+                className="d-flex flex-nowrap gap-3"
+                style={{ minHeight: "100%" }}
+              >
+                {movies.map((movie) => (
+                  <Card
+                    key={movie.movieId}
+                    className="zoomCard"
+                    style={{
+                      height: "100%",
+                      width: "150px",
+                      cursor: "pointer",
+                      flex: "0 0 auto",
+                    }}
+                    title={movie.title}
+                    onClick={() => navigate(`/${movie.movieId}`)}
+                  >
+                    <Card.Img
+                      variant="top"
                       style={{
-                        height: "100%",
-                        width: "150px",
-                        cursor: "pointer",
-                        flex: "0 0 auto",
+                        width: "100%",
+                        height: "200px",
+                        objectFit: "cover",
+                        borderTopLeftRadius: "0.375rem",
+                        borderTopRightRadius: "0.375rem",
                       }}
-                      title={movie.title}
-                      onClick={() => navigate(`/${movie.movieId}`)}
-                    >
-                      <Card.Img
-                        variant="top"
+                      src={movie.posterUrl}
+                    />
+                    <Card.Body className="d-flex flex-column justify-content-between">
+                      <Card.Text
+                        className="text-center"
                         style={{
-                          width: "100%",
-                          height: "200px",
-                          objectFit: "cover",
-                          borderTopLeftRadius: "0.375rem",
-                          borderTopRightRadius: "0.375rem",
+                          fontSize: "0.9rem",
+                          maxHeight: "2.7rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
-                        src={movie.posterUrl}
-                      />
-                      <Card.Body className="d-flex flex-column justify-content-between">
-                        <Card.Text
-                          className="text-center"
-                          style={{
-                            fontSize: "0.9rem",
-                            maxHeight: "2.7rem",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {movie.title}
-                        </Card.Text>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-dark">Brak filmów do wyświetlenia</p>
-              )
+                      >
+                        {movie.title}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                ))}
+              </div>
             ) : (
-              <p className="text-dark">
-                Błąd podczas ładowania zawartości listy
-              </p>
+              <p className="text-dark">Brak filmów do wyświetlenia</p>
             )}
           </div>
         </>

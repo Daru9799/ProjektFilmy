@@ -20,7 +20,7 @@ export const useCreateMovieCollection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState<string>("");
 
-  const { data, isLoading, error: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch } = useMovieLoader(currentPage, 6, searchText, sortCategory, sortDirection, filterList);
+  const { data, isLoading: isMovieLoading, apiError: moviesError, isNoMovieModalVisible, setIsNoMovieModalVisible, refetch } = useMovieLoader(currentPage, 6, searchText, sortCategory, sortDirection, filterList);
   const movies = data?.movies ?? [];
   const pageInfo = {
     pageNumber: currentPage,
@@ -91,6 +91,8 @@ const handleSort = async (type: string) => {
     showModal,
     setShowModal,
     movies,
+    isMovieLoading,
+    moviesError,
     selectedMovies,
     setSelectedMovies,
     tempSelectedMovies,

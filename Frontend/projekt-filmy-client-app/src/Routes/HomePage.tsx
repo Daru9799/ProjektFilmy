@@ -1,10 +1,11 @@
 import MovieListModule from "../components/SearchMovies_componets/MovieListModule";
 import { useMoviesByFilters } from "../API/MovieApi";
 import SpinnerLoader from "../components/SpinnerLoader";
+import ApiErrorDisplay from "../components/ApiErrorDisplay";
 
 const HomePage = () => {
   //Wyswietlenie pierwszych 3 filmow
-  const { data, isLoading, error } = useMoviesByFilters(1, 3, "", "rating", "desc");
+  const { data, isLoading, apiError } = useMoviesByFilters(1, 3, "", "rating", "desc");
   const movies = data?.movies ?? [];
 
   return (
@@ -33,11 +34,13 @@ const HomePage = () => {
       <div className="d-flex flex-column justify-content-center align-items-center py-2">
         <h1 className="mb-3 text-white jersey-15-regular">Top 3 filmy:</h1>
 
-      {isLoading ? (
-        <SpinnerLoader />
-      ) : (
-        <MovieListModule movieList={movies} />
-      )}
+        {isLoading ? (
+          <SpinnerLoader />
+        ) : apiError ? (
+          <ApiErrorDisplay apiError={apiError} />
+        ) : (
+          <MovieListModule movieList={movies} />
+        )}
       
       </div>
     </div>
