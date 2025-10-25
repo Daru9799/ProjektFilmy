@@ -89,11 +89,6 @@ namespace Movies.Application.MovieCollectionReviews
                     };
                 }).ToList();
 
-                if (reviewDtos == null || !reviewDtos.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono recenzji dla listy filmowej o ID '{request.MovieCollectionId}'.");
-                }
-
                 return new PagedResponse<MovieCollectionReviewDto>
                 {
                     Data = reviewDtos,

@@ -84,11 +84,6 @@ namespace Movies.Application.Replies
                     };
                 }).ToList();
 
-                if (replyDtos == null || !replyDtos.Any())
-                {
-                    throw new NotFoundException("Nie znaleziono komentarzy.");
-                }
-
                 return new PagedResponse<ReplyDto>
                 {
                     Data = replyDtos,

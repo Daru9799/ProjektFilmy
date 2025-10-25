@@ -83,11 +83,6 @@ public class AchievementsByUserName
                 },
             }).ToList();
 
-            if (userAchievementDtos == null || !userAchievementDtos.Any())
-            {
-                throw new NotFoundException($"Nie znaleziono osiągnięć!");
-            }
-
             return new PagedResponse<UserAchievementDto>
             {
                 Data = userAchievementDtos,

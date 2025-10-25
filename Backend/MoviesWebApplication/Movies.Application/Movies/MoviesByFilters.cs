@@ -137,11 +137,6 @@ namespace Movies.Application.Movies
                     }).ToList()
                 }).ToList();
 
-                if (movieDtos == null || !movieDtos.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono filmów dla podanych filtrów.");
-                }
-
                 // Zwrócenie odpowiedzi paginowanej
                 return new PagedResponse<MovieDto>
                 {

@@ -40,6 +40,14 @@ namespace Movies.Application.Reviews
 
             public async Task<PagedResponse<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var userExists = await _context.Users
+                   .AnyAsync(u => u.UserName == request.UserName, cancellationToken);
+
+                if (!userExists)
+                {
+                    throw new NotFoundException($"Użytkownik o nazwie '{request.UserName}' nie został znaleziony.");
+                }
+
                 IQueryable<Review> query = _context.Users
                     .Where(m => m.UserName == request.UserName)
                     .SelectMany(m => m.Reviews)
@@ -61,11 +69,6 @@ namespace Movies.Application.Reviews
                     .Skip((request.PageNumber - 1) * request.PageSize)
                     .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
-
-                if (reviews == null || !reviews.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono recenzji dla użytkownika o podanej nazwie '{request.UserName}'.");
-                }
 
                 //Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);

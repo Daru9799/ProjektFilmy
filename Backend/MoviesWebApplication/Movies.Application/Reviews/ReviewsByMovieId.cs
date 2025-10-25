@@ -40,6 +40,15 @@ namespace Movies.Application.Reviews
 
             public async Task<PagedResponse<ReviewDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+
+                var movieExists = await _context.Movies
+                    .AnyAsync(m => m.MovieId == request.MovieId, cancellationToken);
+
+                if (!movieExists)
+                {
+                    throw new NotFoundException($"Film o ID {request.MovieId} nie został znaleziony.");
+                }
+
                 IQueryable<Review> query = _context.Movies
                     .Where(m => m.MovieId == request.MovieId)
                     .SelectMany(m => m.Reviews)
@@ -61,11 +70,6 @@ namespace Movies.Application.Reviews
                     .Skip((request.PageNumber - 1) * request.PageSize)
                     .Take(request.PageSize)
                     .ToListAsync(cancellationToken);
-
-                if (reviews == null || !reviews.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono recenzji dla filmu o ID '{request.MovieId}'.");
-                }
 
                 //Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);

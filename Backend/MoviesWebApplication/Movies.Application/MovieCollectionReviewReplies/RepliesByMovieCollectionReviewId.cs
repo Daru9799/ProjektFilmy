@@ -37,6 +37,14 @@ namespace Movies.Application.MovieCollectionReviewReplies
 
             public async Task<PagedResponse<MovieCollectionReviewReplyDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var reviewExists = await _context.MovieCollectionReviews
+                    .AnyAsync(r => r.MovieCollectionReviewId == request.ReviewId, cancellationToken);
+
+                if (!reviewExists)
+                {
+                    throw new NotFoundException($"Recenzja o ID {request.ReviewId} nie została znaleziona.");
+                }
+
                 var query = _context.MovieCollectionReviewReplies
                     .Where(r => r.Review.MovieCollectionReviewId == request.ReviewId)
                     .Include(r => r.User)
@@ -83,11 +91,6 @@ namespace Movies.Application.MovieCollectionReviewReplies
                         IsOwner = isOwner
                     };
                 }).ToList();
-
-                if (replyDtos == null || !replyDtos.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono komentarzy dla recenzji listy filmowej o ID '{request.ReviewId}'.");
-                }
 
                 return new PagedResponse<MovieCollectionReviewReplyDto>
                 {

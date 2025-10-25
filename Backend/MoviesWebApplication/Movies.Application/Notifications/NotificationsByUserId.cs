@@ -107,11 +107,6 @@ namespace Movies.Application.Notifications
                         SourceUserName = n.SourceUser?.UserName ?? "System"
                     }).ToList();
 
-                    if (notificationDtos == null || !notificationDtos.Any())
-                    {
-                        throw new NotFoundException($"Nie znaleziono powiadomień dla użytkownika o ID '{request.UserId}'.");
-                    }
-
                     return new PagedResponse<NotificationDto>
                     {
                         Data = notificationDtos,
@@ -139,11 +134,6 @@ namespace Movies.Application.Notifications
                         SourceUserId = n.SourceUserId,
                         SourceUserName = n.SourceUser?.UserName ?? "System"
                     }).ToList();
-
-                    if (notificationDtos == null || !notificationDtos.Any())
-                    {
-                        throw new NotFoundException($"Nie znaleziono powiadomień dla użytkownika o ID '{request.UserId}'.");
-                    }
 
                     int totalItems = await query.CountAsync(cancellationToken);
 

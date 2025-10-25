@@ -44,11 +44,6 @@ namespace Movies.Application.MovieCollectionReviews
                     .Include(r => r.MovieCollection)
                     .FirstOrDefaultAsync(r => r.MovieCollection.MovieCollectionId == request.MovieCollectionId, cancellationToken);
 
-                if (review == null)
-                {
-                    throw new NotFoundException($"Nie znaleziono recenzji dla użytkownika o ID '{request.UserId}' i filmu o ID '{request.MovieCollectionId}'.");
-                }
-
                 //Pobieranie tokena JWT z nagłówka
                 var userClaims = _httpContextAccessor.HttpContext.User;
                 var tokenUserId = userClaims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

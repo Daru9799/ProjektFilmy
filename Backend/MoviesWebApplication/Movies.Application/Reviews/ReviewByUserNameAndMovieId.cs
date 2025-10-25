@@ -37,19 +37,6 @@ namespace Movies.Application.Reviews
 
             public async Task<ReviewDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                // Pobranie jednej recenzji na podstawie UserName i MovieId
-                var review = await _context.Users
-                    .Where(u => u.UserName == request.UserName)
-                    .SelectMany(u => u.Reviews)
-                    .Include(r => r.User)
-                    .Include(r => r.Movie)
-                    .FirstOrDefaultAsync(r => r.Movie.MovieId == request.MovieId, cancellationToken);
-
-                if (review == null)
-                {
-                    throw new NotFoundException($"Nie znaleziono recenzji użytkownika '{request.UserName}' dla filmu o ID '{request.MovieId}'.");
-                }
-
                 //Pobieranie tokena JWT z nagłówka
                 var userClaims = _httpContextAccessor.HttpContext.User;
                 var tokenUserId = userClaims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -58,6 +45,32 @@ namespace Movies.Application.Reviews
                 {
                     throw new UnauthorizedException("Użytkownik nie jest zalogowany");
                 }
+
+                // Sprawdź czy użytkownik istnieje
+                var userExists = await _context.Users
+                    .AnyAsync(u => u.UserName == request.UserName, cancellationToken);
+
+                if (!userExists)
+                {
+                    throw new NotFoundException($"Użytkownik o nazwie '{request.UserName}' nie został znaleziony.");
+                }
+
+                // Sprawdź czy film istnieje
+                var movieExists = await _context.Movies
+                    .AnyAsync(m => m.MovieId == request.MovieId, cancellationToken);
+
+                if (!movieExists)
+                {
+                    throw new NotFoundException($"Film o ID '{request.MovieId}' nie został znaleziony.");
+                }
+
+                // Pobranie jednej recenzji na podstawie UserName i MovieId
+                var review = await _context.Users
+                    .Where(u => u.UserName == request.UserName)
+                    .SelectMany(u => u.Reviews)
+                    .Include(r => r.User)
+                    .Include(r => r.Movie)
+                    .FirstOrDefaultAsync(r => r.Movie.MovieId == request.MovieId, cancellationToken);
 
                 bool isOwner = false;
                 if (tokenUserId != null && tokenUserId == review.User.Id.ToString())

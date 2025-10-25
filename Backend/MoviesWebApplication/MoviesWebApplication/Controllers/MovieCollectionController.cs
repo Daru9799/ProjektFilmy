@@ -74,32 +74,6 @@ namespace MoviesWebApplication.Controllers
         [HttpPost("add-collection")]
         public async Task<IActionResult> CreateMovieCollection([FromBody] CreateMovieCollection.CreateMovieCollectionCommand command)
         {
-            /*try
-            {
-                var movieCollection = await Mediator.Send(command);
-                return Ok(new
-                {
-                    message = "Pomyślnie utworzono kolekcję.",
-                    collectionId = movieCollection.MovieCollectionId
-                });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ApiResponse.BadRequest("Nieprawidłowe wprowadzone dane."));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch (Exception ex) 
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Nie udało się stworzyć kolekcji filmów. \n{ex.Message}"));
-            }*/
-
             return await Mediator.SendWithExceptionHandling(command, "Pomyślnie utworzono kolekcję.");
         }
 
@@ -109,29 +83,6 @@ namespace MoviesWebApplication.Controllers
         [HttpDelete("delete-collection/{id}")]
         public async Task<IActionResult> DeleteMovieCollection(Guid id)
         {
-            /*try
-            {
-                var result = await Mediator.Send(new DeleteMovieCollection(id));
-
-                if (result == null)
-                {
-                    return NotFound(ApiResponse.NotFound($"Nie znaleziono listy filmów z ID: {id}"));
-                }
-
-                return Ok("Pomyślnie usunięto kolekcje.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch(UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy usuwaniu kolekcji filmów. \n{ex.Message}"));
-            }*/
             return await Mediator.SendWithExceptionHandling(new DeleteMovieCollection(id), "Pomyślnie usunięto kolekcje.");
         }
 
@@ -141,26 +92,6 @@ namespace MoviesWebApplication.Controllers
         [HttpPatch("edit-collection/{id}")]
         public async Task<IActionResult> EditMovieCollection(Guid id, [FromBody] EditMovieCollection.EditMovieCollectionCommand command)
         {
-            /*try
-            {
-                command.MovieCollectionId = id;
-
-                var movieCollection = await Mediator.Send(command);
-
-                return Ok("Pomyślnie zmieniono kolekcje.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ApiResponse.NotFound(ex.Message));
-            }
-            catch(UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ApiResponse.Unauthorized(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse.InternalServerError($"Wystąpił nieoczekiwany błąd przy edycji kolekcji filmów. \n{ex.Message}"));
-            }*/
             return await Mediator.SendWithExceptionHandling(command, "Pomyślnie zmieniono kolekcje.");
         }
     }

@@ -127,11 +127,6 @@ namespace Movies.Application.MovieCollections
                 // Obliczenie całkowitej liczby elementów
                 int totalItems = await query.CountAsync(cancellationToken);
 
-                if (movieCollectionDtos == null || !movieCollectionDtos.Any())
-                {
-                    throw new NotFoundException($"Nie znaleziono listy filmów dla użytkownika o ID '{request.UserId}'.");
-                }
-
                 return new PagedResponse<MovieCollectionDto>
                 {
                     Data = movieCollectionDtos,
