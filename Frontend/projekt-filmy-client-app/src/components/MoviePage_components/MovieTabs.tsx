@@ -10,7 +10,7 @@ interface MovieTabsProps {
 
 const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>("opis");  // domyślnie włączona tablica
+  const [activeTab, setActiveTab] = useState<string>("opis");
 
   const tabButtons = [
     { id: "opis", label: "Opis" },
@@ -21,23 +21,17 @@ const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
 
   return (
     <>
-      <ul
-        className="nav nav-pills"
-        style={{
-          marginBottom: "10px",
-          marginTop: "30px",
-          marginLeft: "20px",
-        }}
-      >
+      {/* Taby */}
+      <ul className="nav nav-pills d-flex flex-wrap justify-content-center justify-content-md-start mb-3">
         {tabButtons.map(({ id, label }) => (
-          <li key={id} className="nav-item">
+          <li key={id} className="nav-item me-2 mb-2 mb-md-0">
             <button
-              className={`outside-table-button ${activeTab === id ? "outside-table-button-active" : ""}`}
-              id={`${id}-tab`}
-              data-bs-toggle="pill"
-              data-bs-target={`#${id}`}
+              className={`outside-table-button ${
+                activeTab === id ? "outside-table-button-active" : ""
+              }`}
               type="button"
               onClick={() => setActiveTab(id)}
+              style={{ padding: "5px 10px", fontSize: "0.9rem" }}
             >
               {label}
             </button>
@@ -45,29 +39,36 @@ const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
         ))}
       </ul>
 
+      {/* Zawartość tabów */}
       <div
         className="bg-white p-3 shadow-sm"
         style={{
           fontSize: "1.1rem",
-          height: "140px",
+          minHeight: "140px",
+          maxHeight: "300px",
           overflow: "auto",
-          paddingRight: "10px",
           borderRadius: "20px",
           textAlign: "left",
-          marginTop: "-10px",
-          width: "80%",
+          width: "100%",
         }}
       >
         <div className="tab-content">
-          <div className={`tab-pane fade ${activeTab === "opis" ? "show active" : ""}`} id="opis">
+          {/* Opis */}
+          <div className={`tab-pane fade ${activeTab === "opis" ? "show active" : ""}`}>
             <p className="text-dark">{movie?.description || "Brak opisu filmu."}</p>
           </div>
 
-          <div className={`tab-pane fade ${activeTab === "gatunki" ? "show active" : ""}`} id="gatunki">
-            <div className="d-flex flex-wrap">
+          {/* Gatunki */}
+          <div className={`tab-pane fade ${activeTab === "gatunki" ? "show active" : ""}`}>
+            <div className="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
               {movie?.categories?.$values?.length ? (
                 movie.categories.$values.map((cat) => (
-                  <button key={cat.name} className="inside-table-button" onClick={() => {}}>
+                  <button
+                    key={cat.name}
+                    className="inside-table-button"
+                    style={{ padding: "5px 10px", fontSize: "0.9rem" }}
+                    onClick={() => {}}
+                  >
                     {cat.name}
                   </button>
                 ))
@@ -77,34 +78,42 @@ const MovieTabs: React.FC<MovieTabsProps> = ({ movie, people }) => {
             </div>
           </div>
 
-          <div className={`tab-pane fade ${activeTab === "aktorzy" ? "show active" : ""}`} id="aktorzy">
-            <div className="d-flex flex-wrap gap-2">
+          {/* Aktorzy */}
+          <div className={`tab-pane fade ${activeTab === "aktorzy" ? "show active" : ""}`}>
+            <div className="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
               {people.length > 0 ? (
                 people.map((person) => (
                   <button
                     key={person.personId}
                     className="inside-table-button"
+                    style={{ padding: "5px 10px", fontSize: "0.9rem" }}
                     onClick={() => navigate(`/people/${person.personId}`)}
                   >
                     {person.firstName} {person.lastName}
                   </button>
                 ))
               ) : (
-                <p className="text-black" >Brak danych o aktorach</p>
+                <p className="text-dark">Brak danych o aktorach</p>
               )}
             </div>
           </div>
 
-          <div className={`tab-pane fade ${activeTab === "kraje" ? "show active" : ""}`} id="kraje">
-            <div className="d-flex flex-wrap">
+          {/* Kraje */}
+          <div className={`tab-pane fade ${activeTab === "kraje" ? "show active" : ""}`}>
+            <div className="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
               {movie?.countries?.$values?.length ? (
                 movie.countries.$values.map((country) => (
-                  <button key={country.name} className="inside-table-button" onClick={() => {}}>
+                  <button
+                    key={country.name}
+                    className="inside-table-button"
+                    style={{ padding: "5px 10px", fontSize: "0.9rem" }}
+                    onClick={() => {}}
+                  >
                     {country.name}
                   </button>
                 ))
               ) : (
-                <p>Brak danych o krajach</p>
+                <p className="text-dark">Brak danych o krajach</p>
               )}
             </div>
           </div>

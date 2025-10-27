@@ -17,16 +17,16 @@ interface Props {
 }
 
 const RecommendMovieModule = ({movieId}:Props) => {
-  const[currentPage,setCurrentPage] = useState(1)
+  const [currentPage,setCurrentPage] = useState(1);
   const staticPageSize = 3;
-	const [open, setOpen] = useState(false);
-  const [openMovieModal,setOpenMovieModal] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [openMovieModal,setOpenMovieModal] = useState(false);
 
   const {
     movies,
     moviesError,
     isMoviesLoading,
-    tempSelectedMovie, // Zmienione na pojedynczy film
+    tempSelectedMovie,
     handleOpenModal,
     handleToggleSelect,
     handleConfirmSelection,
@@ -41,23 +41,22 @@ const RecommendMovieModule = ({movieId}:Props) => {
     setFilterList,
   } = useMovieChoiceModule();
 
-  //Api hooks:
+  // Api hooks
   const { data: recommendationData, isLoading: recommendationLoading, apiError: recommendationListError } = useRecommendationsByMovie(movieId, currentPage, staticPageSize);
   const recommendList = recommendationData?.recommendations || [];
   const movieList = recommendationData?.movies || [];
   const pageInfo = recommendationData?.pagination;
-  //Mutacje
+
+  // Mutacje
   const { mutate: likeRecommendation, isPending: likingPending } = useLikeRecommendation();
   const { mutate: deleteLikeRecommendation, isPending: dislikingPending  } = useDeleteLikeRecommendation();
   const { mutate: createRecommendation, isPending: creatingPending } = useCreateRecommendation();
 
   const onLikeToggle = async (recommendationId: string, isLiking: boolean) => {
-    if (!recommendationId) return
+    if (!recommendationId) return;
     if (isLiking) {
       likeRecommendation(recommendationId, {
-        onSuccess: () => {
-          toast.success("Polubiono rekomendację!");
-        },
+        onSuccess: () => toast.success("Polubiono rekomendację!"),
         onError: (err) => {
           const apiErr = getApiError(err);
           toast.error(`Nie udało się polubić rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`);
@@ -65,46 +64,39 @@ const RecommendMovieModule = ({movieId}:Props) => {
       });
     } else {
       deleteLikeRecommendation(recommendationId, {
-        onSuccess: () => {
-          toast.info("Usunięto polubienie.");
-        },
+        onSuccess: () => toast.info("Usunięto polubienie."),
         onError: (err) => {
           const apiErr = getApiError(err);
           toast.error(`Nie udało się usunąć polubienia rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`);
-        },
+        }
       });
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    console.log(pageInfo);
-  };
+  const handlePageChange = (page: number) => setCurrentPage(page);
 
-  const handleCreateRecommendation= () => {
+  const handleCreateRecommendation = () => {
     if (!movieId || !tempSelectedMovie?.movieId) return;
     createRecommendation({ movieId, recommendMovieId: tempSelectedMovie.movieId }, {
-        onSuccess: () => {
-          toast.success("Rekomendacja została dodana pomyślnie!");
-        },
-        onError: (err) => {
-          const apiErr = getApiError(err);
-          toast.error(`Nie udało się dodać rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`
-          );
-        },
-      }
-    );
-  }
+      onSuccess: () => toast.success("Rekomendacja została dodana pomyślnie!"),
+      onError: (err) => {
+        const apiErr = getApiError(err);
+        toast.error(`Nie udało się dodać rekomendacji. [${apiErr?.statusCode}] ${apiErr?.message}`);
+      },
+    });
+  };
 
   return (
     <div
-      className="p-2 w-75 m-auto"
+      className="p-2 mx-auto my-3"
       style={{
         backgroundColor: "#150021",
         borderRadius: "15px",
+        maxWidth: "100%", // responsywność
       }}
     >
-      <div className="d-grid gap-2 col-5 mx-auto my-2">
+      {/* Przycisk otwierający listę rekomendacji */}
+      <div className="d-grid gap-2 col-12 col-md-4 mx-auto mb-2">
         <Button
           onClick={() => setOpen(!open)}
           aria-controls="recommend-movie-list"
@@ -138,7 +130,9 @@ const RecommendMovieModule = ({movieId}:Props) => {
               </>
             )}
           </ApiErrorDisplay>
-          <div className="d-grid gap-2 col-4 mx-auto">
+
+          {/* Przycisk dodania rekomendacji */}
+          <div className="d-grid gap-2 col-12 col-md-4 mx-auto mt-2">
             <Button
               onClick={() => {
                 setOpenMovieModal(true);
@@ -146,12 +140,13 @@ const RecommendMovieModule = ({movieId}:Props) => {
               }}
               className="btn btn-success"
             >
-              Dodaj rekomendacje
+              Dodaj rekomendację
             </Button>
           </div>
         </div>
       </Collapse>
 
+      {/* Modal wyboru filmu */}
       {isMoviesLoading ? (
         <SpinnerLoader />
       ) : moviesError ? (
@@ -180,11 +175,12 @@ const RecommendMovieModule = ({movieId}:Props) => {
         />
       )}
 
-      <ActionPendingModal show={likingPending} message="Trwa dodawanie polubienia..."/>
-      <ActionPendingModal show={dislikingPending} message="Trwa usuwanie polubienia..."/>
+      {/* Modale akcji */}
+      <ActionPendingModal show={likingPending} message="Trwa dodawanie polubienia..." />
+      <ActionPendingModal show={dislikingPending} message="Trwa usuwanie polubienia..." />
       <ActionPendingModal show={creatingPending} message="Trwa dodawanie rekomendacji..." />
     </div>
   );
-}
+};
 
 export default RecommendMovieModule;

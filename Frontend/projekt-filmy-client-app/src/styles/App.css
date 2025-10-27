@@ -5,14 +5,14 @@ body {
 
 .Container {
   display: flex;
-  flex-direction: column;  /* Ustawiamy flex-direction na column, aby elementy były ustawione jeden pod drugim */
+  flex-direction: column;  /* Ustawiamy flex-direction na column */
   align-items: center;
   height: 100vh;  /* Pełna wysokość ekranu */
 }
 
- .NavBar {
-  width: 70%;  /* Zapewni pełną szerokość paska nawigacyjnego */
-  background-color: #150021;  /* Przykładowy kolor tła (bg-secondary) */
+.NavBar {
+  width: 70%;  
+  background-color: #150021;  
   text-align: center;
   display: flex;
   justify-content: center;
@@ -20,13 +20,21 @@ body {
   min-height: 100px;
 } 
 
+.NavBar .navbar-collapse {
+  background-color: #150021; /* to samo tło co pasek */
+}
+
+.NavBar .navbar-nav .nav-item {
+  margin: 5px 0; /* odstępy między elementami w kolumnie na małych ekranach */
+}
+
 .App {
   text-align: center;
   background-color: #390357;  
-  width: 70%;  /* Minimalna szerokość */
+  width: 70%;  
 }
 
-.Footer{
+.Footer {
   background-color: #150021;
   min-height: 5%;
   width: 70%;
@@ -47,50 +55,52 @@ body {
   color: #61dafb;
 }
 
-.edit-button {
+/* --- WSPÓLNE USTAWIENIA DLA WSZYSTKICH PRZYCISKÓW --- */
+.edit-button,
+.green-button,
+.cancel-button,
+.red-button {
   font-size: 1rem;
   padding: 10px 20px;
   border-radius: 20px;
   border: none;
-  background-color: #943ce7;
   color: white;
   cursor: pointer;
+  margin: 5px; /* odstęp między przyciskami */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Kolor przycisku po najechaniu */
+/* --- WARIANTY KOLORÓW --- */
+.edit-button {
+  background-color: #943ce7;
+}
 .edit-button:hover {
-  background-color: #7a2fd8; 
-  transform: scale(1.1); 
+  background-color: #7a2fd8;
+  transform: scale(1.1);
 }
 
 .green-button {
-  font-size: 1rem;
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: none;
   background-color: #0da07e;
-  color: white;
-  cursor: pointer;
 }
-
 .green-button:hover {
-  background-color: #0cbf95; 
-  transform: scale(1.1); 
+  background-color: #0cbf95;
+  transform: scale(1.1);
 }
 
 .cancel-button {
-  font-size: 1rem;
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: none;
   background-color: #616e6b;
-  color: white;
-  cursor: pointer;
+}
+.cancel-button:hover {
+  background-color: #505856;
+  transform: scale(1.1);
 }
 
-.cancel-button:hover {
-  background-color: #505856; 
-  transform: scale(1.1); 
+.red-button {
+  background-color: #d63a3a;
+}
+.red-button:hover {
+  background-color: #b32f2f;
+  transform: scale(1.1);
 }
 
 /* przycisk wewnątrz 'tabeli' na MoviePage */
@@ -139,7 +149,3 @@ body {
   background-color: white;
   color: #212529;
 }
-
-
-
-

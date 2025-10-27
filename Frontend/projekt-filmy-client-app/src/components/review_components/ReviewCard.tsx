@@ -50,9 +50,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
     navigate(`/${review.reviewId}/replies`);
   };
 
-  return (
+return (
+  <>
+    {/* --- LARGE SCREEN LAYOUT --- */}
     <div
-      className="d-flex justify-content-between align-items-start p-3 my-2 review-card"
+      className="d-none d-md-flex justify-content-between align-items-start p-3 my-2 review-card"
       style={{
         borderRadius: "15px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -102,7 +104,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         {/* Comment */}
         <p>{review.comment}</p>
 
-        {/* Przyciski akcji i komentarze */}
+        {/* Buttons and comment count */}
         <div className="d-flex align-items-center" style={{ gap: "10px" }}>
           {(review.isOwner || isLoggedUserMod) &&
             (userPage || userRevieForMovie) && (
@@ -135,32 +137,29 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                 </button>
               </>
             )}
-          {/* Przycisk komentarzy */}
           {displayCommentCount && (
-            <>
-              <button
-                onClick={onNavigateToComments}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#6c757d",
-                  marginRight: "auto",
-                }}
-                aria-label="Przejdź do komentarzy"
-              >
-                <i className="far fa-comment"></i>
-                <span>{commentCount}</span>
-              </button>
-            </>
+            <button
+              onClick={onNavigateToComments}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#6c757d",
+                marginRight: "auto",
+              }}
+              aria-label="Przejdź do komentarzy"
+            >
+              <i className="far fa-comment"></i>
+              <span>{commentCount}</span>
+            </button>
           )}
         </div>
       </div>
 
-      {/* Rating i Data */}
+      {/* Rating and Date */}
       <div style={{ textAlign: "right", color: "black" }}>
         {renderStars(review.rating)}
         <h4>{review.rating}/5</h4>
@@ -174,6 +173,115 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
             : "Brak danych"}
         </small>
       </div>
+    </div>
+
+    {/* --- SMALL SCREEN LAYOUT --- */}
+    <div
+      className="d-flex d-md-none flex-column align-items-center p-3 my-2 review-card"
+      style={{
+        borderRadius: "15px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        backgroundColor: review.isCritic ? "#CDC1FF" : "white",
+        color: "black",
+        textAlign: "center",
+      }}
+    >
+      {/* Username */}
+      <p style={{ fontWeight: "bold", marginBottom: "5px" }}>
+        {review.isCritic && (
+          <span className="critic-badge">
+            ✔️
+            <span className="tooltip">Krytyk filmowy</span>
+          </span>
+        )}
+        <Link
+          to={`/user/${review.username}`}
+          style={{ fontWeight: "bold", textDecoration: "none", color: "inherit" }}
+        >
+          {review.username}
+        </Link>
+      </p>
+
+      {/* Film (jeśli userPage) */}
+      {userPage && (
+        <Link
+          to={`/${review.movieId}`}
+          style={{
+            fontWeight: "bold",
+            fontStyle: "italic",
+            textDecoration: "none",
+            color: "inherit",
+            marginBottom: "10px",
+          }}
+        >
+          Film: {review.movieTitle}
+        </Link>
+      )}
+
+      {/* Comment */}
+      <p>{review.comment}</p>
+
+      {/* Buttons and comment count */}
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "10px",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
+        {(review.isOwner || isLoggedUserMod) && (userPage || userRevieForMovie) && (
+          <>
+            <button
+              onClick={onEdit}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              <i className="fas fa-edit zoomIcons"></i>
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              <i className="fas fa-trash zoomIcons"></i>
+            </button>
+          </>
+        )}
+        {displayCommentCount && (
+          <button
+            onClick={onNavigateToComments}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#6c757d",
+            }}
+          >
+            <i className="far fa-comment"></i>
+            <span>{commentCount}</span>
+          </button>
+        )}
+      </div>
+
+      {/* Gwiazdki */}
+      <div style={{ marginBottom: "5px" }}>{renderStars(review.rating)}</div>
+
+      {/* Liczba gwiazdek */}
+      <h4 style={{ marginTop: 0, marginBottom: "5px" }}>{review.rating}/5</h4>
+
+      {/* Data */}
+      <small style={{ marginBottom: "5px" }}>
+        {review?.date
+          ? new Date(review.date).toLocaleDateString("pl-PL", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "Brak danych"}
+      </small>
 
       {/* Potwierdzenie */}
       <ConfirmationModal
@@ -186,7 +294,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         confirmButtonVariant="danger"
       />
     </div>
-  );
+  </>
+);
 };
 
 export default ReviewCard;

@@ -41,22 +41,19 @@ const MovieHeader: React.FC<Props> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="d-flex justify-content-between">
-      {/* Lewa sekcja z informacjami o filmie */}
-      <div style={{ textAlign: "left", flex: "1" }}>
-        <h2 className="mb-3" style={{ fontSize: "4rem" }}>
+    <div className="d-flex flex-column flex-md-row w-100">
+      {/* Lewa sekcja */}
+      <div className="flex-fill text-start mb-3 mb-md-0">
+        <h2 className="mb-3" style={{ fontSize: "2rem", fontWeight: "bold" }}>
           {movie?.title || "Tytuł niedostępny"}
         </h2>
 
-        <p style={{ marginTop: "50px" }}>
+        <p>
           <span className="fw-bold">
-            {(movie?.directors?.$values?.length ?? 0) >= 1
-              ? "Reżyser"
-              : "Reżyserzy"}
-            :
+            {(movie?.directors?.$values?.length ?? 0) > 1 ? "Reżyserzy" : "Reżyser"}:
           </span>{" "}
           {movie?.directors?.$values?.length
-            ? movie.directors.$values.map((d) => (
+            ? movie.directors.$values.map((d, index) => (
                 <React.Fragment key={d.personId}>
                   <span
                     onClick={() => navigate(`/people/${d.personId}`)}
@@ -64,6 +61,7 @@ const MovieHeader: React.FC<Props> = ({
                   >
                     {`${d.firstName} ${d.lastName}`}
                   </span>
+                  {index < (movie.directors?.$values?.length ?? 0) - 1 ? ", " : ""}
                 </React.Fragment>
               ))
             : "Brak danych o reżyserach"}
@@ -86,15 +84,8 @@ const MovieHeader: React.FC<Props> = ({
         </p>
       </div>
 
-      {/* Prawa sekcja z oceną i przyciskiem */}
-      <div
-        className="d-flex flex-column align-items-center"
-        style={{
-          textAlign: "center",
-          minWidth: "200px",
-          marginLeft: "20px",
-        }}
-      >
+      {/* Prawa sekcja */}
+      <div className="d-flex flex-column align-items-center text-center" style={{ minWidth: "200px" }}>
         {movie?.reviewsNumber && movie.reviewsNumber > 0 ? (
           <>
             <div>{renderStars(movie?.averageScore || 0)}</div>
@@ -127,5 +118,6 @@ const MovieHeader: React.FC<Props> = ({
     </div>
   );
 };
+
 
 export default MovieHeader;

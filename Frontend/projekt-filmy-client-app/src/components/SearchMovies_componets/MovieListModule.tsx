@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { Movie } from '../../models/Movie';
 import { renderStars } from "../../hooks/RenderStars";
 import '../../styles/Zoom.css';
+import '../../styles/MovieListModule.css';
 
 interface Props {
   movieList: Movie[];
@@ -17,15 +19,22 @@ const MovieListModule = ({
   tempSelectedMovies = [],
 }: Props) => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const isSelected = (movie: Movie) =>
     tempSelectedMovies.some((m) => m.movieId === movie.movieId);
 
   const handleCardClick = (movie: Movie) => {
     if (onToggleSelect) {
-      onToggleSelect(movie); // Multi-select mode
+      onToggleSelect(movie);
     } else {
-      navigate(`/${movie.movieId}`); // Navigation
+      navigate(`/${movie.movieId}`);
     }
   };
 
@@ -35,14 +44,14 @@ const MovieListModule = ({
         {movieList.map((movie) => (
           <li
             key={movie.movieId}
-           className={`list-group-item d-flex p-3 zoomCard ${isSelected(movie) ? 'selected-movie-highlight' : ''}`}
+            className={`list-group-item d-flex p-3 zoomCard ${isSelected(movie) ? 'selected-movie-highlight' : ''}`}
             onClick={() => handleCardClick(movie)}
             style={{
               borderBottom: "1px solid #ddd",
-              width: "600px",
-              height: "180px",
+              width: isMobile ? "100%" : "600px",
+              flexDirection: isMobile ? "column" : "row",
               borderRadius: "15px",
-              marginBottom: "5px",
+              marginBottom: "10px",
               cursor: "pointer",
             }}
           >
@@ -50,22 +59,23 @@ const MovieListModule = ({
               src={movie.posterUrl}
               alt={`${movie.title} Poster`}
               style={{
-                width: "100px",
-                height: "150px",
+                width: isMobile ? "100%" : "100px",
+                height: isMobile ? "auto" : "150px",
                 objectFit: "cover",
-                marginRight: "15px",
+                marginRight: isMobile ? "0" : "15px",
+                marginBottom: isMobile ? "10px" : "0",
                 borderRadius: "5px",
               }}
             />
             <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-              <div className="d-flex justify-content-between align-items-start" style={{ flexGrow: 1 }}>
+              <div className="d-flex justify-content-between align-items-start" style={{ flexGrow: 1, flexDirection: isMobile ? "column" : "row" }}>
                 <h5
                   className="mb-2"
                   style={{
                     whiteSpace: "normal",
                     wordWrap: "break-word",
                     textAlign: "left",
-                    maxWidth: "300px",
+                    maxWidth: isMobile ? "100%" : "300px",
                   }}
                 >
                   {movie.title} (
@@ -76,7 +86,7 @@ const MovieListModule = ({
                     : null}
                   )
                 </h5>
-                <div className="d-flex flex-column align-items-end" style={{ marginLeft: "40px" }}>
+                <div className="d-flex flex-column align-items-end" style={{ marginLeft: isMobile ? "0" : "40px", marginTop: isMobile ? "10px" : "0" }}>
                   <div>{renderStars(movie.averageScore || 0)}</div>
                   <span style={{ fontSize: "1rem" }}>
                     {Number(movie.averageScore).toFixed(1)}/5
@@ -92,7 +102,7 @@ const MovieListModule = ({
                   fontSize: "0.9rem",
                   color: "#555",
                   justifyContent: "flex-start",
-                  marginTop: "auto",
+                  marginTop: "10px",
                 }}
               >
                 {movie?.categories?.$values?.length ? (

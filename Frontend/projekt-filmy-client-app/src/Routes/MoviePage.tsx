@@ -169,89 +169,79 @@ const MoviePage = () => {
   if(movieError) return <ApiErrorDisplay apiError={movieError} />
 
   return (
-    <div
-      className="container-fluid text-white"
-      style={{ left: "200px", minHeight: "90vh" }}
-    >
-      <div className="row my-4">
-        <div className="col-3 text-center p-2">
-          <ImageModal
-            imageUrl={movie?.posterUrl}
-            altText="Poster"
-            defaultImageUrl="/path/to/defaultPoster.jpg"
-          />
-        </div>
-        {movie &&
-        <div className="col-9">
-          <MovieHeader
-            movie={movie}
-            isLoggedIn={isLoggedIn}
-            showReviewModal={showReviewModal}
-            setShowReviewModal={setShowReviewModal}
-            showLoginModal={showLoginModal}
-            setShowLoginModal={setShowLoginModal}
-            handleAddReview={handleAddReview}
-            handleLoginSuccess={handleLoginSuccess}
-            userReview={userReview ?? null}
-            isFollowing={isFollowingMovie}
-            handleChangeFollowing={handleChangeFollowing}
-            inList={isPlanned ? "Planowany" : isWatched ? "Obejrzany" : null}
-            handleChangePlanned={(handleChangePlanned)}
-            handleChangeWatched={handleChangeWatched}
-          />
-
-          {peopleError ? (
-            <ApiErrorDisplay apiError={peopleError} />
-          ) : (
-            <MovieTabs movie={movie} people={people ?? []} />
-          )}
-        </div>
-        }
-      </div>
-
-      <RecommendMovieModule movieId={movie?.movieId} />
-
-      {reviewToEdit && (
-        <AddReviewModal
-          show={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          onAddReview={handleSaveEditedReview}
-          initialReviewText={reviewToEdit.comment}
-          initialReviewRating={reviewToEdit.rating}
-          headerText={"Edytuj recenzję"} 
-          buttonText={"Zapisz zmiany"}
-        />
-      )}
-
-      {reviewsError ? (
-        <ApiErrorDisplay apiError={reviewsError} />
-      ) : (
-        <ReviewsSection
-          reviews={reviews}
-          userReview={userReview ?? null}
-          onEditReview={handleEditReview}
-          onDeleteReview={handleDeleteReview}
-          movieId={movie?.movieId}
-          totalReviewsCount={movie?.reviewsNumber ?? 0}
-        />
-      )}
-
-      <LoginModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
+  <div
+  className="container-fluid text-white"
+  style={{ minHeight: "90vh" }}
+>
+  <div className="row my-4 d-flex flex-column flex-md-row">
+    {/* Poster */}
+    <div className="col-12 col-md-3 text-center p-2 mb-3 mb-md-0">
+      <ImageModal
+        imageUrl={movie?.posterUrl}
+        altText="Poster"
+        defaultImageUrl="/path/to/defaultPoster.jpg"
       />
-
-      <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
-      <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
-      <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..." />
-      <ActionPendingModal show={addingFollowMovie} message="Trwa dodawanie filmu do obserwowanych..." />
-      <ActionPendingModal show={removingFollowMovie} message="Trwa usuwanie filmu z obserwowanych..." />
-      <ActionPendingModal show={addingPlanned} message="Trwa dodawanie filmu do planowanych..." />
-      <ActionPendingModal show={addingWatched} message="Trwa dodawanie filmu do obejrzanych..." />
-      <ActionPendingModal show={deletingPlanned} message="Trwa usuwanie filmu z planowanych..." />
-      <ActionPendingModal show={deletingWatched} message="Trwa usuwanie filmu z obejrzanych..." />
     </div>
+
+    {/* Główna część filmu */}
+    {movie && (
+      <div className="col-12 col-md-9">
+        <MovieHeader
+          movie={movie}
+          isLoggedIn={isLoggedIn}
+          showReviewModal={showReviewModal}
+          setShowReviewModal={setShowReviewModal}
+          showLoginModal={showLoginModal}
+          setShowLoginModal={setShowLoginModal}
+          handleAddReview={handleAddReview}
+          handleLoginSuccess={handleLoginSuccess}
+          userReview={userReview ?? null}
+          isFollowing={isFollowingMovie}
+          handleChangeFollowing={handleChangeFollowing}
+          inList={isPlanned ? "Planowany" : isWatched ? "Obejrzany" : null}
+          handleChangePlanned={handleChangePlanned}
+          handleChangeWatched={handleChangeWatched}
+        />
+
+        {peopleError ? (
+          <ApiErrorDisplay apiError={peopleError} />
+        ) : (
+          <MovieTabs movie={movie} people={people ?? []} />
+        )}
+      </div>
+    )}
+  </div>
+
+  {/* Rekomendacje */}
+  <RecommendMovieModule movieId={movie?.movieId} />
+
+  {/* Recenzje */}
+  {reviewToEdit && (
+    <AddReviewModal
+      show={showEditModal}
+      onClose={() => setShowEditModal(false)}
+      onAddReview={handleSaveEditedReview}
+      initialReviewText={reviewToEdit.comment}
+      initialReviewRating={reviewToEdit.rating}
+      headerText={"Edytuj recenzję"} 
+      buttonText={"Zapisz zmiany"}
+    />
+  )}
+
+  {reviewsError ? (
+    <ApiErrorDisplay apiError={reviewsError} />
+  ) : (
+    <ReviewsSection
+      reviews={reviews}
+      userReview={userReview ?? null}
+      onEditReview={handleEditReview}
+      onDeleteReview={handleDeleteReview}
+      movieId={movie?.movieId}
+      totalReviewsCount={movie?.reviewsNumber ?? 0}
+    />
+  )}
+</div>
+
   );
 };
 

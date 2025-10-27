@@ -40,8 +40,8 @@ const UserStatistics = () => {
 
       <h2 className="mb-0 mx-auto text-center">
         {loggedUserName === userName
-          ? "Twoje osiągnięcia:"
-          : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
+          ? "Twoje statystyki:"
+          : <>Statystyki użytkownika <strong>{userName}</strong></>}
       </h2>
 
       {/* Niewidoczny element do zbalansowania przestrzeni po prawej */}

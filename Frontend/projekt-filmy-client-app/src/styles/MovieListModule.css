@@ -1,0 +1,15 @@
+/* Skaluje całą kartę proporcjonalnie do rozmiaru ekranu */
+@media (max-width: 768px) {
+  .list-group-item {
+    width: 100% !important; /* dopasowanie do kontenera */
+    max-width: 600px;       /* zachowanie maksymalnej szerokości */
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 576px) {
+  .list-group-item {
+    transform: scale(0.8);
+  }
+}

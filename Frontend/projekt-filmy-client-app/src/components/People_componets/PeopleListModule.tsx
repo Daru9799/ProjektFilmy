@@ -14,12 +14,14 @@ const PeopleListModule = ({ peopleList, type }: Props) => {
   const handleCardClick = (actorId: string) => {
     navigate(`/people/${actorId}`);
   };
-  return (
-    <div className="container d-flex justify-content-center align-items-top p-0">
-      <ul className="list-group">
-        {peopleList.map((person) => (
+return (
+  <div className="container d-flex justify-content-center align-items-top p-0">
+    <ul className="list-group">
+      {peopleList.map((person) => (
+        <div key={person.personId}>
+          {/* --- LARGE SCREEN LAYOUT --- */}
           <li
-            className="list-group-item d-flex align-items-start p-3 zoomCard"
+            className="list-group-item d-flex align-items-start p-3 zoomCard d-none d-md-flex"
             onClick={() => handleCardClick(person.personId)}
             style={{
               borderBottom: "1px solid #ddd",
@@ -111,17 +113,94 @@ const PeopleListModule = ({ peopleList, type }: Props) => {
                   </div>
                 ) : (
                   <p className="text-dark" style={{ paddingLeft: "5px" }}>
-                    {" "}
                     Brak danych.
                   </p>
                 )}
               </div>
             </div>
           </li>
-        ))}
-      </ul>
-    </div>
-  );
+
+          {/* --- SMALL SCREEN LAYOUT --- */}
+          <li
+            className="list-group-item d-flex d-md-none flex-column align-items-center p-3 zoomCard"
+            onClick={() => handleCardClick(person.personId)}
+            style={{
+              borderBottom: "1px solid #ddd",
+              width: "100%",
+              maxWidth: "600px",
+              borderRadius: "15px",
+              marginBottom: "5px",
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={person.photoUrl}
+              alt={`${person.firstName} ${person.lastName}`}
+              style={{
+                width: "100px",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "5px",
+                marginBottom: "10px",
+              }}
+            />
+            <h5 style={{ marginBottom: "5px", textAlign: "center" }}>
+              {person.firstName} {person.lastName}
+            </h5>
+            <div
+              style={{
+                backgroundColor: "#2E5077",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "8px",
+                fontSize: "1rem",
+                marginBottom: "10px",
+              }}
+            >
+              <p className="mb-0" style={{ textAlign: "center" }}>
+                {person.totalMovies === 0
+                  ? "Brak filmów"
+                  : `${person.totalMovies} ${
+                      person.totalMovies === 1 ? "film" : "filmy"
+                    }`}
+              </p>
+            </div>
+            <div
+              className="d-flex flex-wrap justify-content-center"
+              style={{ fontSize: "0.9rem", color: "#555" }}
+            >
+              <strong>
+                Najczęściej {type === "director" ? "kręci" : "gra w"}:{" "}
+              </strong>
+              {person.favoriteGenre ? (
+                <div
+                  className="badge me-2 mb-2"
+                  style={{
+                    backgroundColor: "#2E5077",
+                    padding: "8px 12px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    borderRadius: "15px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  {person.favoriteGenre}
+                </div>
+              ) : (
+                <p className="text-dark" style={{ paddingLeft: "5px" }}>
+                  Brak danych.
+                </p>
+              )}
+            </div>
+          </li>
+        </div>
+      ))}
+    </ul>
+  </div>
+);
+
 };
 
 export default PeopleListModule;

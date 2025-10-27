@@ -16,24 +16,22 @@ const PersonPage = () => {
   const { id } = useParams();
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
-  //API hook
+  // API hooks
   const { data: person, isLoading: personLoading, apiError: personError } = usePersonById(id);
   const { data: isFollowingPerson = false } = useIsFollowingPerson(id);
   const { data: moviesData, isLoading: moviesLoading, apiError: moviesError } = usePersonMovies(id);
   const movies = moviesData ?? [];
-  //Mutacje
+
+  // Mutacje
   const { mutate: addFollowPerson, isPending: addingFollowPerson } = useAddFollowPerson();
   const { mutate: removeFollowPerson, isPending: removingFollowPerson } = useRemoveFollowPerson();
-
   const isLogged = !!userName;
 
   const handleChangeFollowing = () => {
     if (!id) return;
     if (isFollowingPerson) {
       removeFollowPerson(id, {
-        onSuccess: () => {
-          toast.success("Przestałeś obserwować tę osobę!");
-        },
+        onSuccess: () => toast.success("Przestałeś obserwować tę osobę!"),
         onError: (err) => {
           const apiErr = getApiError(err);
           toast.error(`Nie udało się przestać obserwować osoby. [${apiErr?.statusCode}] ${apiErr?.message}`);
@@ -41,9 +39,7 @@ const PersonPage = () => {
       });
     } else {
       addFollowPerson(id, {
-        onSuccess: () => {
-          toast.success("Rozpocząłeś obserwację tej osoby!");
-        },
+        onSuccess: () => toast.success("Rozpocząłeś obserwację tej osoby!"),
         onError: (err) => {
           const apiErr = getApiError(err);
           toast.error(`Nie udało się rozpocząć obserwacji osoby. [${apiErr?.statusCode}] ${apiErr?.message}`);
@@ -54,52 +50,34 @@ const PersonPage = () => {
 
   const handleLoginSuccess = (username: string) => {
     localStorage.setItem("logged_username", username);
-    window.dispatchEvent(
-      new CustomEvent("userUpdated", { detail: { username } })
-    );
+    window.dispatchEvent(new CustomEvent("userUpdated", { detail: { username } }));
     setShowLoginModal(false);
   };
 
   if (personLoading) return <SpinnerLoader />;
-
-  if(personError) return <ApiErrorDisplay apiError={personError} />
+  if (personError) return <ApiErrorDisplay apiError={personError} />;
 
   return (
-    <div
-      className=" container-fluid text-white"
-      style={{ marginBottom: "2%", minHeight: "90vh" }}
-    >
-      <div className="row my-4">
-        {/* Left Column (Poster) */}
-        <div className="col-3">
-          <div className="p-2 text-center">
-            {/* Użycie ImageModal */}
-            <ImageModal
-              imageUrl={person?.photoUrl}
-              altText={`${person?.firstName} ${person?.lastName} Poster`}
-              defaultImageUrl="/path/to/defaultPoster.jpg"
-            />
-          </div>
+    <div className="container-fluid text-white" style={{ minHeight: "90vh", marginBottom: "2%" }}>
+      {/* ------------------- Duże ekrany ------------------- */}
+      <div className="row my-4 d-none d-md-flex">
+        <div className="col-3 text-center">
+          <ImageModal
+            imageUrl={person?.photoUrl}
+            altText={`${person?.firstName} ${person?.lastName} Poster`}
+            defaultImageUrl="/path/to/defaultPoster.jpg"
+          />
         </div>
 
-        <div
-          className="col-8"
-          style={{ textAlign: "left", marginLeft: "50px", marginTop: "20px" }}
-        >
+        <div className="col-8" style={{ marginLeft: "50px", textAlign: "left" }}>
           <div className="d-flex align-items-center justify-content-between">
             <h2 className="mb-0" style={{ fontSize: "4rem" }}>
-              {person?.firstName && person?.lastName
-                ? `${person.firstName} ${person.lastName}`
-                : "Imię i nazwisko niedostępne"}
+              {person?.firstName && person?.lastName ? `${person.firstName} ${person.lastName}` : "Imię i nazwisko niedostępne"}
             </h2>
-            {/* Przycisk do obserwowania */}
             {isLogged ? (
               <button
                 className="btn btn-outline-light mt-3"
-                style={{
-                  backgroundColor: !isFollowingPerson ? "green" : "red",
-                  width: "200px",
-                }}
+                style={{ backgroundColor: !isFollowingPerson ? "green" : "red", width: "200px" }}
                 onClick={handleChangeFollowing}
               >
                 {!isFollowingPerson ? "Obserwuj" : "Przestań obserwować"}
@@ -107,10 +85,7 @@ const PersonPage = () => {
             ) : (
               <button
                 className="btn btn-outline-light mt-3"
-                style={{
-                  backgroundColor: !isFollowingPerson ? "green" : "red",
-                  width: "200px",
-                }}
+                style={{ backgroundColor: "green", width: "200px" }}
                 onClick={() => setShowLoginModal(true)}
               >
                 Obserwuj
@@ -118,45 +93,59 @@ const PersonPage = () => {
             )}
           </div>
 
-          {/* Data urodzenia */}
-          <p style={{ marginTop: "50px" }}>
-            <span className="fw-bold">Data urodzenia: </span>
-            {person?.birthDate
-              ? new Date(person.birthDate).toLocaleDateString("pl-PL", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-              : "Brak danych"}
-          </p>
-          <p style={{ marginTop: "10px" }}>
-            <span className="fw-bold">Liczba wszystkich filmów: </span>
-            {person?.totalMovies ? `${person.totalMovies}` : "Niedostępna"}
-          </p>
-          <p style={{ marginTop: "10px" }}>
-            <span className="fw-bold">Najczęściej udziela się w: </span>
-            {person?.favoriteGenre ? `${person.favoriteGenre}` : "Niedostępny"}
-          </p>
+          <p style={{ marginTop: "50px" }}><span className="fw-bold">Data urodzenia: </span>{person?.birthDate ? new Date(person.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" }) : "Brak danych"}</p>
+          <p style={{ marginTop: "10px" }}><span className="fw-bold">Liczba wszystkich filmów: </span>{person?.totalMovies ?? "Niedostępna"}</p>
+          <p style={{ marginTop: "10px" }}><span className="fw-bold">Najczęściej udziela się w: </span>{person?.favoriteGenre ?? "Niedostępny"}</p>
 
-          {/* Biografia */}
-          <div
-            className="bg-white p-3 shadow-sm"
-            style={{
-              fontSize: "1.1rem",
-              minHeight: "140px",
-              borderRadius: "20px",
-              textAlign: "left",
-              marginTop: "20px",
-              marginRight: "50px",
-            }}
-          >
-            <p className="text-dark">
-              {person?.bio || "Brak danych o biografii."}
-            </p>
+          <div className="bg-white p-3 shadow-sm" style={{ fontSize: "1.1rem", minHeight: "140px", borderRadius: "20px", textAlign: "left", marginTop: "20px", marginRight: "50px" }}>
+            <p className="text-dark">{person?.bio || "Brak danych o biografii."}</p>
           </div>
         </div>
       </div>
 
+      {/* ------------------- Małe ekrany ------------------- */}
+      <div className="d-block d-md-none">
+        <div className="text-center mb-3">
+          <ImageModal
+            imageUrl={person?.photoUrl}
+            altText={`${person?.firstName} ${person?.lastName} Poster`}
+            defaultImageUrl="/path/to/defaultPoster.jpg"
+          />
+        </div>
+        <h2 className="text-center mb-3" style={{ fontSize: "2.5rem" }}>
+          {person?.firstName && person?.lastName ? `${person.firstName} ${person.lastName}` : "Imię i nazwisko niedostępne"}
+        </h2>
+
+        <p><span className="fw-bold">Data urodzenia: </span>{person?.birthDate ? new Date(person.birthDate).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" }) : "Brak danych"}</p>
+        <p><span className="fw-bold">Liczba wszystkich filmów: </span>{person?.totalMovies ?? "Niedostępna"}</p>
+        <p><span className="fw-bold">Najczęściej udziela się w: </span>{person?.favoriteGenre ?? "Niedostępny"}</p>
+
+        <div className="d-flex justify-content-center my-3">
+          {isLogged ? (
+            <button
+              className="btn btn-outline-light"
+              style={{ backgroundColor: !isFollowingPerson ? "green" : "red", minWidth: "180px" }}
+              onClick={handleChangeFollowing}
+            >
+              {!isFollowingPerson ? "Obserwuj" : "Przestań obserwować"}
+            </button>
+          ) : (
+            <button
+              className="btn btn-outline-light"
+              style={{ backgroundColor: "green", minWidth: "180px" }}
+              onClick={() => setShowLoginModal(true)}
+            >
+              Obserwuj
+            </button>
+          )}
+        </div>
+
+        <div className="bg-white p-3 shadow-sm" style={{ fontSize: "1.1rem", borderRadius: "20px", textAlign: "left" }}>
+          <p className="text-dark">{person?.bio || "Brak danych o biografii."}</p>
+        </div>
+      </div>
+
+      {/* ------------------- Filmy ------------------- */}
       {moviesLoading ? (
         <SpinnerLoader />
       ) : moviesError ? (
@@ -172,13 +161,9 @@ const PersonPage = () => {
         <p>Brak powiązanych filmów.</p>
       )}
 
-      <LoginModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
-      <ActionPendingModal show={addingFollowPerson} message="Trwa dodawanie filmu do obserwowanych..." />
-      <ActionPendingModal show={removingFollowPerson} message="Trwa usuwanie filmu z obserwowanych..." />
+      <LoginModal show={showLoginModal} onClose={() => setShowLoginModal(false)} onLoginSuccess={handleLoginSuccess} />
+      <ActionPendingModal show={addingFollowPerson} message="Trwa dodawanie osoby do obserwowanych..." />
+      <ActionPendingModal show={removingFollowPerson} message="Trwa usuwanie osoby z obserwowanych..." />
     </div>
   );
 };

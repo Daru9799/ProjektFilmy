@@ -30,64 +30,68 @@ const AllAchievementsPage = () => {
     return <SpinnerLoader />;
   }
 
-  return (
-    <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
+return (
+  <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
     <ApiErrorDisplay apiError={achievementsError}>
       <div className="flex-grow-1">
+
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            marginBottom: "5%",
-            marginTop: "3%",
-          }}
+          className="d-flex align-items-center justify-content-between flex-wrap mb-4 mt-3"
+          style={{ gap: "10px" }}
         >
-          <h2 style={{ color: "white", margin: 0 }}>Wszystkie osiągnięcia:</h2>
+          <h2
+            className="text-center flex-grow-1"
+            style={{
+              color: "white",
+              margin: 0,
+              fontSize: "1.5rem",
+              wordBreak: "break-word",
+            }}
+          >
+            Wszystkie osiągnięcia:
+          </h2>
 
           {loggedUserName && (
-            <button
-              onClick={() => navigate(`/user/achievements/${loggedUserName}`)}
-              className="btn btn-outline-light mt-3"
-              style={{
-                position: "absolute",
-                right: 0,
-              }}
-            >
-              Moje osiągnięcia
-            </button>
+            <div className="w-100 d-flex justify-content-center justify-content-md-end mt-2 mt-md-0">
+              <button
+                onClick={() => navigate(`/user/achievements/${loggedUserName}`)}
+                className="btn btn-outline-light"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                Moje osiągnięcia
+              </button>
+            </div>
           )}
         </div>
 
-<div className="row">
-  {achievements.length > 0 ? (
-    achievements.map((achievement) => (
-      <div className="col-md-4 mb-3" key={achievement.achievementId}>
-        <div className="achievement-card">
-          <div className="card-body text-center">
-            {/* Obrazek */}
-            {achievement.imageUrl && (
-              <img
-                src={achievement.imageUrl}
-                alt={achievement.title}
-                className="img-fluid mb-3 rounded"
-                style={{ maxHeight: "50px", objectFit: "cover" }}
-              />
-            )}
-
-            {/* Tytuł i opis */}
-            <h5 className="card-title">{achievement.title}</h5>
-            <p className="card-description mt-3">{achievement.description}</p>
-          </div>
+        <div className="row">
+          {achievements.length > 0 ? (
+            achievements.map((achievement) => (
+              <div className="col-md-4 mb-3" key={achievement.achievementId}>
+                <div className="achievement-card">
+                  <div className="card-body text-center">
+                    {achievement.imageUrl && (
+                      <img
+                        src={achievement.imageUrl}
+                        alt={achievement.title}
+                        className="img-fluid mb-3 rounded"
+                        style={{ maxHeight: "50px", objectFit: "cover" }}
+                      />
+                    )}
+                    <h5 className="card-title">{achievement.title}</h5>
+                    <p className="card-description mt-3">
+                      {achievement.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-warning fs-4">
+              Brak osiągnięć do wyświetlenia.
+            </p>
+          )}
         </div>
-      </div>
-    ))
-  ) : (
-    <p>Brak osiągnięć do wyświetlenia.</p>
-  )}
-</div>
-
       </div>
 
       <div className="mt-auto">
@@ -100,8 +104,9 @@ const AllAchievementsPage = () => {
         />
       </div>
     </ApiErrorDisplay>
-    </div>
-  );
+  </div>
+);
+
 };
 
 export default AllAchievementsPage;

@@ -31,68 +31,93 @@ const UserAchievementsPage = () => {
 
   if (isLoading) return <SpinnerLoader />;
 
-  return (
-    <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
+return (
+  <div className="container d-flex flex-column" style={{ minHeight: "90vh" }}>
     <ApiErrorDisplay apiError={achievementError}>
       <div className="flex-grow-1">
-        <div style={{ position: "relative", marginBottom: "5%", marginTop: "3%" }}>
+    
+        <div
+          className="d-flex align-items-center justify-content-between flex-wrap mb-4 mt-3"
+          style={{ gap: "10px" }}
+        >
           <button
             className="btn btn-secondary"
-            style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)" }}
             onClick={() => navigate(`/user/${userName}`)}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
 
-          <h2 style={{ color: "white", textAlign: "center", margin: 0 }}>
+          <h2
+            className="text-center flex-grow-1"
+            style={{
+              color: "white",
+              margin: 0,
+              fontSize: "1.5rem",
+              wordBreak: "break-word",
+            }}
+          >
             {loggedUserName === userName
               ? "Twoje osiągnięcia:"
-              : <>Osiągnięcia użytkownika <strong>{userName}</strong></>}
+              : (
+                <>
+                  Osiągnięcia użytkownika <strong>{userName}</strong>
+                </>
+              )}
           </h2>
         </div>
-          <div className="row">
-            {achievements.length > 0 ? (
-              achievements.map((userAchievement) => (
-                <div className="col-md-4 mb-3" key={userAchievement.userAchievementId}>
-                  <div className="achievement-card position-relative">
-                    <span className="achievement-date">
-                      {new Date(userAchievement.date).toLocaleDateString()}
-                    </span>
-                    <div className="card-body">
-                      {userAchievement.achievement.imageUrl && (
-                    <img
-                    src={userAchievement.achievement.imageUrl}
-                    alt={userAchievement.achievement.title}
-                    className="img-fluid mb-3 rounded"
-                    style={{ maxHeight: "50px", objectFit: "cover" }}
+
+  
+        <div className="row">
+          {achievements.length > 0 ? (
+            achievements.map((userAchievement) => (
+              <div
+                className="col-md-4 mb-3"
+                key={userAchievement.userAchievementId}
+              >
+                <div className="achievement-card position-relative">
+                  <span className="achievement-date">
+                    {new Date(userAchievement.date).toLocaleDateString()}
+                  </span>
+                  <div className="card-body">
+                    {userAchievement.achievement.imageUrl && (
+                      <img
+                        src={userAchievement.achievement.imageUrl}
+                        alt={userAchievement.achievement.title}
+                        className="img-fluid mb-3 rounded"
+                        style={{ maxHeight: "50px", objectFit: "cover" }}
                       />
-                     )}
-                      <h5 className="card-title">{userAchievement.achievement.title}</h5>
-                      <p className="card-description">{userAchievement.achievement.description}</p>
-                    </div>
+                    )}
+                    <h5 className="card-title">
+                      {userAchievement.achievement.title}
+                    </h5>
+                    <p className="card-description">
+                      {userAchievement.achievement.description}
+                    </p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-warning fs-4">Brak osiągnięć do wyświetlenia</p>
-            )}
-          </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-warning fs-4">Brak osiągnięć do wyświetlenia</p>
+          )}
+        </div>
       </div>
 
       <div className="mt-auto">
         {achievements.length > 0 && (
-        <PaginationModule
-          currentPage={pagination.pageNumber}
-          totalPages={totalPages}
-          onPageChange={(page) =>
-            setPagination((prev) => ({ ...prev, pageNumber: page }))
-          }
-        />
+          <PaginationModule
+            currentPage={pagination.pageNumber}
+            totalPages={totalPages}
+            onPageChange={(page) =>
+              setPagination((prev) => ({ ...prev, pageNumber: page }))
+            }
+          />
         )}
       </div>
     </ApiErrorDisplay>
-    </div>
-  );
+  </div>
+);
+
 };
 
 export default UserAchievementsPage;
