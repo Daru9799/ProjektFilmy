@@ -43,44 +43,47 @@ const VerticalBarChart = ({
   yLabel,
   barColor,
 }: Props) => (
-  <ResponsiveContainer width="100%" height={300}>
-    <BarChart
-      data={data}
-      layout="vertical"
-      margin={{ top: 10, right: 30, left: 80, bottom: 40 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis type="number">
-        <Label
-          value={xLabel}
-          position="bottom"
-          offset={10}
-          style={{ fill: "#fff" }}
-        />
-      </XAxis>
-      <YAxis
-        dataKey={yKey}
-        type="category"
-        tick={renderCustomTick}
-        interval={0}
-        width={120} 
-        tickLine={false}
-      >
-        <Label
-          value={yLabel}
-          angle={-90}
-          position="insideLeft"
-          offset={-20}
-          style={{ fill: "#fff" }}
-        />
-      </YAxis>
-      
-      <Tooltip />
-      <Bar dataKey={xKey} fill={barColor}>
-        <LabelList dataKey={xKey} position="right" />
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
+  <div style={{ width: "100%", overflowX: "auto" }}> {/* dodane */}
+    <div style={{ minWidth: "500px" }}> {/* minimalna szerokość wykresu */}
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 10, right: 30, left: 80, bottom: 40 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis type="number">
+            <Label
+              value={xLabel}
+              position="bottom"
+              offset={10}
+              style={{ fill: "#fff" }}
+            />
+          </XAxis>
+          <YAxis
+            dataKey={yKey}
+            type="category"
+            tick={renderCustomTick}
+            interval={0}
+            width={120}
+            tickLine={false}
+          >
+            <Label
+              value={yLabel}
+              angle={-90}
+              position="insideLeft"
+              offset={-20}
+              style={{ fill: "#fff" }}
+            />
+          </YAxis>
+          <Tooltip />
+          <Bar dataKey={xKey} fill={barColor}>
+            <LabelList dataKey={xKey} position="right" />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
 );
 
 export default VerticalBarChart;

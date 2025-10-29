@@ -102,32 +102,26 @@
 
 /* === Sekcja z wybranymi filmami === */
 .selected-movie-container {
-   margin-top: 2rem;
+  position: relative;
   width: 100%;
   max-width: 1000px;
-  height: 400px;
-  overflow: hidden;
-}
-
-/* === Sekcja z wybranymi filmami === */
-.selected-movie-container {
-  width: 100%;
-  max-width: 1000px;
-  height: 375px; 
+  height: auto;
+  margin-top: 2rem;
+  padding: 0.5rem 0;
   overflow-x: auto;
   overflow-y: hidden;
-  margin-top: 2rem;
-  padding-bottom: 10px;
+  scroll-behavior: smooth;
 }
 
 /* === Kontener scrolla z filmami === */
 .movie-scroll-container {
   display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 20px;
-  height: 100%;
-  padding-bottom: 5px;
-  scroll-behavior: smooth;
   width: max-content;
+  padding: 0 1rem;
 }
 
 .selected-movie-container::-webkit-scrollbar {
@@ -135,35 +129,25 @@
 }
 
 .selected-movie-container::-webkit-scrollbar-thumb {
-  background-color: rgba(227, 220, 220, 0.2);
+  background-color: rgba(227, 220, 220, 0.3);
   border-radius: 4px;
 }
 
 .selected-movie-container.empty {
-  height: 120px;           /* mniejsza wysokość */
+  height: 120px;
   display: flex;
-  justify-content: center; /* poziome wyśrodkowanie */
-  align-items: center;     /* pionowe wyśrodkowanie */
+  justify-content: center;
+  align-items: center;
   color: white;
   font-style: italic;
   text-align: center;
 }
 
-
-.movie-scroll-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.movie-scroll-container::-webkit-scrollbar-thumb {
-  background-color: rgba(227, 220, 220, 0.2);
-  border-radius: 4px;
-}
-
 /* === Karty filmów === */
 .movie-card {
+  flex: 0 0 auto;
   width: 175px;
   height: 340px;
-  flex: 0 0 auto;
   border-radius: 10px;
   overflow: hidden;
   background-color: #252424;
@@ -203,7 +187,7 @@
 }
 
 .custom-modal .modal-content {
-  background-color: #252424; 
+  background-color: #252424;
   color: #4c4c4c;
   border: none;
 }
@@ -222,3 +206,131 @@
   background-color: #abadaf;
 }
 
+/* === Button group === */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem; /* dodany margines dolny na duzym ekranie */
+}
+
+/* Responsywny układ */
+.responsive-create-collection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.collection-form-wrapper,
+.selected-movies-wrapper {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* Zapewnia pełną szerokość tekstu w trybie udostępniania */
+select {
+  white-space: normal !important;
+  text-overflow: unset !important;
+}
+
+/* === Responsywność na małych ekranach === */
+@media (max-width: 768px) {
+  .create-collection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .form-left,
+  .form-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Pola formularza */
+  .create-collection-container input,
+  .create-collection-container textarea,
+  .create-collection-container select {
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  /* Opis bezpośrednio pod tytułem */
+  .create-collection-container textarea {
+    margin-top: 0.5rem;
+  }
+
+  /* Tryb udostępniania - pełny tekst */
+  .create-collection-container select {
+    white-space: normal !important;
+    text-overflow: unset !important;
+  }
+
+  /* Checkbox w jednej linii, wyśrodkowany */
+  .checkbox-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .checkbox-row label {
+    margin: 0;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Przyciski w kolumnie */
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .button-group .btn {
+    width: 80%;
+    max-width: 300px;
+  }
+
+  /* Sekcja filmów — pełne przewijanie, nic nie ucinane */
+  .selected-movie-container {
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .movie-scroll-container {
+    padding: 0 0.5rem;
+    gap: 12px;
+    justify-content: flex-start;
+    width: max-content;
+  }
+
+  .movie-card {
+    width: 160px;
+    height: auto;
+  }
+}
