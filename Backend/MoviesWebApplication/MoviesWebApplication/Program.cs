@@ -133,3 +133,5 @@ app.UseWebSockets();
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
+
+public partial class Program { }
