@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Infrastructure;
 
 #nullable disable
 
-namespace Movies.Infrastructure.Migrations
+namespace Movies.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251030122258_GoogleTokenTable")]
+    partial class GoogleTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,30 +293,22 @@ namespace Movies.Infrastructure.Migrations
 
                     b.Property<string>("AccessToken")
                         .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasAnnotation("Relational:JsonPropertyName", "access_token");
-
-                    b.Property<DateTime>("AccessTokenExpiresAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("ExpiresIn")
-                        .HasColumnType("int")
-                        .HasAnnotation("Relational:JsonPropertyName", "expires_in");
+                        .HasColumnType("int");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasAnnotation("Relational:JsonPropertyName", "refresh_token");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Scope")
                         .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasAnnotation("Relational:JsonPropertyName", "scope");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TokenType")
                         .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasAnnotation("Relational:JsonPropertyName", "token_type");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");

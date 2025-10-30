@@ -8,6 +8,7 @@ using Movies.Infrastructure;
 using MoviesWebApplication;
 using Microsoft.EntityFrameworkCore;
 using Movies.Application._Common.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 namespace Movies.Application.Users.Commands.Login
 {
@@ -24,12 +25,14 @@ namespace Movies.Application.Users.Commands.Login
             private readonly UserManager<User> _userManager;
             private readonly DataContext _context;
             private readonly TokenService _tokenService;
+            private readonly IHttpContextAccessor _httpContextAccessor;
 
-            public Handler(UserManager<User> userManager, TokenService tokenService, DataContext context)
+            public Handler(UserManager<User> userManager, TokenService tokenService, DataContext context, IHttpContextAccessor httpContextAccessor)
             {
                 _userManager = userManager;
                 _tokenService = tokenService;
                 _context = context;
+                _httpContextAccessor = httpContextAccessor;
             }
 
             public async Task<UserSessionDto> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -46,10 +49,31 @@ namespace Movies.Application.Users.Commands.Login
                 if (result)
                 {
                     await EnsureDefaultCollections(user);
+
+                    //Utworzenie tokenu JWT
+                    var jwtToken = _tokenService.CreateToken(user);
+            
+                    //Zapis w ciasteczku
+                    var httpContext = _httpContextAccessor.HttpContext;
+                    if (httpContext != null)
+                    {
+                        httpContext.Response.Cookies.Append(
+                            "token",
+                            jwtToken,
+                            new CookieOptions
+                            {
+                                HttpOnly = true, //frontend nie może odczytać
+                                Secure = true,   //wymaga HTTPS
+                                SameSite = SameSiteMode.None, //None (wtedy secure musi byc true)
+                                Expires = DateTime.UtcNow.AddHours(12), //12h ważności
+                                Path = "/"
+                            });
+                    }
+
                     return new UserSessionDto
                     {
                         UserName = user.UserName,
-                        Token = _tokenService.CreateToken(user)
+                        Token = jwtToken
                     };
                 }
                 else

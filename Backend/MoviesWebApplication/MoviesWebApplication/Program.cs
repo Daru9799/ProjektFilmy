@@ -73,7 +73,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") //Adres dla frontu
+        policy.WithOrigins("https://localhost:3000", "http://localhost:3000") //Adres dla frontu (przy pelnej migracji usunac http*)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

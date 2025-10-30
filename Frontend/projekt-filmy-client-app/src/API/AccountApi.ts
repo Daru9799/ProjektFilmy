@@ -22,7 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export const useLogin = () => {
   return useApiMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const res = await axios.post(`${API_BASE_URL}/Account/login`, { email, password });
+      const res = await axios.post(`${API_BASE_URL}/Account/login`, { email, password }, { withCredentials: true });
       return res.data;
     },
   });

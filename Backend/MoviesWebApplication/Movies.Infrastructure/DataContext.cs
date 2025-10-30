@@ -31,6 +31,8 @@ namespace Movies.Infrastructure
         public DbSet<Person> People { get; set; }
         public DbSet<MoviePerson> MoviePeople { get; set; }
         public DbSet<MovieRecommendation> MovieRecommendations { get; set; }
+        //Nowe nowsze
+        public DbSet<GoogleTokenResponse> GoogleTokens { get; set; }
 
         //Zdefiniowane ręcznie kluczy obcych w tabelce UserRelations oraz Notifications
         protected override void OnModelCreating(ModelBuilder modelBuilder)

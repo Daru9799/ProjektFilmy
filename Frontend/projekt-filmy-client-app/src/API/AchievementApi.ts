@@ -29,6 +29,7 @@ export const useUserAchievements = ( userName: string, page: number, pageSize: n
     queryFn: async () => {
       try {
         const { data } = await axios.get(`${API_BASE_URL}/Achievement/by-user-name/${userName}`, {
+            //withCredentials: true, //nowe credentiale zastepujace autoryzacje tokenem z localStorage
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
