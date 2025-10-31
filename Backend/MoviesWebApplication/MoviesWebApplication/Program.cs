@@ -14,6 +14,7 @@ using Hangfire;
 using Hangfire.MySql;
 using MoviesWebApplication.Hangfire;
 using MoviesWebApplication.Common;
+using Movies.Application._Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +56,10 @@ builder.Services.AddIdentityServices(builder.Configuration);
 
 //Rejestracja mediatora
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MoviesList.Handler).Assembly));
+
+//Pod tokeny Googla (usługa refreshowania)
+builder.Services.AddHttpClient<GoogleTokenService>();
+builder.Services.AddScoped<GoogleTokenService>();
 
 builder.Services.AddControllers(opt =>
 {

@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Movies.Application._Common;
 using Movies.Domain.DTOs;
 
 namespace Movies.Application.Events
@@ -19,12 +23,28 @@ namespace Movies.Application.Events
 
         public class Handler : IRequestHandler<Command, object>
         {
+            private readonly GoogleTokenService _googleTokenService;
+            private readonly IHttpContextAccessor _httpContextAccessor;
+
+            public Handler(GoogleTokenService googleTokenService, IHttpContextAccessor httpContextAccessor)
+            {
+                _googleTokenService = googleTokenService;
+                _httpContextAccessor = httpContextAccessor;
+            }
             public async Task<object> Handle(Command request, CancellationToken cancellationToken)
             {
                 var dto = request.EventDto;
+
+
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null)
+                    throw new Exception("Unauthorized user.");
+
+                //Check tokenu
+                var accessToken = await _googleTokenService.GetValidAccessTokenAsync(userId, cancellationToken);
+
                 var client = new HttpClient();
-                //Potem AccessToken będzie wyciągany z bazy danych
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", dto.AccessToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
                 var eventData = new
                 {
@@ -40,7 +60,7 @@ namespace Movies.Application.Events
                     {
                         @private = new
                         {
-                            app = dto.AppTag,
+                            app = "Webfilm",
                             movieId = dto.MovieId,
                             eventType = dto.EventType
                         }

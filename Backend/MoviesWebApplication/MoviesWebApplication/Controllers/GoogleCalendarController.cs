@@ -41,7 +41,7 @@ namespace MoviesWebApplication.Controllers
             return Redirect($"{returnUrl}?googleConnected=true");
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("add")]
         public async Task<IActionResult> AddEvent([FromBody] CalendarEventDto dto)
         {
@@ -67,22 +67,22 @@ namespace MoviesWebApplication.Controllers
         //POST
         //{
         //    "accessToken": "",
-        //    "summary": "Noc filmowa z przyjaciółmi",
-        //    "description": "Oglądamy klasyki sci-fi: Interstellar, Inception i Blade Runner. Każdy przynosi popcorn",
-        //    "startDateTime": "2025-10-30T19:30:00Z",
-        //    "endDateTime": "2025-10-31T03:00:00Z",
-        //    "appTag": "Webfilm",
-        //    "movieId": 872,
-        //    "attendeesEmails": [
-        //    "kuba.nowak@example.com",
-        //    "ola.kowalska@example.com",
-        //    "tomek.filmfan@gmail.com"
-        //    ],
-        //    "eventType": "Noc filmowa",
-        //    "locationName": "Kino Helios Galeria Mokotów",
-        //    "locationAddress": "ul. Wołoska 12, 02-675 Warszawa, Polska",
-        //    "latitude": 52.1825,
-        //    "longitude": 21.0023
+            //"summary": "Noc filmowa z przyjaciółmi",
+            //"description": "Oglądamy klasyki sci-fi: Interstellar, Inception i Blade Runner. Każdy przynosi popcorn",
+            //"startDateTime": "2025-10-30T19:30:00Z",
+            //"endDateTime": "2025-10-31T03:00:00Z",
+            //"appTag": "Webfilm",
+            //"movieId": 872,
+            //"attendeesEmails": [
+            //"kuba.nowak@example.com",
+            //"ola.kowalska@example.com",
+            //"tomek.filmfan@gmail.com"
+            //],
+            //"eventType": "Noc filmowa",
+            //"locationName": "Kino Helios Galeria Mokotów",
+            //"locationAddress": "ul. Wołoska 12, 02-675 Warszawa, Polska",
+            //"latitude": 52.1825,
+            //"longitude": 21.0023
         //}
     }
 }
