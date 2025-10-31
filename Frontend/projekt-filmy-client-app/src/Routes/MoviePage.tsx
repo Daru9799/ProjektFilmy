@@ -240,6 +240,16 @@ const MoviePage = () => {
       totalReviewsCount={movie?.reviewsNumber ?? 0}
     />
   )}
+  
+  <ActionPendingModal show={isDeletingReview} message="Trwa usuwanie recenzji..."/>
+  <ActionPendingModal show={isEditingReview} message="Trwa zapisywanie recenzji..."/>
+  <ActionPendingModal show={isAddingReview} message="Trwa dodawanie recenzji..." />
+  <ActionPendingModal show={addingFollowMovie} message="Trwa dodawanie filmu do obserwowanych..." />
+  <ActionPendingModal show={removingFollowMovie} message="Trwa usuwanie filmu z obserwowanych..." />
+  <ActionPendingModal show={addingPlanned} message="Trwa dodawanie filmu do planowanych..." />
+  <ActionPendingModal show={addingWatched} message="Trwa dodawanie filmu do obejrzanych..." />
+  <ActionPendingModal show={deletingPlanned} message="Trwa usuwanie filmu z planowanych..." />
+  <ActionPendingModal show={deletingWatched} message="Trwa usuwanie filmu z obejrzanych..." />
 </div>
 
   );

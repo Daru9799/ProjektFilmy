@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Movies.Application._Common;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.DTOs;
 
 namespace Movies.Application.Events
@@ -35,13 +36,15 @@ namespace Movies.Application.Events
             {
                 var dto = request.EventDto;
 
-
                 var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (userId == null)
-                    throw new Exception("Unauthorized user.");
+                    throw new UnauthorizedException("Użytkownik nie ma dostępu do tego zasobu");
 
                 //Check tokenu
                 var accessToken = await _googleTokenService.GetValidAccessTokenAsync(userId, cancellationToken);
+                if(accessToken == null) 
+                    throw new UnauthorizedException("Użytkownik nie ma powiązania z Kalendarzem Google");
+
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

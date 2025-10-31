@@ -1,21 +1,33 @@
 import React from "react";
 import { useCreateCalendarEvent, useGoogleCalendarConnect } from "../API/GoogleCalendarApi";
+import { toast } from "react-toastify";
 
 const TestPage: React.FC = () => {
   const { connect } = useGoogleCalendarConnect();
   const { mutate: addToCalendar, isPending: addingCalendar } = useCreateCalendarEvent();
 
   const handleAdd = () => {
-    addToCalendar({
-      summary: "Diuna 2",
-      description: "Wypad do kina z ekipą",
-      startDateTime: new Date("2025-11-05T20:00:00").toISOString(),
-      endDateTime: new Date("2025-11-05T22:30:00").toISOString(),
-      eventType: "Kino",
-      locationName: "Cinema City",
-      locationAddress: "Warszawa, Arkadia",
-      movieId: "2137",
-    });
+    addToCalendar(
+      {
+        summary: "Diuna 2",
+        description: "Wypad do kina z ekipą",
+        startDateTime: new Date("2025-11-05T20:00:00").toISOString(),
+        endDateTime: new Date("2025-11-05T22:30:00").toISOString(),
+        eventType: "Kino",
+        locationName: "Cinema City",
+        locationAddress: "Warszawa, Arkadia",
+        movieId: "2137",
+      },
+      {
+        onSuccess: () => {
+          toast.success("Wydarzenie zostało dodane do kalendarza pomyślnie!");
+        },
+        onError: (err: any) => {
+          const apiErr = err?.response?.data;
+          toast.error(`Nie udało się dodać wydarzenia. [${apiErr?.statusCode || "??"}] ${apiErr?.message}`);
+        },
+      }
+    );
   };
 
   return (

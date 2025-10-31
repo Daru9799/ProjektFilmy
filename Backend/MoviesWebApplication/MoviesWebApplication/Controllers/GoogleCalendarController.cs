@@ -43,25 +43,25 @@ namespace MoviesWebApplication.Controllers
 
         [Authorize]
         [HttpPost("add")]
-        public async Task<IActionResult> AddEvent([FromBody] CalendarEventDto dto)
+        public async Task<ActionResult<object>> AddEvent([FromBody] CalendarEventDto dto)
         {
-            var command = new CreateMovieEvent.Command { EventDto = dto };
-            var createdEvent = await Mediator.SendWithExceptionHandling(command, "Wydarzenie dodane pomyślnie.");
-            return Ok(createdEvent);
+            var command = new CreateMovieEvent.Command { 
+                EventDto = dto 
+            };
+            return await Mediator.SendWithTypedExceptionHandling(command);
         }
 
         [AllowAnonymous]
         [HttpGet("all")]
         //Potem przerobic zeby access token byl brany z bazy a nie przesylany jako argument
-        public async Task<IActionResult> GetAllEvents([FromQuery] string accessToken)
+        public async Task<ActionResult<object>> GetAllEvents([FromQuery] string accessToken)
         {
             var query = new GetAllUserMovieEvents.Query
             {
                 AccessToken = accessToken
             };
 
-            var events = await Mediator.SendWithExceptionHandling(query, "Pobrano wydarzenia pomyślnie.");
-            return Ok(events);
+            return await Mediator.SendWithTypedExceptionHandling(query);
         }
 
         //POST

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Movies.Application._Common.Exceptions;
 using Movies.Domain.Entities;
 using Movies.Infrastructure;
 
@@ -32,7 +33,9 @@ namespace Movies.Application._Common
                 .FirstOrDefaultAsync(t => t.User.Id == userId, cancellationToken);
 
             if (token == null)
-                throw new Exception("Google token not found for user.");
+            {
+                return null;
+            }
 
             //Jeśli ważny to zwraca token
             if (token.AccessTokenExpiresAt > DateTime.UtcNow.AddMinutes(1))
