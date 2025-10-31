@@ -72,6 +72,11 @@ namespace Movies.Application.Reviews
                     .Include(r => r.Movie)
                     .FirstOrDefaultAsync(r => r.Movie.MovieId == request.MovieId, cancellationToken);
 
+                if (review == null)
+                {
+                    throw new NotFoundException($"Nie znaleziono recenzji użytkownika '{request.UserName}' dla filmu o ID '{request.MovieId}'.");
+                }
+
                 bool isOwner = false;
                 if (tokenUserId != null && tokenUserId == review.User.Id.ToString())
                 {
